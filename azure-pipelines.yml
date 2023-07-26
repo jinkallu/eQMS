@@ -1,33 +1,26 @@
-# azure-pipelines.yml
-  
 trigger:
   branches:
     include:
       - main
       - dev
+      - feature/*
+      - release/*
 
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-- script: |
-    # Get the source branch and target branch from the environment variables
-    sourceBranch=$(echo $(Build.SourceBranch) | sed 's/refs\/heads\///')
-    targetBranch=$(echo $(System.PullRequest.TargetBranch) | sed 's/refs\/heads\///')
+jobs:
+- job: NodeJS
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '18.x'
+    displayName: 'Install Node.js'
 
-    # Check if the source branch is from feature/* and target branch is dev
-    if [[ "$sourceBranch" =~ ^feature/ && "$targetBranch" == "dev" ]]; then
-      echo "Allowing merge from $sourceBranch to $targetBranch"
-      exit 0
-    fi
+  - script: |
+      echo 'npm install'
+    displayName: 'npm install'
 
-    # Check if the source branch is from release/* and target branch is main
-    if [[ "$sourceBranch" =~ ^release/ && "$targetBranch" == "main" ]]; then
-      echo "Allowing merge from $sourceBranch to $targetBranch"
-      exit 0
-    fi
-
-    # If none of the conditions match, block the merge
-    echo "Blocking merge from $sourceBranch to $targetBranch"
-    exit 1
-  displayName: 'Check Merge Condition'
+  - script: |
+      echo 'npm run build'
+    displayName: 'npm build'
