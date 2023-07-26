@@ -1,10 +1,13 @@
 # azure-pipelines.yml
+  
+trigger:
+  branches:
+    include:
+      - main
+      - develop
 
 pool:
   vmImage: 'ubuntu-latest'
-  
-variables:
-  runMergeCheck: $[ eq(variables['Build.Reason'], 'PullRequest') ]
 
 steps:
 - script: |
@@ -28,4 +31,3 @@ steps:
     echo "Blocking merge from $sourceBranch to $targetBranch"
     exit 1
   displayName: 'Check Merge Condition'
-  condition: eq(variables['runMergeCheck'], 'true')
