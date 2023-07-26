@@ -18,9 +18,13 @@ jobs:
     displayName: 'Install Node.js'
 
   - script: |
-      echo 'npm install'
+      npm install
     displayName: 'npm install'
 
   - script: |
-      echo 'npm run build'
+      npm run build
     displayName: 'npm build'
+
+  - script: |
+      npm test
+    displayName: 'npm test'
