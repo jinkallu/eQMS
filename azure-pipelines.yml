@@ -2,8 +2,11 @@
 
 pool:
   vmImage: 'ubuntu-latest'
-
-steps:
+  
+jobs:
+- job: RunOnPullRequest
+  displayName: 'Run on Pull Request'
+  steps:
   - script: |
       # Get the source branch and target branch from the environment variables
       sourceBranch=$(echo $(Build.SourceBranch) | sed 's/refs\/heads\///')
@@ -25,3 +28,4 @@ steps:
       echo "Blocking merge from $sourceBranch to $targetBranch"
       exit 1
     displayName: 'Check Merge Condition'
+  condition: eq(variables['Build.Reason'], 'PullRequest')
