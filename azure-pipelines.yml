@@ -3,29 +3,29 @@
 pool:
   vmImage: 'ubuntu-latest'
   
-jobs:
-- job: RunOnPullRequest
-  displayName: 'Run on Pull Request'
-  steps:
-  - script: |
-      # Get the source branch and target branch from the environment variables
-      sourceBranch=$(echo $(Build.SourceBranch) | sed 's/refs\/heads\///')
-      targetBranch=$(echo $(System.PullRequest.TargetBranch) | sed 's/refs\/heads\///')
+variables:
+  runMergeCheck: $[ eq(variables['Build.Reason'], 'PullRequest') ]
 
-      # Check if the source branch is from feature/* and target branch is dev
-      if [[ "$sourceBranch" =~ ^feature/ && "$targetBranch" == "dev" ]]; then
-        echo "Allowing merge from $sourceBranch to $targetBranch"
-        exit 0
-      fi
+steps:
+- script: |
+    # Get the source branch and target branch from the environment variables
+    sourceBranch=$(echo $(Build.SourceBranch) | sed 's/refs\/heads\///')
+    targetBranch=$(echo $(System.PullRequest.TargetBranch) | sed 's/refs\/heads\///')
 
-      # Check if the source branch is from release/* and target branch is main
-      if [[ "$sourceBranch" =~ ^release/ && "$targetBranch" == "main" ]]; then
-        echo "Allowing merge from $sourceBranch to $targetBranch"
-        exit 0
-      fi
+    # Check if the source branch is from feature/* and target branch is dev
+    if [[ "$sourceBranch" =~ ^feature/ && "$targetBranch" == "dev" ]]; then
+      echo "Allowing merge from $sourceBranch to $targetBranch"
+      exit 0
+    fi
 
-      # If none of the conditions match, block the merge
-      echo "Blocking merge from $sourceBranch to $targetBranch"
-      exit 1
-    displayName: 'Check Merge Condition'
-  condition: eq(variables['Build.Reason'], 'PullRequest')
+    # Check if the source branch is from release/* and target branch is main
+    if [[ "$sourceBranch" =~ ^release/ && "$targetBranch" == "main" ]]; then
+      echo "Allowing merge from $sourceBranch to $targetBranch"
+      exit 0
+    fi
+
+    # If none of the conditions match, block the merge
+    echo "Blocking merge from $sourceBranch to $targetBranch"
+    exit 1
+  displayName: 'Check Merge Condition'
+  condition: eq(variables['runMergeCheck'], 'true')
