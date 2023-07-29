@@ -16,7 +16,7 @@
     "publish-extension": "tfx extension publish --publisher D2Ops --manifest-globs vss-extension.json --token  tppg3koz6lhx7u4lbu2qgyktao4uieydoi2jjpgv7tdqitgsk4oa",
     "bpp": "npm run build && npm run package-extension  && npm run publish-extension",
     "pp": "npm run package-extension  && npm run publish-extension",
-    "test": "jest"
+    "test": "jest" 
   },
   "repository": {
     "type": "git",
@@ -34,7 +34,6 @@
     "@types/react": "^18.0.28",
     "azure-devops-extension-api": "^1.158.0",
     "azure-devops-extension-sdk": "^2.0.11",
-    "jest": "^29.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "webpack-dev-server": "^4.11.1"
@@ -53,6 +52,7 @@
     "ts-loader": "^9.4.2",
     "typescript": "^4.9.5",
     "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.1"
+    "webpack-cli": "^5.0.1",
+    "jest": "^29.5.0"
   }
 }
