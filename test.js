@@ -13,4 +13,7 @@ describe('Test suit to check if nodejs initialized with package.json and jest', 
     test('Jest is isntalled as devDependancy', () => {
         expect(packageJson.devDependencies.jest).toBeDefined();
     });
+    test('marked is isntalled as devDependancy', () => {
+        expect(packageJson.dependencies.marked).toBeDefined();
+    });
 });

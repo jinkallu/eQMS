@@ -1,8 +1,8 @@
+import React from "react";
 import LandingPage from "../orghub/LandingPage";
-import Layout from "../components/Layout";
 
 function App() {
-  return <Layout></Layout>;
+  return <LandingPage></LandingPage>;
 }
 
 export default App;
