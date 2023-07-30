@@ -1,9 +1,8 @@
+import LandingPage from "../orghub/LandingPage";
+import Layout from "../components/Layout";
+
 function App() {
-  return (
-    <div>
-      Hii
-    </div>
-  );
+  return <Layout></Layout>;
 }
 
 export default App;
