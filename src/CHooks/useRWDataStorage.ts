@@ -24,7 +24,6 @@ const useRWDataStorage = () => {
         SDK.getExtensionContext().id,
         accessToken
       );
-      console.log("ke value to store ", key, value);
       const res = await dataManager.setValue(key, value);
       return true;
     } catch (err) {
@@ -51,7 +50,6 @@ const useRWDataStorage = () => {
         accessToken
       );
       const value = await dataManager.getValue(key);
-      console.log(value);
       setData(value);
       return value;
     } catch (err) {
