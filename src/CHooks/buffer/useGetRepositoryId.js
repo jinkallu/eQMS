@@ -7,10 +7,12 @@ const useGetRepositoryId = () => {
   const [repoId, setRepoId] = useState(null);
 
   const getRepositoryId = async (projectId, repoName) => {
+    console.log("getreposit called");
     setLoading(true);
     try {
       const gitClient = getClient(GitRestClient);
       const repositories = await gitClient.getRepositories(projectId);
+      console.log(repositories);
 
       const repo = repositories.find(
         (repository) => repository.name === repoName

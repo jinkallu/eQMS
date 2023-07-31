@@ -29,7 +29,7 @@
     "@babel/preset-react": "^7.18.6",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
-    "@mui/icons-material": "^5.11.11",
+    "@mui/icons-material": "^5.14.1",
     "@mui/material": "^5.11.13",
     "@types/react": "^18.0.28",
     "azure-devops-extension-api": "^1.158.0",
