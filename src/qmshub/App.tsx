@@ -6,6 +6,7 @@ import {
   Route,
   Link,
 } from "react-router-dom";
+import MarkedEditView from "../components/marked/MarkedEditView";
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
       {
         path: "/qmshub.html/",
         element: <h1>Home</h1>,
+      },
+      {
+        path: "/qmshub.html/marked",
+        element: <MarkedEditView></MarkedEditView>,
       },
     ],
   },

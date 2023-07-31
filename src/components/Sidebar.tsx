@@ -15,12 +15,14 @@ import Paper from "@mui/material/Paper";
 import AddIcon from "@mui/icons-material/Add";
 import SidebarListItem from "./SidebarListItem";
 import { useProject, useGetRepoDetails } from "../zustand/store";
+import { useNavigate } from "react-router";
 
 export default function Sidebar() {
   const { project, setProject } = useProject((state) => state);
   const { setRepository, repository, setBranches } = useGetRepoDetails(
     (state) => state
   );
+  const navigate = useNavigate();
   const sideBarWidth = 240;
 
   React.useEffect(() => {
@@ -64,6 +66,12 @@ export default function Sidebar() {
       <Divider></Divider>
       <List>
         <SidebarListItem type="prod" label="Products"></SidebarListItem>
+      </List>
+      <Divider></Divider>
+      <List>
+        <ListItem onClick={() => navigate("marked/")}>
+          <Typography>Marked.</Typography>
+        </ListItem>
       </List>
     </Paper>
   );
