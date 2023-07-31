@@ -7,11 +7,17 @@ import {
   Link,
 } from "react-router-dom";
 import MarkedEditView from "../components/marked/MarkedEditView";
+import SOPCRUD from "../components/SOPCRUD";
+import Notfound from "../components/Notfound";
+import QmCRUD from "../components/QmCRUD";
+import ProdCRUD from "../components/ProdCRUD";
+import TemplateCRUD from "../components/TemplateCRUD";
 
 const router = createBrowserRouter([
   {
     path: "/qmshub.html",
     element: <Layout></Layout>,
+    errorElement: <Notfound></Notfound>,
     children: [
       {
         path: "/qmshub.html/",
@@ -20,6 +26,22 @@ const router = createBrowserRouter([
       {
         path: "/qmshub.html/marked",
         element: <MarkedEditView></MarkedEditView>,
+      },
+      {
+        path: "/qmshub.html/sopcrud",
+        element: <SOPCRUD></SOPCRUD>,
+      },
+      {
+        path: "/qmshub.html/qmcrud",
+        element: <QmCRUD></QmCRUD>,
+      },
+      {
+        path: "/qmshub.html/prodcrud",
+        element: <ProdCRUD />,
+      },
+      {
+        path: "/qmshub.html/tempcrud",
+        element: <TemplateCRUD></TemplateCRUD>,
       },
     ],
   },
