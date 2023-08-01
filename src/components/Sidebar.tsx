@@ -27,6 +27,7 @@ export default function Sidebar() {
 
   React.useEffect(() => {
     if (project && project?.id) {
+      console.log(project);
       setRepository(project?.id, project?.name);
     }
   }, [project]);
