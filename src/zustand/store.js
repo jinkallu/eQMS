@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 import { getClient } from "azure-devops-extension-api/Common";
 import { GitRestClient } from "azure-devops-extension-api/Git";
-
+import { markedToHtml } from "../utils/markedHelper";
 export const useDynamicIsland = create((set) => ({
   open: false,
   message: "",
@@ -27,6 +27,7 @@ export const useGetRepoDetails = create((set, get) => ({
   branchTypes: {},
   branches: [],
   branchFileNames: [],
+  htmlContents: {},
   setRepository: async (projectId, repoName) => {
     try {
       const gitClient = getClient(GitRestClient);
@@ -37,7 +38,6 @@ export const useGetRepoDetails = create((set, get) => ({
       );
 
       if (repo) {
-        console.log(repo);
         set((state) => ({ repository: repo }));
       }
     } catch (error) {
@@ -50,7 +50,6 @@ export const useGetRepoDetails = create((set, get) => ({
     try {
       const gitClient = getClient(GitRestClient);
       const branches = await gitClient.getBranches(repositoryId);
-      console.log(branches);
       set((state) => ({ branches: branches || [] }));
       const newBranchTypes = [];
       const typeBranchData = {};
@@ -63,7 +62,6 @@ export const useGetRepoDetails = create((set, get) => ({
             })
             ?.map((item) => ({ name: item.name })) || [];
       });
-      console.log(typeBranchData);
       set((state) => ({ branchTypes: typeBranchData }));
     } catch (error) {
       console.error("Error fetching repository ID:", error);
@@ -119,7 +117,7 @@ export const useGetRepoDetails = create((set, get) => ({
       }
     } catch (e) {}
   },
-  setFileContent: async (repositoryId, path, branchName) => {
+  setFileContent: async (repositoryId, path, branchName, objectId) => {
     const versionDescriptor = {
       version: branchName,
       versionType: 0,
@@ -138,74 +136,14 @@ export const useGetRepoDetails = create((set, get) => ({
         false, // download
         versionDescriptor
       );
-      console.log(content);
+      const html = await markedToHtml(content);
+      const newRes = { [objectId]: html };
+      set((state) => ({ htmlContents: { ...state.htmlContents, ...newRes } }));
     } catch (e) {
       console.log(e);
-    }
-  },
+      const newRes = { objectId: "" };
 
-  setFileContenttobedel: async (projectId, repositoryId, filePath, branch) => {
-    console.log(`refs/heads/${branch}`);
-    const versionDescriptor = {
-      version: "qms/qm/6d54415a-f9bb-46cb-9c09-23fe4f9b2bde/main",
-      version: "qms/sop/93877a50-dde5-4d69-bd40-4e4883be1701/main",
-      versionType: 0,
-    };
-    try {
-      // TODO wrong call, correct it
-      const gitClient = getClient(GitRestClient);
-
-      // const content2 = await gitClient.getItemText(
-      //   repositoryId,
-      //   // "qms/qm/Quality-Manual/Quality-Manual.md",
-      //   null,
-      //   null, // project
-      //   "/qms/qm/Quality-Manual/Quality-Manual.md", // scopepath
-      //   null, // recursionLevel
-      //   undefined, // includeContentMetadata,
-      //   undefined, // latestProcessedChange
-      //   false, // download
-
-      //   versionDescriptor
-      //   //{ versionDescriptor: { version: `refs/heads/${branch}`, versionType: 0 } }
-      // );
-
-      // console.log(content2);
-
-      const content1 = await gitClient.getItem(
-        repositoryId,
-        "/qms/sop",
-
-        null, // project
-        null, // scopepath
-        0, // recursionLevel
-        undefined, // includeContentMetadata,
-        undefined, // latestProcessedChange
-        false, // download
-
-        versionDescriptor
-        //{ versionDescriptor: { version: `refs/heads/${branch}`, versionType: 0 } }
-      );
-      console.log(content1);
-
-      const content = await gitClient.getTree(
-        repositoryId,
-        // "20f3904f97359c57a2e68da299fcbad88889f61b",
-        content1.objectId,
-        // "0ff63d2a961777b59f8ace4e1b2081f428fb9c59",
-        null,
-        undefined, // scopepath
-        true, // recursionLevel
-        undefined // includeContentMetadata,
-        // true, // latestProcessedChange
-        // false, // download
-        // versionDescriptor
-        //{ versionDescriptor: { version: `refs/heads/${branch}`, versionType: 0 } }
-      );
-      console.log(content);
-      //content = await fileResponse.text();
-    } catch (error) {
-      console.error("Error fetching file content:", error);
+      set((state) => ({ htmlContents: { ...state.htmlContents, ...newRes } }));
     }
   },
 }));

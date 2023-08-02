@@ -11,8 +11,10 @@ import AddIcon from "@mui/icons-material/Add";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { useGetRepoDetails } from "../zustand/store";
-import { useNavigate } from "react-router";
+// import { useNavigate } from "react-router";
 import React from "react";
+import { markedToHtml } from "../utils/markedHelper";
+import { createSearchParams, useNavigate } from "react-router-dom";
 
 export default function SidebarListItem({ type, label }) {
   const {
@@ -23,6 +25,7 @@ export default function SidebarListItem({ type, label }) {
     setFileContent,
   } = useGetRepoDetails((state) => state);
   const [open, setOpen] = React.useState(false);
+  const [contentHtml, setContentHtml] = React.useState("");
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -33,16 +36,20 @@ export default function SidebarListItem({ type, label }) {
     }
   }, [repository, branchTypes]);
 
-  React.useEffect(() => {
-    console.log(branchFileNames);
-  }, [branchFileNames]);
-
-  function handleItemClick(branch) {
-    setFileContent(
+  async function handleItemClick(branch) {
+    await setFileContent(
       repository?.id,
       `/qms/${branch.type}/${branch.relativePath}/${branch.relativePath}.md`,
-      branch.name
+      branch.name,
+      branch.objectId
     );
+
+    navigate({
+      pathname: "content/",
+      search: `?${createSearchParams({
+        objectId: branch.objectId,
+      })}`,
+    });
   }
 
   return (
@@ -70,6 +77,7 @@ export default function SidebarListItem({ type, label }) {
             ?.map((branch) => {
               return (
                 <ListItemButton
+                  key={branch.objectId}
                   sx={{ pl: 4 }}
                   onClick={() => handleItemClick(branch)}
                 >
