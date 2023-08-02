@@ -6,6 +6,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  ListSubheader,
   Menu,
   MenuItem,
   Typography,
@@ -23,7 +24,7 @@ export default function Sidebar() {
     (state) => state
   );
   const navigate = useNavigate();
-  const sideBarWidth = 240;
+  const sideBarWidth = 260;
 
   React.useEffect(() => {
     if (project && project?.id) {
@@ -38,38 +39,25 @@ export default function Sidebar() {
     }
   }, [repository]);
   return (
-    <Paper
-      elevation={3}
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        width: `${sideBarWidth}px`,
-        alignItems: "stretch",
-        padding: "5px",
-      }}
-    >
-      <Box
+    <Paper elevation={3} sx={{ padding: "12px" }}>
+      <List
         sx={{
-          display: "flex",
-          padding: "5px",
-          justifyContent: "center",
-          alignItems: "center",
+          maxWidth: { sideBarWidth },
+          bgcolor: "background.paper",
         }}
+        subheader={
+          <ListSubheader component="div" id="subheader">
+            QMS
+          </ListSubheader>
+        }
+        component="nav"
       >
-        <Typography>QMS</Typography>
-      </Box>
-      <Divider></Divider>
-      <List>
         <SidebarListItem type="qm" label="Quality Manual"></SidebarListItem>
         <SidebarListItem type="sop" label="SOPs"></SidebarListItem>
         <SidebarListItem type="temp" label="Templates"></SidebarListItem>
-      </List>
-      <Divider></Divider>
-      <List>
+        <Divider></Divider>
         <SidebarListItem type="prod" label="Products"></SidebarListItem>
-      </List>
-      <Divider></Divider>
-      <List>
+        <Divider></Divider>
         <ListItem onClick={() => navigate("marked/")}>
           <Typography>Marked.</Typography>
         </ListItem>
