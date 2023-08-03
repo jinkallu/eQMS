@@ -12,6 +12,7 @@ import Notfound from "../components/Notfound";
 import QmCRUD from "../components/QmCRUD";
 import ProdCRUD from "../components/ProdCRUD";
 import TemplateCRUD from "../components/TemplateCRUD";
+import HTMLViewer from "../components/HTMLViewer";
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: "/qmshub.html/tempcrud",
         element: <TemplateCRUD></TemplateCRUD>,
+      },
+      {
+        path: "/qmshub.html/content",
+        element: <HTMLViewer></HTMLViewer>,
       },
     ],
   },
