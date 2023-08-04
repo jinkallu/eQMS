@@ -6,10 +6,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
-<<<<<<< HEAD
   Typography,
-=======
->>>>>>> aa2c5baa0be1a3699bc77f124b13e6e834c03fb5
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ExpandLess from "@mui/icons-material/ExpandLess";
@@ -64,7 +61,6 @@ export default function SidebarListItem({ type, label }) {
         onClick={() => setOpen((prev) => !prev)}
       >
         <ListItemButton>
-<<<<<<< HEAD
           <ListItemText
             primaryTypographyProps={{ fontSize: "14px" }}
             primary={
@@ -81,18 +77,12 @@ export default function SidebarListItem({ type, label }) {
               </Typography>
             }
           ></ListItemText>
-=======
-          <ListItemText primary={label}></ListItemText>
->>>>>>> aa2c5baa0be1a3699bc77f124b13e6e834c03fb5
         </ListItemButton>
         <Chip
           label={branchTypes && branchTypes[type]?.length}
           color="success"
           variant="outlined"
-<<<<<<< HEAD
           size="small"
-=======
->>>>>>> aa2c5baa0be1a3699bc77f124b13e6e834c03fb5
         ></Chip>
         <AddIcon onClick={() => navigate(`${type}crud`)}></AddIcon>
         {open ? <ExpandLess /> : <ExpandMore />}
@@ -108,7 +98,6 @@ export default function SidebarListItem({ type, label }) {
                   sx={{ pl: 4 }}
                   onClick={() => handleItemClick(branch)}
                 >
-<<<<<<< HEAD
                   <ListItemText
                     primary={
                       <Typography
@@ -124,9 +113,6 @@ export default function SidebarListItem({ type, label }) {
                       </Typography>
                     }
                   />
-=======
-                  <ListItemText primary={branch.relativePath} />
->>>>>>> aa2c5baa0be1a3699bc77f124b13e6e834c03fb5
                 </ListItemButton>
               );
             })}
