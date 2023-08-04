@@ -6,6 +6,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ExpandLess from "@mui/icons-material/ExpandLess";
@@ -60,12 +61,28 @@ export default function SidebarListItem({ type, label }) {
         onClick={() => setOpen((prev) => !prev)}
       >
         <ListItemButton>
-          <ListItemText primary={label}></ListItemText>
+          <ListItemText
+            primaryTypographyProps={{ fontSize: "14px" }}
+            primary={
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  clear: "both",
+                  display: "inline-block",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {label}
+              </Typography>
+            }
+          ></ListItemText>
         </ListItemButton>
         <Chip
           label={branchTypes && branchTypes[type]?.length}
           color="success"
           variant="outlined"
+          size="small"
         ></Chip>
         <AddIcon onClick={() => navigate(`${type}crud`)}></AddIcon>
         {open ? <ExpandLess /> : <ExpandMore />}
@@ -81,7 +98,21 @@ export default function SidebarListItem({ type, label }) {
                   sx={{ pl: 4 }}
                   onClick={() => handleItemClick(branch)}
                 >
-                  <ListItemText primary={branch.relativePath} />
+                  <ListItemText
+                    primary={
+                      <Typography
+                        sx={{
+                          fontSize: "14px",
+                          clear: "both",
+                          display: "inline-block",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {branch.relativePath}
+                      </Typography>
+                    }
+                  />
                 </ListItemButton>
               );
             })}

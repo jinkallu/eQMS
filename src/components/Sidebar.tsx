@@ -24,7 +24,7 @@ export default function Sidebar() {
     (state) => state
   );
   const navigate = useNavigate();
-  const sideBarWidth = 260;
+  const sideBarWidth = 280;
 
   React.useEffect(() => {
     if (project && project?.id) {
@@ -39,7 +39,7 @@ export default function Sidebar() {
     }
   }, [repository]);
   return (
-    <Paper elevation={3} sx={{ padding: "12px" }}>
+    <Paper elevation={3} sx={{ padding: "12px", fontSize: 9 }}>
       <List
         sx={{
           maxWidth: { sideBarWidth },
