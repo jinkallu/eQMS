@@ -6,27 +6,27 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
+import ArrowRight from "@mui/icons-material/ArrowRight";
 import { useGetRepoDetails } from "../zustand/store";
-// import { useNavigate } from "react-router";
 import React from "react";
-import { markedToHtml } from "../utils/markedHelper";
-import { createSearchParams, useNavigate } from "react-router-dom";
+import {
+  createSearchParams,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
 export default function SidebarListItem({ type, label }) {
-  const {
-    branchTypes,
-    setFileNames,
-    repository,
-    branchFileNames,
-    setFileContent,
-  } = useGetRepoDetails((state) => state);
+  const { branchTypes, setFileNames, repository, branchFileNames } =
+    useGetRepoDetails((state) => state);
   const [open, setOpen] = React.useState(false);
   const [contentHtml, setContentHtml] = React.useState("");
   const navigate = useNavigate();
+
+  const [searchParams] = useSearchParams();
+  const objectId = searchParams.get("objectId");
 
   React.useEffect(() => {
     if (repository && repository?.id) {
@@ -37,13 +37,6 @@ export default function SidebarListItem({ type, label }) {
   }, [repository, branchTypes]);
 
   async function handleItemClick(branch) {
-    await setFileContent(
-      repository?.id,
-      `/qms/${branch.type}/${branch.relativePath}/${branch.relativePath}.md`,
-      branch.name,
-      branch.objectId
-    );
-
     navigate({
       pathname: "content/",
       search: `?${createSearchParams({
@@ -60,15 +53,37 @@ export default function SidebarListItem({ type, label }) {
         onClick={() => setOpen((prev) => !prev)}
       >
         <ListItemButton>
-          <ListItemText primary={label}></ListItemText>
+          <ListItemText
+            primaryTypographyProps={{ fontSize: "14px" }}
+            primary={
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  clear: "both",
+                  display: "inline-block",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {label}
+              </Typography>
+            }
+          ></ListItemText>
         </ListItemButton>
         <Chip
           label={branchTypes && branchTypes[type]?.length}
           color="success"
           variant="outlined"
+          size="small"
         ></Chip>
-        <AddIcon onClick={() => navigate(`${type}crud`)}></AddIcon>
-        {open ? <ExpandLess /> : <ExpandMore />}
+        <AddIcon
+          sx={{ cursor: "pointer" }}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`add${type}`);
+          }}
+        ></AddIcon>
+        {/* {open ? <ExpandLess /> : <ExpandMore />} */}
       </ListItem>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
@@ -78,10 +93,27 @@ export default function SidebarListItem({ type, label }) {
               return (
                 <ListItemButton
                   key={branch.objectId}
+                  selected={branch.objectId === objectId}
                   sx={{ pl: 4 }}
                   onClick={() => handleItemClick(branch)}
                 >
-                  <ListItemText primary={branch.relativePath} />
+                  <ListItemText
+                    primary={
+                      <Typography
+                        sx={{
+                          color: "0b204d",
+                          fontSize: "14px",
+                          clear: "both",
+                          display: "inline-block",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {branch.relativePath}
+                      </Typography>
+                    }
+                  />
+                  {branch.objectId === objectId && <ArrowRight></ArrowRight>}
                 </ListItemButton>
               );
             })}
