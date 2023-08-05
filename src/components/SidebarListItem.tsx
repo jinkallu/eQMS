@@ -63,6 +63,7 @@ export default function SidebarListItem({ type, label }) {
                   display: "inline-block",
                   overflow: "hidden",
                   whiteSpace: "nowrap",
+                  fontWeight: "600",
                 }}
               >
                 {label}
@@ -89,6 +90,10 @@ export default function SidebarListItem({ type, label }) {
         <List component="div" disablePadding>
           {branchFileNames
             ?.filter((branch) => branch.type === type)
+            ?.sort(
+              (a, b) =>
+                a.relativePath.split("-")[1] - b.relativePath.split("-")[1]
+            )
             ?.map((branch) => {
               return (
                 <ListItemButton
@@ -109,7 +114,7 @@ export default function SidebarListItem({ type, label }) {
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {branch.relativePath}
+                        {branch.relativePath?.split("-").slice(1).join(" ")}
                       </Typography>
                     }
                   />
