@@ -38,7 +38,15 @@ export default function Sidebar() {
     }
   }, [repository]);
   return (
-    <Paper elevation={3} sx={{ padding: "12px", fontSize: 9 }}>
+    <Paper
+      elevation={3}
+      sx={{
+        padding: "12px",
+        fontSize: 9,
+        height: "100vh",
+        overflowY: "scroll",
+      }}
+    >
       <List
         sx={{
           maxWidth: { sideBarWidth },

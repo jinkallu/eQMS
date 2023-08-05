@@ -1,18 +1,38 @@
-import React from 'react';
+import { Box, Chip, TextField } from "@mui/material";
+import React from "react";
 
-export default function MarkedEditor({ inputText, setInputText }) {
-    const handleInputChange = (event) => {
-        setInputText(event.target.value);
-    };
+export default function MarkedEditor({
+  inputText,
+  setInputText,
+  setMarkWidth,
+}) {
+  const handleInputChange = (event) => {
+    setInputText(event.target.value);
+  };
 
-    return (
-    <div id="markedEditor" style={{ height: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
-        <h1>Markdown Editor</h1>
-        <textarea
-            value={inputText} 
-            onChange={handleInputChange}
-            style={{ height: '100%', boxSizing: 'border-box' }}    
-        />
-    </div>
+  return (
+    <Box
+      id="markedEditor"
+      sx={{
+        height: "100%",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Chip
+        onClick={() => setMarkWidth((prev) => !prev)}
+        label="Markdown Editor"
+        color="primary"
+        sx={{ paddingBottom: "5px" }}
+      ></Chip>
+      <TextField
+        value={inputText}
+        onChange={handleInputChange}
+        multiline
+        variant="standard"
+        maxRows={100000}
+      />
+    </Box>
   );
-};
+}
