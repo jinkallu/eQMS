@@ -28,6 +28,7 @@ export const useGetRepoDetails = create((set, get) => ({
   branches: [],
   branchFileNames: [],
   htmlContents: {},
+  fileContentLoading: false,
   setRepository: async (projectId, repoName) => {
     try {
       const gitClient = getClient(GitRestClient);
@@ -69,6 +70,31 @@ export const useGetRepoDetails = create((set, get) => ({
     }
   },
 
+  getObjectId: async (repositoryId, type) => {
+    const versionDescriptor = {
+      version: branchName,
+      versionType: 0,
+    };
+    try {
+      const gitClient = getClient(GitRestClient);
+
+      const item = await gitClient.getItem(
+        repositoryId,
+        `/qms/${type}`,
+        null, // project
+        null, // scopepath
+        0, // recursionLevel
+        undefined, // includeContentMetadata,
+        undefined, // latestProcessedChange
+        false, // download
+        versionDescriptor
+      );
+      return item?.objectId;
+    } catch (e) {
+      return;
+    }
+  },
+
   setFileNames: async (repositoryId, branchName, type) => {
     const versionDescriptor = {
       version: branchName,
@@ -76,6 +102,7 @@ export const useGetRepoDetails = create((set, get) => ({
     };
     try {
       const gitClient = getClient(GitRestClient);
+      console.log("called" + branchName);
 
       const item = await gitClient.getItem(
         repositoryId,
@@ -104,20 +131,27 @@ export const useGetRepoDetails = create((set, get) => ({
           )?.relativePath;
           set((state) => ({
             branchFileNames: [
-              ...state.branchFileNames,
+              ...state.branchFileNames.filter(
+                (fileName) => fileName.objectId !== item.objectId
+              ),
               {
                 type,
                 relativePath,
                 name: branchName,
                 objectId: item?.objectId,
+                repositoryId,
               },
             ],
           }));
         }
       }
-    } catch (e) {}
+      return item.objectId;
+    } catch (e) {
+      return;
+    }
   },
   setFileContent: async (repositoryId, path, branchName, objectId) => {
+    set((state) => ({ fileContentLoading: true }));
     const versionDescriptor = {
       version: branchName,
       versionType: 0,
@@ -138,12 +172,18 @@ export const useGetRepoDetails = create((set, get) => ({
       );
       const html = await markedToHtml(content);
       const newRes = { [objectId]: html };
-      set((state) => ({ htmlContents: { ...state.htmlContents, ...newRes } }));
+      set((state) => ({
+        fileContentLoading: false,
+        htmlContents: { ...state.htmlContents, ...newRes },
+      }));
     } catch (e) {
       console.log(e);
       const newRes = { objectId: "" };
 
-      set((state) => ({ htmlContents: { ...state.htmlContents, ...newRes } }));
+      set((state) => ({
+        fileContentLoading: false,
+        htmlContents: { ...state.htmlContents, ...newRes },
+      }));
     }
   },
 }));
