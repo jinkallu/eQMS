@@ -7,7 +7,7 @@ import {
   Link,
 } from "react-router-dom";
 import MarkedEditView from "../components/marked/MarkedEditView";
-import SOPCRUD from "../components/SOPCRUD";
+import AddSOP from "../components/AddSOP";
 import Notfound from "../components/Notfound";
 import QmCRUD from "../components/QmCRUD";
 import ProdCRUD from "../components/ProdCRUD";
@@ -29,19 +29,19 @@ const router = createBrowserRouter([
         element: <MarkedEditView></MarkedEditView>,
       },
       {
-        path: "/qmshub.html/sopcrud",
-        element: <SOPCRUD></SOPCRUD>,
+        path: "/qmshub.html/addsop",
+        element: <AddSOP></AddSOP>,
       },
       {
-        path: "/qmshub.html/qmcrud",
+        path: "/qmshub.html/addqm",
         element: <QmCRUD></QmCRUD>,
       },
       {
-        path: "/qmshub.html/prodcrud",
+        path: "/qmshub.html/addprod",
         element: <ProdCRUD />,
       },
       {
-        path: "/qmshub.html/tempcrud",
+        path: "/qmshub.html/addtemp",
         element: <TemplateCRUD></TemplateCRUD>,
       },
       {
