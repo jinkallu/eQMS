@@ -1,7 +1,11 @@
 import { Box, Chip, TextField } from "@mui/material";
 import React from "react";
 
-export default function MarkedEditor({ inputText, setInputText }) {
+export default function MarkedEditor({
+  inputText,
+  setInputText,
+  setMarkWidth,
+}) {
   const handleInputChange = (event) => {
     setInputText(event.target.value);
   };
@@ -17,6 +21,7 @@ export default function MarkedEditor({ inputText, setInputText }) {
       }}
     >
       <Chip
+        onClick={() => setMarkWidth((prev) => !prev)}
         label="Markdown Editor"
         color="primary"
         sx={{ paddingBottom: "5px" }}

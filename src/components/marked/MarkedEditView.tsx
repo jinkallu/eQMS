@@ -8,6 +8,8 @@ import { Box, Chip, Paper, Typography } from "@mui/material";
 export default function MarkedEditView({ inData }) {
   const [inputText, setInputText] = useState(inData);
   const [parsedHTML, setParsedHTML] = useState("");
+  const [markWidth, setMarkWidth] = React.useState(true);
+  const [htmlWidth, setHtmlWidth] = React.useState(true);
 
   const { loadingHTML, markdToCustom } = useMarkdToHTML();
 
@@ -33,15 +35,27 @@ export default function MarkedEditView({ inData }) {
         gap: "5px",
       }}
     >
-      <Paper elevation={3} sx={{ flex: 1 }}>
-        <MarkedEditor inputText={inputText} setInputText={setInputText} />
+      <Paper elevation={3} sx={{ flex: markWidth ? 1 : 0 }}>
+        <MarkedEditor
+          setMarkWidth={setMarkWidth}
+          inputText={inputText}
+          setInputText={setInputText}
+        />
       </Paper>
 
       <Paper
         elevation={3}
-        sx={{ flex: 1, display: "flex", flexDirection: "column" }}
+        sx={{
+          flex: htmlWidth ? 1 : 0,
+          display: "flex",
+          flexDirection: "column",
+        }}
       >
-        <Chip label="HTML Viewer" color="primary"></Chip>
+        <Chip
+          onClick={() => setHtmlWidth((prev) => !prev)}
+          label="HTML Viewer"
+          color="primary"
+        ></Chip>
 
         <Box
           id="markedHTMLViewerP"
