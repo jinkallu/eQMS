@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import { useDynamicIsland, useProject } from "../zustand/store";
 import useRWDataStorage from "../CHooks/useRWDataStorage";
 import useProjectExists from "../CHooks/useProjectExists";
+import AlertSnackbar from "./AlertSnackbar";
 
 export default function Layout() {
   const setMessage = useDynamicIsland((state) => state.setMessage);
@@ -59,6 +60,7 @@ export default function Layout() {
         minHeight: "95vh",
       }}
     >
+      <AlertSnackbar></AlertSnackbar>
       <Sidebar></Sidebar>
       <Box
         sx={{

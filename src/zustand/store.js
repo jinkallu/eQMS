@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 import { getClient } from "azure-devops-extension-api/Common";
 import { GitRestClient } from "azure-devops-extension-api/Git";
-import { markedToHtml } from "../utils/markedHelper";
+import { createBranch, getFileContent } from "../utils/gitHelpers";
 export const useDynamicIsland = create((set) => ({
   open: false,
   message: "",
@@ -14,6 +14,16 @@ export const useDynamicIsland = create((set) => ({
 
   setDefaultMessage: (defaultMessage) =>
     set((state) => ({ defaultMessage, message: "", open: false })),
+}));
+
+export const useAlertSnackbar = create((set) => ({
+  open: false,
+  message: "",
+  severity: "info",
+
+  setMessage: ({ message, severity }) =>
+    set((state) => ({ open: true, message, severity })),
+  resetMessage: () => set((state) => ({ open: false, message: "" })),
 }));
 
 export const useProject = create((set) => ({
@@ -29,6 +39,7 @@ export const useGetRepoDetails = create((set, get) => ({
   branchFileNames: [],
   htmlContents: {},
   fileContentLoading: false,
+  fetchEditBranch: { loading: false, message: "", error: false },
   setRepository: async (projectId, repoName) => {
     try {
       const gitClient = getClient(GitRestClient);
@@ -102,7 +113,6 @@ export const useGetRepoDetails = create((set, get) => ({
     };
     try {
       const gitClient = getClient(GitRestClient);
-      console.log("called" + branchName);
 
       const item = await gitClient.getItem(
         repositoryId,
@@ -170,8 +180,8 @@ export const useGetRepoDetails = create((set, get) => ({
         false, // download
         versionDescriptor
       );
-      const html = await markedToHtml(content);
-      const newRes = { [objectId]: html };
+      // const html = await markedToHtml(content);
+      const newRes = { [objectId]: content };
       set((state) => ({
         fileContentLoading: false,
         htmlContents: { ...state.htmlContents, ...newRes },
@@ -184,6 +194,125 @@ export const useGetRepoDetails = create((set, get) => ({
         fileContentLoading: false,
         htmlContents: { ...state.htmlContents, ...newRes },
       }));
+    }
+  },
+  getEditBranch: async ({
+    objectId,
+    branchName,
+    type,
+    relativePath,
+    repositoryId,
+    projectId,
+  }) => {
+    let created = false;
+
+    console.log(relativePath);
+    let path = "";
+
+    let editBranchName = branchName.split("/");
+    path = [editBranchName[0], type, relativePath, `${relativePath}.md`];
+    path = path.join("/");
+
+    editBranchName.splice(-1);
+    console.log(editBranchName);
+    editBranchName.push("edit");
+    editBranchName = editBranchName.join("/");
+
+    console.log("editbranchname", editBranchName);
+    set({ fetchEditBranch: { loading: true, message: "", error: false } });
+    try {
+      // check whether edit branch exists....
+      const gitClient = getClient(GitRestClient);
+      set((state) => ({
+        fetchEditBranch: {
+          ...state.fetchEditBranch,
+          message: "Checking branch details...",
+        },
+      }));
+
+      const branches = await gitClient.getBranches(repositoryId);
+      set((state) => ({ branches: branches || [] }));
+
+      const editBranch = branches?.find((branch) => {
+        console.log(branch);
+        const nameArray = branch.name.split("/");
+        return (
+          nameArray[1] === type &&
+          nameArray[2] === branchName.split("/")[2] &&
+          nameArray[3] === "edit"
+        );
+      });
+      console.log(editBranch, branchName);
+      if (editBranch) {
+        set((state) => ({
+          fetchEditBranch: {
+            ...state.fetchEditBranch,
+            message: "Branch found, fetching details....",
+          },
+        }));
+
+        console.log("edit branch exists", editBranch, created);
+        const data = await getFileContent(repositoryId, path, editBranchName);
+        set((state) => ({
+          fetchEditBranch: {
+            ...state.fetchEditBranch,
+            loading: false,
+            message: "",
+          },
+        }));
+        return data;
+      } else {
+        set((state) => ({
+          fetchEditBranch: {
+            ...state.fetchEditBranch,
+            message: "Branch not found, creating new ...",
+          },
+        }));
+
+        // edit branch doesnt exists.. create edit branch..
+
+        // create new branch name
+
+        created = await createBranch({
+          projectId,
+          repositoryId,
+          baseBranch: branchName,
+          newBranch: editBranchName,
+        });
+
+        if (created) {
+          set((state) => ({
+            fetchEditBranch: {
+              ...state.fetchEditBranch,
+              message: "Branch created successfully, fetching content...",
+            },
+          }));
+          console.log(created);
+
+          const data = await getFileContent(repositoryId, path, editBranchName);
+          return data;
+        } else {
+          set((state) => ({
+            fetchEditBranch: {
+              ...state.fetchEditBranch,
+              loading: false,
+              message: "Unable to create branch...",
+              error: true,
+            },
+          }));
+        }
+        console.log("edit branch doesnt exist", created);
+      }
+    } catch (e) {
+      console.log(e);
+      set({
+        fetchEditBranch: {
+          loading: false,
+          message: "Some error occured",
+          error: true,
+        },
+      });
+      return false;
     }
   },
 }));

@@ -1,22 +1,42 @@
 import MarkedHTMLViewer from "./marked/MarkedHTMLViewer";
 import { useSearchParams } from "react-router-dom";
-import { useGetRepoDetails } from "../zustand/store";
+import {
+  useGetRepoDetails,
+  useProject,
+  useAlertSnackbar,
+} from "../zustand/store";
 import React from "react";
 import { markedToHtml } from "../utils/markedHelper";
 import { Box, Chip, CircularProgress, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 import MarkedEditView from "./marked/MarkedEditView";
+import useCommit from "../CHooks/useCommit";
+import EditConfModal from "./EditConfModal";
 
 export default function HTMLViewer() {
-  const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
-    useGetRepoDetails((state) => state);
+  const {
+    htmlContents,
+    fileContentLoading,
+    branchFileNames,
+    setFileContent,
+    repository,
+  } = useGetRepoDetails((state) => state);
+
+  const project = useProject((state) => state.project);
 
   const [inputText, setInputText] = React.useState("");
   const [branch, setBranch] = React.useState<any>();
   const [editMode, setEditMode] = React.useState(false);
-
+  const [open, setOpen] = React.useState(false);
+  const [commitMessage, setCommitMessage] = React.useState("");
+  const { commit, loading: loadingCommit } = useCommit();
+  const setMessage = useAlertSnackbar((state) => state.setMessage);
   const [searchParams] = useSearchParams();
   const objectId = searchParams.get("objectId");
+  const relativePath = searchParams.get("relativePath");
+  const type = searchParams.get("type");
+  const branchName = searchParams.get("branchName");
 
   async function getFileContent(objectId) {
     const branchData = branchFileNames?.find(
@@ -32,13 +52,43 @@ export default function HTMLViewer() {
     );
   }
 
+  function handleClose() {
+    setOpen(false);
+  }
+
+  async function saveContent() {
+    setOpen(false);
+    let path = [];
+
+    let editBranchNameArr = branchName.split("/");
+    path = [editBranchNameArr[0], type, relativePath, `${relativePath}.md`];
+    const filePath = path.join("/");
+
+    editBranchNameArr.splice(-1);
+    editBranchNameArr.push("edit");
+    const editBranchName = editBranchNameArr.join("/");
+
+    const created = commit(
+      project.id,
+      repository.id,
+      editBranchName,
+      filePath,
+      inputText,
+      commitMessage
+    );
+    if (created) {
+      setMessage({ message: "Data saved successfully", severity: "success" });
+    } else {
+      setMessage({ message: "Unable to save data...", severity: "error" });
+    }
+  }
   function toggleEditModeData() {
     setEditMode((prev) => !prev);
   }
 
   React.useEffect(() => {
-    getFileContent(objectId);
-  }, [objectId]);
+    if (!editMode) getFileContent(objectId);
+  }, [objectId, editMode]);
 
   React.useEffect(() => {
     const text = htmlContents[objectId];
@@ -69,12 +119,20 @@ export default function HTMLViewer() {
           paddingX: "24px",
         }}
       >
+        <EditConfModal
+          commitMessage={commitMessage}
+          setCommitMessage={setCommitMessage}
+          open={open}
+          handleClose={handleClose}
+          saveContent={saveContent}
+        ></EditConfModal>
         <Chip
           label={branch?.relativePath?.split("-")?.slice(1)?.join(" ")}
           color="primary"
           variant="outlined"
         ></Chip>
         <Box>
+          {editMode && <SaveIcon onClick={() => setOpen(true)}></SaveIcon>}
           <EditIcon
             onClick={toggleEditModeData}
             sx={{ cursor: "pointer" }}
@@ -84,7 +142,16 @@ export default function HTMLViewer() {
       <Box
         sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
       >
-        {editMode && <MarkedEditView inData={inputText}></MarkedEditView>}
+        {editMode && (
+          <MarkedEditView
+            inputText={inputText}
+            setInputText={setInputText}
+            objectId={objectId}
+            type={type}
+            branchName={branchName}
+            relativePath={relativePath}
+          ></MarkedEditView>
+        )}
         {!editMode && (
           <MarkedHTMLViewer inputText={inputText}></MarkedHTMLViewer>
         )}
