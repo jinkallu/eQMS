@@ -4,14 +4,34 @@ import useMarkdToHTML from "./useMarkdToHTML";
 import MarkedEditor from "./MarkedEditor";
 import MarkedHTMLViewer from "./MarkedHTMLViewer";
 import { Box, Chip, Paper, Typography } from "@mui/material";
+import { useGetRepoDetails, useProject } from "../../zustand/store";
 
-export default function MarkedEditView({ inData }) {
-  const [inputText, setInputText] = useState(inData);
+export default function MarkedEditView({
+  inputText,
+  setInputText,
+  objectId,
+  relativePath,
+  type,
+  branchName,
+}: {
+  inputText: string;
+  setInputText: (val: string) => void;
+  objectId: string;
+  type: string;
+  relativePath: string;
+  branchName: string;
+}) {
+  //   const [inputText, setInputText] = useState("");
   const [parsedHTML, setParsedHTML] = useState("");
   const [markWidth, setMarkWidth] = React.useState(true);
   const [htmlWidth, setHtmlWidth] = React.useState(true);
 
   const { loadingHTML, markdToCustom } = useMarkdToHTML();
+  const { getEditBranch, repository } = useGetRepoDetails((state) => state);
+  const project = useProject((state) => state.project);
+
+  // if edit branch doesnt exist- Then create a copy contents from main to edit
+  // if edit branch exists... fetch contents from edit branch...
 
   useEffect(() => {
     function parseMarkdown() {
@@ -23,6 +43,22 @@ export default function MarkedEditView({ inData }) {
     // Call the parseMarkdown function whenever inputText changes
     parseMarkdown();
   }, [inputText]);
+
+  useEffect(() => {
+    getEditBranch({
+      objectId,
+      branchName,
+      type,
+      relativePath,
+      repositoryId: repository.id,
+      projectId: project.id,
+    }).then((data) => {
+      console.log(data, "data is");
+      if (data) {
+        setInputText(data);
+      }
+    });
+  }, [objectId, type, branchName, relativePath, repository, project]);
 
   return (
     <Box

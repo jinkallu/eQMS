@@ -40,7 +40,10 @@ export default function SidebarListItem({ type, label }) {
     navigate({
       pathname: "content/",
       search: `?${createSearchParams({
-        objectId: branch.objectId,
+        objectId: branch?.objectId,
+        relativePath: branch?.relativePath,
+        type: branch?.type,
+        branchName: branch?.name,
       })}`,
     });
   }

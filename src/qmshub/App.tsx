@@ -26,7 +26,16 @@ const router = createBrowserRouter([
       },
       {
         path: "/qmshub.html/marked",
-        element: <MarkedEditView inData={""}></MarkedEditView>,
+        element: (
+          <MarkedEditView
+            inputText={""}
+            setInputText={() => {}}
+            objectId=""
+            relativePath=""
+            type=""
+            branchName=" "
+          ></MarkedEditView>
+        ),
       },
       {
         path: "/qmshub.html/addsop",
