@@ -102,7 +102,10 @@ export default function SidebarListItem({ type, label }) {
                 <ListItemButton
                   key={branch.objectId}
                   selected={branch.objectId === objectId}
-                  sx={{ pl: 4 }}
+                  sx={{
+                    pl: 4,
+                    color: `${branch.objectId === objectId ? "blue" : "black"}`,
+                  }}
                   onClick={() => handleItemClick(branch)}
                 >
                   <ListItemText
@@ -121,7 +124,6 @@ export default function SidebarListItem({ type, label }) {
                       </Typography>
                     }
                   />
-                  {branch.objectId === objectId && <ArrowRight></ArrowRight>}
                 </ListItemButton>
               );
             })}
