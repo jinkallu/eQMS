@@ -8,20 +8,22 @@ import { useGetRepoDetails, useProject } from "../../zustand/store";
 
 export default function MarkedEditView({
   inputText,
-  setInputText,
+  setInputTextfun,
   objectId,
   relativePath,
   type,
   branchName,
+  setPrevText,
 }: {
   inputText: string;
-  setInputText: (val: string) => void;
+  setInputTextfun: (val: string) => void;
+  setPrevText: (val: string) => void;
   objectId: string;
   type: string;
   relativePath: string;
   branchName: string;
 }) {
-  //   const [inputText, setInputText] = useState("");
+  //   const [inputText, setInputTextfun] = useState("");
   const [parsedHTML, setParsedHTML] = useState("");
   const [markWidth, setMarkWidth] = React.useState(true);
   const [htmlWidth, setHtmlWidth] = React.useState(true);
@@ -55,7 +57,8 @@ export default function MarkedEditView({
     }).then((data) => {
       console.log(data, "data is");
       if (data) {
-        setInputText(data);
+        setInputTextfun(data);
+        setPrevText(data);
       }
     });
   }, [objectId, type, branchName, relativePath, repository, project]);
@@ -75,7 +78,7 @@ export default function MarkedEditView({
         <MarkedEditor
           setMarkWidth={setMarkWidth}
           inputText={inputText}
-          setInputText={setInputText}
+          setInputTextfun={setInputTextfun}
         />
       </Paper>
 

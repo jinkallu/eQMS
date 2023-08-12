@@ -3,11 +3,11 @@ import React from "react";
 
 export default function MarkedEditor({
   inputText,
-  setInputText,
+  setInputTextfun,
   setMarkWidth,
 }) {
   const handleInputChange = (event) => {
-    setInputText(event.target.value);
+    setInputTextfun(event.target.value);
   };
 
   return (

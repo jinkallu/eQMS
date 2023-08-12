@@ -24,19 +24,7 @@ const router = createBrowserRouter([
         path: "/qmshub.html/",
         element: <h1>Home</h1>,
       },
-      {
-        path: "/qmshub.html/marked",
-        element: (
-          <MarkedEditView
-            inputText={""}
-            setInputText={() => {}}
-            objectId=""
-            relativePath=""
-            type=""
-            branchName=" "
-          ></MarkedEditView>
-        ),
-      },
+
       {
         path: "/qmshub.html/addsop",
         element: <AddSOP></AddSOP>,

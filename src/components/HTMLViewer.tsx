@@ -7,7 +7,13 @@ import {
 } from "../zustand/store";
 import React from "react";
 import { markedToHtml } from "../utils/markedHelper";
-import { Box, Chip, CircularProgress, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  CircularProgress,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import MarkedEditView from "./marked/MarkedEditView";
@@ -25,7 +31,8 @@ export default function HTMLViewer() {
 
   const project = useProject((state) => state.project);
 
-  const [inputText, setInputText] = React.useState("");
+  const [inputText, setInputText] = React.useState<string>("");
+  const [prevText, setPrevText] = React.useState<string>("");
   const [branch, setBranch] = React.useState<any>();
   const [editMode, setEditMode] = React.useState(false);
   const [open, setOpen] = React.useState(false);
@@ -56,6 +63,10 @@ export default function HTMLViewer() {
     setOpen(false);
   }
 
+  function setInputTextfun(val) {
+    setInputText(val);
+  }
+
   async function saveContent() {
     setOpen(false);
     let path = [];
@@ -77,6 +88,8 @@ export default function HTMLViewer() {
       commitMessage
     );
     if (created) {
+      setPrevText(inputText);
+
       setMessage({ message: "Data saved successfully", severity: "success" });
     } else {
       setMessage({ message: "Unable to save data...", severity: "error" });
@@ -132,11 +145,20 @@ export default function HTMLViewer() {
           variant="outlined"
         ></Chip>
         <Box>
-          {editMode && <SaveIcon onClick={() => setOpen(true)}></SaveIcon>}
-          <EditIcon
-            onClick={toggleEditModeData}
-            sx={{ cursor: "pointer" }}
-          ></EditIcon>
+          {editMode && (
+            <IconButton disabled={inputText === prevText}>
+              <SaveIcon
+                sx={{ cursor: "pointer" }}
+                onClick={() => setOpen(true)}
+              ></SaveIcon>
+            </IconButton>
+          )}
+          <IconButton>
+            <EditIcon
+              onClick={toggleEditModeData}
+              sx={{ cursor: "pointer", paddingX: "5px" }}
+            ></EditIcon>
+          </IconButton>
         </Box>
       </Box>
       <Box
@@ -145,7 +167,8 @@ export default function HTMLViewer() {
         {editMode && (
           <MarkedEditView
             inputText={inputText}
-            setInputText={setInputText}
+            setInputTextfun={setInputTextfun}
+            setPrevText={setPrevText}
             objectId={objectId}
             type={type}
             branchName={branchName}

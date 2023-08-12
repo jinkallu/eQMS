@@ -65,9 +65,6 @@ export default function Sidebar() {
         <Divider></Divider>
         <SidebarListItem type="prod" label="Products"></SidebarListItem>
         <Divider></Divider>
-        <ListItem onClick={() => navigate("marked/")}>
-          <Typography>Marked.</Typography>
-        </ListItem>
       </List>
     </Paper>
   );
