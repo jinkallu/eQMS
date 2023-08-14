@@ -25,17 +25,15 @@ const useCommit = () => {
         gitClient.getRefs(repositoryId, projectId, "heads"),
         //gitClient.getItemContent(repositoryId, filePath, branchName),
       ]);
-      console.log(refsResult);
 
       const currentBranch = refsResult.filter(
         (ref) => ref.name === `refs/heads/${branchName}`
       )[0];
-      console.log(`refs/heads/${branchName}`, currentBranch);
       const currentCommitId = currentBranch.objectId;
       //const oldObjectId = fileContentResult.objectId;
 
       const change = {
-        changeType: 1, //1 add, 2 Edit
+        changeType: 2, //1 add, 2 Edit
         item: {
           path: filePath,
         },
@@ -63,13 +61,13 @@ const useCommit = () => {
 
       await gitClient.createPush(push, repositoryId);
       created = true;
+      return created;
     } catch (error) {
       //setLoading(false);
       //setBranchCreated(false);
       created = false;
-      throw error;
+      return created;
     }
-    return created;
   };
 
   const renameFile = async (
