@@ -4,19 +4,17 @@ import { Box } from "@mui/material";
 import DynamicIsland from "./DynamicIsland";
 import { Outlet } from "react-router";
 import Sidebar from "./Sidebar";
-import { useDynamicIsland, useProject } from "../zustand/store";
+import { useExtnStore } from "../zustand/store";
 import useRWDataStorage from "../CHooks/useRWDataStorage";
 import useProjectExists from "../CHooks/useProjectExists";
 import AlertSnackbar from "./AlertSnackbar";
 
 export default function Layout() {
-  const setMessage = useDynamicIsland((state) => state.setMessage);
+  const setMessage = useExtnStore((state) => state.setMessage);
   const { readData, isLoading, error } = useRWDataStorage();
   const { checkProject, loading: projectExistsLoading } = useProjectExists();
-  const { setProject, project } = useProject((state) => state);
-  const setDefaultMessage = useDynamicIsland(
-    (state) => state.setDefaultMessage
-  );
+  const { setProject, project } = useExtnStore((state) => state);
+  const setDefaultMessage = useExtnStore((state) => state.setDefaultMessage);
 
   React.useEffect(() => {
     // this check is required as when navigating directly to project page will cause the project details empty.

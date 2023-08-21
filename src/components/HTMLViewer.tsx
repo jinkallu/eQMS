@@ -1,10 +1,6 @@
 import MarkedHTMLViewer from "./marked/MarkedHTMLViewer";
 import { useSearchParams } from "react-router-dom";
-import {
-  useGetRepoDetails,
-  useProject,
-  useAlertSnackbar,
-} from "../zustand/store";
+import { useExtnStore } from "../zustand/store";
 import React from "react";
 import { markedToHtml } from "../utils/markedHelper";
 import { Box, Chip, CircularProgress, Typography } from "@mui/material";
@@ -13,6 +9,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import MarkedEditView from "./marked/MarkedEditView";
 import useCommit from "../CHooks/useCommit";
 import EditConfModal from "./EditConfModal";
+import useGetTeamMembers from "../CHooks/useGetTeamMembers";
 
 export default function HTMLViewer() {
   const {
@@ -21,9 +18,9 @@ export default function HTMLViewer() {
     branchFileNames,
     setFileContent,
     repository,
-  } = useGetRepoDetails((state) => state);
+  } = useExtnStore((state) => state);
 
-  const project = useProject((state) => state.project);
+  const project = useExtnStore((state) => state.project);
 
   const [inputText, setInputText] = React.useState("");
   const [branch, setBranch] = React.useState<any>();
@@ -31,13 +28,18 @@ export default function HTMLViewer() {
   const [open, setOpen] = React.useState(false);
   const [commitMessage, setCommitMessage] = React.useState("");
   const { commit, loading: loadingCommit } = useCommit();
-  const setMessage = useAlertSnackbar((state) => state.setMessage);
+  const setMessage = useExtnStore((state) => state.setMessage);
   const [searchParams] = useSearchParams();
   const objectId = searchParams.get("objectId");
   const relativePath = searchParams.get("relativePath");
   const type = searchParams.get("type");
   const branchName = searchParams.get("branchName");
-
+  const {
+    loading: loadingTeamMembres,
+    getTeamMembers,
+    getProjectTeams,
+  } = useGetTeamMembers();
+  const { readDatabase } = useExtnStore();
   async function getFileContent(objectId) {
     const branchData = branchFileNames?.find(
       (item) => item.objectId === objectId
@@ -50,6 +52,10 @@ export default function HTMLViewer() {
       branchData.name,
       branchData.objectId
     );
+  }
+
+  async function getDatabaseContent(collectionName, repositoryId) {
+    await readDatabase({ collectionName, repositoryId });
   }
 
   function handleClose() {
@@ -91,6 +97,13 @@ export default function HTMLViewer() {
   }, [objectId, editMode]);
 
   React.useEffect(() => {
+    console.log(project);
+
+    getDatabaseContent("standards", repository.id);
+    const members = getTeamMembers("eQMS", "eQMS Team");
+
+    // const members = getTeamMembers(project.name, project.name + " Team");
+    // console.log(members);
     const text = htmlContents[objectId];
     setInputText(text);
   }, [objectId, htmlContents]);

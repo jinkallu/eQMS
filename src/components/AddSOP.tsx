@@ -1,7 +1,7 @@
 import { Paper, TextField, Box, Typography, Button } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router";
-import { useGetRepoDetails, useProject } from "../zustand/store";
+import { useExtnStore } from "../zustand/store";
 import useCreateBranch from "../CHooks/useCreateBranch";
 import useCommit from "../CHooks/useCommit";
 import { v4 as uuidv4 } from "uuid";
@@ -11,11 +11,11 @@ export default function AddSOP() {
   const [number, setNumber] = React.useState("");
   const [error, setError] = React.useState("");
   const { branchFileNames, repository, setBranches, setFileNames } =
-    useGetRepoDetails((state) => state);
+    useExtnStore((state) => state);
   const { renameFile, loadingRenameFile } = useCommit();
   const navigate = useNavigate();
   const { createBranch, loading, branchCreated } = useCreateBranch();
-  const project = useProject((state) => state.project);
+  const project = useExtnStore((state) => state.project);
 
   async function handleCreate() {
     // check for duplicate name or number

@@ -4,7 +4,7 @@ import useMarkdToHTML from "./useMarkdToHTML";
 import MarkedEditor from "./MarkedEditor";
 import MarkedHTMLViewer from "./MarkedHTMLViewer";
 import { Box, Chip, Paper, Typography } from "@mui/material";
-import { useGetRepoDetails, useProject } from "../../zustand/store";
+import { useExtnStore } from "../../zustand/store";
 
 export default function MarkedEditView({
   inputText,
@@ -27,8 +27,8 @@ export default function MarkedEditView({
   const [htmlWidth, setHtmlWidth] = React.useState(true);
 
   const { loadingHTML, markdToCustom } = useMarkdToHTML();
-  const { getEditBranch, repository } = useGetRepoDetails((state) => state);
-  const project = useProject((state) => state.project);
+  const { getEditBranch, repository } = useExtnStore((state) => state);
+  const project = useExtnStore((state) => state.project);
 
   // if edit branch doesnt exist- Then create a copy contents from main to edit
   // if edit branch exists... fetch contents from edit branch...

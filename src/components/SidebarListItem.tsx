@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowRight from "@mui/icons-material/ArrowRight";
-import { useGetRepoDetails } from "../zustand/store";
+import { useExtnStore } from "../zustand/store";
 import React from "react";
 import {
   createSearchParams,
@@ -20,7 +20,7 @@ import {
 
 export default function SidebarListItem({ type, label }) {
   const { branchTypes, setFileNames, repository, branchFileNames } =
-    useGetRepoDetails((state) => state);
+    useExtnStore((state) => state);
   const [open, setOpen] = React.useState(false);
   const [contentHtml, setContentHtml] = React.useState("");
   const navigate = useNavigate();

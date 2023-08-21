@@ -15,12 +15,12 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import AddIcon from "@mui/icons-material/Add";
 import SidebarListItem from "./SidebarListItem";
-import { useProject, useGetRepoDetails } from "../zustand/store";
+import { useExtnStore } from "../zustand/store";
 import { useNavigate } from "react-router";
 
 export default function Sidebar() {
-  const { project, setProject } = useProject((state) => state);
-  const { setRepository, repository, setBranches } = useGetRepoDetails(
+  const { project, setProject } = useExtnStore((state) => state);
+  const { setRepository, repository, setBranches } = useExtnStore(
     (state) => state
   );
   const navigate = useNavigate();
