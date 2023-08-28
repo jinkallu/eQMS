@@ -38,6 +38,7 @@ export default function HTMLViewer() {
     loading: loadingTeamMembres,
     getTeamMembers,
     getProjectTeams,
+    getProjectTeamWithMembers,
   } = useGetTeamMembers();
   const { readDatabase } = useExtnStore();
   async function getFileContent(objectId) {

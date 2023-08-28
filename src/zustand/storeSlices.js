@@ -1,6 +1,10 @@
 import { getClient } from "azure-devops-extension-api/Common";
 import { GitRestClient } from "azure-devops-extension-api/Git";
+import { CoreRestClient } from "azure-devops-extension-api/Core";
+
 import { createBranch, getFileContent } from "../utils/gitHelpers";
+import * as SDK from "azure-devops-extension-sdk";
+
 export const dynamicIslandSlice = (set) => ({
   open: false,
   messageDIsland: "",
@@ -21,6 +25,17 @@ export const alertSnackbarSlice = (set) => ({
     set((state) => ({ openAlertSnackbar: true, message, severity })),
   resetMessage: () =>
     set((state) => ({ openAlertSnackbar: false, message: "" })),
+});
+
+export const userSlice = (set) => ({
+  currentUser: {},
+  setCurrentUser: async () => {
+    const user = await SDK.getUser();
+    console.log(user);
+    if (user) {
+      set({ currentUser: user });
+    }
+  },
 });
 
 export const projectSlice = (set) => ({
@@ -69,7 +84,9 @@ export const repositorySlice = (set, get) => ({
               const nameArray = branch.name.split("/");
               return nameArray[1] === type && nameArray[3] === "main";
             })
-            ?.map((item) => ({ name: item.name })) || [];
+            ?.map((item) => ({
+              name: item.name,
+            })) || [];
       });
       set((state) => ({ branchTypes: typeBranchData }));
     } catch (error) {
@@ -315,22 +332,36 @@ export const repositorySlice = (set, get) => ({
 });
 
 export const databaseSlice = (set, get) => ({
-  standards: [],
-
-  loadStandards: async () => {
+  sops: [],
+  approvalChain: [],
+  loadSOPs: async (repositoryId) => {
+    console.log("repositoryId", repositoryId);
     try {
-      const path = `standards.json`;
-
-      console.log(repositoryId, path, "qms/database/main");
+      const path = `sops.json`;
       const json = await getFileContent(
         repositoryId,
         path,
         "qms/database/main"
       );
-      set((state) => ({ standards: json }));
+      console.log("json sop", json);
+
+      set({ sops: JSON.parse(json) });
     } catch (e) {
-      set((state) => ({ standards: [] }));
-      console.log(e);
+      set((state) => ({ sops: [] }));
+    }
+  },
+  loadApprovalChain: async (repositoryId) => {
+    try {
+      const path = "approvalChain.json";
+      const json = await getFileContent(
+        repositoryId,
+        path,
+        "qms/database/main"
+      );
+      console.log("json", json);
+      set({ approvalChain: JSON.parse(json) });
+    } catch (e) {
+      set({ approvalChain: [] });
     }
   },
 
@@ -359,5 +390,75 @@ export const databaseSlice = (set, get) => ({
   updateDatabase: async ({ collectionName, repositoryId, data }) => {
     try {
     } catch (e) {}
+  },
+});
+export const teamsSlice = (set, get) => ({
+  teamsWithMembers: [],
+
+  getProjectTeamWithMembers: async (projectId) => {
+    try {
+      const coreClient = getClient(CoreRestClient);
+      const teams = await coreClient.getTeams(projectId);
+
+      const teamsWithMembersData = await Promise.all(
+        teams.map(async (team) => {
+          const members = await coreClient.getTeamMembersWithExtendedProperties(
+            projectId,
+            team.id
+          );
+          return { ...team, members };
+        })
+      );
+      set({ teamsWithMembers: teamsWithMembersData });
+    } catch (e) {
+      console.log(e);
+      set({ teamsWithMembers: [] });
+    }
+  },
+});
+
+export const refreshDataSlice = (set, get) => ({
+  sopAccessMatrix: [],
+  refreshDBData: async (projectId, repositoryId) => {
+    console.log(get().sops);
+    if (!repositoryId) return;
+
+    await get().getProjectTeamWithMembers(projectId);
+    await get().loadSOPs(repositoryId);
+    await get().loadApprovalChain(repositoryId);
+
+    // const userTeams = teamsWithMembers?.map((team) => team);
+    const sopMatrix = [];
+
+    const sops = get().sops;
+    const allTeams = get().teamsWithMembers;
+    const approvalChain = get().approvalChain;
+    console.log(approvalChain);
+
+    const sopData = sops?.map((sop) => {
+      // console.log(sop);
+      const aChain = approvalChain?.find(
+        (item) => item.name === sop.approvalChain
+      );
+      if (!aChain) return sop;
+
+      const permissions = aChain?.teams?.filter((team) => {
+        return allTeams?.filter((allTeam) => {
+          return (
+            allTeam?.members?.filter(
+              (mem) => mem?.identity?.id === get().currentUser.id
+            ) && allTeam.name === team.name
+          );
+        });
+      });
+
+      return { branchId: sop.branchId, teams: permissions };
+    });
+
+    console.log(sopData);
+    // console.log(get().approvalChain);
+    // console.log(get().teamsWithMembers);
+
+    console.log("all loaded..");
   },
 });

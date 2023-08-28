@@ -13,8 +13,17 @@ export default function Layout() {
   const setMessage = useExtnStore((state) => state.setMessage);
   const { readData, isLoading, error } = useRWDataStorage();
   const { checkProject, loading: projectExistsLoading } = useProjectExists();
-  const { setProject, project } = useExtnStore((state) => state);
-  const setDefaultMessage = useExtnStore((state) => state.setDefaultMessage);
+
+  const {
+    getProjectTeamWithMembers,
+    setCurrentUser,
+    loadApprovalChain,
+    setDefaultMessage,
+    setProject,
+    project,
+    refreshDBData,
+    repository,
+  } = useExtnStore((state) => state);
 
   React.useEffect(() => {
     // this check is required as when navigating directly to project page will cause the project details empty.
@@ -51,6 +60,14 @@ export default function Layout() {
     setDefaultMessage("QMS");
   }, []);
 
+  React.useEffect(() => {
+    if (project && project?.id && repository && repository.id) {
+      setCurrentUser();
+      // getProjectTeamWithMembers(project.id);
+      // loadApprovalChain();
+      refreshDBData(project.id, repository.id);
+    }
+  }, [project, repository]);
   return (
     <Box
       sx={{

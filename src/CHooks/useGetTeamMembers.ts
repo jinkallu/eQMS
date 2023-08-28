@@ -7,6 +7,25 @@ const useGetTeamMembers = () => {
   const [teamMembers, setTeamMembers] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const getProjectTeamWithMembers = async (projectId) => {
+    try {
+      const coreClient = getClient(CoreRestClient);
+      const teams = await coreClient.getTeams(projectId);
+      const teamsWithMembers = await Promise.all(
+        teams.map(async (team) => {
+          const members = await coreClient.getTeamMembersWithExtendedProperties(
+            projectId,
+            team.id
+          );
+          return { ...team, members };
+        })
+      );
+      console.log(teamsWithMembers);
+    } catch (e) {
+      return null;
+    }
+  };
+
   const getProjectTeams = async (projectId) => {
     try {
       const coreClient = getClient(CoreRestClient);
@@ -72,7 +91,12 @@ const useGetTeamMembers = () => {
     }
   };
 
-  return { loading, getTeamMembers, getProjectTeams };
+  return {
+    loading,
+    getTeamMembers,
+    getProjectTeams,
+    getProjectTeamWithMembers,
+  };
 };
 
 export default useGetTeamMembers;

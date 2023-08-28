@@ -17,12 +17,18 @@ import AddIcon from "@mui/icons-material/Add";
 import SidebarListItem from "./SidebarListItem";
 import { useExtnStore } from "../zustand/store";
 import { useNavigate } from "react-router";
+import { ItemContentType } from "azure-devops-extension-api/Git/Git";
 
 export default function Sidebar() {
-  const { project, setProject } = useExtnStore((state) => state);
-  const { setRepository, repository, setBranches } = useExtnStore(
-    (state) => state
-  );
+  const {
+    project,
+    setRepository,
+    repository,
+    setBranches,
+    loadSOPs,
+    branchTypes,
+    sops,
+  } = useExtnStore((state) => state);
   const navigate = useNavigate();
   const sideBarWidth = 280;
 
@@ -34,9 +40,25 @@ export default function Sidebar() {
 
   React.useEffect(() => {
     if (repository && repository?.id) {
+      console.log(repository);
+      loadSOPs(repository?.id);
       setBranches(repository?.id);
     }
   }, [repository]);
+
+  React.useEffect(() => {
+    // console.log(sops, branchTypes);
+    // const sopsLength = sops?.length;
+    // const newSOPs = branchTypes["sop"]?.map((sop, index) => {
+    //   const sopData = sops?.find((item) => item.branchName === sop.name);
+    //   if (sopData) {
+    //     return { branchName: sop.name, sortOrder: sopData.sortOrder };
+    //   } else {
+    //     return { branchName: sop.name, sortOrder: sopsLength + index };
+    //   }
+    // });
+    // console.log(newSOPs);
+  }, [branchTypes]);
   return (
     <Paper
       elevation={3}
