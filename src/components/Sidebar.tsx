@@ -17,7 +17,6 @@ import AddIcon from "@mui/icons-material/Add";
 import SidebarListItem from "./SidebarListItem";
 import { useExtnStore } from "../zustand/store";
 import { useNavigate } from "react-router";
-import { ItemContentType } from "azure-devops-extension-api/Git/Git";
 
 export default function Sidebar() {
   const {
@@ -30,7 +29,7 @@ export default function Sidebar() {
     sops,
   } = useExtnStore((state) => state);
   const navigate = useNavigate();
-  const sideBarWidth = 280;
+  const sideBarWidth = 340;
 
   React.useEffect(() => {
     if (project && project?.id) {
@@ -40,9 +39,9 @@ export default function Sidebar() {
 
   React.useEffect(() => {
     if (repository && repository?.id) {
-      console.log(repository);
-      loadSOPs(repository?.id);
-      setBranches(repository?.id);
+      // console.log(repository);
+      // loadSOPs(repository?.id);
+      // setBranches(repository?.id);
     }
   }, [repository]);
 
@@ -66,12 +65,13 @@ export default function Sidebar() {
         padding: "12px",
         fontSize: 9,
         height: "100vh",
+        width: { sideBarWidth },
+
         overflowY: "scroll",
       }}
     >
       <List
         sx={{
-          maxWidth: { sideBarWidth },
           bgcolor: "background.paper",
         }}
         subheader={

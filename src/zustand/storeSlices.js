@@ -31,7 +31,6 @@ export const userSlice = (set) => ({
   currentUser: {},
   setCurrentUser: async () => {
     const user = await SDK.getUser();
-    console.log(user);
     if (user) {
       set({ currentUser: user });
     }
@@ -86,6 +85,7 @@ export const repositorySlice = (set, get) => ({
             })
             ?.map((item) => ({
               name: item.name,
+              branchId: item?.name?.split("/")[2],
             })) || [];
       });
       set((state) => ({ branchTypes: typeBranchData }));
@@ -120,7 +120,7 @@ export const repositorySlice = (set, get) => ({
     }
   },
 
-  setFileNames: async (repositoryId, branchName, type) => {
+  setFileNames: async (repositoryId, branchId, branchName, type) => {
     const versionDescriptor = {
       version: branchName,
       versionType: 0,
@@ -159,6 +159,7 @@ export const repositorySlice = (set, get) => ({
                 (fileName) => fileName.objectId !== item.objectId
               ),
               {
+                branchId,
                 type,
                 relativePath,
                 name: branchName,
@@ -220,7 +221,6 @@ export const repositorySlice = (set, get) => ({
   }) => {
     let created = false;
 
-    console.log(relativePath);
     let path = "";
 
     let editBranchName = branchName.split("/");
@@ -228,11 +228,9 @@ export const repositorySlice = (set, get) => ({
     path = path.join("/");
 
     editBranchName.splice(-1);
-    console.log(editBranchName);
     editBranchName.push("edit");
     editBranchName = editBranchName.join("/");
 
-    console.log("editbranchname", editBranchName);
     set({ fetchEditBranch: { loading: true, message: "", error: false } });
     try {
       // check whether edit branch exists....
@@ -248,7 +246,6 @@ export const repositorySlice = (set, get) => ({
       set((state) => ({ branches: branches || [] }));
 
       const editBranch = branches?.find((branch) => {
-        console.log(branch);
         const nameArray = branch.name.split("/");
         return (
           nameArray[1] === type &&
@@ -256,7 +253,6 @@ export const repositorySlice = (set, get) => ({
           nameArray[3] === "edit"
         );
       });
-      console.log(editBranch, branchName);
       if (editBranch) {
         set((state) => ({
           fetchEditBranch: {
@@ -265,7 +261,6 @@ export const repositorySlice = (set, get) => ({
           },
         }));
 
-        console.log("edit branch exists", editBranch, created);
         const data = await getFileContent(repositoryId, path, editBranchName);
         set((state) => ({
           fetchEditBranch: {
@@ -301,7 +296,6 @@ export const repositorySlice = (set, get) => ({
               message: "Branch created successfully, fetching content...",
             },
           }));
-          console.log(created);
 
           const data = await getFileContent(repositoryId, path, editBranchName);
           return data;
@@ -315,7 +309,6 @@ export const repositorySlice = (set, get) => ({
             },
           }));
         }
-        console.log("edit branch doesnt exist", created);
       }
     } catch (e) {
       console.log(e);
@@ -333,9 +326,7 @@ export const repositorySlice = (set, get) => ({
 
 export const databaseSlice = (set, get) => ({
   sops: [],
-  approvalChain: [],
   loadSOPs: async (repositoryId) => {
-    console.log("repositoryId", repositoryId);
     try {
       const path = `sops.json`;
       const json = await getFileContent(
@@ -343,34 +334,17 @@ export const databaseSlice = (set, get) => ({
         path,
         "qms/database/main"
       );
-      console.log("json sop", json);
 
       set({ sops: JSON.parse(json) });
     } catch (e) {
       set((state) => ({ sops: [] }));
     }
   },
-  loadApprovalChain: async (repositoryId) => {
-    try {
-      const path = "approvalChain.json";
-      const json = await getFileContent(
-        repositoryId,
-        path,
-        "qms/database/main"
-      );
-      console.log("json", json);
-      set({ approvalChain: JSON.parse(json) });
-    } catch (e) {
-      set({ approvalChain: [] });
-    }
-  },
 
   readDatabase: async ({ collectionName, repositoryId }) => {
-    console.log(collectionName, repositoryId);
     try {
       const path = `${collectionName}.json`;
 
-      console.log(repositoryId, path, "qms/database/main");
       const json = await getFileContent(
         repositoryId,
         path,
@@ -394,6 +368,7 @@ export const databaseSlice = (set, get) => ({
 });
 export const teamsSlice = (set, get) => ({
   teamsWithMembers: [],
+  isQualityManager: false,
 
   getProjectTeamWithMembers: async (projectId) => {
     try {
@@ -409,6 +384,17 @@ export const teamsSlice = (set, get) => ({
           return { ...team, members };
         })
       );
+      const teamsWithMembers = get().teamsWithMembers;
+      const isQmanager =
+        teamsWithMembers?.find((team) =>
+          team?.members?.filter(
+            (mem) =>
+              mem?.identity?.id === get()?.currentUser?.id &&
+              team?.name === "Quality Manager Team"
+          )
+        )?.length === 1;
+      set({ isQualityManager: isQmanager });
+
       set({ teamsWithMembers: teamsWithMembersData });
     } catch (e) {
       console.log(e);
@@ -418,47 +404,51 @@ export const teamsSlice = (set, get) => ({
 });
 
 export const refreshDataSlice = (set, get) => ({
-  sopAccessMatrix: [],
-  refreshDBData: async (projectId, repositoryId) => {
-    console.log(get().sops);
+  userSOPs: [],
+  refreshDBData: async (projectId, projectName, repositoryId) => {
     if (!repositoryId) return;
+
+    await get().setBranches(repositoryId);
 
     await get().getProjectTeamWithMembers(projectId);
     await get().loadSOPs(repositoryId);
-    await get().loadApprovalChain(repositoryId);
 
     // const userTeams = teamsWithMembers?.map((team) => team);
     const sopMatrix = [];
 
     const sops = get().sops;
     const allTeams = get().teamsWithMembers;
-    const approvalChain = get().approvalChain;
-    console.log(approvalChain);
+    const branchFileNames = get().branchFileNames;
 
-    const sopData = sops?.map((sop) => {
-      // console.log(sop);
-      const aChain = approvalChain?.find(
-        (item) => item.name === sop.approvalChain
+    const userTeams = allTeams
+      ?.filter((team) =>
+        team?.members?.filter(
+          (mem) => mem?.identity?.id === get()?.currentUser?.id
+        )
+      )
+      ?.map((item) => item?.id);
+
+    const qualityManager = userTeams?.find(
+      (item) => item.name === "Quality Manager Team"
+    );
+    const userSOPs = sops
+      ?.map((sop) => {
+        const view = [...new Set(sop?.view, userTeams)];
+        const edit = [...new Set(sop?.edit, userTeams)];
+        const approve = [...new Set(sop?.approve, userTeams)];
+        const name = branchFileNames?.find(
+          (item) => item.branchId === sop.branchId
+        )?.relativePath;
+
+        return { ...sop, view, edit, approve, name };
+      })
+      ?.filter(
+        (item) =>
+          item?.view?.length > 0 ||
+          item?.edit?.length > 0 ||
+          item?.approve?.length > 0
       );
-      if (!aChain) return sop;
 
-      const permissions = aChain?.teams?.filter((team) => {
-        return allTeams?.filter((allTeam) => {
-          return (
-            allTeam?.members?.filter(
-              (mem) => mem?.identity?.id === get().currentUser.id
-            ) && allTeam.name === team.name
-          );
-        });
-      });
-
-      return { branchId: sop.branchId, teams: permissions };
-    });
-
-    console.log(sopData);
-    // console.log(get().approvalChain);
-    // console.log(get().teamsWithMembers);
-
-    console.log("all loaded..");
+    set({ userSOPs });
   },
 });

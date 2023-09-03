@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "D2Ops",
     "publisher": "D2Ops",
-    "version": "1.0.83",
+    "version": "1.0.85",
     "name": "D2Ops",
     "description": "A sample Visual Studio Services extension",
     "public": false,

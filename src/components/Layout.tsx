@@ -65,7 +65,7 @@ export default function Layout() {
       setCurrentUser();
       // getProjectTeamWithMembers(project.id);
       // loadApprovalChain();
-      refreshDBData(project.id, repository.id);
+      refreshDBData(project.id, project.name, repository.id);
     }
   }, [project, repository]);
   return (
