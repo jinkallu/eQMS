@@ -69,6 +69,7 @@ export default function HTMLViewer() {
 
     let editBranchNameArr = branchName.split("/");
     path = [editBranchNameArr[0], type, relativePath, `${relativePath}.md`];
+    console.log(branchName, path);
     const filePath = path.join("/");
 
     editBranchNameArr.splice(-1);

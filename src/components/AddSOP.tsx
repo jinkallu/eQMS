@@ -1,4 +1,17 @@
-import { Paper, TextField, Box, Typography, Button } from "@mui/material";
+import {
+  Paper,
+  TextField,
+  Box,
+  Typography,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  OutlinedInput,
+  MenuItem,
+  Checkbox,
+  ListItemText,
+} from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router";
 import { useExtnStore } from "../zustand/store";
@@ -10,12 +23,44 @@ export default function AddSOP() {
   const [name, setName] = React.useState("");
   const [number, setNumber] = React.useState("");
   const [error, setError] = React.useState("");
-  const { branchFileNames, repository, setBranches, setFileNames } =
-    useExtnStore((state) => state);
+  const [approvers, setApprovers] = React.useState([]);
+  const [authors, setAuthors] = React.useState([]);
+
+  const {
+    branchFileNames,
+    repository,
+    setBranches,
+    setFileNames,
+    teamsWithMembers,
+    saveSOPToDatabase,
+    sops,
+    refreshDBData,
+    setAlertMessage,
+  } = useExtnStore((state) => state);
+
   const { renameFile, loadingRenameFile } = useCommit();
   const navigate = useNavigate();
   const { createBranch, loading, branchCreated } = useCreateBranch();
   const project = useExtnStore((state) => state.project);
+  const handleApproverChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setApprovers(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+
+  const handleAutherChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setAuthors(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
 
   async function handleCreate() {
     // check for duplicate name or number
@@ -64,18 +109,61 @@ export default function AddSOP() {
     if (renameRes) {
       setBranches(repository.id);
     }
+
+    const newContent = [...sops];
+    newContent.push({
+      branchId: uniqueId,
+      sortOrder: sops.length,
+      author: authors,
+      approver: approvers,
+    });
+
+    const commitMessage = "initial commit";
+    const result = await saveSOPToDatabase({
+      collectionName: "sops",
+      projectId: project.id,
+      repositoryId: repository.id,
+      newContent: JSON.stringify(newContent),
+      commitMessage,
+    });
+
+    if (result) {
+      setAlertMessage({ message: "SOP Created...", severity: "success" });
+    } else {
+      setAlertMessage({
+        message: "SOP Creation not successfull...",
+        severity: "error",
+      });
+    }
+
     setName("");
     setNumber("");
     // get the object id of the folder for navigation
-    const objectId = await setFileNames(repository?.id, branchName, "sop");
-    if (objectId) {
-      navigate({
-        pathname: "/qmshub.html/content",
-        search: `?${createSearchParams({
-          objectId,
-        })}`,
-      });
-    }
+    const objectId = await setFileNames(
+      repository?.id,
+      uniqueId,
+      branchName,
+      "sop"
+    );
+    refreshDBData(project.id, project.name, repository.id);
+    navigate({
+      pathname: "/qmshub.html/content/",
+      search: `?${createSearchParams({
+        objectId: objectId,
+        relativePath: newPath,
+        type: "sop",
+        branchName: branchName,
+      })}`,
+    });
+
+    // if (objectId) {
+    //   navigate({
+    //     pathname: "/qmshub.html/content",
+    //     search: `?${createSearchParams({
+    //       objectId,
+    //     })}`,
+    //   });
+    // }
   }
 
   function handleCancel() {
@@ -116,22 +204,79 @@ export default function AddSOP() {
           height: "100%",
         }}
       >
-        <TextField
-          helperText="Please enter SOP name"
-          id="name"
-          label="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        ></TextField>
-
-        <TextField
-          helperText="Please enter SOP number"
-          id="number"
-          label="Number"
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-        ></TextField>
+        <FormControl sx={{ m: 1, width: 300 }}>
+          <TextField
+            helperText="Please enter SOP name"
+            id="name"
+            label="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          ></TextField>
+        </FormControl>
+        <FormControl sx={{ m: 1, width: 300 }}>
+          <TextField
+            helperText="Please enter SOP number"
+            id="number"
+            label="Number"
+            value={number}
+            onChange={(e) => setNumber(e.target.value)}
+          ></TextField>
+        </FormControl>
         <Typography sx={{ fontSize: "12px", color: "red" }}>{error}</Typography>
+        <FormControl sx={{ m: 1, width: 300 }}>
+          <InputLabel id="approverTeams">Approver Teams</InputLabel>
+          <Select
+            labelId="demo-multiple-checkbox-label"
+            id="demo-multiple-checkbox"
+            multiple
+            value={approvers}
+            onChange={handleApproverChange}
+            input={<OutlinedInput label="Approver Teams" />}
+            renderValue={(selected) =>
+              selected
+                ?.map(
+                  (item) =>
+                    teamsWithMembers?.find((team) => team.id === item)?.name
+                )
+                .join(", ")
+            }
+          >
+            {teamsWithMembers.map((team) => (
+              <MenuItem key={team.id} value={team.id}>
+                <Checkbox checked={approvers.indexOf(team?.id) > -1} />
+                <ListItemText primary={team?.name} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ m: 1, width: 300 }}>
+          <InputLabel id="authorTeams">Author Teams</InputLabel>
+          <Select
+            labelId="authorTeams"
+            id="authorselect"
+            multiple
+            value={authors}
+            onChange={handleAutherChange}
+            input={<OutlinedInput label="Author Teams" />}
+            renderValue={(selected) =>
+              selected
+                ?.map(
+                  (item) =>
+                    teamsWithMembers?.find((team) => team.id === item)?.name
+                )
+                .join(", ")
+            }
+          >
+            {teamsWithMembers.map((team) => (
+              <MenuItem key={team.id} value={team.id}>
+                <Checkbox checked={authors.indexOf(team?.id) > -1} />
+                <ListItemText primary={team?.name} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <Box
           sx={{
             display: "flex",

@@ -65,7 +65,7 @@ export default function Sidebar() {
         padding: "12px",
         fontSize: 9,
         height: "100vh",
-        width: { sideBarWidth },
+        width: `${sideBarWidth}px`,
 
         overflowY: "scroll",
       }}
@@ -83,7 +83,6 @@ export default function Sidebar() {
       >
         <SidebarListItem type="qm" label="Quality Manual"></SidebarListItem>
         <SidebarListItem type="sop" label="SOPs"></SidebarListItem>
-        <SidebarListItem type="temp" label="Templates"></SidebarListItem>
         <Divider></Divider>
         <SidebarListItem type="prod" label="Products"></SidebarListItem>
         <Divider></Divider>

@@ -2,7 +2,7 @@ import { getClient } from "azure-devops-extension-api/Common";
 import { GitRestClient } from "azure-devops-extension-api/Git";
 import { CoreRestClient } from "azure-devops-extension-api/Core";
 
-import { createBranch, getFileContent } from "../utils/gitHelpers";
+import { commit, createBranch, getFileContent } from "../utils/gitHelpers";
 import * as SDK from "azure-devops-extension-sdk";
 
 export const dynamicIslandSlice = (set) => ({
@@ -361,6 +361,26 @@ export const databaseSlice = (set, get) => ({
     }
   },
 
+  saveSOPToDatabase: async ({
+    collectionName,
+    projectId,
+    repositoryId,
+    newContent,
+    commitMessage,
+  }) => {
+    const branchName = "qms/database/main";
+    const filePath = `${collectionName}.json`;
+    const res = commit({
+      projectId,
+      repositoryId,
+      branchName,
+      filePath,
+      newContent,
+      commitMessage,
+    });
+
+    return res;
+  },
   updateDatabase: async ({ collectionName, repositoryId, data }) => {
     try {
     } catch (e) {}
@@ -384,9 +404,9 @@ export const teamsSlice = (set, get) => ({
           return { ...team, members };
         })
       );
-      const teamsWithMembers = get().teamsWithMembers;
+      // const teamsWithMembers = get().teamsWithMembers;
       const isQmanager =
-        teamsWithMembers?.find((team) =>
+        teamsWithMembersData?.find((team) =>
           team?.members?.filter(
             (mem) =>
               mem?.identity?.id === get()?.currentUser?.id &&
@@ -433,20 +453,24 @@ export const refreshDataSlice = (set, get) => ({
     );
     const userSOPs = sops
       ?.map((sop) => {
-        const view = [...new Set(sop?.view, userTeams)];
-        const edit = [...new Set(sop?.edit, userTeams)];
-        const approve = [...new Set(sop?.approve, userTeams)];
-        const name = branchFileNames?.find(
-          (item) => item.branchId === sop.branchId
-        )?.relativePath;
+        const author = [...new Set(sop?.author, userTeams)];
+        const approver = [...new Set(sop?.approver, userTeams)];
+        const { objectId, relativePath, type, branchName } =
+          branchFileNames?.find((item) => item.branchId === sop.branchId);
 
-        return { ...sop, view, edit, approve, name };
+        return {
+          ...sop,
+
+          author,
+          approver,
+          objectId,
+          relativePath,
+          type,
+          branchName,
+        };
       })
       ?.filter(
-        (item) =>
-          item?.view?.length > 0 ||
-          item?.edit?.length > 0 ||
-          item?.approve?.length > 0
+        (item) => item?.author?.length > 0 || item?.approver?.length > 0
       );
 
     set({ userSOPs });

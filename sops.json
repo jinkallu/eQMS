@@ -1,0 +1,20 @@
+[
+  {
+    "branchId": "1b96be58-ec2c-4221-83ac-233e634177a4",
+    "sortOrder": 1,
+    "templates": ["04523520-b2de-4000-993b-e6f0ca81d001"],
+
+    "view": ["df720096-013f-4b0f-83c2-e6dde8ed4a2a"],
+    "edit": ["02d9585b-467b-41bd-b925-16d5e525eecf"],
+    "approve": ["71e0c1c6-914a-4fd8-a17b-117b9ccae4b0"]
+  },
+
+  {
+    "branchId": "317d4486-8790-4e7e-b70e-2f556776be9c",
+    "sortOrder": 2,
+
+    "view": ["df720096-013f-4b0f-83c2-e6dde8ed4a2a"],
+    "edit": ["02d9585b-467b-41bd-b925-16d5e525eecf"],
+    "approve": ["71e0c1c6-914a-4fd8-a17b-117b9ccae4b0"]
+  }
+]

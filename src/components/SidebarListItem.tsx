@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowRight from "@mui/icons-material/ArrowRight";
+import StarBorder from "@mui/icons-material/StarBorder";
 import { useExtnStore } from "../zustand/store";
 import React from "react";
 import {
@@ -34,6 +35,13 @@ export default function SidebarListItem({ type, label }) {
       branchTypes[type]?.map((branch) => {
         setFileNames(repository?.id, branch.branchId, branch.name, type);
       });
+
+      if (type === "sop") {
+        const type = "temp";
+        branchTypes[type]?.map((branch) => {
+          setFileNames(repository?.id, branch.branchId, branch.name, type);
+        });
+      }
     }
   }, [repository, branchTypes]);
 
@@ -52,15 +60,12 @@ export default function SidebarListItem({ type, label }) {
   const GetListItems = ({ type, branchFileNames, userSOPs }) => {
     console.log("branchFileNames", branchFileNames, type, userSOPs);
     if (type === "sop")
-      return branchFileNames
-        ?.filter(
-          (branch) =>
-            branch.type === type &&
-            userSOPs?.find((item) => item.branchId === branch.branchId)
-        )
-        ?.sort((a, b) => a.name.split("-")[1] - b.relativePath.split("-")[1])
-        ?.map((branch) => {
-          return (
+      return userSOPs?.map((sop) => {
+        const branch = branchFileNames?.find(
+          (item) => item.branchId === sop.branchId && item.type === "sop"
+        );
+        return (
+          <>
             <ListItemButton
               key={branch.objectId}
               selected={branch.objectId === objectId}
@@ -85,53 +90,49 @@ export default function SidebarListItem({ type, label }) {
               />
               {branch.objectId === objectId && <ArrowRight></ArrowRight>}
             </ListItemButton>
-          );
-        });
-    console.log(userSOPs);
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding sx={{ paddingLeft: "5px" }}>
+                {sop?.templates?.map((template) => {
+                  const tempBranch = branchFileNames.find(
+                    (item) => item.type === "temp" && item.branchId === template
+                  );
 
-    if (type === "temp") {
-      return userSOPs?.map((sop) => (
-        <>
-          <ListItemButton color="primary">
-            <ListItemText primary={sop.name} />
-          </ListItemButton>
-          {sop?.templates?.map((template) =>
-            branchFileNames
-              ?.filter(
-                (branch) => branch.type === type && branch.branchId === template
-              )
-              ?.sort(
-                (a, b) => a.name.split("-")[1] - b.relativePath.split("-")[1]
-              )
-              ?.map((branch) => (
-                <ListItemButton
-                  key={branch.objectId}
-                  selected={branch.objectId === objectId}
-                  sx={{ pl: 4 }}
-                  onClick={() => handleItemClick(branch)}
-                >
-                  <ListItemText
-                    primary={
-                      <Typography
-                        sx={{
-                          color: "0b204d",
-                          fontSize: "14px",
-                          clear: "both",
-                          display: "inline-block",
-                          overflow: "hidden",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {branch.relativePath}
-                      </Typography>
-                    }
-                  />
-                  {branch.objectId === objectId && <ArrowRight></ArrowRight>}
-                </ListItemButton>
-              ))
-          )}
-        </>
-      ));
+                  return (
+                    <ListItemButton
+                      key={tempBranch.objectId}
+                      selected={tempBranch.objectId === objectId}
+                      sx={{ pl: 4 }}
+                      onClick={() => handleItemClick(tempBranch)}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography
+                            sx={{
+                              color: "0b204d",
+                              fontSize: "14px",
+                              clear: "both",
+                              display: "inline-block",
+                              overflow: "hidden",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {tempBranch.relativePath}
+                          </Typography>
+                        }
+                      />
+                      {tempBranch.objectId === objectId && (
+                        <ArrowRight></ArrowRight>
+                      )}
+                    </ListItemButton>
+                  );
+                })}
+              </List>
+            </Collapse>
+          </>
+        );
+      });
+    else {
+      return <h1>Work to be done</h1>;
     }
   };
 

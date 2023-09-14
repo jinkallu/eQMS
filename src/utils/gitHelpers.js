@@ -1,6 +1,5 @@
 import { getClient } from "azure-devops-extension-api";
 import { GitRestClient } from "azure-devops-extension-api/Git";
-import { markedToHtml } from "../utils/markedHelper";
 
 export const createBranch = async ({
   projectId,
@@ -8,7 +7,6 @@ export const createBranch = async ({
   baseBranch,
   newBranch,
 }) => {
-  console.log(projectId, repositoryId, baseBranch, newBranch);
   let created = false;
 
   try {
@@ -74,5 +72,117 @@ export const getFileContent = async (repositoryId, path, branchName) => {
   } catch (e) {
     console.log(e);
     return false;
+  }
+};
+
+export const commit = async ({
+  projectId,
+  repositoryId,
+  branchName,
+  filePath,
+  newContent,
+  commitMessage,
+}) => {
+  let created = false;
+
+  try {
+    const gitClient = getClient(GitRestClient);
+    const [refsResult] = await Promise.all([
+      gitClient.getRefs(repositoryId, projectId, "heads"),
+    ]);
+
+    const currentBranch = refsResult.filter(
+      (ref) => ref.name === `refs/heads/${branchName}`
+    )[0];
+    const currentCommitId = currentBranch.objectId;
+
+    const change = {
+      changeType: 2, //1 add, 2 Edit
+      item: {
+        path: filePath,
+      },
+      newContent: {
+        content: btoa(newContent),
+        contentType: 1, // RawText
+      },
+    };
+
+    const push = {
+      commits: [
+        {
+          comment: commitMessage,
+          changes: [change],
+        },
+      ],
+      refUpdates: [
+        {
+          name: currentBranch.name,
+          oldObjectId: currentCommitId,
+        },
+      ],
+      repositoryId,
+    };
+
+    await gitClient.createPush(push, repositoryId);
+    created = true;
+    return { created };
+  } catch (error) {
+    created = false;
+    return { created, error };
+  }
+};
+
+export const renameFile = async (
+  projectId,
+  repositoryId,
+  branchName,
+  filePath,
+  newFilePath,
+  commitMessage
+) => {
+  let created = false;
+
+  try {
+    const gitClient = getClient(GitRestClient);
+    const [refsResult] = await Promise.all([
+      gitClient.getRefs(repositoryId, projectId, "heads"),
+    ]);
+
+    const currentBranch = refsResult.filter(
+      (ref) => ref.name === `refs/heads/${branchName}`
+    )[0];
+    const currentCommitId = currentBranch.objectId;
+
+    const change = {
+      changeType: 8, // Rename
+      sourceServerItem: filePath,
+      item: {
+        path: newFilePath,
+      },
+      newContent: null,
+    };
+
+    const push = {
+      commits: [
+        {
+          comment: commitMessage,
+          changes: [change],
+        },
+      ],
+      refUpdates: [
+        {
+          name: currentBranch.name,
+          oldObjectId: currentCommitId,
+        },
+      ],
+      repositoryId,
+    };
+
+    await gitClient.createPush(push, repositoryId);
+    created = true;
+    return { created };
+  } catch (error) {
+    created = false;
+    return { created, error };
   }
 };
