@@ -2,6 +2,7 @@ import React from "react";
 import {
   Chip,
   Divider,
+  FormControlLabel,
   List,
   ListItem,
   ListItemButton,
@@ -9,11 +10,11 @@ import {
   ListSubheader,
   Menu,
   MenuItem,
+  Switch,
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import AddIcon from "@mui/icons-material/Add";
 import SidebarListItem from "./SidebarListItem";
 import { useExtnStore } from "../zustand/store";
 import { useNavigate } from "react-router";
@@ -27,6 +28,9 @@ export default function Sidebar() {
     loadSOPs,
     branchTypes,
     sops,
+    isQualityMgrSelected,
+    isQualityManager,
+    setQualityMgrRole,
   } = useExtnStore((state) => state);
   const navigate = useNavigate();
   const sideBarWidth = 340;
@@ -70,6 +74,25 @@ export default function Sidebar() {
         overflowY: "scroll",
       }}
     >
+      {isQualityManager && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <FormControlLabel
+            control={
+              <Switch
+                checked={isQualityMgrSelected}
+                onChange={(e) => setQualityMgrRole(e.target.checked)}
+              />
+            }
+            label="Qualtity Manager"
+          />
+        </Box>
+      )}
       <List
         sx={{
           bgcolor: "background.paper",

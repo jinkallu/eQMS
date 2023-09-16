@@ -21,8 +21,14 @@ import {
 } from "react-router-dom";
 
 export default function SidebarListItem({ type, label }) {
-  const { branchTypes, setFileNames, repository, branchFileNames, userSOPs } =
-    useExtnStore((state) => state);
+  const {
+    branchTypes,
+    setFileNames,
+    repository,
+    branchFileNames,
+    userSOPs,
+    isQualityMgrSelected,
+  } = useExtnStore((state) => state);
   const [open, setOpen] = React.useState(false);
   const [contentHtml, setContentHtml] = React.useState("");
   const navigate = useNavigate();
@@ -57,8 +63,18 @@ export default function SidebarListItem({ type, label }) {
     });
   }
 
+  function handleAddTempClick(e, branch) {
+    e.stopPropagation();
+    navigate({
+      pathname: "/qmshub.html/addtemp",
+      search: `?${createSearchParams({
+        branchId: branch.branchId,
+        name: branch.relativePath,
+      })}`,
+    });
+  }
+
   const GetListItems = ({ type, branchFileNames, userSOPs }) => {
-    console.log("branchFileNames", branchFileNames, type, userSOPs);
     if (type === "sop")
       return userSOPs?.map((sop) => {
         const branch = branchFileNames?.find(
@@ -88,6 +104,12 @@ export default function SidebarListItem({ type, label }) {
                   </Typography>
                 }
               />
+              {isQualityMgrSelected && (
+                <AddIcon
+                  sx={{ cursor: "pointer" }}
+                  onClick={(e) => handleAddTempClick(e, branch)}
+                ></AddIcon>
+              )}
               {branch.objectId === objectId && <ArrowRight></ArrowRight>}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
@@ -168,13 +190,15 @@ export default function SidebarListItem({ type, label }) {
           variant="outlined"
           size="small"
         ></Chip>
-        <AddIcon
-          sx={{ cursor: "pointer" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`add${type}`);
-          }}
-        ></AddIcon>
+        {isQualityMgrSelected && (
+          <AddIcon
+            sx={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`add${type}`);
+            }}
+          ></AddIcon>
+        )}
         {/* {open ? <ExpandLess /> : <ExpandMore />} */}
       </ListItem>
       <Collapse in={open} timeout="auto" unmountOnExit>

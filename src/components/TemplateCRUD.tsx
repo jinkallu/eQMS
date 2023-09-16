@@ -8,6 +8,7 @@ import {
   Select,
   InputLabel,
   MenuItem,
+  Chip,
 } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router";
@@ -15,18 +16,31 @@ import { useExtnStore } from "../zustand/store";
 import useCreateBranch from "../CHooks/useCreateBranch";
 import useCommit from "../CHooks/useCommit";
 import { v4 as uuidv4 } from "uuid";
-import { createSearchParams } from "react-router-dom";
+import { createSearchParams, useSearchParams } from "react-router-dom";
 export default function TemplateCRUD() {
   const [name, setName] = React.useState("");
   const [number, setNumber] = React.useState("");
   const [sop, setSop] = React.useState("");
   const [error, setError] = React.useState("");
-  const { branchFileNames, repository, setBranches, setFileNames, userSOPs } =
-    useExtnStore((state) => state);
+  const [searchParams] = useSearchParams();
+
+  const {
+    branchFileNames,
+    repository,
+    setBranches,
+    setFileNames,
+    userSOPs,
+    sops,
+    saveSOPToDatabase,
+    refreshDBData,
+    setAlertMessage,
+  } = useExtnStore((state) => state);
   const { renameFile, loadingRenameFile } = useCommit();
   const navigate = useNavigate();
   const { createBranch, loading, branchCreated } = useCreateBranch();
   const project = useExtnStore((state) => state.project);
+  const branchId = searchParams.get("branchId");
+  const sopName = searchParams.get("name");
 
   async function handleCreate() {
     // check for duplicate name or number
@@ -77,16 +91,63 @@ export default function TemplateCRUD() {
     }
     setName("");
     setNumber("");
+
+    const currSop = sops?.find((sop) => sop.branchId === branchId);
+    if (currSop) {
+      let temp = [];
+      if (currSop?.templates) {
+        temp = [...currSop.templates, uniqueId];
+      } else {
+        temp = [uniqueId];
+      }
+
+      const newSop = { ...currSop, templates: temp };
+      const oldSops = sops?.filter((sop) => sop.branchId !== branchId) || [];
+
+      oldSops.push(newSop);
+
+      const result = await saveSOPToDatabase({
+        collectionName: "sops",
+        projectId: project.id,
+        repositoryId: repository.id,
+        newContent: JSON.stringify(oldSops),
+        commitMessage: `template added for ${branchId} `,
+      });
+      if (result) {
+        setAlertMessage({
+          message: "Template Created...",
+          severity: "success",
+        });
+      } else {
+        setAlertMessage({
+          message: "Template Creation not successfull...",
+          severity: "error",
+        });
+      }
+    }
+
     // get the object id of the folder for navigation
     const objectId = await setFileNames(repository?.id, branchName, "temp");
-    if (objectId) {
-      navigate({
-        pathname: "/qmshub.html/content",
-        search: `?${createSearchParams({
-          objectId,
-        })}`,
-      });
-    }
+
+    // if (objectId) {
+    //   navigate({
+    //     pathname: "/qmshub.html/content",
+    //     search: `?${createSearchParams({
+    //       objectId,
+    //     })}`,
+    //   });
+    // }
+    refreshDBData(project.id, project.name, repository.id);
+
+    navigate({
+      pathname: "/qmshub.html/content/",
+      search: `?${createSearchParams({
+        objectId: objectId,
+        relativePath: newPath,
+        type: "temp",
+        branchName: branchName,
+      })}`,
+    });
   }
 
   function handleCancel() {
@@ -106,6 +167,9 @@ export default function TemplateCRUD() {
         padding: "24px",
       }}
     >
+      <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+        <Chip label={sopName} color="primary"></Chip>
+      </Box>
       <Typography
         variant="h6"
         sx={{

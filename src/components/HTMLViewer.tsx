@@ -47,8 +47,10 @@ export default function HTMLViewer() {
     );
     setBranch(branchData);
 
+    console.log(branchData);
+
     await setFileContent(
-      branchData.repositoryId,
+      repository.id,
       `/qms/${branchData.type}/${branchData.relativePath}/${branchData.relativePath}.md`,
       branchData.name,
       branchData.objectId

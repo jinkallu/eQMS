@@ -29,6 +29,11 @@ export const alertSnackbarSlice = (set) => ({
 
 export const userSlice = (set) => ({
   currentUser: {},
+  isQualityMgrSelected: false,
+
+  setQualityMgrRole: (val) => {
+    set({ isQualityMgrSelected: val });
+  },
   setCurrentUser: async () => {
     const user = await SDK.getUser();
     if (user) {
@@ -405,16 +410,14 @@ export const teamsSlice = (set, get) => ({
         })
       );
       // const teamsWithMembers = get().teamsWithMembers;
+      const currentUserId = get()?.currentUser?.id;
       const isQmanager =
-        teamsWithMembersData?.find((team) =>
-          team?.members?.filter(
-            (mem) =>
-              mem?.identity?.id === get()?.currentUser?.id &&
-              team?.name === "Quality Manager Team"
-          )
-        )?.length === 1;
-      set({ isQualityManager: isQmanager });
+        teamsWithMembersData
+          ?.find((team) => team?.name === "Quality Manager Team")
+          ?.members?.filter((mem) => mem?.identity?.id === currentUserId)
+          ?.length > 0;
 
+      set({ isQualityManager: isQmanager });
       set({ teamsWithMembers: teamsWithMembersData });
     } catch (e) {
       console.log(e);
@@ -435,7 +438,6 @@ export const refreshDataSlice = (set, get) => ({
 
     // const userTeams = teamsWithMembers?.map((team) => team);
     const sopMatrix = [];
-
     const sops = get().sops;
     const allTeams = get().teamsWithMembers;
     const branchFileNames = get().branchFileNames;
@@ -451,6 +453,7 @@ export const refreshDataSlice = (set, get) => ({
     const qualityManager = userTeams?.find(
       (item) => item.name === "Quality Manager Team"
     );
+
     const userSOPs = sops
       ?.map((sop) => {
         const author = [...new Set(sop?.author, userTeams)];
@@ -460,7 +463,6 @@ export const refreshDataSlice = (set, get) => ({
 
         return {
           ...sop,
-
           author,
           approver,
           objectId,
