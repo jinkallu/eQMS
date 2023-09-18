@@ -126,6 +126,7 @@ export const repositorySlice = (set, get) => ({
   },
 
   setFileNames: async (repositoryId, branchId, branchName, type) => {
+    console.log("setflenames", repositoryId, branchId, branchName, type);
     const versionDescriptor = {
       version: branchName,
       versionType: 0,
@@ -177,6 +178,8 @@ export const repositorySlice = (set, get) => ({
       }
       return item.objectId;
     } catch (e) {
+      console.log("error.....", e);
+
       return;
     }
   },
@@ -429,6 +432,7 @@ export const teamsSlice = (set, get) => ({
 export const refreshDataSlice = (set, get) => ({
   userSOPs: [],
   refreshDBData: async (projectId, projectName, repositoryId) => {
+    console.log("referesh data called", repositoryId);
     if (!repositoryId) return;
 
     await get().setBranches(repositoryId);
@@ -437,7 +441,6 @@ export const refreshDataSlice = (set, get) => ({
     await get().loadSOPs(repositoryId);
 
     // const userTeams = teamsWithMembers?.map((team) => team);
-    const sopMatrix = [];
     const sops = get().sops;
     const allTeams = get().teamsWithMembers;
     const branchFileNames = get().branchFileNames;
@@ -453,6 +456,7 @@ export const refreshDataSlice = (set, get) => ({
     const qualityManager = userTeams?.find(
       (item) => item.name === "Quality Manager Team"
     );
+    console.log(sops, branchFileNames);
 
     const userSOPs = sops
       ?.map((sop) => {
@@ -474,6 +478,8 @@ export const refreshDataSlice = (set, get) => ({
       ?.filter(
         (item) => item?.author?.length > 0 || item?.approver?.length > 0
       );
+
+    console.log("usersops", userSOPs);
 
     set({ userSOPs });
   },

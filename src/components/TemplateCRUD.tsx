@@ -20,7 +20,6 @@ import { createSearchParams, useSearchParams } from "react-router-dom";
 export default function TemplateCRUD() {
   const [name, setName] = React.useState("");
   const [number, setNumber] = React.useState("");
-  const [sop, setSop] = React.useState("");
   const [error, setError] = React.useState("");
   const [searchParams] = useSearchParams();
 
@@ -153,7 +152,6 @@ export default function TemplateCRUD() {
   function handleCancel() {
     setName("");
     setNumber("");
-    setSop(null);
     navigate("/qmshub.html/");
   }
   return (
@@ -192,34 +190,6 @@ export default function TemplateCRUD() {
           height: "100%",
         }}
       >
-        <FormControl fullWidth>
-          <InputLabel id="sop">Choose an SOP</InputLabel>
-          <Select
-            labelId="sop"
-            id="sop-select"
-            value={sop}
-            label="SOP"
-            onChange={(e) => {
-              setSop(e.target.value);
-            }}
-          >
-            {branchFileNames
-              ?.filter(
-                (branch) =>
-                  branch.type === "sop" &&
-                  userSOPs?.find((item) => item.branchId === branch.branchId)
-              )
-              ?.sort(
-                (a, b) => a.name.split("-")[1] - b.relativePath.split("-")[1]
-              )
-              ?.map((branch) => (
-                <MenuItem key={branch.branchId} value={branch.branchId}>
-                  {branch.relativePath}
-                </MenuItem>
-              ))}{" "}
-          </Select>
-        </FormControl>
-
         <TextField
           helperText="Please enter template name"
           id="name"

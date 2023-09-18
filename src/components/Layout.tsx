@@ -8,6 +8,7 @@ import { useExtnStore } from "../zustand/store";
 import useRWDataStorage from "../CHooks/useRWDataStorage";
 import useProjectExists from "../CHooks/useProjectExists";
 import AlertSnackbar from "./AlertSnackbar";
+import Header from "./Header";
 
 export default function Layout() {
   const setMessage = useExtnStore((state) => state.setMessage);
@@ -15,12 +16,11 @@ export default function Layout() {
   const { checkProject, loading: projectExistsLoading } = useProjectExists();
 
   const {
-    getProjectTeamWithMembers,
     setCurrentUser,
-    loadApprovalChain,
     setDefaultMessage,
     setProject,
     project,
+    setRepository,
     refreshDBData,
     repository,
   } = useExtnStore((state) => state);
@@ -30,6 +30,7 @@ export default function Layout() {
     getMainProjectData();
   }, []);
   async function getMainProjectData() {
+    console.log(project);
     try {
       if (project && project?.id) {
         return;
@@ -38,6 +39,7 @@ export default function Layout() {
       const res: any = await readData("project");
       const resParsed = JSON.parse(res);
       const newProject = await checkProject(resParsed.name);
+      console.log(newProject);
       if (newProject) {
         setProject(newProject);
 
@@ -57,14 +59,14 @@ export default function Layout() {
   }
 
   React.useEffect(() => {
-    setDefaultMessage("QMS");
-  }, []);
+    if (project && project?.id) {
+      setRepository(project?.id, project?.name);
+    }
+  }, [project]);
 
   React.useEffect(() => {
     if (project && project?.id && repository && repository.id) {
       setCurrentUser();
-      // getProjectTeamWithMembers(project.id);
-      // loadApprovalChain();
       refreshDBData(project.id, project.name, repository.id);
     }
   }, [project, repository]);
@@ -72,33 +74,15 @@ export default function Layout() {
     <Box
       sx={{
         display: "flex",
+        flexDirection: "column",
+        width: "100%",
         minHeight: "95vh",
       }}
     >
       <AlertSnackbar></AlertSnackbar>
-      <Sidebar></Sidebar>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          width: "100%",
-          flexGrow: 1,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <DynamicIsland></DynamicIsland>
-        </Box>
-
-        <Outlet></Outlet>
-      </Box>
+      <Header></Header>
+      <div style={{ marginTop: 50 }}></div>
+      <Outlet></Outlet>
     </Box>
   );
 }

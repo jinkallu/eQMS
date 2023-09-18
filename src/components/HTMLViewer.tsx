@@ -127,6 +127,7 @@ export default function HTMLViewer() {
         flexDirection: "column",
         maxHeight: "100vh",
         overflowY: "scroll",
+        paddingTop: "9px",
       }}
     >
       <Box

@@ -76,83 +76,90 @@ export default function SidebarListItem({ type, label }) {
 
   const GetListItems = ({ type, branchFileNames, userSOPs }) => {
     if (type === "sop")
-      return userSOPs?.map((sop) => {
-        const branch = branchFileNames?.find(
-          (item) => item.branchId === sop.branchId && item.type === "sop"
-        );
-        return (
-          <>
-            <ListItemButton
-              key={branch.objectId}
-              selected={branch.objectId === objectId}
-              sx={{ pl: 4 }}
-              onClick={() => handleItemClick(branch)}
-            >
-              <ListItemText
-                primary={
-                  <Typography
-                    sx={{
-                      color: "0b204d",
-                      fontSize: "14px",
-                      clear: "both",
-                      display: "inline-block",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {branch.relativePath}
-                  </Typography>
-                }
-              />
-              {isQualityMgrSelected && (
-                <AddIcon
-                  sx={{ cursor: "pointer" }}
-                  onClick={(e) => handleAddTempClick(e, branch)}
-                ></AddIcon>
-              )}
-              {branch.objectId === objectId && <ArrowRight></ArrowRight>}
-            </ListItemButton>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding sx={{ paddingLeft: "5px" }}>
-                {sop?.templates?.map((template) => {
-                  const tempBranch = branchFileNames.find(
-                    (item) => item.type === "temp" && item.branchId === template
-                  );
-
-                  return (
-                    <ListItemButton
-                      key={tempBranch.objectId}
-                      selected={tempBranch.objectId === objectId}
-                      sx={{ pl: 4 }}
-                      onClick={() => handleItemClick(tempBranch)}
+      return userSOPs
+        ?.sort((sop) => sop?.sortOrder)
+        ?.map((sop) => {
+          const branch = branchFileNames?.find(
+            (item) => item.branchId === sop.branchId && item.type === "sop"
+          );
+          return (
+            <>
+              <ListItemButton
+                key={branch.objectId}
+                selected={branch.objectId === objectId}
+                sx={{ pl: 4 }}
+                onClick={() => handleItemClick(branch)}
+              >
+                <ListItemText
+                  primary={
+                    <Typography
+                      sx={{
+                        color: "0b204d",
+                        fontSize: "14px",
+                        clear: "both",
+                        display: "inline-block",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
                     >
-                      <ListItemText
-                        primary={
-                          <Typography
-                            sx={{
-                              color: "0b204d",
-                              fontSize: "14px",
-                              clear: "both",
-                              display: "inline-block",
-                              overflow: "hidden",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {tempBranch.relativePath}
-                          </Typography>
-                        }
-                      />
-                      {tempBranch.objectId === objectId && (
-                        <ArrowRight></ArrowRight>
-                      )}
-                    </ListItemButton>
-                  );
-                })}
-              </List>
-            </Collapse>
-          </>
-        );
-      });
+                      {branch.relativePath}
+                    </Typography>
+                  }
+                />
+                {isQualityMgrSelected && (
+                  <AddIcon
+                    sx={{ cursor: "pointer" }}
+                    onClick={(e) => handleAddTempClick(e, branch)}
+                  ></AddIcon>
+                )}
+                {branch.objectId === objectId && <ArrowRight></ArrowRight>}
+              </ListItemButton>
+              <Collapse in={open} timeout="auto" unmountOnExit>
+                <List
+                  component="div"
+                  disablePadding
+                  sx={{ paddingLeft: "5px" }}
+                >
+                  {sop?.templates?.map((template) => {
+                    const tempBranch = branchFileNames.find(
+                      (item) =>
+                        item.type === "temp" && item.branchId === template
+                    );
+
+                    return (
+                      <ListItemButton
+                        key={tempBranch.objectId}
+                        selected={tempBranch.objectId === objectId}
+                        sx={{ pl: 4 }}
+                        onClick={() => handleItemClick(tempBranch)}
+                      >
+                        <ListItemText
+                          primary={
+                            <Typography
+                              sx={{
+                                color: "0b204d",
+                                fontSize: "14px",
+                                clear: "both",
+                                display: "inline-block",
+                                overflow: "hidden",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {tempBranch.relativePath}
+                            </Typography>
+                          }
+                        />
+                        {tempBranch.objectId === objectId && (
+                          <ArrowRight></ArrowRight>
+                        )}
+                      </ListItemButton>
+                    );
+                  })}
+                </List>
+              </Collapse>
+            </>
+          );
+        });
     else {
       return <h1>Work to be done</h1>;
     }

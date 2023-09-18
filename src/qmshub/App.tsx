@@ -13,6 +13,7 @@ import QmCRUD from "../components/QmCRUD";
 import ProdCRUD from "../components/ProdCRUD";
 import TemplateCRUD from "../components/TemplateCRUD";
 import HTMLViewer from "../components/HTMLViewer";
+import SOPs from "../components/Pages/SOPs";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,11 @@ const router = createBrowserRouter([
       {
         path: "/qmshub.html/",
         element: <h1>Home</h1>,
+      },
+
+      {
+        path: "/qmshub.html/sops",
+        element: <SOPs></SOPs>,
       },
       {
         path: "/qmshub.html/marked",
