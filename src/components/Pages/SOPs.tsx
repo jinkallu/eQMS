@@ -6,6 +6,7 @@ import {
   TextField,
   InputAdornment,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -13,6 +14,7 @@ import SOPCard from "../SOPCard";
 
 import { useExtnStore } from "../../zustand/store";
 import { createSearchParams, useNavigate } from "react-router-dom";
+import AddSOP from "../AddSOP";
 
 const SOPs = () => {
   const {
@@ -27,16 +29,27 @@ const SOPs = () => {
   } = useExtnStore((state) => state);
 
   const navigate = useNavigate();
+  const [loading, setLoading] = React.useState(false);
+  const [openAddSopModal, setOpenAddSopModal] = React.useState(false);
+
+  async function refreshData(projectId, projectName, repositoryId) {
+    setLoading(true);
+    try {
+      await refreshDBData(projectId, projectName, repositoryId);
+      setLoading(false);
+    } catch (e) {
+      setLoading(false);
+    }
+  }
 
   React.useEffect(() => {
     if (project && project?.id && repository && repository.id) {
-      refreshDBData(project.id, project.name, repository.id);
+      refreshData(project.id, project.name, repository.id);
     }
   }, [project, repository]);
 
   React.useEffect(() => {
     if (repository && repository?.id) {
-      console.log(branchTypes);
       branchTypes["sop"]?.map((branch) => {
         setFileNames(repository?.id, branch.branchId, branch.name, "sop");
       });
@@ -50,6 +63,7 @@ const SOPs = () => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <AddSOP open={openAddSopModal} setOpen={setOpenAddSopModal}></AddSOP>
       <Box
         sx={{
           display: "flex",
@@ -65,7 +79,7 @@ const SOPs = () => {
             variant="contained"
             endIcon={<AddIcon />}
             onClick={() => {
-              navigate("/qmshub.html/addsop");
+              setOpenAddSopModal(true);
             }}
           >
             Create SOP
@@ -84,7 +98,9 @@ const SOPs = () => {
           variant="standard"
         />
       </Box>
-      {userSOPs?.length > 0 ? (
+      {loading ? (
+        <CircularProgress></CircularProgress>
+      ) : userSOPs?.length > 0 ? (
         <Grid
           container
           spacing={{ xs: 2, md: 3, lg: 3 }}

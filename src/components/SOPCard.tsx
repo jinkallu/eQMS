@@ -23,9 +23,11 @@ import {
   Tooltip,
 } from "@mui/material";
 import { createSearchParams, useNavigate } from "react-router-dom";
+import TemplateCRUD from "./TemplateCRUD";
 
 export default function SOPCard({ branch, sop }) {
   const { branchFileNames } = useExtnStore((state) => state);
+  const [openAddTemplateModal, setOpenAddTemplateModal] = React.useState(false);
   const navigate = useNavigate();
 
   async function handleItemClick(branch) {
@@ -53,6 +55,12 @@ export default function SOPCard({ branch, sop }) {
 
   return (
     <Box>
+      <TemplateCRUD
+        open={openAddTemplateModal}
+        setOpen={setOpenAddTemplateModal}
+        branchId={branch.branchId}
+        sopName={branch.relativePath}
+      ></TemplateCRUD>
       <Card
         variant="outlined"
         sx={{ "&:hover": { border: "2px solid #082567" } }}
@@ -62,7 +70,7 @@ export default function SOPCard({ branch, sop }) {
           avatar={
             <Avatar aria-label="recipe" sx={{ backgroundColor: "#082567" }}>
               <Typography sx={{ fontSize: "12px" }}>
-                {branch.relativePath?.split("-")[1]}
+                {branch?.relativePath?.split("-")[1]}
               </Typography>
             </Avatar>
           }
@@ -71,13 +79,15 @@ export default function SOPCard({ branch, sop }) {
               <MoreVertIcon />
             </IconButton>
           }
-          title=<Typography
-            sx={{ cursor: "pointer", fontSize: 14, fontWeight: 600 }}
-            onClick={() => handleItemClick(branch)}
-            color="primary"
-          >
-            {branch.relativePath}
-          </Typography>
+          title=<Tooltip title="Click to view SOP">
+            <Typography
+              sx={{ cursor: "pointer", fontSize: 14, fontWeight: 600 }}
+              onClick={() => handleItemClick(branch)}
+              color="primary"
+            >
+              {branch?.relativePath}
+            </Typography>
+          </Tooltip>
         />
         <CardContent>
           <Box
@@ -104,7 +114,8 @@ export default function SOPCard({ branch, sop }) {
               {sop?.author?.length > 0 && (
                 <Tooltip title="Add Template">
                   <AddIcon
-                    onClick={(e) => handleAddTempClick(e, branch)}
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => setOpenAddTemplateModal(true)}
                   ></AddIcon>
                 </Tooltip>
               )}
@@ -128,7 +139,7 @@ export default function SOPCard({ branch, sop }) {
 
                   return (
                     <ListItem
-                      key={tempBranch?.id}
+                      key={template}
                       sx={{
                         cursor: "pointer",
                         "&:hover": { backgroundColor: "grey" },

@@ -9,6 +9,7 @@ import {
   InputLabel,
   MenuItem,
   Chip,
+  Modal,
 } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router";
@@ -17,7 +18,7 @@ import useCreateBranch from "../CHooks/useCreateBranch";
 import useCommit from "../CHooks/useCommit";
 import { v4 as uuidv4 } from "uuid";
 import { createSearchParams, useSearchParams } from "react-router-dom";
-export default function TemplateCRUD() {
+export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
   const [name, setName] = React.useState("");
   const [number, setNumber] = React.useState("");
   const [error, setError] = React.useState("");
@@ -38,8 +39,8 @@ export default function TemplateCRUD() {
   const navigate = useNavigate();
   const { createBranch, loading, branchCreated } = useCreateBranch();
   const project = useExtnStore((state) => state.project);
-  const branchId = searchParams.get("branchId");
-  const sopName = searchParams.get("name");
+  // const branchId = searchParams.get("branchId");
+  // const sopName = searchParams.get("name");
 
   async function handleCreate() {
     // check for duplicate name or number
@@ -137,96 +138,105 @@ export default function TemplateCRUD() {
     //   });
     // }
     refreshDBData(project.id, project.name, repository.id);
-
-    navigate({
-      pathname: "/qmshub.html/content/",
-      search: `?${createSearchParams({
-        objectId: objectId,
-        relativePath: newPath,
-        type: "temp",
-        branchName: branchName,
-      })}`,
-    });
+    handleCancel();
+    // navigate({
+    //   pathname: "/qmshub.html/content/",
+    //   search: `?${createSearchParams({
+    //     objectId: objectId,
+    //     relativePath: newPath,
+    //     type: "temp",
+    //     branchName: branchName,
+    //   })}`,
+    // });
   }
 
   function handleCancel() {
     setName("");
     setNumber("");
-    navigate("/qmshub.html/");
+    setOpen(false);
+    // navigate("/qmshub.html/");
   }
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
-        height: "100%",
-        padding: "24px",
-      }}
+    <Modal
+      open={open}
+      onClose={handleCancel}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
     >
-      <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-        <Chip label={sopName} color="primary"></Chip>
-      </Box>
-      <Typography
-        variant="h6"
-        sx={{
-          alignSelf: "flex-start",
-          paddingBottom: "24px",
-          paddingTop: "12px",
-        }}
-      >
-        Enter required details to create the Template
-      </Typography>
-      <Paper
-        elevation={3}
+      <Box
         sx={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          padding: "36px",
           flexDirection: "column",
-          gap: "12px",
-          height: "100%",
+          padding: "24px",
         }}
       >
-        <TextField
-          helperText="Please enter template name"
-          id="name"
-          label="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        ></TextField>
-
-        <TextField
-          helperText="Please enter template number"
-          id="number"
-          label="Number"
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-        ></TextField>
-        <Typography sx={{ fontSize: "12px", color: "red" }}>{error}</Typography>
-        <Box
+        <Paper
+          elevation={3}
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "36px",
+            flexDirection: "column",
             gap: "12px",
-            padding: "0px",
+            height: "100%",
           }}
         >
-          <Button variant="outlined" color="secondary" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button
-            disabled={loading || loadingRenameFile}
-            variant="contained"
-            color="primary"
-            onClick={handleCreate}
+          <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+            <Chip label={sopName} color="primary"></Chip>
+          </Box>
+          <Typography
+            variant="h6"
+            sx={{
+              alignSelf: "flex-start",
+              paddingBottom: "24px",
+              paddingTop: "12px",
+            }}
           >
-            Create
-          </Button>
-        </Box>
-      </Paper>
-    </Box>
+            Create the Template
+          </Typography>
+          <TextField
+            helperText="Please enter template name"
+            id="name"
+            label="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          ></TextField>
+
+          <TextField
+            helperText="Please enter template number"
+            id="number"
+            label="Number"
+            value={number}
+            onChange={(e) => setNumber(e.target.value)}
+          ></TextField>
+          <Typography sx={{ fontSize: "12px", color: "red" }}>
+            {error}
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "12px",
+              padding: "0px",
+            }}
+          >
+            <Button variant="outlined" color="secondary" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button
+              disabled={loading || loadingRenameFile}
+              variant="contained"
+              color="primary"
+              onClick={handleCreate}
+            >
+              Create
+            </Button>
+          </Box>
+        </Paper>
+      </Box>
+    </Modal>
   );
 }

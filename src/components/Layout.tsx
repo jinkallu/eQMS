@@ -30,7 +30,6 @@ export default function Layout() {
     getMainProjectData();
   }, []);
   async function getMainProjectData() {
-    console.log(project);
     try {
       if (project && project?.id) {
         return;
@@ -39,7 +38,6 @@ export default function Layout() {
       const res: any = await readData("project");
       const resParsed = JSON.parse(res);
       const newProject = await checkProject(resParsed.name);
-      console.log(newProject);
       if (newProject) {
         setProject(newProject);
 

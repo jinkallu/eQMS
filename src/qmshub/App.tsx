@@ -43,10 +43,10 @@ const router = createBrowserRouter([
           ></MarkedEditView>
         ),
       },
-      {
-        path: "/qmshub.html/addsop",
-        element: <AddSOP></AddSOP>,
-      },
+      // {
+      //   path: "/qmshub.html/addsop",
+      //   element: <AddSOP></AddSOP>,
+      // },
       {
         path: "/qmshub.html/addqm",
         element: <QmCRUD></QmCRUD>,
@@ -55,10 +55,10 @@ const router = createBrowserRouter([
         path: "/qmshub.html/addprod",
         element: <ProdCRUD />,
       },
-      {
-        path: "/qmshub.html/addtemp",
-        element: <TemplateCRUD></TemplateCRUD>,
-      },
+      // {
+      //   path: "/qmshub.html/addtemp",
+      //   element: <TemplateCRUD></TemplateCRUD>,
+      // },
       {
         path: "/qmshub.html/content",
         element: <HTMLViewer></HTMLViewer>,

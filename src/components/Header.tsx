@@ -98,6 +98,7 @@ const Header = () => {
       >
         {options?.map((option) => (
           <Chip
+            key={option.label}
             label={option.label}
             sx={{ cursor: "pointer" }}
             color={option.isSelected ? "primary" : "default"}

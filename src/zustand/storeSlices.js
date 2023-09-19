@@ -69,7 +69,6 @@ export const repositorySlice = (set, get) => ({
         set((state) => ({ repository: repo }));
       }
     } catch (error) {
-      console.error("Error fetching repository ID:", error);
       set((state) => ({ repository: {} }));
     }
   },
@@ -95,7 +94,6 @@ export const repositorySlice = (set, get) => ({
       });
       set((state) => ({ branchTypes: typeBranchData }));
     } catch (error) {
-      console.error("Error fetching repository ID:", error);
       set((state) => ({ branches: [] }));
     }
   },
@@ -126,7 +124,6 @@ export const repositorySlice = (set, get) => ({
   },
 
   setFileNames: async (repositoryId, branchId, branchName, type) => {
-    console.log("setflenames", repositoryId, branchId, branchName, type);
     const versionDescriptor = {
       version: branchName,
       versionType: 0,
@@ -178,8 +175,6 @@ export const repositorySlice = (set, get) => ({
       }
       return item.objectId;
     } catch (e) {
-      console.log("error.....", e);
-
       return;
     }
   },
@@ -210,7 +205,6 @@ export const repositorySlice = (set, get) => ({
         htmlContents: { ...state.htmlContents, ...newRes },
       }));
     } catch (e) {
-      console.log(e);
       const newRes = { objectId: "" };
 
       set((state) => ({
@@ -363,7 +357,6 @@ export const databaseSlice = (set, get) => ({
       set((state) => ({ database: { ...state.database, newData } }));
       return json;
     } catch (e) {
-      console.log("error");
       console.log(e);
       return null;
     }
@@ -432,7 +425,6 @@ export const teamsSlice = (set, get) => ({
 export const refreshDataSlice = (set, get) => ({
   userSOPs: [],
   refreshDBData: async (projectId, projectName, repositoryId) => {
-    console.log("referesh data called", repositoryId);
     if (!repositoryId) return;
 
     await get().setBranches(repositoryId);
@@ -456,30 +448,29 @@ export const refreshDataSlice = (set, get) => ({
     const qualityManager = userTeams?.find(
       (item) => item.name === "Quality Manager Team"
     );
-    console.log(sops, branchFileNames);
-
     const userSOPs = sops
       ?.map((sop) => {
         const author = [...new Set(sop?.author, userTeams)];
         const approver = [...new Set(sop?.approver, userTeams)];
-        const { objectId, relativePath, type, branchName } =
-          branchFileNames?.find((item) => item.branchId === sop.branchId);
+
+        const obj = branchFileNames?.find(
+          (item) => item.branchId === sop.branchId
+        );
 
         return {
           ...sop,
           author,
           approver,
-          objectId,
-          relativePath,
-          type,
-          branchName,
+          objectId: obj?.objectId,
+          relativePath: obj?.relativePath,
+          type: obj?.type,
+          branchName: obj?.branchName,
         };
       })
       ?.filter(
-        (item) => item?.author?.length > 0 || item?.approver?.length > 0
+        (item) =>
+          item?.author?.length > 0 || (item?.approver?.length > 0 && objectId)
       );
-
-    console.log("usersops", userSOPs);
 
     set({ userSOPs });
   },
