@@ -72,6 +72,7 @@ const SOPs = () => {
           alignItems: "flex-end",
           gap: "5px",
           paddingBottom: "12px",
+          marginY: "24px",
         }}
       >
         {isQualityMgrSelected && (
@@ -85,6 +86,7 @@ const SOPs = () => {
             Create SOP
           </Button>
         )}
+        <Box sx={{ flexGrow: 1 }}></Box>
         <TextField
           id="searchInput"
           placeholder="Search SOPs & Templates"
@@ -99,7 +101,15 @@ const SOPs = () => {
         />
       </Box>
       {loading ? (
-        <CircularProgress></CircularProgress>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <CircularProgress></CircularProgress>
+        </Box>
       ) : userSOPs?.length > 0 ? (
         <Grid
           container

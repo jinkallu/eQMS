@@ -137,8 +137,8 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
     //     })}`,
     //   });
     // }
-    refreshDBData(project.id, project.name, repository.id);
     handleCancel();
+    refreshDBData(project.id, project.name, repository.id);
     // navigate({
     //   pathname: "/qmshub.html/content/",
     //   search: `?${createSearchParams({

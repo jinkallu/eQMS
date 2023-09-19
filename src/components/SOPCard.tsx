@@ -47,8 +47,8 @@ export default function SOPCard({ branch, sop }) {
     navigate({
       pathname: "/qmshub.html/addtemp",
       search: `?${createSearchParams({
-        branchId: branch.branchId,
-        name: branch.relativePath,
+        branchId: branch?.branchId,
+        name: branch?.relativePath,
       })}`,
     });
   }
@@ -58,8 +58,8 @@ export default function SOPCard({ branch, sop }) {
       <TemplateCRUD
         open={openAddTemplateModal}
         setOpen={setOpenAddTemplateModal}
-        branchId={branch.branchId}
-        sopName={branch.relativePath}
+        branchId={branch?.branchId}
+        sopName={branch?.relativePath}
       ></TemplateCRUD>
       <Card
         variant="outlined"
@@ -81,9 +81,13 @@ export default function SOPCard({ branch, sop }) {
           }
           title=<Tooltip title="Click to view SOP">
             <Typography
-              sx={{ cursor: "pointer", fontSize: 14, fontWeight: 600 }}
+              sx={{
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: 600,
+                color: "#082567",
+              }}
               onClick={() => handleItemClick(branch)}
-              color="primary"
             >
               {branch?.relativePath}
             </Typography>
@@ -92,34 +96,34 @@ export default function SOPCard({ branch, sop }) {
         <CardContent>
           <Box
             sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography
+              sx={{ fontSize: 14, fontWeight: 600, paddingLeft: "5px" }}
+              color="success"
+            >
+              Templates
+            </Typography>
+            {sop?.author?.length > 0 && (
+              <Tooltip title="Add Template">
+                <AddIcon
+                  sx={{ cursor: "pointer" }}
+                  onClick={() => setOpenAddTemplateModal(true)}
+                ></AddIcon>
+              </Tooltip>
+            )}
+          </Box>
+          <Box
+            sx={{
               height: 200,
               overflow: "auto",
               borderTop: "1px solid indigo",
               paddingTop: "5px",
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Typography
-                sx={{ fontSize: 14, fontWeight: 600, paddingLeft: "5px" }}
-                color="success"
-              >
-                Templates
-              </Typography>
-              {sop?.author?.length > 0 && (
-                <Tooltip title="Add Template">
-                  <AddIcon
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => setOpenAddTemplateModal(true)}
-                  ></AddIcon>
-                </Tooltip>
-              )}
-            </Box>
             <List
               dense={true}
               sx={{

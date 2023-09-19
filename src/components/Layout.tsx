@@ -75,6 +75,9 @@ export default function Layout() {
         flexDirection: "column",
         width: "100%",
         minHeight: "95vh",
+        padding: 0,
+        margin: 0,
+        backgroundColor: "#F5F5F5",
       }}
     >
       <AlertSnackbar></AlertSnackbar>
