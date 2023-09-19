@@ -17,6 +17,20 @@ import { useExtnStore } from "../zustand/store";
 const Header = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [options, setOptions] = React.useState([
+    {
+      type: "qm",
+      label: "Quality Manual",
+      isSelected: false,
+    },
+
+    { type: "sops", label: "SOPs", isSelected: false },
+    {
+      type: "prod",
+      label: "Products",
+      isSelected: false,
+    },
+  ]);
   const open = Boolean(anchorEl);
 
   const {
@@ -33,9 +47,28 @@ const Header = () => {
     setAnchorEl(null);
   };
 
-  function handleClick(page) {
-    console.log("called");
-    navigate(`/qmshub.html/${page}`);
+  function handleQuatraceClick() {
+    setOptions((prev) =>
+      prev.map((opt) => {
+        return { ...opt, isSelected: false };
+      })
+    );
+
+    navigate("/qmshub.html/");
+  }
+
+  function handleClick(option) {
+    setOptions((prev) =>
+      prev.map((opt) => {
+        if (opt.type === option.type) {
+          return { ...opt, isSelected: true };
+        } else {
+          return { ...opt, isSelected: false };
+        }
+      })
+    );
+
+    navigate(`/qmshub.html/${option.type}`);
   }
   return (
     <Paper
@@ -50,7 +83,7 @@ const Header = () => {
         padding: "5px",
       }}
     >
-      <Box>
+      <Box onClick={handleQuatraceClick}>
         <Typography color="primary" sx={{ cursor: "pointer" }}>
           Quatrace
         </Typography>
@@ -63,21 +96,14 @@ const Header = () => {
           paddingRight: "12px",
         }}
       >
-        <Chip
-          label="Quality Manual"
-          sx={{ cursor: "pointer" }}
-          onClick={() => handleClick("qm")}
-        />
-        <Chip
-          label="SOPs"
-          sx={{ cursor: "pointer" }}
-          onClick={() => handleClick("sops")}
-        />
-        <Chip
-          label="Products"
-          sx={{ cursor: "pointer" }}
-          onClick={() => handleClick("products")}
-        />
+        {options?.map((option) => (
+          <Chip
+            label={option.label}
+            sx={{ cursor: "pointer" }}
+            color={option.isSelected ? "primary" : "default"}
+            onClick={() => handleClick(option)}
+          />
+        ))}
 
         <IconButton onClick={handleMenuClick}>
           <MoreVertIcon></MoreVertIcon>

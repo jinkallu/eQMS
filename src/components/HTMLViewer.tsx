@@ -1,5 +1,5 @@
 import MarkedHTMLViewer from "./marked/MarkedHTMLViewer";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useExtnStore } from "../zustand/store";
 import React from "react";
 import { markedToHtml } from "../utils/markedHelper";
@@ -10,6 +10,7 @@ import MarkedEditView from "./marked/MarkedEditView";
 import useCommit from "../CHooks/useCommit";
 import EditConfModal from "./EditConfModal";
 import useGetTeamMembers from "../CHooks/useGetTeamMembers";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export default function HTMLViewer() {
   const {
@@ -34,6 +35,7 @@ export default function HTMLViewer() {
   const relativePath = searchParams.get("relativePath");
   const type = searchParams.get("type");
   const branchName = searchParams.get("branchName");
+  const navigate = useNavigate();
   const {
     loading: loadingTeamMembres,
     getTeamMembers,
@@ -137,6 +139,10 @@ export default function HTMLViewer() {
           paddingX: "24px",
         }}
       >
+        <ArrowBackIcon
+          sx={{ cursor: "pointer" }}
+          onClick={() => navigate(-1)}
+        ></ArrowBackIcon>
         <EditConfModal
           commitMessage={commitMessage}
           setCommitMessage={setCommitMessage}

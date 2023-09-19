@@ -1,6 +1,14 @@
 import React from "react";
-import { Grid, Box, Button, TextField, InputAdornment } from "@mui/material";
+import {
+  Grid,
+  Box,
+  Button,
+  TextField,
+  InputAdornment,
+  Typography,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
 import SOPCard from "../SOPCard";
 
 import { useExtnStore } from "../../zustand/store";
@@ -54,12 +62,13 @@ const SOPs = () => {
       >
         {isQualityMgrSelected && (
           <Button
-            variant="outlined"
+            variant="contained"
+            endIcon={<AddIcon />}
             onClick={() => {
               navigate("/qmshub.html/addsop");
             }}
           >
-            Create New SOP
+            Create SOP
           </Button>
         )}
         <TextField
@@ -75,28 +84,31 @@ const SOPs = () => {
           variant="standard"
         />
       </Box>
+      {userSOPs?.length > 0 ? (
+        <Grid
+          container
+          spacing={{ xs: 2, md: 3, lg: 3 }}
+          columns={{ xs: 4, sm: 8, md: 12 }}
+          sx={{ padding: "9px" }}
+        >
+          {userSOPs
+            ?.sort((sop) => sop?.sortOrder)
+            ?.map((sop) => {
+              const branch = branchFileNames?.find(
+                (item) => item.branchId === sop.branchId && item.type === "sop"
+              );
 
-      <Grid
-        container
-        spacing={{ xs: 2, md: 3, lg: 3 }}
-        columns={{ xs: 4, sm: 8, md: 12 }}
-        sx={{ padding: "9px" }}
-      >
-        {userSOPs
-          ?.sort((sop) => sop?.sortOrder)
-          ?.map((sop) => {
-            const branch = branchFileNames?.find(
-              (item) => item.branchId === sop.branchId && item.type === "sop"
-            );
-
-            //
-            return (
-              <Grid key={sop.branchId} item xs={2} sm={2} md={2} lg={2}>
-                <SOPCard branch={branch} sop={sop}></SOPCard>
-              </Grid>
-            );
-          })}
-      </Grid>
+              //
+              return (
+                <Grid key={sop.branchId} item xs={2} sm={2} md={2} lg={2}>
+                  <SOPCard branch={branch} sop={sop}></SOPCard>
+                </Grid>
+              );
+            })}
+        </Grid>
+      ) : (
+        <Typography>No SOPs to display</Typography>
+      )}
     </Box>
   );
 };
