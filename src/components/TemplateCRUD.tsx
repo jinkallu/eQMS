@@ -31,7 +31,7 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
     setFileNames,
     userSOPs,
     sops,
-    saveSOPToDatabase,
+    saveToDatabase,
     refreshDBData,
     setAlertMessage,
   } = useExtnStore((state) => state);
@@ -106,7 +106,7 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
 
       oldSops.push(newSop);
 
-      const result = await saveSOPToDatabase({
+      const result = await saveToDatabase({
         collectionName: "sops",
         projectId: project.id,
         repositoryId: repository.id,

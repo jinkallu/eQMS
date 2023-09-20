@@ -328,6 +328,7 @@ export const repositorySlice = (set, get) => ({
 
 export const databaseSlice = (set, get) => ({
   sops: [],
+  products: [],
   loadSOPs: async (repositoryId) => {
     try {
       const path = `sops.json`;
@@ -340,6 +341,20 @@ export const databaseSlice = (set, get) => ({
       set({ sops: JSON.parse(json) });
     } catch (e) {
       set((state) => ({ sops: [] }));
+    }
+  },
+  loadProducts: async (repositoryId) => {
+    try {
+      const path = `products.json`;
+      const json = await getFileContent(
+        repositoryId,
+        path,
+        "qms/database/main"
+      );
+
+      set({ products: JSON.parse(json) });
+    } catch (e) {
+      set((state) => ({ products: [] }));
     }
   },
 
@@ -362,7 +377,7 @@ export const databaseSlice = (set, get) => ({
     }
   },
 
-  saveSOPToDatabase: async ({
+  saveToDatabase: async ({
     collectionName,
     projectId,
     repositoryId,
@@ -371,7 +386,7 @@ export const databaseSlice = (set, get) => ({
   }) => {
     const branchName = "qms/database/main";
     const filePath = `${collectionName}.json`;
-    const res = commit({
+    const res = await commit({
       projectId,
       repositoryId,
       branchName,
@@ -379,7 +394,7 @@ export const databaseSlice = (set, get) => ({
       newContent,
       commitMessage,
     });
-
+    console.log(res);
     return res;
   },
   updateDatabase: async ({ collectionName, repositoryId, data }) => {

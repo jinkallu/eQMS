@@ -39,7 +39,7 @@ export default function AddSOP({
     setBranches,
     setFileNames,
     teamsWithMembers,
-    saveSOPToDatabase,
+    saveToDatabase,
     sops,
     refreshDBData,
     setAlertMessage,
@@ -126,7 +126,7 @@ export default function AddSOP({
     });
 
     const commitMessage = "initial commit";
-    const result = await saveSOPToDatabase({
+    const result = await saveToDatabase({
       collectionName: "sops",
       projectId: project.id,
       repositoryId: repository.id,

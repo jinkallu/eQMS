@@ -26,7 +26,7 @@ const Header = () => {
 
     { type: "sops", label: "SOPs", isSelected: false },
     {
-      type: "prod",
+      type: "products",
       label: "Products",
       isSelected: false,
     },
