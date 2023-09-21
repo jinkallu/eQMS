@@ -21,13 +21,23 @@ import {
   Avatar,
   IconButton,
   Tooltip,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import TemplateCRUD from "./TemplateCRUD";
 
-export default function SOPCard({ branch, sop }) {
+export default function SOPCard({ branch, sop, edit }) {
   const { branchFileNames } = useExtnStore((state) => state);
   const [openAddTemplateModal, setOpenAddTemplateModal] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const navigate = useNavigate();
 
   async function handleItemClick(branch) {
@@ -65,6 +75,9 @@ export default function SOPCard({ branch, sop }) {
         variant="outlined"
         sx={{ "&:hover": { border: "2px solid #082567" } }}
       >
+        {edit && (
+          <Box sx={{ height: "5px", backgroundColor: " #082567" }}></Box>
+        )}
         <CardHeader
           sx={{ paddingBottom: "5px" }}
           avatar={
@@ -75,9 +88,33 @@ export default function SOPCard({ branch, sop }) {
             </Avatar>
           }
           action={
-            <IconButton aria-label="settings">
-              <MoreVertIcon />
-            </IconButton>
+            <div>
+              <IconButton
+                aria-label="settings"
+                color={edit ? "primary" : "default"}
+                onClick={handleClick}
+              >
+                <MoreVertIcon />
+              </IconButton>
+              <Menu
+                id="long-menu"
+                MenuListProps={{
+                  "aria-labelledby": "long-button",
+                }}
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+              >
+                {edit && (
+                  <MenuItem key="approval" onClick={handleClose}>
+                    Send for approval
+                  </MenuItem>
+                )}
+                <MenuItem key="edit" onClick={handleClose}>
+                  Edit
+                </MenuItem>
+              </Menu>
+            </div>
           }
           title=<Tooltip title="Click to view SOP">
             <Typography

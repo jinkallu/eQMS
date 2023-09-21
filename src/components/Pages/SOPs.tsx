@@ -26,6 +26,7 @@ const SOPs = () => {
     branchTypes,
     refreshDBData,
     project,
+    branches,
   } = useExtnStore((state) => state);
 
   const navigate = useNavigate();
@@ -60,6 +61,8 @@ const SOPs = () => {
       });
     }
   }, [repository, branchTypes]);
+
+  console.log(branches);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -114,7 +117,7 @@ const SOPs = () => {
         <Grid
           container
           spacing={{ xs: 2, md: 3, lg: 3 }}
-          columns={{ xs: 4, sm: 8, md: 12 }}
+          columns={{ xs: 4, sm: 6, md: 10, lg: 10 }}
           sx={{ padding: "9px" }}
         >
           {userSOPs
@@ -123,11 +126,13 @@ const SOPs = () => {
               const branch = branchFileNames?.find(
                 (item) => item.branchId === sop.branchId && item.type === "sop"
               );
-
+              const edit = branches.find(
+                (item) => item.name === `qms/sop/${sop.branchId}/edit`
+              );
               //
               return (
                 <Grid key={sop.branchId} item xs={2} sm={2} md={2} lg={2}>
-                  <SOPCard branch={branch} sop={sop}></SOPCard>
+                  <SOPCard branch={branch} edit={edit} sop={sop}></SOPCard>
                 </Grid>
               );
             })}

@@ -7,6 +7,8 @@ import {
   InputAdornment,
   Typography,
   CircularProgress,
+  Fab,
+  Tooltip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -80,15 +82,15 @@ const Products = () => {
         }}
       >
         {isQualityMgrSelected && (
-          <Button
-            variant="contained"
-            endIcon={<AddIcon />}
-            onClick={() => {
-              setOpenAddProductModal(true);
-            }}
-          >
-            Create Product
-          </Button>
+          <Tooltip title="Add Product">
+            <Fab
+              color="primary"
+              aria-label="add"
+              onClick={() => setOpenAddProductModal(true)}
+            >
+              <AddIcon />
+            </Fab>
+          </Tooltip>
         )}
         <Box sx={{ flexGrow: 1 }}></Box>
         <TextField

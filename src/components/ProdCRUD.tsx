@@ -277,14 +277,7 @@ export default function ProdCRUD({
                 value={linkedSops}
                 onChange={handleLinkedSopsChange}
                 input={<OutlinedInput label="Linked SOPs" />}
-                // renderValue={(selected) =>
-                //   selected
-                //     ?.map(
-                //       (item) =>
-                //         teamsWithMembers?.find((team) => team.id === item)?.name
-                //     )
-                //     .join(", ")
-                // }
+                // renderValue={(selected) => selected.join(", ")}
               >
                 {branchFileNames
                   .filter((item) => item.type === "sop")

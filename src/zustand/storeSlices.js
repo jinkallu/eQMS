@@ -245,6 +245,7 @@ export const repositorySlice = (set, get) => ({
       }));
 
       const branches = await gitClient.getBranches(repositoryId);
+
       set((state) => ({ branches: branches || [] }));
 
       const editBranch = branches?.find((branch) => {
