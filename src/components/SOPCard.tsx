@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AddIcon from "@mui/icons-material/Add";
 import { useExtnStore } from "../zustand/store";
+import { createPR } from "../utils/gitHelpers.js";
 
 import {
   Chip,
@@ -26,10 +27,12 @@ import {
 } from "@mui/material";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import TemplateCRUD from "./TemplateCRUD";
+import CreatePRModal from "./CreatePRModal";
 
 export default function SOPCard({ branch, sop, edit }) {
   const { branchFileNames } = useExtnStore((state) => state);
   const [openAddTemplateModal, setOpenAddTemplateModal] = React.useState(false);
+  const [openCreatePRModal, setOpenCreatePRModal] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -63,6 +66,19 @@ export default function SOPCard({ branch, sop, edit }) {
     });
   }
 
+  function handleCreatePR() {
+    handleClose();
+    setOpenCreatePRModal(true);
+
+    // createPR((
+    //   projectId,
+    //   repositoryId,
+    //   sourceBranch,
+    //   targetBranch,
+    //   title,
+    //   description)
+  }
+
   return (
     <Box>
       <TemplateCRUD
@@ -71,6 +87,13 @@ export default function SOPCard({ branch, sop, edit }) {
         branchId={branch?.branchId}
         sopName={branch?.relativePath}
       ></TemplateCRUD>
+
+      <CreatePRModal
+        open={openCreatePRModal}
+        setOpen={setOpenCreatePRModal}
+        branchId={branch?.branchId}
+        sopName={branch?.relativePath}
+      ></CreatePRModal>
       <Card
         variant="outlined"
         sx={{ "&:hover": { border: "2px solid #082567" } }}
@@ -106,7 +129,7 @@ export default function SOPCard({ branch, sop, edit }) {
                 onClose={handleClose}
               >
                 {edit && (
-                  <MenuItem key="approval" onClick={handleClose}>
+                  <MenuItem key="approval" onClick={handleCreatePR}>
                     Send for approval
                   </MenuItem>
                 )}

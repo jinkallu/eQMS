@@ -36,6 +36,7 @@ export const userSlice = (set) => ({
   },
   setCurrentUser: async () => {
     const user = await SDK.getUser();
+    console.log(user);
     if (user) {
       set({ currentUser: user });
     }
@@ -430,6 +431,7 @@ export const teamsSlice = (set, get) => ({
           ?.length > 0;
 
       set({ isQualityManager: isQmanager });
+      console.log(teamsWithMembersData);
       set({ teamsWithMembers: teamsWithMembersData });
     } catch (e) {
       console.log(e);

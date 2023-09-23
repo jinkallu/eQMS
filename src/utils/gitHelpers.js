@@ -186,3 +186,37 @@ export const renameFile = async (
     return { created, error };
   }
 };
+
+export const createPR = async (
+  projectId,
+  repositoryId,
+  sourceBranch,
+  targetBranch,
+  title,
+  description,
+  reviewers
+) => {
+  let created = false;
+
+  try {
+    const gitClient = getClient(GitRestClient);
+    const pullRequestDetails = {
+      sourceRefName: `refs/heads/${sourceBranch}`,
+      targetRefName: `refs/heads/${targetBranch}`,
+      title: title,
+      description: description,
+      reviewers: reviewers,
+    };
+    const newPullRequest = await gitClient.createPullRequest(
+      pullRequestDetails,
+      repositoryId,
+      projectId
+    );
+
+    console.log(newPullRequest);
+    created = newPullRequest;
+  } catch (error) {
+    console.log(error);
+    return created;
+  }
+};
