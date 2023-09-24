@@ -2,7 +2,12 @@ import { getClient } from "azure-devops-extension-api/Common";
 import { GitRestClient } from "azure-devops-extension-api/Git";
 import { CoreRestClient } from "azure-devops-extension-api/Core";
 
-import { commit, createBranch, getFileContent } from "../utils/gitHelpers";
+import {
+  commit,
+  createBranch,
+  getFileContent,
+  getProjectPullRequests,
+} from "../utils/gitHelpers";
 import * as SDK from "azure-devops-extension-sdk";
 
 export const dynamicIslandSlice = (set) => ({
@@ -440,6 +445,23 @@ export const teamsSlice = (set, get) => ({
   },
 });
 
+export const pullRequestSlice = (set, get) => ({
+  pullRequests: [],
+  loadProjectPullRequests: async (projectId, searchCriteria) => {
+    try {
+      const result = await getProjectPullRequests(projectId, searchCriteria);
+      console.log(result);
+      if (result) {
+        set({ pullRequests: result });
+      } else {
+        set({ pullRequests: [] });
+      }
+    } catch (e) {
+      set({ pullRequests: [] });
+    }
+  },
+});
+
 export const refreshDataSlice = (set, get) => ({
   userSOPs: [],
   refreshDBData: async (projectId, projectName, repositoryId) => {
@@ -449,11 +471,23 @@ export const refreshDataSlice = (set, get) => ({
 
     await get().getProjectTeamWithMembers(projectId);
     await get().loadSOPs(repositoryId);
+    await get().loadProjectPullRequests(projectId, { repositoryId });
 
     // const userTeams = teamsWithMembers?.map((team) => team);
     const sops = get().sops;
     const allTeams = get().teamsWithMembers;
     const branchFileNames = get().branchFileNames;
+    const pullRequests = get().pullRequests;
+
+    const sopsWithPullRequests = sops?.map((sop) => {
+      const pullRequest = pullRequests?.find(
+        (item) => item?.targetRefName?.split("/")[4] === sop.branchId
+      );
+      if (pullRequest) {
+        return { ...sop, pullRequest };
+      }
+      return sop;
+    });
 
     const userTeams = allTeams
       ?.filter((team) =>
@@ -466,7 +500,7 @@ export const refreshDataSlice = (set, get) => ({
     const qualityManager = userTeams?.find(
       (item) => item.name === "Quality Manager Team"
     );
-    const userSOPs = sops
+    const userSOPs = sopsWithPullRequests
       ?.map((sop) => {
         const author = [...new Set(sop?.author, userTeams)];
         const approver = [...new Set(sop?.approver, userTeams)];

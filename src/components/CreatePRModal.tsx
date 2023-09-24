@@ -78,7 +78,6 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
   };
 
   function handleApproverSelectChange(e) {
-    console.log(e);
     const newApprovers = approverList?.map((item) => {
       if (item.url === e.target.value) {
         return { ...item, selected: !item.selected };
@@ -115,7 +114,18 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
       message,
       reviewers
     );
-    console.log(res);
+    if (res) {
+      setAlertMessage({
+        message: "SOP send for approval...",
+        severity: "success",
+      });
+    } else {
+      setAlertMessage({
+        message: "SOP forwarding failed...",
+        severity: "error",
+      });
+    }
+    handleCancel();
   }
 
   function handleCancel() {

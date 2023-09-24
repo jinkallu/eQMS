@@ -46,6 +46,7 @@ const SOPs = () => {
   React.useEffect(() => {
     if (project && project?.id && repository && repository.id) {
       refreshData(project.id, project.name, repository.id);
+      //   getPullRequests();
     }
   }, [project, repository]);
 
@@ -61,8 +62,6 @@ const SOPs = () => {
       });
     }
   }, [repository, branchTypes]);
-
-  console.log(branches);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>

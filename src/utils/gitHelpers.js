@@ -196,8 +196,6 @@ export const createPR = async (
   description,
   reviewers
 ) => {
-  let created = false;
-
   try {
     const gitClient = getClient(GitRestClient);
     const pullRequestDetails = {
@@ -213,10 +211,27 @@ export const createPR = async (
       projectId
     );
 
-    console.log(newPullRequest);
-    created = newPullRequest;
+    return newPullRequest;
   } catch (error) {
-    console.log(error);
-    return created;
+    return false;
+  }
+};
+
+export const getProjectPullRequests = async (
+  projectId,
+
+  searchCriteria
+) => {
+  try {
+    const gitClient = getClient(GitRestClient);
+
+    const pullRequests = await gitClient.getPullRequestsByProject(
+      projectId,
+      searchCriteria
+    );
+
+    return pullRequests;
+  } catch (error) {
+    return false;
   }
 };

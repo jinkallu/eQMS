@@ -41,6 +41,8 @@ export default function SOPCard({ branch, sop, edit }) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  console.log(sop);
   const navigate = useNavigate();
 
   async function handleItemClick(branch) {
@@ -129,7 +131,11 @@ export default function SOPCard({ branch, sop, edit }) {
                 onClose={handleClose}
               >
                 {edit && (
-                  <MenuItem key="approval" onClick={handleCreatePR}>
+                  <MenuItem
+                    disabled={Boolean(sop?.pullRequest)}
+                    key="approval"
+                    onClick={handleCreatePR}
+                  >
                     Send for approval
                   </MenuItem>
                 )}
