@@ -1,5 +1,6 @@
 import { getClient } from "azure-devops-extension-api";
 import { GitRestClient } from "azure-devops-extension-api/Git";
+import { GitPullRequest } from "azure-devops-extension-api/Git";
 
 export const createBranch = async ({
   projectId,
@@ -194,7 +195,8 @@ export const createPR = async (
   targetBranch,
   title,
   description,
-  reviewers
+  reviewers,
+  creatorId
 ) => {
   try {
     const gitClient = getClient(GitRestClient);
@@ -204,7 +206,14 @@ export const createPR = async (
       title: title,
       description: description,
       reviewers: reviewers,
+      completionOptions: {
+        deleteSourceBranch: true,
+        triggeredByAutoComplete: true,
+      },
+      autoCompleteSetBy: { id: creatorId },
     };
+
+    console.log(pullRequestDetails);
     const newPullRequest = await gitClient.createPullRequest(
       pullRequestDetails,
       repositoryId,
@@ -235,3 +244,63 @@ export const getProjectPullRequests = async (
     return false;
   }
 };
+
+export const getProjectPullRequestById = async (pullRequestId) => {
+  try {
+    const gitClient = getClient(GitRestClient);
+
+    const pullRequest = await gitClient.getPullRequestById(pullRequestId);
+
+    return pullRequest;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const updateVote = async (
+  repositoryId,
+  pullRequestId,
+  reviewerId,
+  vote
+) => {
+  try {
+    const gitClient = getClient(GitRestClient);
+    const reviewer = { vote, isRequired: true };
+
+    const pullRequest = await gitClient.createPullRequestReviewer(
+      reviewer,
+      repositoryId,
+      pullRequestId,
+      reviewerId
+    );
+
+    const updateRequest = await gitClient.updatePullRequest(
+      {
+        completionOptions: {
+          deleteSourceBranch: true,
+          triggeredByAutoComplete: true,
+        },
+        autoCompleteSetBy: { id: reviewerId },
+      },
+
+      repositoryId,
+      pullRequestId
+    );
+    console.log(pullRequest, updateRequest);
+    return pullRequest;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
+
+export const voteStatus = [
+  {
+    vote: 10,
+    status: "Approved",
+  },
+  { vote: 5, status: "Approved with suggestions" },
+  { vote: 0, status: "no vote" },
+  { vote: -5, status: "Waiting for author" },
+  { vote: -10, status: "Rejected" },
+];

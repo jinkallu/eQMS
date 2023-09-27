@@ -38,6 +38,7 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
     setAlertMessage,
     teamsWithMembers,
     project,
+    currentUser,
   } = useExtnStore((state) => state);
 
   React.useEffect(() => {
@@ -112,7 +113,8 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
       targetBranch,
       title,
       message,
-      reviewers
+      reviewers,
+      currentUser.id
     );
     if (res) {
       setAlertMessage({
@@ -176,7 +178,7 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
           </Typography>
           <FormControl sx={{ m: 1, width: 300 }}>
             <TextField
-              helperText="Please a message to describe the changes"
+              helperText="Please enter a message to describe the changes"
               id="number"
               label="Message"
               value={message}
@@ -185,7 +187,7 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
           </FormControl>
 
           <FormControl sx={{ m: 1, width: 300 }}>
-            <InputLabel id="approverTeams">Approver Teams</InputLabel>
+            <InputLabel id="approverTeams">Approvers</InputLabel>
             <Select
               labelId="demo-multiple-checkbox-label"
               id="demo-multiple-checkbox"

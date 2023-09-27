@@ -28,10 +28,17 @@ import {
 import { createSearchParams, useNavigate } from "react-router-dom";
 import TemplateCRUD from "./TemplateCRUD";
 import CreatePRModal from "./CreatePRModal";
+import ApprovalIcon from "@mui/icons-material/Approval";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import EditIcon from "@mui/icons-material/Edit";
+import ApprovalModal from "./ApprovalModal";
 
 export default function SOPCard({ branch, sop, edit }) {
-  const { branchFileNames } = useExtnStore((state) => state);
+  const { branchFileNames, currentUser, teamsWithMembers } = useExtnStore(
+    (state) => state
+  );
   const [openAddTemplateModal, setOpenAddTemplateModal] = React.useState(false);
+  const [openApprovalModal, setOpenApprovalModal] = React.useState(false);
   const [openCreatePRModal, setOpenCreatePRModal] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -41,8 +48,18 @@ export default function SOPCard({ branch, sop, edit }) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  let canEdit = false;
+  console.log(sop?.pullRequest);
+  sop?.author?.map((author) => {
+    const member = teamsWithMembers
+      ?.find((item) => item.id === author)
+      ?.members?.find((item) => item?.identity?.id === currentUser?.id);
+    if (member) {
+      canEdit = true;
+    }
+    return author;
+  });
 
-  console.log(sop);
   const navigate = useNavigate();
 
   async function handleItemClick(branch) {
@@ -96,6 +113,14 @@ export default function SOPCard({ branch, sop, edit }) {
         branchId={branch?.branchId}
         sopName={branch?.relativePath}
       ></CreatePRModal>
+
+      <ApprovalModal
+        open={openApprovalModal}
+        setOpen={setOpenApprovalModal}
+        pullRequest={sop?.pullRequest}
+        branchId={branch?.branchId}
+        sopName={branch?.relativePath}
+      ></ApprovalModal>
       <Card
         variant="outlined"
         sx={{ "&:hover": { border: "2px solid #082567" } }}
@@ -139,9 +164,11 @@ export default function SOPCard({ branch, sop, edit }) {
                     Send for approval
                   </MenuItem>
                 )}
-                <MenuItem key="edit" onClick={handleClose}>
-                  Edit
-                </MenuItem>
+                {canEdit && (
+                  <MenuItem key="edit" onClick={handleClose}>
+                    Edit
+                  </MenuItem>
+                )}
               </Menu>
             </div>
           }
@@ -236,6 +263,34 @@ export default function SOPCard({ branch, sop, edit }) {
             </List>
           </Box>
         </CardContent>
+
+        <CardActions disableSpacing>
+          {Boolean(sop?.pullRequest) && (
+            <Tooltip title="Approval">
+              <IconButton
+                aria-label="add to favorites"
+                onClick={() => setOpenApprovalModal(true)}
+              >
+                <ApprovalIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+          {edit && canEdit && !Boolean(sop?.pullRequest) && (
+            <Tooltip title="Send for approval">
+              <IconButton aria-label="share" onClick={handleCreatePR}>
+                <VerifiedIcon color="primary" />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          {canEdit && (
+            <Tooltip title="Edit">
+              <IconButton aria-label="share">
+                <EditIcon color="primary" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </CardActions>
       </Card>
     </Box>
   );
