@@ -144,6 +144,18 @@ export default function ApprovalModal({
     );
     handleCancel();
   }
+  const enableApprove = () => {
+    let result = false;
+    if (
+      pullRequest?.reviewers?.find(
+        (item) => item.id === currentUser.id && item?.vote !== 0
+      )
+    ) {
+      result = true;
+    }
+
+    return result;
+  };
 
   function handleCancel() {
     setMessage("");
@@ -217,6 +229,7 @@ export default function ApprovalModal({
             </Button>
             <Button
               variant="contained"
+              disabled={enableApprove()}
               color="primary"
               onClick={handleApproval}
             >

@@ -44,7 +44,6 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
   React.useEffect(() => {
     const approverListData = [];
     const currentSOP = sops?.find((sop) => sop.branchId === branchId);
-    console.log(currentSOP);
     currentSOP?.approver?.map((approverTeam) => {
       const team = teamsWithMembers?.find((team) => team?.id === approverTeam);
       if (team) {

@@ -72,7 +72,6 @@ const Header = () => {
   }
   return (
     <Paper
-      elevation={3}
       sx={{
         position: "fixed",
         top: 0,
@@ -81,6 +80,7 @@ const Header = () => {
         justifyContent: "space-between",
         alignItems: "center",
         padding: "5px",
+        zIndex: 100,
       }}
     >
       <Box onClick={handleQuatraceClick}>

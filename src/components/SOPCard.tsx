@@ -29,6 +29,9 @@ import { createSearchParams, useNavigate } from "react-router-dom";
 import TemplateCRUD from "./TemplateCRUD";
 import CreatePRModal from "./CreatePRModal";
 import ApprovalIcon from "@mui/icons-material/Approval";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
+import PreviewIcon from "@mui/icons-material/Preview";
+
 import VerifiedIcon from "@mui/icons-material/Verified";
 import EditIcon from "@mui/icons-material/Edit";
 import ApprovalModal from "./ApprovalModal";
@@ -98,6 +101,19 @@ export default function SOPCard({ branch, sop, edit }) {
     //   description)
   }
 
+  const enableApproveIcon = () => {
+    let result = false;
+    if (
+      sop?.pullRequest?.reviewers?.find(
+        (item) => item.id === currentUser.id && item?.vote === 0
+      )
+    ) {
+      result = true;
+    }
+
+    return result;
+  };
+
   return (
     <Box>
       <TemplateCRUD
@@ -137,41 +153,41 @@ export default function SOPCard({ branch, sop, edit }) {
               </Typography>
             </Avatar>
           }
-          action={
-            <div>
-              <IconButton
-                aria-label="settings"
-                color={edit ? "primary" : "default"}
-                onClick={handleClick}
-              >
-                <MoreVertIcon />
-              </IconButton>
-              <Menu
-                id="long-menu"
-                MenuListProps={{
-                  "aria-labelledby": "long-button",
-                }}
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-              >
-                {edit && (
-                  <MenuItem
-                    disabled={Boolean(sop?.pullRequest)}
-                    key="approval"
-                    onClick={handleCreatePR}
-                  >
-                    Send for approval
-                  </MenuItem>
-                )}
-                {canEdit && (
-                  <MenuItem key="edit" onClick={handleClose}>
-                    Edit
-                  </MenuItem>
-                )}
-              </Menu>
-            </div>
-          }
+          // action={
+          //   <div>
+          //     <IconButton
+          //       aria-label="settings"
+          //       color={edit ? "primary" : "default"}
+          //       onClick={handleClick}
+          //     >
+          //       <MoreVertIcon />
+          //     </IconButton>
+          //     <Menu
+          //       id="long-menu"
+          //       MenuListProps={{
+          //         "aria-labelledby": "long-button",
+          //       }}
+          //       anchorEl={anchorEl}
+          //       open={open}
+          //       onClose={handleClose}
+          //     >
+          //       {edit && (
+          //         <MenuItem
+          //           disabled={Boolean(sop?.pullRequest)}
+          //           key="approval"
+          //           onClick={handleCreatePR}
+          //         >
+          //           Send for approval
+          //         </MenuItem>
+          //       )}
+          //       {canEdit && (
+          //         <MenuItem key="edit" onClick={handleClose}>
+          //           Edit
+          //         </MenuItem>
+          //       )}
+          //     </Menu>
+          //   </div>
+          // }
           title=<Tooltip title="Click to view SOP">
             <Typography
               sx={{
@@ -186,7 +202,7 @@ export default function SOPCard({ branch, sop, edit }) {
             </Typography>
           </Tooltip>
         />
-        <CardContent>
+        <CardContent sx={{ paddingBottom: "5px" }}>
           <Box
             sx={{
               display: "flex",
@@ -198,7 +214,7 @@ export default function SOPCard({ branch, sop, edit }) {
               sx={{ fontSize: 14, fontWeight: 600, paddingLeft: "5px" }}
               color="success"
             >
-              Templates
+              {`Templates (${sop?.templates?.length})`}
             </Typography>
             {sop?.author?.length > 0 && (
               <Tooltip title="Add Template">
@@ -211,9 +227,9 @@ export default function SOPCard({ branch, sop, edit }) {
           </Box>
           <Box
             sx={{
-              height: 200,
+              height: 100,
               overflow: "auto",
-              borderTop: "1px solid indigo",
+              borderLeft: "1px solid indigo",
               paddingTop: "5px",
             }}
           >
@@ -265,13 +281,27 @@ export default function SOPCard({ branch, sop, edit }) {
         </CardContent>
 
         <CardActions disableSpacing>
+          <Tooltip title="View SOP">
+            <IconButton
+              aria-label="share"
+              onClick={() => handleItemClick(branch)}
+            >
+              <PreviewIcon color="primary" />
+            </IconButton>
+          </Tooltip>
           {Boolean(sop?.pullRequest) && (
-            <Tooltip title="Approval">
+            <Tooltip
+              title={enableApproveIcon() ? "Approval" : "View Approval status"}
+            >
               <IconButton
                 aria-label="add to favorites"
                 onClick={() => setOpenApprovalModal(true)}
               >
-                <ApprovalIcon />
+                {enableApproveIcon() ? (
+                  <ApprovalIcon />
+                ) : (
+                  <HowToRegIcon></HowToRegIcon>
+                )}
               </IconButton>
             </Tooltip>
           )}
