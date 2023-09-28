@@ -21,6 +21,7 @@ import { createPR } from "../utils/gitHelpers.js";
 export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
   const [approverList, setApproverList] =
     React.useState<{ uniqueName: string; url: string; selected: boolean }[]>();
 
@@ -34,11 +35,11 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
     userSOPs,
     sops,
     saveToDatabase,
-    refreshDBData,
     setAlertMessage,
     teamsWithMembers,
     project,
     currentUser,
+    refreshDBData,
   } = useExtnStore((state) => state);
 
   React.useEffect(() => {
@@ -92,6 +93,8 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
       return;
     }
 
+    setLoading(true);
+
     const reviewers = selectedApprovers?.map((approver) => {
       return {
         id: approver,
@@ -126,6 +129,9 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
         severity: "error",
       });
     }
+
+    await refreshDBData(project?.id, project.name, repository.id);
+    setLoading(false);
     handleCancel();
   }
 
@@ -232,6 +238,7 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
               variant="contained"
               color="primary"
               onClick={handleCreatePR}
+              disabled={loading}
             >
               Send for Approval
             </Button>

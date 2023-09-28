@@ -15,7 +15,6 @@ const useCommit = () => {
     newContent,
     commitMessage
   ) => {
-    console.log(branchName, filePath);
     setLoading(true);
     setBranchCreated(false);
     let created = false;

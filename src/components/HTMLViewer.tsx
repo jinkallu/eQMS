@@ -29,12 +29,13 @@ export default function HTMLViewer() {
   const [open, setOpen] = React.useState(false);
   const [commitMessage, setCommitMessage] = React.useState("");
   const { commit, loading: loadingCommit } = useCommit();
-  const setMessage = useExtnStore((state) => state.setMessage);
+  const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
   const [searchParams] = useSearchParams();
   const objectId = searchParams.get("objectId");
   const relativePath = searchParams.get("relativePath");
   const type = searchParams.get("type");
   const branchName = searchParams.get("branchName");
+  const canEdit = searchParams.get("canEdit");
   const navigate = useNavigate();
   const {
     loading: loadingTeamMembres,
@@ -48,8 +49,6 @@ export default function HTMLViewer() {
       (item) => item.objectId === objectId
     );
     setBranch(branchData);
-
-    console.log(branchData);
 
     await setFileContent(
       repository.id,
@@ -67,20 +66,18 @@ export default function HTMLViewer() {
     setOpen(false);
   }
 
-  async function saveContent() {
-    setOpen(false);
+  async function saveContent(): Promise<boolean> {
     let path = [];
 
     let editBranchNameArr = branchName.split("/");
     path = [editBranchNameArr[0], type, relativePath, `${relativePath}.md`];
-    console.log(branchName, path);
     const filePath = path.join("/");
 
     editBranchNameArr.splice(-1);
     editBranchNameArr.push("edit");
     const editBranchName = editBranchNameArr.join("/");
 
-    const created = commit(
+    const created = await commit(
       project.id,
       repository.id,
       editBranchName,
@@ -88,11 +85,19 @@ export default function HTMLViewer() {
       inputText,
       commitMessage
     );
-    if (created) {
-      setMessage({ message: "Data saved successfully", severity: "success" });
-    } else {
-      setMessage({ message: "Unable to save data...", severity: "error" });
-    }
+
+    console.log(created);
+
+    return created;
+    // if (created) {
+    //   setAlertMessage({
+    //     message: "Data saved successfully",
+    //     severity: "success",
+    //   });
+    // } else {
+    //   setAlertMessage({ message: "Unable to save data...", severity: "error" });
+    // }
+    // navigate(-1);
   }
   function toggleEditModeData() {
     setEditMode((prev) => !prev);
@@ -145,6 +150,8 @@ export default function HTMLViewer() {
         ></ArrowBackIcon>
         <EditConfModal
           commitMessage={commitMessage}
+          setOpen={setOpen}
+          loading={loadingCommit}
           setCommitMessage={setCommitMessage}
           open={open}
           handleClose={handleClose}
@@ -156,7 +163,9 @@ export default function HTMLViewer() {
           variant="outlined"
         ></Chip>
         <Box>
-          {editMode && <SaveIcon onClick={() => setOpen(true)}></SaveIcon>}
+          {canEdit && editMode && (
+            <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
+          )}
           <EditIcon
             onClick={toggleEditModeData}
             sx={{ cursor: "pointer" }}

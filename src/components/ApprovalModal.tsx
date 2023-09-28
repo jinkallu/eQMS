@@ -13,7 +13,12 @@ import {
   ListItemText,
   OutlinedInput,
   Checkbox,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 import React from "react";
 import { useExtnStore } from "../zustand/store";
 import { updateVote } from "../utils/gitHelpers.js";
@@ -26,6 +31,7 @@ export default function ApprovalModal({
 }) {
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
 
   const {
     branchFileNames,
@@ -42,95 +48,8 @@ export default function ApprovalModal({
     project,
   } = useExtnStore((state) => state);
 
-  // React.useEffect(() => {
-  //   const approverListData = [];
-  //   const currentSOP = sops?.find((sop) => sop.branchId === branchId);
-  //   console.log(currentSOP);
-  //   currentSOP?.approver?.map((approverTeam) => {
-  //     const team = teamsWithMembers?.find((team) => team?.id === approverTeam);
-  //     if (team) {
-  //       team?.members?.map((member) => {
-  //         const existing = approverListData?.find(
-  //           (item) => item?.uniqueName === member?.identity?.uniqueName
-  //         );
-  //         if (!existing) {
-  //           approverListData.push({
-  //             uniqueName: member?.identity?.uniqueName,
-  //             url: member?.identity?.id,
-  //             selected: false,
-  //           });
-  //         }
-  //         return member;
-  //       });
-  //     }
-  //     return approverTeam;
-  //   });
-
-  //   setApproverList(approverListData);
-  // }, [sops, teamsWithMembers, branchId]);
-
-  // const handleApproverChange = (event) => {
-  //   const {
-  //     target: { value },
-  //   } = event;
-  //   setSeletedApprovers(
-  //     // On autofill we get a stringified value.
-  //     typeof value === "string" ? value.split(",") : value
-  //   );
-  // };
-
-  // function handleApproverSelectChange(e) {
-  //   const newApprovers = approverList?.map((item) => {
-  //     if (item.url === e.target.value) {
-  //       return { ...item, selected: !item.selected };
-  //     }
-  //     return item;
-  //   });
-  //   setApproverList(newApprovers);
-  // }
-  // async function handleCreatePR() {
-  //   if (!message || !selectedApprovers) {
-  //     setError("All inputs are mandatory");
-  //     return;
-  //   }
-
-  //   const reviewers = selectedApprovers?.map((approver) => {
-  //     return {
-  //       id: approver,
-  //       isRequired: true,
-  //     };
-  //   });
-
-  //   // const reviewers = selectedApprovers?.join(";");
-
-  //   const sourceBranch = `qms/sop/${branchId}/edit`;
-  //   const targetBranch = `qms/sop/${branchId}/main`;
-  //   const title = "Test pull Request";
-
-  //   const res = await createPR(
-  //     project.id,
-  //     repository.id,
-  //     sourceBranch,
-  //     targetBranch,
-  //     title,
-  //     message,
-  //     reviewers
-  //   );
-  //   if (res) {
-  //     setAlertMessage({
-  //       message: "SOP send for approval...",
-  //       severity: "success",
-  //     });
-  //   } else {
-  //     setAlertMessage({
-  //       message: "SOP forwarding failed...",
-  //       severity: "error",
-  //     });
-  //   }
-  //   handleCancel();
-  // }
-
-  async function handleApproval() {
+  async function handleApproval(vote) {
+    setLoading(true);
     console.log(pullRequest);
     const currentReviewer = pullRequest?.reviewers?.find(
       (reviewer) => reviewer?.id === currentUser?.id
@@ -140,8 +59,10 @@ export default function ApprovalModal({
       repository?.id,
       pullRequest?.pullRequestId,
       currentReviewer?.id,
-      5
+      vote
     );
+    await refreshDBData(project.id, project.name, repository.id);
+    setLoading(false);
     handleCancel();
   }
   const enableApprove = () => {
@@ -176,6 +97,7 @@ export default function ApprovalModal({
           alignItems: "center",
           flexDirection: "column",
           padding: "24px",
+          width: "100%",
         }}
       >
         <Paper
@@ -227,16 +149,43 @@ export default function ApprovalModal({
             <Button variant="outlined" color="secondary" onClick={handleCancel}>
               Cancel
             </Button>
+
             <Button
+              size="small"
               variant="contained"
-              disabled={enableApprove()}
+              disabled={enableApprove() || loading}
               color="primary"
-              onClick={handleApproval}
+              onClick={() => handleApproval(-10)}
+            >
+              Reject
+            </Button>
+            <Button
+              size="small"
+              variant="contained"
+              disabled={enableApprove() || loading}
+              color="primary"
+              onClick={() => handleApproval(5)}
             >
               Approve
             </Button>
           </Box>
         </Paper>
+        {/* <Accordion>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography>Accordion 1</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
+              eget.
+            </Typography>
+          </AccordionDetails>
+        </Accordion> */}
       </Box>
     </Modal>
   );

@@ -43,8 +43,10 @@ export default function SOPCard({ branch, sop, edit }) {
   const [openAddTemplateModal, setOpenAddTemplateModal] = React.useState(false);
   const [openApprovalModal, setOpenApprovalModal] = React.useState(false);
   const [openCreatePRModal, setOpenCreatePRModal] = React.useState(false);
+  const [enableApproval, setEnableApproval] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  console.log(sop);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -52,7 +54,6 @@ export default function SOPCard({ branch, sop, edit }) {
     setAnchorEl(null);
   };
   let canEdit = false;
-  console.log(sop?.pullRequest);
   sop?.author?.map((author) => {
     const member = teamsWithMembers
       ?.find((item) => item.id === author)
@@ -73,6 +74,7 @@ export default function SOPCard({ branch, sop, edit }) {
         relativePath: branch?.relativePath,
         type: branch?.type,
         branchName: branch?.name,
+        canEdit: canEdit ? "yes" : "no",
       })}`,
     });
   }
@@ -101,7 +103,7 @@ export default function SOPCard({ branch, sop, edit }) {
     //   description)
   }
 
-  const enableApproveIcon = () => {
+  React.useEffect(() => {
     let result = false;
     if (
       sop?.pullRequest?.reviewers?.find(
@@ -110,9 +112,8 @@ export default function SOPCard({ branch, sop, edit }) {
     ) {
       result = true;
     }
-
-    return result;
-  };
+    setEnableApproval(result);
+  }, [sop, currentUser]);
 
   return (
     <Box>
@@ -289,15 +290,22 @@ export default function SOPCard({ branch, sop, edit }) {
               <PreviewIcon color="primary" />
             </IconButton>
           </Tooltip>
+          {canEdit && (
+            <Tooltip title="Edit SOP">
+              <IconButton aria-label="share">
+                <EditIcon color="primary" />
+              </IconButton>
+            </Tooltip>
+          )}
           {Boolean(sop?.pullRequest) && (
             <Tooltip
-              title={enableApproveIcon() ? "Approval" : "View Approval status"}
+              title={enableApproval ? "Approval" : "View Approval status"}
             >
               <IconButton
                 aria-label="add to favorites"
                 onClick={() => setOpenApprovalModal(true)}
               >
-                {enableApproveIcon() ? (
+                {enableApproval ? (
                   <ApprovalIcon />
                 ) : (
                   <HowToRegIcon></HowToRegIcon>
@@ -309,14 +317,6 @@ export default function SOPCard({ branch, sop, edit }) {
             <Tooltip title="Send for approval">
               <IconButton aria-label="share" onClick={handleCreatePR}>
                 <VerifiedIcon color="primary" />
-              </IconButton>
-            </Tooltip>
-          )}
-
-          {canEdit && (
-            <Tooltip title="Edit">
-              <IconButton aria-label="share">
-                <EditIcon color="primary" />
               </IconButton>
             </Tooltip>
           )}
