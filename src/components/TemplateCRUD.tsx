@@ -182,6 +182,7 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
             flexDirection: "column",
             gap: "12px",
             height: "100%",
+            minWidth: "400px",
           }}
         >
           <Box sx={{ display: "flex", justifyContent: "flex-start" }}>

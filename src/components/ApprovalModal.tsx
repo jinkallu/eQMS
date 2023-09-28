@@ -76,11 +76,7 @@ export default function ApprovalModal({
   }
   const enableApprove = () => {
     let result = false;
-    if (
-      pullRequest?.reviewers?.find(
-        (item) => item.id === currentUser.id && item?.vote !== 0
-      )
-    ) {
+    if (pullRequest?.reviewers?.find((item) => item.id === currentUser.id)) {
       result = true;
     }
 
@@ -122,6 +118,7 @@ export default function ApprovalModal({
               flexDirection: "column",
               gap: "12px",
               height: "100%",
+              minWidth: 400,
             }}
           >
             <HighlightOffIcon
@@ -132,68 +129,77 @@ export default function ApprovalModal({
               <Chip label={sopName} color="primary"></Chip>
             </Box>
 
-            <Box>
-              <Typography
-                sx={{
-                  alignSelf: "flex-start",
-                  paddingY: "12px",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                }}
-              >
-                SOP Approval
-              </Typography>
-              <FormControl sx={{ m: 1, width: 300 }}>
-                <TextField
-                  helperText="Please enter an approval message"
-                  id="number"
-                  label="Message"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                ></TextField>
-              </FormControl>
+            {enableApprove() && (
+              <Box>
+                <Typography
+                  sx={{
+                    alignSelf: "flex-start",
+                    paddingY: "12px",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                  }}
+                >
+                  SOP Approval
+                </Typography>
+                <FormControl sx={{ m: 1, width: 300 }}>
+                  <TextField
+                    helperText="Please enter an approval message"
+                    id="number"
+                    label="Message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                  ></TextField>
+                </FormControl>
 
-              <Typography sx={{ fontSize: "12px", color: "red" }}>
-                {error}
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: "12px",
-                  padding: "0px",
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  onClick={handleCancel}
+                <Typography sx={{ fontSize: "12px", color: "red" }}>
+                  {error}
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: "12px",
+                    padding: "0px",
+                  }}
                 >
-                  Cancel
-                </Button>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </Button>
 
-                <Button
-                  size="small"
-                  variant="contained"
-                  disabled={loading}
-                  color="primary"
-                  onClick={() => handleApproval(-10)}
-                >
-                  Reject
-                </Button>
-                <Button
-                  size="small"
-                  variant="contained"
-                  disabled={loading}
-                  color="primary"
-                  onClick={() => handleApproval(5)}
-                >
-                  Approve
-                </Button>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    disabled={loading}
+                    color="primary"
+                    onClick={() => handleApproval(-10)}
+                  >
+                    Reject
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    disabled={loading}
+                    color="primary"
+                    onClick={() => handleApproval(5)}
+                  >
+                    Approve
+                  </Button>
+                </Box>
               </Box>
-            </Box>
+            )}
 
-            <Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                maxHeight: 300,
+                overflowY: "auto",
+              }}
+            >
               <Divider></Divider>
               <FormControlLabel
                 control={
@@ -202,7 +208,7 @@ export default function ApprovalModal({
                     onChange={() => setShowApprovers((prev) => !prev)}
                   ></Switch>
                 }
-                label="Show Approval Data"
+                label={`${showApprovers ? "Hide" : "Show"} Approval Data`}
               ></FormControlLabel>
               {showApprovers && (
                 <List

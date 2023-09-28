@@ -215,7 +215,7 @@ export default function SOPCard({ branch, sop, edit }) {
               sx={{ fontSize: 14, fontWeight: 600, paddingLeft: "5px" }}
               color="success"
             >
-              {`Templates (${sop?.templates?.length})`}
+              {`Templates (${sop?.templates?.length || 0})`}
             </Typography>
             {sop?.author?.length > 0 && (
               <Tooltip title="Add Template">
