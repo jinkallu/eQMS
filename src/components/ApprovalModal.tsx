@@ -16,23 +16,32 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  List,
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  Divider,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 
 import React from "react";
 import { useExtnStore } from "../zustand/store";
-import { updateVote } from "../utils/gitHelpers.js";
+import { updateVote, voteStatus } from "../utils/gitHelpers.js";
 export default function ApprovalModal({
   open,
   setOpen,
   branchId,
   sopName,
   pullRequest,
+  canVote,
 }) {
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-
+  const [showApprovers, setShowApprovers] = React.useState(false);
   const {
     branchFileNames,
     repository,
@@ -90,102 +99,163 @@ export default function ApprovalModal({
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-          padding: "24px",
-          width: "100%",
-        }}
-      >
-        <Paper
-          elevation={3}
+      <Box>
+        <Box
           sx={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            padding: "36px",
             flexDirection: "column",
-            gap: "12px",
-            height: "100%",
+            width: "100%",
+            paddingX: "24px",
+            paddingY: "24px",
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-            <Chip label={sopName} color="primary"></Chip>
-          </Box>
-          <Typography
-            variant="h6"
-            sx={{
-              alignSelf: "flex-start",
-              paddingBottom: "24px",
-              paddingTop: "12px",
-            }}
-          >
-            SOP Approval
-          </Typography>
-          <FormControl sx={{ m: 1, width: 300 }}>
-            <TextField
-              helperText="Please enter an approval message"
-              id="number"
-              label="Message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            ></TextField>
-          </FormControl>
-
-          <Typography sx={{ fontSize: "12px", color: "red" }}>
-            {error}
-          </Typography>
-          <Box
+          <Paper
+            elevation={3}
             sx={{
               display: "flex",
-              justifyContent: "flex-end",
+              justifyContent: "center",
+              alignItems: "center",
+              paddingX: "24px",
+              paddingY: "24px",
+              flexDirection: "column",
               gap: "12px",
-              padding: "0px",
+              height: "100%",
             }}
           >
-            <Button variant="outlined" color="secondary" onClick={handleCancel}>
-              Cancel
-            </Button>
+            <HighlightOffIcon
+              sx={{ alignSelf: "flex-end", cursor: "pointer" }}
+              onClick={() => setOpen(false)}
+            ></HighlightOffIcon>
+            <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+              <Chip label={sopName} color="primary"></Chip>
+            </Box>
 
-            <Button
-              size="small"
-              variant="contained"
-              disabled={enableApprove() || loading}
-              color="primary"
-              onClick={() => handleApproval(-10)}
+            <Box>
+              <Typography
+                sx={{
+                  alignSelf: "flex-start",
+                  paddingY: "12px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                }}
+              >
+                SOP Approval
+              </Typography>
+              <FormControl sx={{ m: 1, width: 300 }}>
+                <TextField
+                  helperText="Please enter an approval message"
+                  id="number"
+                  label="Message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                ></TextField>
+              </FormControl>
+
+              <Typography sx={{ fontSize: "12px", color: "red" }}>
+                {error}
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "12px",
+                  padding: "0px",
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={handleCancel}
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  size="small"
+                  variant="contained"
+                  disabled={loading}
+                  color="primary"
+                  onClick={() => handleApproval(-10)}
+                >
+                  Reject
+                </Button>
+                <Button
+                  size="small"
+                  variant="contained"
+                  disabled={loading}
+                  color="primary"
+                  onClick={() => handleApproval(5)}
+                >
+                  Approve
+                </Button>
+              </Box>
+            </Box>
+
+            <Box>
+              <Divider></Divider>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showApprovers}
+                    onChange={() => setShowApprovers((prev) => !prev)}
+                  ></Switch>
+                }
+                label="Show Approval Data"
+              ></FormControlLabel>
+              {showApprovers && (
+                <List
+                  sx={{
+                    width: "100%",
+                    bgcolor: "background.paper",
+                  }}
+                >
+                  {pullRequest?.reviewers?.map((item) => (
+                    <>
+                      <ListItem alignItems="flex-start">
+                        <ListItemAvatar>
+                          <Avatar alt={item.displayName} src={item.imageUrl} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={item?.uniqueName}
+                          secondary={
+                            <React.Fragment>
+                              {voteStatus
+                                ?.filter(
+                                  (votest) => votest?.vote === item?.vote
+                                )
+                                ?.map((val) => (
+                                  <Chip label={val.status} color={val?.color} />
+                                ))}
+                            </React.Fragment>
+                          }
+                        />
+                      </ListItem>
+                      <Divider></Divider>
+                    </>
+                  ))}
+                </List>
+              )}
+            </Box>
+          </Paper>
+          {/* <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
             >
-              Reject
-            </Button>
-            <Button
-              size="small"
-              variant="contained"
-              disabled={enableApprove() || loading}
-              color="primary"
-              onClick={() => handleApproval(5)}
-            >
-              Approve
-            </Button>
-          </Box>
-        </Paper>
-        {/* <Accordion>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-          >
-            <Typography>Accordion 1</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
-              eget.
-            </Typography>
-          </AccordionDetails>
-        </Accordion> */}
+              <Typography>Accordion 1</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
+                eget.
+              </Typography>
+            </AccordionDetails>
+          </Accordion> */}
+        </Box>
       </Box>
     </Modal>
   );

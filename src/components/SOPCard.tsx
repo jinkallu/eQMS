@@ -33,7 +33,6 @@ import HowToRegIcon from "@mui/icons-material/HowToReg";
 import PreviewIcon from "@mui/icons-material/Preview";
 
 import VerifiedIcon from "@mui/icons-material/Verified";
-import EditIcon from "@mui/icons-material/Edit";
 import ApprovalModal from "./ApprovalModal";
 
 export default function SOPCard({ branch, sop, edit }) {
@@ -137,6 +136,7 @@ export default function SOPCard({ branch, sop, edit }) {
         pullRequest={sop?.pullRequest}
         branchId={branch?.branchId}
         sopName={branch?.relativePath}
+        canVote={enableApproval}
       ></ApprovalModal>
       <Card
         variant="outlined"
@@ -290,13 +290,7 @@ export default function SOPCard({ branch, sop, edit }) {
               <PreviewIcon color="primary" />
             </IconButton>
           </Tooltip>
-          {canEdit && (
-            <Tooltip title="Edit SOP">
-              <IconButton aria-label="share">
-                <EditIcon color="primary" />
-              </IconButton>
-            </Tooltip>
-          )}
+
           {Boolean(sop?.pullRequest) && (
             <Tooltip
               title={enableApproval ? "Approval" : "View Approval status"}

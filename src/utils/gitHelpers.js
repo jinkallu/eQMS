@@ -297,9 +297,10 @@ export const voteStatus = [
   {
     vote: 10,
     status: "Approved",
+    color: "success",
   },
-  { vote: 5, status: "Approved with suggestions" },
-  { vote: 0, status: "no vote" },
-  { vote: -5, status: "Waiting for author" },
-  { vote: -10, status: "Rejected" },
+  { vote: 5, status: "Approved with suggestions", color: "success" },
+  { vote: 0, status: "Pending", color: "info" },
+  { vote: -5, status: "Waiting for author", color: "warning" },
+  { vote: -10, status: "Rejected", color: "error" },
 ];
