@@ -41,7 +41,7 @@ export default function AddSOP({
     teamsWithMembers,
     saveToDatabase,
     sops,
-    refreshDBData,
+    refreshSOPDBData,
     setAlertMessage,
   } = useExtnStore((state) => state);
 
@@ -152,7 +152,7 @@ export default function AddSOP({
       branchName,
       "sop"
     );
-    refreshDBData(project.id, project.name, repository.id);
+    refreshSOPDBData(project.id, project.name, repository.id);
     handleCancel();
     // navigate({
     //   pathname: "/qmshub.html/content/",

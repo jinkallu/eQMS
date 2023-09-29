@@ -24,7 +24,7 @@ const SOPs = () => {
     isQualityMgrSelected,
     repository,
     branchTypes,
-    refreshDBData,
+    refreshSOPDBData,
     project,
     branches,
   } = useExtnStore((state) => state);
@@ -36,7 +36,7 @@ const SOPs = () => {
   async function refreshData(projectId, projectName, repositoryId) {
     setLoading(true);
     try {
-      await refreshDBData(projectId, projectName, repositoryId);
+      await refreshSOPDBData(projectId, projectName, repositoryId);
       setLoading(false);
     } catch (e) {
       setLoading(false);

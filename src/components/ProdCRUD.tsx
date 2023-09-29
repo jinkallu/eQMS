@@ -44,7 +44,7 @@ export default function ProdCRUD({
     saveToDatabase,
     sops,
     products,
-    refreshDBData,
+    refreshSOPDBData,
     setAlertMessage,
   } = useExtnStore((state) => state);
 
@@ -61,8 +61,6 @@ export default function ProdCRUD({
       typeof value === "string" ? value.split(",") : value
     );
   };
-
-  console.log(branchFileNames);
 
   const handleAutherChange = (event) => {
     const {
@@ -180,7 +178,7 @@ export default function ProdCRUD({
       branchName,
       "prod"
     );
-    refreshDBData(project.id, project.name, repository.id);
+    refreshSOPDBData(project.id, project.name, repository.id);
     handleCancel();
   }
 

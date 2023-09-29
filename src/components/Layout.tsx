@@ -1,9 +1,7 @@
 import React from "react";
 
 import { Box } from "@mui/material";
-import DynamicIsland from "./DynamicIsland";
 import { Outlet } from "react-router";
-import Sidebar from "./Sidebar";
 import { useExtnStore } from "../zustand/store";
 import useRWDataStorage from "../CHooks/useRWDataStorage";
 import useProjectExists from "../CHooks/useProjectExists";
@@ -21,7 +19,7 @@ export default function Layout() {
     setProject,
     project,
     setRepository,
-    refreshDBData,
+    refreshSOPDBData,
     repository,
   } = useExtnStore((state) => state);
 
@@ -65,7 +63,7 @@ export default function Layout() {
   React.useEffect(() => {
     if (project && project?.id && repository && repository.id) {
       setCurrentUser();
-      refreshDBData(project.id, project.name, repository.id);
+      // refreshSOPDBData(project.id, project.name, repository.id);
     }
   }, [project, repository]);
   return (

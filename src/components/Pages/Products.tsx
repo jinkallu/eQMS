@@ -23,11 +23,11 @@ const Products = () => {
   const {
     setFileNames,
     branchFileNames,
-    userSOPs,
+    userProducts,
     isQualityMgrSelected,
     repository,
     branchTypes,
-    refreshDBData,
+    refreshProductDBData,
     project,
   } = useExtnStore((state) => state);
 
@@ -38,7 +38,7 @@ const Products = () => {
   async function refreshData(projectId, projectName, repositoryId) {
     setLoading(true);
     try {
-      await refreshDBData(projectId, projectName, repositoryId);
+      await refreshProductDBData(projectId, projectName, repositoryId);
       setLoading(false);
     } catch (e) {
       setLoading(false);
@@ -53,13 +53,8 @@ const Products = () => {
 
   React.useEffect(() => {
     if (repository && repository?.id) {
-      branchTypes["sop"]?.map((branch) => {
-        setFileNames(repository?.id, branch.branchId, branch.name, "sop");
-      });
-
-      const type = "temp";
-      branchTypes[type]?.map((branch) => {
-        setFileNames(repository?.id, branch.branchId, branch.name, type);
+      branchTypes["prod"]?.map((branch) => {
+        setFileNames(repository?.id, branch.branchId, branch.name, "prod");
       });
     }
   }, [repository, branchTypes]);
@@ -116,24 +111,26 @@ const Products = () => {
         >
           <CircularProgress></CircularProgress>
         </Box>
-      ) : userSOPs?.length > 0 ? (
+      ) : userProducts?.length > 0 ? (
         <Grid
           container
           spacing={{ xs: 2, md: 3, lg: 3 }}
           columns={{ xs: 4, sm: 8, md: 12 }}
           sx={{ padding: "9px" }}
         >
-          {userSOPs
-            ?.sort((sop) => sop?.sortOrder)
-            ?.map((sop) => {
+          {userProducts
+            ?.sort((product) => product?.sortOrder)
+            ?.map((product) => {
               const branch = branchFileNames?.find(
-                (item) => item.branchId === sop.branchId && item.type === "sop"
+                (item) =>
+                  item.branchId === product.branchId && item.type === "product"
               );
 
               //
               return (
-                <Grid key={sop.branchId} item xs={2} sm={2} md={2} lg={2}>
+                <Grid key={product.branchId} item xs={2} sm={2} md={2} lg={2}>
                   {/* <SOPCard branch={branch} sop={sop}></SOPCard> */}
+                  {product.relativePath}
                 </Grid>
               );
             })}

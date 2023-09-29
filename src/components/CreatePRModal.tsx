@@ -39,7 +39,7 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
     teamsWithMembers,
     project,
     currentUser,
-    refreshDBData,
+    refreshSOPDBData,
   } = useExtnStore((state) => state);
 
   React.useEffect(() => {
@@ -130,7 +130,7 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
       });
     }
 
-    await refreshDBData(project?.id, project.name, repository.id);
+    await refreshSOPDBData(project?.id, project.name, repository.id);
     setLoading(false);
     handleCancel();
   }

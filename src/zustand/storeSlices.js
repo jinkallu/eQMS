@@ -41,7 +41,6 @@ export const userSlice = (set) => ({
   },
   setCurrentUser: async () => {
     const user = await SDK.getUser();
-    console.log(user);
     if (user) {
       set({ currentUser: user });
     }
@@ -98,6 +97,7 @@ export const repositorySlice = (set, get) => ({
               branchId: item?.name?.split("/")[2],
             })) || [];
       });
+
       set((state) => ({ branchTypes: typeBranchData }));
     } catch (error) {
       set((state) => ({ branches: [] }));
@@ -162,6 +162,7 @@ export const repositorySlice = (set, get) => ({
           const relativePath = treeEntries?.find(
             (entry) => entry.gitObjectType === 2
           )?.relativePath;
+
           set((state) => ({
             branchFileNames: [
               ...state.branchFileNames.filter(
@@ -401,7 +402,6 @@ export const databaseSlice = (set, get) => ({
       newContent,
       commitMessage,
     });
-    console.log(res);
     return res;
   },
   updateDatabase: async ({ collectionName, repositoryId, data }) => {
@@ -436,7 +436,6 @@ export const teamsSlice = (set, get) => ({
           ?.length > 0;
 
       set({ isQualityManager: isQmanager });
-      console.log(teamsWithMembersData);
       set({ teamsWithMembers: teamsWithMembersData });
     } catch (e) {
       console.log(e);
@@ -450,7 +449,6 @@ export const pullRequestSlice = (set, get) => ({
   loadProjectPullRequests: async (projectId, searchCriteria) => {
     try {
       const result = await getProjectPullRequests(projectId, searchCriteria);
-      console.log(result);
       if (result) {
         set({ pullRequests: result });
       } else {
@@ -464,7 +462,8 @@ export const pullRequestSlice = (set, get) => ({
 
 export const refreshDataSlice = (set, get) => ({
   userSOPs: [],
-  refreshDBData: async (projectId, projectName, repositoryId) => {
+  userProducts: [],
+  refreshSOPDBData: async (projectId, projectName, repositoryId) => {
     if (!repositoryId) return;
 
     await get().setBranches(repositoryId);
@@ -525,5 +524,56 @@ export const refreshDataSlice = (set, get) => ({
       );
 
     set({ userSOPs });
+  },
+
+  refreshProductDBData: async (projectId, projectName, repositoryId) => {
+    if (!repositoryId) return;
+
+    await get().setBranches(repositoryId);
+
+    await get().getProjectTeamWithMembers(projectId);
+    await get().loadProducts(repositoryId);
+
+    const products = get().products;
+    const allTeams = get().teamsWithMembers;
+    const branchFileNames = get().branchFileNames;
+
+    const userTeams = allTeams
+      ?.filter((team) =>
+        team?.members?.filter(
+          (mem) => mem?.identity?.id === get()?.currentUser?.id
+        )
+      )
+      ?.map((item) => item?.id);
+
+    const userProducts = products
+      ?.map((product) => {
+        const author = [...new Set(product?.author, userTeams)];
+        const approver = [...new Set(product?.approver, userTeams)];
+        const reader = [...new Set(product?.reader, userTeams)];
+
+        const obj = branchFileNames?.find(
+          (item) => item.branchId === product.branchId
+        );
+
+        return {
+          ...product,
+          author,
+          approver,
+          reader,
+          objectId: obj?.objectId,
+          relativePath: obj?.relativePath,
+          type: obj?.type,
+          branchName: obj?.branchName,
+        };
+      })
+      ?.filter(
+        (item) =>
+          item?.reader?.length > 0 ||
+          item?.author?.length > 0 ||
+          (item?.approver?.length > 0 && objectId)
+      );
+
+    set({ userProducts });
   },
 });

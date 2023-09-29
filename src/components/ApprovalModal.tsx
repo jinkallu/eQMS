@@ -51,7 +51,7 @@ export default function ApprovalModal({
     userSOPs,
     sops,
     saveToDatabase,
-    refreshDBData,
+    refreshSOPDBData,
     setAlertMessage,
     teamsWithMembers,
     project,
@@ -70,7 +70,7 @@ export default function ApprovalModal({
       currentReviewer?.id,
       vote
     );
-    await refreshDBData(project.id, project.name, repository.id);
+    await refreshSOPDBData(project.id, project.name, repository.id);
     setLoading(false);
     handleCancel();
   }

@@ -32,15 +32,13 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
     userSOPs,
     sops,
     saveToDatabase,
-    refreshDBData,
+    refreshSOPDBData,
     setAlertMessage,
   } = useExtnStore((state) => state);
   const { renameFile, loadingRenameFile } = useCommit();
   const navigate = useNavigate();
   const { createBranch, loading, branchCreated } = useCreateBranch();
   const project = useExtnStore((state) => state.project);
-  // const branchId = searchParams.get("branchId");
-  // const sopName = searchParams.get("name");
 
   async function handleCreate() {
     // check for duplicate name or number
@@ -129,25 +127,8 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
     // get the object id of the folder for navigation
     const objectId = await setFileNames(repository?.id, branchName, "temp");
 
-    // if (objectId) {
-    //   navigate({
-    //     pathname: "/qmshub.html/content",
-    //     search: `?${createSearchParams({
-    //       objectId,
-    //     })}`,
-    //   });
-    // }
     handleCancel();
-    refreshDBData(project.id, project.name, repository.id);
-    // navigate({
-    //   pathname: "/qmshub.html/content/",
-    //   search: `?${createSearchParams({
-    //     objectId: objectId,
-    //     relativePath: newPath,
-    //     type: "temp",
-    //     branchName: branchName,
-    //   })}`,
-    // });
+    refreshSOPDBData(project.id, project.name, repository.id);
   }
 
   function handleCancel() {

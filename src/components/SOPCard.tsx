@@ -45,7 +45,6 @@ export default function SOPCard({ branch, sop, edit }) {
   const [enableApproval, setEnableApproval] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  console.log(sop);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -154,41 +153,6 @@ export default function SOPCard({ branch, sop, edit }) {
               </Typography>
             </Avatar>
           }
-          // action={
-          //   <div>
-          //     <IconButton
-          //       aria-label="settings"
-          //       color={edit ? "primary" : "default"}
-          //       onClick={handleClick}
-          //     >
-          //       <MoreVertIcon />
-          //     </IconButton>
-          //     <Menu
-          //       id="long-menu"
-          //       MenuListProps={{
-          //         "aria-labelledby": "long-button",
-          //       }}
-          //       anchorEl={anchorEl}
-          //       open={open}
-          //       onClose={handleClose}
-          //     >
-          //       {edit && (
-          //         <MenuItem
-          //           disabled={Boolean(sop?.pullRequest)}
-          //           key="approval"
-          //           onClick={handleCreatePR}
-          //         >
-          //           Send for approval
-          //         </MenuItem>
-          //       )}
-          //       {canEdit && (
-          //         <MenuItem key="edit" onClick={handleClose}>
-          //           Edit
-          //         </MenuItem>
-          //       )}
-          //     </Menu>
-          //   </div>
-          // }
           title=<Tooltip title="Click to view SOP">
             <Typography
               sx={{
