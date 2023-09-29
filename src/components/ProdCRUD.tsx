@@ -43,8 +43,9 @@ export default function ProdCRUD({
     teamsWithMembers,
     saveToDatabase,
     sops,
+    branchTypes,
     products,
-    refreshSOPDBData,
+    refreshProductDBData,
     setAlertMessage,
   } = useExtnStore((state) => state);
 
@@ -178,7 +179,7 @@ export default function ProdCRUD({
       branchName,
       "prod"
     );
-    refreshSOPDBData(project.id, project.name, repository.id);
+    refreshProductDBData(project.id, project.name, repository.id);
     handleCancel();
   }
 
@@ -188,6 +189,15 @@ export default function ProdCRUD({
     // navigate("/qmshub.html/");
     setOpen(false);
   }
+
+  React.useEffect(() => {
+    // This is required to load the sops for the dropdown..
+    if (repository && repository?.id) {
+      branchTypes["sop"]?.map((branch) => {
+        setFileNames(repository?.id, branch.branchId, branch.name, "sop");
+      });
+    }
+  }, [repository, branchTypes]);
   return (
     <Modal
       open={open}

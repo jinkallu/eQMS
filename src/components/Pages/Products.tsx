@@ -17,6 +17,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useExtnStore } from "../../zustand/store";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import ProdCRUD from "../ProdCRUD";
+import ProductCard from "../ProductCard";
 // import AddSOP from "../AddSOP";
 
 const Products = () => {
@@ -129,8 +130,7 @@ const Products = () => {
               //
               return (
                 <Grid key={product.branchId} item xs={2} sm={2} md={2} lg={2}>
-                  {/* <SOPCard branch={branch} sop={sop}></SOPCard> */}
-                  {product.relativePath}
+                  <ProductCard branch={branch} product={product}></ProductCard>
                 </Grid>
               );
             })}
