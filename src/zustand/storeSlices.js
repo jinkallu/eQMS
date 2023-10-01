@@ -98,6 +98,8 @@ export const repositorySlice = (set, get) => ({
             })) || [];
       });
 
+      console.log(typeBranchData);
+
       set((state) => ({ branchTypes: typeBranchData }));
     } catch (error) {
       set((state) => ({ branches: [] }));
@@ -477,8 +479,9 @@ export const refreshDataSlice = (set, get) => ({
     const allTeams = get().teamsWithMembers;
     const branchFileNames = get().branchFileNames;
     const pullRequests = get().pullRequests;
+    const branchTypes = get()?.branchTypes;
 
-    const sopsWithPullRequests = sops?.map((sop) => {
+    const sopsWithPullRequests = branchTypes["sop"]?.map((sop) => {
       const pullRequest = pullRequests?.find(
         (item) => item?.targetRefName?.split("/")[4] === sop.branchId
       );
@@ -499,29 +502,34 @@ export const refreshDataSlice = (set, get) => ({
     const qualityManager = userTeams?.find(
       (item) => item.name === "Quality Manager Team"
     );
-    const userSOPs = sopsWithPullRequests
-      ?.map((sop) => {
-        const author = [...new Set(sop?.author, userTeams)];
-        const approver = [...new Set(sop?.approver, userTeams)];
 
-        const obj = branchFileNames?.find(
-          (item) => item.branchId === sop.branchId
-        );
+    const userSOPs = sopsWithPullRequests?.map((sop) => {
+      const authorData =
+        sops?.find((item) => item.branchId === sop?.branchId)?.author || [];
+      const author = [...new Set(authorData, userTeams)];
+      const approverData =
+        sops?.find((item) => item.branchId === sop?.branchId)?.approver || [];
 
-        return {
-          ...sop,
-          author,
-          approver,
-          objectId: obj?.objectId,
-          relativePath: obj?.relativePath,
-          type: obj?.type,
-          branchName: obj?.branchName,
-        };
-      })
-      ?.filter(
-        (item) =>
-          item?.author?.length > 0 || (item?.approver?.length > 0 && objectId)
+      const approver = [...new Set(approverData, userTeams)];
+
+      const templates =
+        sops?.find((item) => item.branchId === sop?.branchId)?.templates || [];
+
+      const obj = branchFileNames?.find(
+        (item) => item.branchId === sop.branchId
       );
+
+      return {
+        ...sop,
+        author,
+        approver,
+        templates,
+        objectId: obj?.objectId,
+        relativePath: obj?.relativePath,
+        type: obj?.type,
+        branchName: obj?.branchName,
+      };
+    });
 
     set({ userSOPs });
   },

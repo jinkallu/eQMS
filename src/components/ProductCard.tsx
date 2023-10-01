@@ -1,3 +1,5 @@
+import { Paper } from "@mui/material";
+
 export default function ProductCard({ branch, product }) {
-  return <h3>{product?.relativePath}</h3>;
+  return <Paper sx={{ minHeight: 200 }}>{product?.relativePath}</Paper>;
 }
