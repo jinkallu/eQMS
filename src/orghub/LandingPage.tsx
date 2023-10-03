@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import DynamicIsland from "../components/DynamicIsland";
-import { useDynamicIsland, useProject } from "../zustand/store";
+import { useExtnStore } from "../zustand/store";
 import { Paper, Typography } from "@mui/material";
 import React from "react";
 import useRWDataStorage from "../CHooks/useRWDataStorage";
@@ -8,10 +8,10 @@ import useProjectExists from "../CHooks/useProjectExists";
 import useAzureNavigation from "../CHooks/useAzureNavigation";
 
 export default function LandingPage() {
-  const setMessage = useDynamicIsland((state) => state.setMessage);
+  const setMessage = useExtnStore((state) => state.setMessage);
   const { readData, isLoading, error } = useRWDataStorage();
   const { checkProject, loading: projectExistsLoading } = useProjectExists();
-  const { setProject, project } = useProject((state) => state);
+  const { setProject, project } = useExtnStore((state) => state);
   const {
     azureNavigate,
     isLoading: navigationLoading,
@@ -21,6 +21,7 @@ export default function LandingPage() {
   React.useEffect(() => {
     getMainProjectData();
   }, []);
+
   async function getMainProjectData() {
     try {
       setMessage({ showAlert: true, message: "Checking existing project" });

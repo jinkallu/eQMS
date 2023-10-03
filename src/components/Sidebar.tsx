@@ -2,6 +2,7 @@ import React from "react";
 import {
   Chip,
   Divider,
+  FormControlLabel,
   List,
   ListItem,
   ListItemButton,
@@ -9,22 +10,30 @@ import {
   ListSubheader,
   Menu,
   MenuItem,
+  Switch,
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import AddIcon from "@mui/icons-material/Add";
 import SidebarListItem from "./SidebarListItem";
-import { useProject, useGetRepoDetails } from "../zustand/store";
+import { useExtnStore } from "../zustand/store";
 import { useNavigate } from "react-router";
 
 export default function Sidebar() {
-  const { project, setProject } = useProject((state) => state);
-  const { setRepository, repository, setBranches } = useGetRepoDetails(
-    (state) => state
-  );
+  const {
+    project,
+    setRepository,
+    repository,
+    setBranches,
+    loadSOPs,
+    branchTypes,
+    sops,
+    isQualityMgrSelected,
+    isQualityManager,
+    setQualityMgrRole,
+  } = useExtnStore((state) => state);
   const navigate = useNavigate();
-  const sideBarWidth = 280;
+  const sideBarWidth = 340;
 
   React.useEffect(() => {
     if (project && project?.id) {
@@ -34,9 +43,25 @@ export default function Sidebar() {
 
   React.useEffect(() => {
     if (repository && repository?.id) {
-      setBranches(repository?.id);
+      // console.log(repository);
+      // loadSOPs(repository?.id);
+      // setBranches(repository?.id);
     }
   }, [repository]);
+
+  React.useEffect(() => {
+    // console.log(sops, branchTypes);
+    // const sopsLength = sops?.length;
+    // const newSOPs = branchTypes["sop"]?.map((sop, index) => {
+    //   const sopData = sops?.find((item) => item.branchName === sop.name);
+    //   if (sopData) {
+    //     return { branchName: sop.name, sortOrder: sopData.sortOrder };
+    //   } else {
+    //     return { branchName: sop.name, sortOrder: sopsLength + index };
+    //   }
+    // });
+    // console.log(newSOPs);
+  }, [branchTypes]);
   return (
     <Paper
       elevation={3}
@@ -44,12 +69,32 @@ export default function Sidebar() {
         padding: "12px",
         fontSize: 9,
         height: "100vh",
+        width: `${sideBarWidth}px`,
+
         overflowY: "scroll",
       }}
     >
+      {isQualityManager && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <FormControlLabel
+            control={
+              <Switch
+                checked={isQualityMgrSelected}
+                onChange={(e) => setQualityMgrRole(e.target.checked)}
+              />
+            }
+            label="Qualtity Manager"
+          />
+        </Box>
+      )}
       <List
         sx={{
-          maxWidth: { sideBarWidth },
           bgcolor: "background.paper",
         }}
         subheader={
@@ -61,7 +106,6 @@ export default function Sidebar() {
       >
         <SidebarListItem type="qm" label="Quality Manual"></SidebarListItem>
         <SidebarListItem type="sop" label="SOPs"></SidebarListItem>
-        <SidebarListItem type="temp" label="Templates"></SidebarListItem>
         <Divider></Divider>
         <SidebarListItem type="prod" label="Products"></SidebarListItem>
         <Divider></Divider>

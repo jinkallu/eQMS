@@ -32,6 +32,7 @@ export default function MarkedEditor({
         multiline
         variant="standard"
         maxRows={100000}
+        minRows={5}
       />
     </Box>
   );

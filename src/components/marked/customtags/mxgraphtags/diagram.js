@@ -11,10 +11,10 @@ class Diagram {
 
         const xmlDoc = mxUtils.parseXml(xmlContent);
         const codec = new mxCodec(xmlDoc);
-        
+
         var elt = xmlDoc.documentElement.firstChild;
         var cells = [];
-        
+
         while (elt != null) {
             cells.push(codec.decodeCell(elt));
             graph.refresh();
@@ -25,7 +25,7 @@ class Diagram {
     }
 
     testDiagram(container) {
-        mxEvent.disableContextMenu(container);
+        //mxEvent.disableContextMenu(container);
         /*
                 const xmlDoc = mxUtils.parseXml(xmlContent);
                 const codec = new mxCodec(xmlDoc);
@@ -64,6 +64,181 @@ class Diagram {
 
 
     }
+
+    processflow(processFlowElement, container) {
+        mxEvent.disableContextMenu(container);
+        var graph = new mxGraph(container);
+
+        new mxRubberband(graph);
+
+        var parent = graph.getDefaultParent();
+
+        //const processFlowElement = xmlDoc.querySelector("processflow");
+
+        if (processFlowElement) {
+            const steps = processFlowElement.querySelectorAll("step");
+            const stepHeight = 60;
+            const stepWidth = 120;
+            const stepSpacing = 20;
+            let y = stepSpacing;
+
+            graph.getModel().beginUpdate();
+
+            try {
+                for (const step of steps) {
+                    const stepName = step.getAttribute("name");
+                    const vertex = graph.insertVertex(
+                        parent,
+                        null,
+                        stepName,
+                        stepSpacing,
+                        y,
+                        stepWidth,
+                        stepHeight
+                    );
+
+                    if (y > stepSpacing) {
+                        const edge = graph.insertEdge(parent, null, "", prevVertex, vertex);
+                    }
+
+                    const prevVertex = vertex;
+                    y += stepHeight + stepSpacing;
+                }
+            } finally {
+                graph.getModel().endUpdate();
+            }
+        }
+    }
+
+    processflowFromCytoscape(cytoscapeGraph, container) {
+        mxEvent.disableContextMenu(container);
+        var graph = new mxGraph(container);
+
+        // Enable click handling on cells
+        graph.setCellsSelectable(true);
+        graph.addListener(mxEvent.CLICK, function (sender, evt) {
+            console.log(evt);
+            var cell = evt.getProperty("cell"); // Get the clicked cell (vertex)
+            if (cell != null && cell.isVertex()) {
+                console.log("Vertex clicked:", cell.getValue());
+            }
+        });
+
+        new mxRubberband(graph);
+
+        var parent = graph.getDefaultParent();
+        graph.getModel().beginUpdate();
+        try {
+
+            const cyNodes = cytoscapeGraph.nodes(); // Assuming you have the nodes in your Cytoscape graph
+            const cyEdges = cytoscapeGraph.edges(); // Assuming you have the edges in your Cytoscape graph
+            //console.log(cyEdges);
+
+            const stepHeight = 60;
+            const stepWidth = 120;
+            const stepSpacing = 20;
+            let y = 50 + stepSpacing;
+
+            const process_node = cytoscapeGraph.elements('[type="process"]');
+            console.log("ppp ", process_node);
+            //const edgesWithParent = process_node.connectedEdges();
+            //console.log(process_node.id());
+            var swimlaneGroup = graph.insertVertex(parent, null, process_node.data("label"), 20, 20, 800, 300, 'shape=swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;');
+            const mxVertexMap = new Map(); // To map Cytoscape nodes to corresponding mxGraph vertices
+
+            this.traverseHierarchy(graph, process_node, process_node.id(), swimlaneGroup, mxVertexMap);
+
+            // Iterate through Cytoscape edges and create corresponding mxGraph edges
+            cyEdges.forEach(cyEdge => {
+                //console.log(cyEdge.data());
+                const sourceId = cyEdge.data().source; // Assuming you have a 'source' field in Cytoscape edges
+                const targetId = cyEdge.data().target; // Assuming you have a 'target' field in Cytoscape edges
+                const label = cyEdge.data().label;
+                //console.log(label);
+
+                const sourceVertex = mxVertexMap.get(sourceId);
+                const targetVertex = mxVertexMap.get(targetId);
+
+                if (sourceVertex && targetVertex) {
+                    graph.insertEdge(
+                        swimlaneGroup,
+                        null, // Use null for edge ID
+                        label, // No label for the edge
+                        sourceVertex,
+                        targetVertex
+                    );
+                }
+                else {
+                    console.log("Error", cyEdge);
+                }
+            });
+
+
+
+        } finally {
+
+            graph.getModel().endUpdate();
+            new mxSwimlaneManager(graph);
+            // layouts: mxHierarchicalLayout, mxCircleLayout, mxCompactTreeLayout, mxCompositeLayout, mxFastOrganicLayout, mxParallelEdgeLayout, mxPartitionLayout, mxStackLayout
+            var layout = new mxHierarchicalLayout(graph); // Not sure what it does
+            layout.resizeParent = true; // Makes sure all children fit into the parent swimlane
+            layout.fill = true; // Applies the size to children if parent size changes
+            layout.execute(swimlaneGroup);
+
+
+        }
+
+    }
+
+    traverseHierarchy(graph, node, process_node_id, swimlaneGroup, mxVertexMap, y = 50) {
+        if (node.id() !== process_node_id) {
+            const stepHeight = 60;
+            const stepWidth = 120;
+            const stepSpacing = 20;
+            y = y + stepSpacing;
+
+            const id = node.id(); // Assuming you have unique node IDs in Cytoscape
+            var label = node.data("label"); // Assuming you have labels in Cytoscape nodes
+            const type = node.data("type");
+            var shape = "";
+            //console.log(type);
+            switch (type) {
+                case "step":
+                    shape = "rounded=0;whiteSpace=wrap;html=1;";
+                    break;
+
+                case "condition":
+                    shape = "shape=rhombus;whiteSpace=wrap;html=1;";
+                    label += node.data("result");
+                    break;
+
+                case "template":
+                    shape = "shape=swimlane;";
+                    break;
+
+                default:
+                    shape = "rounded=0;whiteSpace=wrap;html=1;";
+                    break;
+            }
+            const vertex = graph.insertVertex(
+                swimlaneGroup,
+                id, // Use the Cytoscape node ID as the vertex ID
+                label,
+                stepSpacing, // X-coordinate, you may need to adjust this
+                y, // Y-coordinate, you may need to adjust this
+                stepWidth, // Width of the vertex
+                stepHeight, // Height of the vertex
+                shape
+            );
+            y += stepHeight + stepSpacing;
+
+            mxVertexMap.set(id, vertex); // Store the mapping for future reference
+        }
+        node.children().forEach(childNode => {
+            this.traverseHierarchy(graph, childNode, process_node_id, swimlaneGroup, mxVertexMap, y);
+        });
+    }
+
 }
 
 export default Diagram;

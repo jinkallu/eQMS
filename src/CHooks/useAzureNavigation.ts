@@ -14,17 +14,17 @@ const useAzureNavigation = () => {
     setError(null);
 
     try {
-      const hostNavigationService = await SDK.getService<IHostNavigationService>(CommonServiceIds.HostNavigationService);
+      const hostNavigationService =
+        await SDK.getService<IHostNavigationService>(
+          CommonServiceIds.HostNavigationService
+        );
       await hostNavigationService.navigate(url);
-
     } catch (err) {
-      console.log("Retrieved value:", err);
       setError(err);
     } finally {
       setIsLoading(false);
     }
   };
-
 
   return { azureNavigate, isLoading, error };
 };
