@@ -1,22 +1,27 @@
 import React from "react";
 
 import { Box } from "@mui/material";
-import DynamicIsland from "./DynamicIsland";
 import { Outlet } from "react-router";
-import Sidebar from "./Sidebar";
-import { useDynamicIsland, useProject } from "../zustand/store";
+import { useExtnStore } from "../zustand/store";
 import useRWDataStorage from "../CHooks/useRWDataStorage";
 import useProjectExists from "../CHooks/useProjectExists";
 import AlertSnackbar from "./AlertSnackbar";
+import Header from "./Header";
 
 export default function Layout() {
-  const setMessage = useDynamicIsland((state) => state.setMessage);
+  const setMessage = useExtnStore((state) => state.setMessage);
   const { readData, isLoading, error } = useRWDataStorage();
   const { checkProject, loading: projectExistsLoading } = useProjectExists();
-  const { setProject, project } = useProject((state) => state);
-  const setDefaultMessage = useDynamicIsland(
-    (state) => state.setDefaultMessage
-  );
+
+  const {
+    setCurrentUser,
+    setDefaultMessage,
+    setProject,
+    project,
+    setRepository,
+    refreshSOPDBData,
+    repository,
+  } = useExtnStore((state) => state);
 
   React.useEffect(() => {
     // this check is required as when navigating directly to project page will cause the project details empty.
@@ -50,40 +55,33 @@ export default function Layout() {
   }
 
   React.useEffect(() => {
-    setDefaultMessage("QMS");
-  }, []);
+    if (project && project?.id) {
+      setRepository(project?.id, project?.name);
+    }
+  }, [project]);
 
+  React.useEffect(() => {
+    if (project && project?.id && repository && repository.id) {
+      setCurrentUser();
+      // refreshSOPDBData(project.id, project.name, repository.id);
+    }
+  }, [project, repository]);
   return (
     <Box
       sx={{
         display: "flex",
+        flexDirection: "column",
+        width: "100%",
         minHeight: "95vh",
+        padding: 0,
+        margin: 0,
+        backgroundColor: "#F5F5F5",
       }}
     >
       <AlertSnackbar></AlertSnackbar>
-      <Sidebar></Sidebar>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          width: "100%",
-          flexGrow: 1,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <DynamicIsland></DynamicIsland>
-        </Box>
-
-        <Outlet></Outlet>
-      </Box>
+      <Header></Header>
+      <div style={{ marginTop: 50 }}></div>
+      <Outlet></Outlet>
     </Box>
   );
 }

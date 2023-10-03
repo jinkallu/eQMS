@@ -1,14 +1,14 @@
 import { Alert, Snackbar } from "@mui/material";
-import { useAlertSnackbar } from "../zustand/store";
+import { useExtnStore } from "../zustand/store";
 
 export default function AlertSnackbar() {
-  const { open, message, severity, resetMessage } = useAlertSnackbar(
+  const { openAlertSnackbar, message, severity, resetMessage } = useExtnStore(
     (state) => state
   );
 
   return (
     <Snackbar
-      open={open}
+      open={openAlertSnackbar}
       autoHideDuration={6000}
       onClose={resetMessage}
       message="Note archived"
