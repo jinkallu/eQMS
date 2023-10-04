@@ -1,0 +1,76 @@
+import { marked } from 'marked';
+import { useEffect, useState } from 'react';
+
+function useProductSOPs() {
+    const [processflows, setProcessflows] = useState(null);
+    // Iterate over all SOPs and get comntents
+    // mock SOP
+
+    const mockSOPs = () => {
+        const sops = [];
+        const sop1 = "<processflow name='QMS Document Structure'> </processflow>";
+        sops.push(sop1);
+        const sop2 = "<processflow name='Product Development Phases' order='0'> </processflow>";
+        sops.push(sop2);
+        const sop3 = "<processflow name='Design Controls' order='1'> </processflow>";
+        sops.push(sop3);
+
+        return sops;
+    }
+
+    const iterateSOPs = (sops: string[]) => {
+        const sopsProcessFlow = [];
+        for (let i = 0; i < sops.length; i++) {
+            const md = sops[i];
+            const parsedHtmlString = marked(md);
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(parsedHtmlString, 'text/html');
+
+            const processflowElements = doc.getElementsByTagName('processflow');
+            if (!processflowElements) {
+                console.log("Error! no processflow in the SOP!");
+                return null;
+            }
+
+            if (processflowElements.length > 1) {
+                console.log("Error! more than 1 processflow in the SOP!");
+                return null;
+            }
+
+            let order = processflowElements[0].getAttribute('order');
+            let orderInt = -1;
+            if (order !== null) {
+                orderInt = parseInt(order);
+            }
+
+            sopsProcessFlow.push({ order: orderInt, processflowElmenet: processflowElements[0] });
+        }
+
+        sopsProcessFlow.sort(customSort);
+        setProcessflows(sopsProcessFlow);
+        //console.log(sopsProcessFlow);
+    }
+
+    // Custom comparator function for sorting
+    function customSort(a, b) {
+        // Handle the case when 'order' is -1
+        if (a.order === -1) {
+            return 1; // Move 'a' after 'b'
+        } else if (b.order === -1) {
+            return -1; // Move 'b' after 'a'
+        } else {
+            // Sort by 'order' value
+            return a.order - b.order;
+        }
+    }
+
+    const sopsWithOrder = () => {
+        const sops = mockSOPs();
+        iterateSOPs(sops);
+    }
+
+    return { processflows, sopsWithOrder };
+}
+
+export default useProductSOPs;

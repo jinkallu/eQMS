@@ -18,6 +18,7 @@ import { useExtnStore } from "../../zustand/store";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import ProdCRUD from "../ProdCRUD";
 import ProductCard from "../ProductCard";
+import useProductSOPs from "../productSOPs/useProductSOPs";
 // import AddSOP from "../AddSOP";
 
 const Products = () => {
@@ -31,6 +32,10 @@ const Products = () => {
     refreshProductDBData,
     project,
   } = useExtnStore((state) => state);
+
+  // testing the product SOPs
+  const {processflows, sopsWithOrder} = useProductSOPs();
+  //
 
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
@@ -49,6 +54,9 @@ const Products = () => {
   React.useEffect(() => {
     if (project && project?.id && repository && repository.id) {
       refreshData(project.id, project.name, repository.id);
+      // testing the product SOPs
+      sopsWithOrder();
+      //
     }
   }, [project, repository]);
 
@@ -59,6 +67,10 @@ const Products = () => {
       });
     }
   }, [repository, branchTypes]);
+
+  React.useEffect(() => {
+    console.log(processflows);
+  }, [processflows]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
