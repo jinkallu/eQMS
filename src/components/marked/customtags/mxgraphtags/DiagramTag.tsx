@@ -1,8 +1,18 @@
-import Diagram from './diagram'; // Import the ES6 class
-                     // <- import values from factory()
+import Diagram from './diagram';
+import MarkedAzureSDK from '../../MarkedAzureSDK';
 
 class DiagramTag {
-  static async initializeMxGraph(container_id: string): Promise<HTMLElement | null> {
+  static registerCondition() {
+    MarkedAzureSDK.register('diagram', (element: Element, container_id: string) => {
+      return DiagramTag.parse(element, container_id);
+    });
+
+    MarkedAzureSDK.register('process', (element: Element, container_id: string) => {
+      return DiagramTag.parse(element, container_id);
+    });
+}
+
+  static async initializeMxGraph(element: Element, container_id: string): Promise<HTMLElement | null> {
     const container = document.createElement('div');
     container.id = container_id;
     if (!container) {
@@ -11,7 +21,16 @@ class DiagramTag {
     }
 
     const diagram = new Diagram();
-    diagram.loadAndDisplayGraph(container);
+    const tag = element.tagName.toLowerCase();
+    if(tag === 'diagram'){
+      diagram.loadAndDisplayGraph(container);
+    }
+    else if(tag === 'process'){
+      diagram.processflow(element, container);
+    }
+    else{
+      console.log(tag, 'not supported');
+    }
 
     return container;
   }
@@ -20,7 +39,8 @@ class DiagramTag {
     try {
       // Get the value of the "type" attribute
       //const id = element.getAttribute('id');
-      const newElement = this.initializeMxGraph(newElement_id);
+      const newElement = this.initializeMxGraph(element, newElement_id);
+      
       //const newElement = document.createElement('div');
       //newElement.textContent = work; // Set the content of the new element
       // Replace <displaytasks> with the new element

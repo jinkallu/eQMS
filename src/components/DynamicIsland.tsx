@@ -1,11 +1,13 @@
 import React from "react";
 
 import { Box, Typography } from "@mui/material";
-import { useDynamicIsland } from "../zustand/store";
+import { useExtnStore } from "../zustand/store";
 
 export default function DynamicIsland({}) {
-  const { message, severity, open, defaultMessage, temporary } =
-    useDynamicIsland((state) => state);
+  const messageDIsland = useExtnStore((state) => state.messageDIsland);
+  const open = useExtnStore((state) => state.open);
+  const defaultMessage = useExtnStore((state) => state.defaultMessage);
+  const temporary = useExtnStore((state) => state.temporary);
   return (
     <Box
       sx={{
@@ -22,7 +24,7 @@ export default function DynamicIsland({}) {
         color: "white",
       }}
     >
-      <Typography>{open ? message : defaultMessage}</Typography>
+      <Typography>{open ? messageDIsland : defaultMessage}</Typography>
     </Box>
   );
 }

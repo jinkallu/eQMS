@@ -1,58 +1,106 @@
-import DisplayTag from "./customtags/DisplayTag";
-import DiagramTag from "./customtags/mxgraphtags/DiagramTag";
+//import DisplayTag from "./customtags/DisplayTag";
+//import DiagramTag from "./customtags/mxgraphtags/DiagramTag";
+import CytoscapeTags from "./customtags/cytoscapetags/CytoscapeTags";
+import { v4 as uuidv4 } from 'uuid';
+
+
+import CustomTags from "./customtags/CustomTags"
 class MarkedAzureSDK {
-  public async parseCustomTags(htmlDOM: Document): Promise<Document | null> {
+  private static callbacks: { condition: string, callback: (element: Element, container_id: string, type: number) => any }[] = [];
+
+  static register(condition: string, callback: (element: Element, container_id: string, type: number) => any) {
+    MarkedAzureSDK.callbacks.push({ condition, callback });
+    console.log(condition);
+  }
+
+  private promises: Promise<HTMLElement | null>[] = [];
+  private elements: Element[] = [];
+  private htmlDOM: Document;
+
+  constructor() {
+    CustomTags.registerCustomTags();
+  }
+
+  async checkConditionsAndInvokeCallbacks(type: number, parentId: string) {
+    console.log("Called checkConditionsAndInvokeCallbacks");
+    for (const item of MarkedAzureSDK.callbacks) {
+      //console.log(MarkedAzureSDK.callbacks);
+      //console.log(item.condition, this.htmlDOM);
+      const elements = Array.from(this.htmlDOM.querySelectorAll(item.condition));
+      if (elements.length > 0) {
+        for (let i = 0; i < elements.length; i++) {
+          const element = elements[i];
+          //console.log(element.id);
+          let id = null;
+          if (element.id.trim() === '') {
+            if (type === 2 && parentId !== "" && item.condition !== "md") {
+              // look for the corresponding entry in HTMLEditor / its textarea and copy the id.
+              //console.log(parentId);
+              const elementEditor = document.getElementById(parentId);
+              //console.log(elementEditor);
+              let condition = null;
+              if(item.condition === "textarea"){
+                condition = 'textarea[type="input"]';
+              }
+              else{
+                condition = item.condition;
+              }
+              var children = elementEditor.querySelectorAll(condition);
+              //console.log(children);
+              id = children[i].id + "_viewer";
+
+            }
+            else {
+              const uuid = uuidv4();
+              id = item.condition + "_" + uuid;
+            }
+          }
+          else {
+            if (type === 2){
+              id = element.id + "_viewer";
+            }
+            else{
+              id = element.id;
+            }
+            
+          }
+
+          const promise = item.callback(element, id, type);
+          this.promises.push(promise);
+          this.elements.push(element);
+        }
+      }
+    }
+  }
+
+ 
+
+  
+
+  public async parseCustomTags(htmlDOM: Document, type: number, parentId: string): Promise<Document | null> {
+    this.promises.length = 0;
+    this.elements.length = 0;
+    this.htmlDOM = null;
+
     try {
-      const promises_displayTaskElements: Promise<HTMLElement | null>[] = [];
-      const displayTaskElements = Array.from(htmlDOM.querySelectorAll('displaywork'));
+      this.htmlDOM = htmlDOM;
+      this.checkConditionsAndInvokeCallbacks(type, parentId);
+      //this.displayWork();
+      //this.diagram();
+      //this.process();
+      //this.processFlow();
 
-      if (displayTaskElements.length > 0) {
-        
-        for (const displayTaskElement of displayTaskElements) {
-          const promise = DisplayTag.parse(displayTaskElement);
-          promises_displayTaskElements.push(promise);
-        }
-      }
+      if (this.promises.length > 0) {
 
-      const promises_diagramElements: Promise<HTMLElement | null>[] = [];
-      const diagramElements = Array.from(htmlDOM.querySelectorAll('diagram'));
-
-      if (diagramElements.length > 0) {
-        console.log('found diagram')
-        var id = 0;
-        for (const diagramElement of diagramElements) {
-          //const newElement = document.createElement('div');
-          //newElement.id = `diagram_${id}`;
-          id+=1;
-          //diagramElement.parentNode?.replaceChild(newElement, diagramElement);
-          const promise = DiagramTag.parse(diagramElement, `diagram_${id}`);
-          promises_diagramElements.push(promise);
-        }
-      }
-
-      if (displayTaskElements.length > 0) {
-        console.log('found displaywork')
-
-        const newElements = await Promise.all(promises_displayTaskElements);
+        const newElements = await Promise.all(this.promises);
 
         newElements.forEach((newElement, index) => {
-          const displayTaskElement = displayTaskElements[index];
+          const element = this.elements[index];
           if (newElement) {
-            displayTaskElement.parentNode?.replaceChild(newElement, displayTaskElement);
+            element.parentNode?.replaceChild(newElement, element);
           }
         });
-      } 
-      if (diagramElements.length > 0) {
-        const newElements = await Promise.all(promises_diagramElements);
-
-        newElements.forEach((newElement, index) => {
-          const diagramElement = diagramElements[index];
-          if (newElement) {
-            diagramElement.parentNode?.replaceChild(newElement, diagramElement);
-          }
-        });
-      } 
-      
+      }
 
       return htmlDOM;
     } catch (error) {

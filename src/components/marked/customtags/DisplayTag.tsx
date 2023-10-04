@@ -1,18 +1,32 @@
 import { WorkItemHelper } from "./WorkItemHelper";
 import { WorkItem } from "azure-devops-extension-api/WorkItemTracking";
-
+import MarkedAzureSDK from "../MarkedAzureSDK";
 
 class DisplayTag {
-    static async parse(element: Element): Promise<HTMLElement | null> {
+    static registerCondition() {
+        console.log("Calling register");
+        MarkedAzureSDK.register('displaywork', (element: Element, container_id: string) => {
+            return DisplayTag.parse(element, container_id);
+        });
+    }
+
+    static async parse(element: Element, container_id: string): Promise<HTMLElement | null> {
         try {
-            const id = element.getAttribute('id');
-            // handle id error!
-            console.log(id);
-            const work = await DisplayTag.loadWorkItem(id);
             const newElement = document.createElement('div');
-            const table = this.createTable(work, element, id);
-            // Append the table to the div
-            newElement.appendChild(table);
+            newElement.id = container_id;
+
+            const id = element.getAttribute('id');
+            if (id !== null && id.trim() !== '') {
+                const work = await DisplayTag.loadWorkItem(id);
+
+                const table = this.createTable(work, element, id);
+                // Append the table to the div
+                newElement.appendChild(table);
+            }
+            else {
+                newElement.innerText = "Insert ID";
+            }
+
 
 
             //newElement.textContent = 'work.fields["System.Title"]'; // Set the content of the new element
@@ -54,7 +68,7 @@ class DisplayTag {
         return cell;
     }
 
-    static createTableHead(fieldsArray: string[]): HTMLElement{
+    static createTableHead(fieldsArray: string[]): HTMLElement {
         const headerRow = document.createElement('tr');
         for (const fieldValue of fieldsArray) {
             const columnHeader = document.createElement("th");
@@ -63,12 +77,12 @@ class DisplayTag {
             columnHeader.textContent = fieldValue; // Set the text content for the header
             headerRow.appendChild(columnHeader); // Append the <th> to the <tr>
         }
-        return headerRow; 
+        return headerRow;
     }
 
     static createRow(work: WorkItem, fieldsArray: string[], id: string): HTMLElement {
         const row = document.createElement('tr');
-        if(id){
+        if (id) {
             const cell = this.createCellWithLink(work, id);
             row.appendChild(cell);
         }

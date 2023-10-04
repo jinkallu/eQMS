@@ -5,12 +5,14 @@ import {
   List,
   ListItem,
   ListItemButton,
+  ListItemIcon,
   ListItemText,
   Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowRight from "@mui/icons-material/ArrowRight";
-import { useGetRepoDetails } from "../zustand/store";
+import StarBorder from "@mui/icons-material/StarBorder";
+import { useExtnStore } from "../zustand/store";
 import React from "react";
 import {
   createSearchParams,
@@ -19,8 +21,14 @@ import {
 } from "react-router-dom";
 
 export default function SidebarListItem({ type, label }) {
-  const { branchTypes, setFileNames, repository, branchFileNames } =
-    useGetRepoDetails((state) => state);
+  const {
+    branchTypes,
+    setFileNames,
+    repository,
+    branchFileNames,
+    userSOPs,
+    isQualityMgrSelected,
+  } = useExtnStore((state) => state);
   const [open, setOpen] = React.useState(false);
   const [contentHtml, setContentHtml] = React.useState("");
   const navigate = useNavigate();
@@ -31,8 +39,15 @@ export default function SidebarListItem({ type, label }) {
   React.useEffect(() => {
     if (repository && repository?.id) {
       branchTypes[type]?.map((branch) => {
-        setFileNames(repository?.id, branch.name, type);
+        setFileNames(repository?.id, branch.branchId, branch.name, type);
       });
+
+      if (type === "sop") {
+        const type = "temp";
+        branchTypes[type]?.map((branch) => {
+          setFileNames(repository?.id, branch.branchId, branch.name, type);
+        });
+      }
     }
   }, [repository, branchTypes]);
 
@@ -47,6 +62,108 @@ export default function SidebarListItem({ type, label }) {
       })}`,
     });
   }
+
+  function handleAddTempClick(e, branch) {
+    e.stopPropagation();
+    navigate({
+      pathname: "/qmshub.html/addtemp",
+      search: `?${createSearchParams({
+        branchId: branch.branchId,
+        name: branch.relativePath,
+      })}`,
+    });
+  }
+
+  const GetListItems = ({ type, branchFileNames, userSOPs }) => {
+    if (type === "sop")
+      return userSOPs
+        ?.sort((sop) => sop?.sortOrder)
+        ?.map((sop) => {
+          const branch = branchFileNames?.find(
+            (item) => item.branchId === sop.branchId && item.type === "sop"
+          );
+          return (
+            <>
+              <ListItemButton
+                key={branch.objectId}
+                selected={branch.objectId === objectId}
+                sx={{ pl: 4 }}
+                onClick={() => handleItemClick(branch)}
+              >
+                <ListItemText
+                  primary={
+                    <Typography
+                      sx={{
+                        color: "0b204d",
+                        fontSize: "14px",
+                        clear: "both",
+                        display: "inline-block",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {branch.relativePath}
+                    </Typography>
+                  }
+                />
+                {isQualityMgrSelected && (
+                  <AddIcon
+                    sx={{ cursor: "pointer" }}
+                    onClick={(e) => handleAddTempClick(e, branch)}
+                  ></AddIcon>
+                )}
+                {branch.objectId === objectId && <ArrowRight></ArrowRight>}
+              </ListItemButton>
+              <Collapse in={open} timeout="auto" unmountOnExit>
+                <List
+                  component="div"
+                  disablePadding
+                  sx={{ paddingLeft: "5px" }}
+                >
+                  {sop?.templates?.map((template) => {
+                    const tempBranch = branchFileNames.find(
+                      (item) =>
+                        item.type === "temp" && item.branchId === template
+                    );
+
+                    return (
+                      <ListItemButton
+                        key={tempBranch.objectId}
+                        selected={tempBranch.objectId === objectId}
+                        sx={{ pl: 4 }}
+                        onClick={() => handleItemClick(tempBranch)}
+                      >
+                        <ListItemText
+                          primary={
+                            <Typography
+                              sx={{
+                                color: "0b204d",
+                                fontSize: "14px",
+                                clear: "both",
+                                display: "inline-block",
+                                overflow: "hidden",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {tempBranch.relativePath}
+                            </Typography>
+                          }
+                        />
+                        {tempBranch.objectId === objectId && (
+                          <ArrowRight></ArrowRight>
+                        )}
+                      </ListItemButton>
+                    );
+                  })}
+                </List>
+              </Collapse>
+            </>
+          );
+        });
+    else {
+      return <h1>Work to be done</h1>;
+    }
+  };
 
   return (
     <>
@@ -80,51 +197,24 @@ export default function SidebarListItem({ type, label }) {
           variant="outlined"
           size="small"
         ></Chip>
-        <AddIcon
-          sx={{ cursor: "pointer" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`add${type}`);
-          }}
-        ></AddIcon>
+        {isQualityMgrSelected && (
+          <AddIcon
+            sx={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`add${type}`);
+            }}
+          ></AddIcon>
+        )}
         {/* {open ? <ExpandLess /> : <ExpandMore />} */}
       </ListItem>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          {branchFileNames
-            ?.filter((branch) => branch.type === type)
-            ?.sort(
-              (a, b) =>
-                a.relativePath.split("-")[1] - b.relativePath.split("-")[1]
-            )
-            ?.map((branch) => {
-              return (
-                <ListItemButton
-                  key={branch.objectId}
-                  selected={branch.objectId === objectId}
-                  sx={{ pl: 4 }}
-                  onClick={() => handleItemClick(branch)}
-                >
-                  <ListItemText
-                    primary={
-                      <Typography
-                        sx={{
-                          color: "0b204d",
-                          fontSize: "14px",
-                          clear: "both",
-                          display: "inline-block",
-                          overflow: "hidden",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {branch.relativePath?.split("-").slice(1).join(" ")}
-                      </Typography>
-                    }
-                  />
-                  {branch.objectId === objectId && <ArrowRight></ArrowRight>}
-                </ListItemButton>
-              );
-            })}
+          <GetListItems
+            type={type}
+            branchFileNames={branchFileNames}
+            userSOPs={userSOPs}
+          ></GetListItems>
         </List>
       </Collapse>
     </>
