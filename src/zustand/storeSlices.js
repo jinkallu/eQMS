@@ -222,6 +222,31 @@ export const repositorySlice = (set, get) => ({
       }));
     }
   },
+
+  getFileContent: async (repositoryId, path, branchName, objectId) => {
+    const versionDescriptor = {
+      version: branchName,
+      versionType: 0,
+    };
+    try {
+      const gitClient = getClient(GitRestClient);
+
+      const content = await gitClient.getItemText(
+        repositoryId,
+        path,
+        null,
+        undefined, // scopepath
+        undefined, // recursionLevel
+        undefined, // includeContentMetadata,
+        true, // latestProcessedChange
+        false, // download
+        versionDescriptor
+      );
+      return content;
+    } catch (e) {
+      return;
+    }
+  },
   getEditBranch: async ({
     objectId,
     branchName,

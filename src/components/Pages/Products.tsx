@@ -30,11 +30,13 @@ const Products = () => {
     repository,
     branchTypes,
     refreshProductDBData,
+    refreshSOPDBData,
     project,
+    userSOPs,
   } = useExtnStore((state) => state);
 
   // testing the product SOPs
-  const {processflows, sopsWithOrder} = useProductSOPs();
+  const { processflows, sopsWithOrder, loadFileContent } = useProductSOPs();
   //
 
   const navigate = useNavigate();
@@ -45,6 +47,8 @@ const Products = () => {
     setLoading(true);
     try {
       await refreshProductDBData(projectId, projectName, repositoryId);
+      await refreshSOPDBData(project.id, project.name, repository.id);
+
       setLoading(false);
     } catch (e) {
       setLoading(false);
@@ -71,6 +75,14 @@ const Products = () => {
   React.useEffect(() => {
     console.log(processflows);
   }, [processflows]);
+
+  async function getSOPWithContents(userSOPs) {
+    const data = await loadFileContent(userSOPs);
+    console.log(data);
+  }
+  React.useEffect(() => {
+    getSOPWithContents(userSOPs);
+  }, [userSOPs]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
