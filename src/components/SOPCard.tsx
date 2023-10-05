@@ -139,7 +139,7 @@ export default function SOPCard({ branch, sop, edit }) {
       ></ApprovalModal>
       <Card
         variant="outlined"
-        sx={{ "&:hover": { border: "2px solid #082567" } }}
+        sx={{ borderRadius: "5px", "&:hover": { border: "2px solid #082567" } }}
       >
         {edit && (
           <Box sx={{ height: "5px", backgroundColor: " #082567" }}></Box>
@@ -147,8 +147,12 @@ export default function SOPCard({ branch, sop, edit }) {
         <CardHeader
           sx={{ paddingBottom: "5px" }}
           avatar={
-            <Avatar aria-label="recipe" sx={{ backgroundColor: "#082567" }}>
-              <Typography sx={{ fontSize: "12px" }}>
+            <Avatar
+              aria-label="recipe"
+              sx={{ backgroundColor: "#306bc9" }}
+              sizes="small"
+            >
+              <Typography sx={{ fontSize: "9px" }}>
                 {branch?.relativePath?.split("-")[1]}
               </Typography>
             </Avatar>

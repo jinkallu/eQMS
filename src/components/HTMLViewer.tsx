@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useExtnStore } from "../zustand/store";
 import React from "react";
 import { markedToHtml } from "../utils/markedHelper";
-import { Box, Chip, CircularProgress, Typography } from "@mui/material";
+import { Box, Chip, CircularProgress, Paper } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import MarkedEditView from "./marked/MarkedEditView";
@@ -13,7 +13,11 @@ import EditConfModal from "./EditConfModal";
 import useGetTeamMembers from "../CHooks/useGetTeamMembers";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditorSave from "./marked/EditerSave";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import { jsPDF } from "jspdf";
 
+// Default export is a4 paper, portrait, using millimeters for units
+const doc = new jsPDF();
 
 export default function HTMLViewer() {
   //const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
@@ -114,6 +118,11 @@ export default function HTMLViewer() {
     setEditMode((prev) => !prev);
   }
 
+  function createPdf() {
+    doc.text(inputText, 10, 10);
+    doc.save(`${branch?.relativePath?.split("-")?.slice(1)?.join(" ")}.pdf`);
+  }
+
   React.useEffect(() => {
     if (!editMode) getFileContent(objectId);
   }, [objectId, editMode]);
@@ -154,6 +163,7 @@ export default function HTMLViewer() {
           display: "flex",
           justifyContent: "space-between",
           paddingX: "24px",
+          paddingBottom: "12px",
         }}
       >
         <ArrowBackIcon
@@ -174,39 +184,53 @@ export default function HTMLViewer() {
           color="primary"
           variant="outlined"
         ></Chip>
-        <Box>
-          {canEdit && editMode && (
-            <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
-          )}
-          <EditIcon
-            onClick={toggleEditModeData}
-            sx={{ cursor: "pointer" }}
-          ></EditIcon>
+        <Box
+          sx={{
+            display: "flex",
+            gap: "12px",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <PictureAsPdfIcon onClick={createPdf}></PictureAsPdfIcon>
+
+          <Box>
+            {canEdit && editMode && (
+              <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
+            )}
+            <EditIcon
+              onClick={toggleEditModeData}
+              sx={{ cursor: "pointer" }}
+            ></EditIcon>
+          </Box>
         </Box>
       </Box>
-      <Box
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-      >
-        {editMode && (
-          <MarkedEditView
-            inputText={inputText}
-            setInputText={setInputText}
-            objectId={objectId}
-            type={type}
-            branchName={branchName}
-            relativePath={relativePath}
-          ></MarkedEditView>
-        )}
-        {!editMode && (
-          <MarkedHTMLViewer
-            markedText={inputText}
-            ready={true}
-            edit = {false}
-          />
 
-
-        )}
-      </Box>
+      {editMode && (
+        <MarkedEditView
+          inputText={inputText}
+          setInputText={setInputText}
+          objectId={objectId}
+          type={type}
+          branchName={branchName}
+          relativePath={relativePath}
+        ></MarkedEditView>
+      )}
+      {!editMode && (
+        <Paper
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "595px",
+            margin: "auto",
+            minHeight: "90vh",
+            overflowY: "auto",
+          }}
+        >
+          <MarkedHTMLViewer markedText={inputText} ready={true} edit={false} />
+        </Paper>
+      )}
     </Box>
   );
 }

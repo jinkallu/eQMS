@@ -32,7 +32,8 @@ export default function MarkedEditView({
   const [htmlWidth, setHtmlWidth] = React.useState(true);
   const [markedData, setMarkedData] = React.useState("");
 
-  const { editorReady, htmlEditorReady, loadingHTML, markdToCustom } = useMarkdToHTML();
+  const { editorReady, htmlEditorReady, loadingHTML, markdToCustom } =
+    useMarkdToHTML();
 
   //   const [inputText, setInputText] = useState("");
   //const [parsedHTML, setParsedHTML] = useState("");
@@ -48,7 +49,7 @@ export default function MarkedEditView({
 
   // type = 0 for editor
   // type = 1 for HTMLEditor
-  // type = 2 for HTMLViewer 
+  // type = 2 for HTMLViewer
   useEffect(() => {
     function parseMarkdown() {
       if (markedData && markedData.trim() !== "") {
@@ -68,8 +69,14 @@ export default function MarkedEditView({
     console.log(editorReady);
     if (editorReady) {
       console.log(inputText);
-      const htmlEditor = markdToCustom(false, markedData, "HTMLEditor", 1, 0, null);
-
+      const htmlEditor = markdToCustom(
+        false,
+        markedData,
+        "HTMLEditor",
+        1,
+        0,
+        null
+      );
     }
   }, [editorReady]);
 
@@ -82,13 +89,12 @@ export default function MarkedEditView({
     });*/
     console.log(markedData);
     //const childHTMLDOM = markdToCustom(false, markedData, "markedHTMLViewer", 2, 0, null);
-
   }, [htmlEditorReady]);
 
-  const tmpSave = () => {
-    const md = EditorSave.findEditableMds(markedData, "Editor");
-    console.log(md);
-  }
+  // const tmpSave = () => {
+  //   const md = EditorSave.findEditableMds(markedData, "Editor");
+  //   console.log(md);
+  // }
 
   useEffect(() => {
     //markdToCustom(inData, "markedHTMLViewer");
@@ -113,7 +119,6 @@ export default function MarkedEditView({
   }, [objectId, type, branchName, relativePath, repository, project]);
 
   return (
-
     <Box
       id="MarkedEditView"
       sx={{
@@ -121,10 +126,10 @@ export default function MarkedEditView({
         minHeight: "90vh",
         flexGrow: 1,
         padding: "5px",
-        gap: "5px",
+        gap: "12px",
       }}
     >
-      <button onClick={tmpSave}>Button</button>
+      {/* <button onClick={tmpSave}>Button</button> */}
       <Paper elevation={3} sx={{ height: "100%", flex: markWidth ? 1 : 0 }}>
         <Chip
           onClick={() => setHtmlWidth((prev) => !prev)}
@@ -162,11 +167,11 @@ export default function MarkedEditView({
           sx={{ height: "100%", padding: "16px", boxSizing: "border-box" }}
         >
           {/* Render the MarkedHTMLViewer component with the resolved HTML */}
-          <MarkedHTMLViewer 
-            markedText={markedData} 
-            ready = {htmlEditorReady}
-            edit = {true}
-            />
+          <MarkedHTMLViewer
+            markedText={markedData}
+            ready={htmlEditorReady}
+            edit={true}
+          />
         </Box>
       </Paper>
     </Box>
