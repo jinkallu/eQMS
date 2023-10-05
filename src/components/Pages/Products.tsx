@@ -3,14 +3,11 @@ import {
   Grid,
   Box,
   Button,
-  TextField,
-  InputAdornment,
   Typography,
   CircularProgress,
   Fab,
   Tooltip,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 // import SOPCard from "../SOPCard";
 
@@ -19,6 +16,7 @@ import { createSearchParams, useNavigate } from "react-router-dom";
 import ProdCRUD from "../ProdCRUD";
 import ProductCard from "../ProductCard";
 import useProductSOPs from "../productSOPs/useProductSOPs";
+
 // import AddSOP from "../AddSOP";
 
 const Products = () => {
@@ -48,7 +46,6 @@ const Products = () => {
     try {
       await refreshProductDBData(projectId, projectName, repositoryId);
       await refreshSOPDBData(project.id, project.name, repository.id);
-
       setLoading(false);
     } catch (e) {
       setLoading(false);
@@ -90,6 +87,7 @@ const Products = () => {
         open={openAddProductModal}
         setOpen={setOpenAddProductModal}
       ></ProdCRUD>
+
       <Box
         sx={{
           display: "flex",
@@ -113,18 +111,6 @@ const Products = () => {
           </Tooltip>
         )}
         <Box sx={{ flexGrow: 1 }}></Box>
-        <TextField
-          id="searchInput"
-          placeholder="Search Products"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="end">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-          variant="standard"
-        />
       </Box>
       {loading ? (
         <Box

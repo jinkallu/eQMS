@@ -1,14 +1,5 @@
 import React from "react";
-import {
-  Grid,
-  Box,
-  Button,
-  TextField,
-  InputAdornment,
-  Typography,
-  CircularProgress,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { Grid, Box, Button, Typography, CircularProgress } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SOPCard from "../SOPCard";
 
@@ -89,18 +80,6 @@ const SOPs = () => {
           </Button>
         )}
         <Box sx={{ flexGrow: 1 }}></Box>
-        <TextField
-          id="searchInput"
-          placeholder="Search SOPs & Templates"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="end">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-          variant="standard"
-        />
       </Box>
       {loading ? (
         <Box
