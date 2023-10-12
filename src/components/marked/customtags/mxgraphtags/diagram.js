@@ -1,11 +1,42 @@
 mxClient.mxBasePath = 'mxgraph/src';
 import mxClient from "script-loader!mxgraph/javascript/mxClient";
 
+mxCellRenderer.registerShape('document', DocumentShape);
+function DocumentShape() { }
+DocumentShape.prototype = new mxShape();
+DocumentShape.prototype.constructor = DocumentShape;
+DocumentShape.prototype.paintVertexShape = function (c, x, y, w, h) {
+    // Customize the rendering of your document shape here
+    var rx = x + w;
+    var ry = y + h;
+    var waveHeight = 20; // Adjust the height of the sine wave as needed
+    var waveLength = w;  // Adjust the length of the sine wave as needed
 
+    c.begin();
+    c.moveTo(x, y);
+    c.lineTo(rx, y);
+    c.lineTo(rx, ry - waveHeight);
+
+    // Draw the sine wave-like bottom edge
+    for (var i = 0; i <= waveLength; i += 10) { // Adjust the step size as needed
+        var px = x + i;
+        var py = ry - waveHeight + (Math.sin(i / waveLength * 2 * Math.PI) * waveHeight);
+        c.lineTo(px, py);
+    }
+
+    c.lineTo(x, ry - waveHeight);
+    c.close();
+    c.fillAndStroke();
+};
 class Diagram {
+
     loadAndDisplayGraph(container) {
         const xmlContent = '<?xml version="1.0" encoding="UTF-8"?><root><mxCell id="0" /><mxCell id="1" parent="0" /><mxCell id="aprt56099Xa9oZ6ABaVY-1" value="Hello" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="380" y="260" width="120" height="60" as="geometry" /></mxCell></root>';
         mxEvent.disableContextMenu(container);
+
+
+
+
 
         const graph = new mxGraph(container);
 
@@ -124,7 +155,7 @@ class Diagram {
             }
         });
 
-        new mxRubberband(graph);
+        //new mxRubberband(graph);
 
         var parent = graph.getDefaultParent();
         graph.getModel().beginUpdate();
@@ -178,12 +209,13 @@ class Diagram {
         } finally {
 
             graph.getModel().endUpdate();
-            new mxSwimlaneManager(graph);
+            //new mxSwimlaneManager(graph);
             // layouts: mxHierarchicalLayout, mxCircleLayout, mxCompactTreeLayout, mxCompositeLayout, mxFastOrganicLayout, mxParallelEdgeLayout, mxPartitionLayout, mxStackLayout
-            var layout = new mxHierarchicalLayout(graph); // Not sure what it does
+            //var layout = new mxHierarchicalLayout(graph); // Not sure what it does
+            var layout = new mxStackLayout(graph);
             layout.resizeParent = true; // Makes sure all children fit into the parent swimlane
             layout.fill = true; // Applies the size to children if parent size changes
-            layout.execute(swimlaneGroup);
+            //layout.execute(swimlaneGroup);
 
 
         }
@@ -192,9 +224,10 @@ class Diagram {
 
     traverseHierarchy(graph, node, process_node_id, swimlaneGroup, mxVertexMap, y = 50) {
         if (node.id() !== process_node_id) {
-            const stepHeight = 60;
-            const stepWidth = 120;
-            const stepSpacing = 20;
+            const stepHeight = 100;
+            const stepWidth = 200;
+            const stepSpacing = 40;
+            let x = 20;
             y = y + stepSpacing;
 
             const id = node.id(); // Assuming you have unique node IDs in Cytoscape
@@ -202,9 +235,28 @@ class Diagram {
             const type = node.data("type");
             var shape = "";
             //console.log(type);
+
             switch (type) {
                 case "step":
                     shape = "rounded=0;whiteSpace=wrap;html=1;";
+                    const connectedStepEdges = node.connectedEdges();
+                    //console.log(connectedEdges);
+                    for (let i = 0; i < connectedStepEdges.length; i++) {
+                        console.log(connectedStepEdges[i].source().id());
+                        if (connectedStepEdges[i].source().data("type") === "step") {
+                            if (connectedStepEdges[i].source().id() === node.id()) {
+                                continue;
+                            }
+                            //console.log(connectedEdges[i].source().data("type"),  graph.$('#' + connectedEdges[i].source().id()));
+                            //console.log('[id="'+ connectedEdges[i].source().id() + '"]'); 
+                            var sourceNode = mxVertexMap.get(connectedStepEdges[i].source().id());//graph.nodes('[id="'+ connectedEdges[i].source().id() + '"]');
+                            console.log(sourceNode, x, y);
+                            x = sourceNode.geometry.x;// + sourceNode.geometry.width + 20;
+                            y = sourceNode.geometry.y + sourceNode.geometry.height + stepSpacing;
+                            console.log(sourceNode, x, y);
+                            break;
+                        }
+                    }
                     break;
 
                 case "condition":
@@ -213,7 +265,24 @@ class Diagram {
                     break;
 
                 case "template":
-                    shape = "shape=swimlane;";
+                    shape = "shape=document;whiteSpace=wrap;html=1;";
+                    const connectedEdges = node.connectedEdges();
+                    console.log(connectedEdges);
+                    for (let i = 0; i < connectedEdges.length; i++) {
+                        console.log(connectedEdges[i].source().id());
+                        if (connectedEdges[i].source().data("type") === "step") {
+                            //console.log(connectedEdges[i].source().data("type"),  graph.$('#' + connectedEdges[i].source().id()));
+                            //console.log('[id="'+ connectedEdges[i].source().id() + '"]'); 
+                            var sourceNode = mxVertexMap.get(connectedEdges[i].source().id());//graph.nodes('[id="'+ connectedEdges[i].source().id() + '"]');
+                            console.log(sourceNode, x, y);
+                            x = sourceNode.geometry.x + sourceNode.geometry.width + stepSpacing;
+                            y = sourceNode.geometry.y;
+                            console.log(sourceNode, x, y);
+                            break;
+                        }
+                    }
+                    //console.log(node.connectedEdges()[0].source());
+
                     break;
 
                 default:
@@ -224,13 +293,13 @@ class Diagram {
                 swimlaneGroup,
                 id, // Use the Cytoscape node ID as the vertex ID
                 label,
-                stepSpacing, // X-coordinate, you may need to adjust this
+                x, // X-coordinate, you may need to adjust this
                 y, // Y-coordinate, you may need to adjust this
                 stepWidth, // Width of the vertex
                 stepHeight, // Height of the vertex
                 shape
             );
-            y += stepHeight + stepSpacing;
+            //y += stepHeight + stepSpacing;
 
             mxVertexMap.set(id, vertex); // Store the mapping for future reference
         }
