@@ -82,6 +82,7 @@ export const repositorySlice = (set, get) => ({
     try {
       const gitClient = getClient(GitRestClient);
       const branches = await gitClient.getBranches(repositoryId);
+      console.log(branches);
 
       set((state) => ({ branches: branches || [] }));
       const newBranchTypes = [];
@@ -100,14 +101,13 @@ export const repositorySlice = (set, get) => ({
               const nameArray = item.name.split("/");
 
               return {
-                ...item,
                 name: item.name,
-                filePath: `${nameArray[0]}/${type}/data.md`,
-                relativePath: nameArray[nameArray?.length - 2],
-                branchId: nameArray[nameArray?.length - 3],
+                branchId: nameArray[nameArray?.length - 2],
               };
             }) || [];
       });
+
+      console.log(typeBranchData);
 
       set((state) => ({ branchTypes: typeBranchData }));
     } catch (error) {
@@ -232,7 +232,7 @@ export const repositorySlice = (set, get) => ({
     }
   },
 
-  getFileContent: async (repositoryId, path, branchName) => {
+  getFileContent: async (repositoryId, path, branchName, objectId) => {
     const versionDescriptor = {
       version: branchName,
       versionType: 0,
@@ -253,11 +253,11 @@ export const repositorySlice = (set, get) => ({
       );
       return content;
     } catch (e) {
-      console.log(e);
-      return "";
+      return;
     }
   },
   getEditBranch: async ({
+    objectId,
     branchName,
     type,
     relativePath,
@@ -269,7 +269,7 @@ export const repositorySlice = (set, get) => ({
     let path = "";
 
     let editBranchName = branchName.split("/");
-    path = [editBranchName[0], type, `data.md`];
+    path = [editBranchName[0], type, relativePath, `${relativePath}.md`];
     path = path.join("/");
 
     editBranchName.splice(-1);
@@ -292,20 +292,13 @@ export const repositorySlice = (set, get) => ({
       set((state) => ({ branches: branches || [] }));
 
       const editBranch = branches?.find((branch) => {
-        // compare for both branch names except main or edit and check for the edit branch
-
-        const nameWithoutBranchData = branch?.name?.split("/");
-        const branchType =
-          nameWithoutBranchData[nameWithoutBranchData.length - 1];
-        nameWithoutBranchData?.splice(-1);
-        const nameWithoutBranch = nameWithoutBranchData.join("/");
-
-        const branchNameData = branchName?.split("/");
-        branchNameData.splice(-1);
-        const newData = branchNameData?.join("/");
-        return nameWithoutBranch === newData && branchType === "edit";
+        const nameArray = branch.name.split("/");
+        return (
+          nameArray[1] === type &&
+          nameArray[2] === branchName.split("/")[2] &&
+          nameArray[3] === "edit"
+        );
       });
-
       if (editBranch) {
         set((state) => ({
           fetchEditBranch: {
@@ -543,61 +536,38 @@ export const refreshDataSlice = (set, get) => ({
     const qualityManager = userTeams?.find(
       (item) => item.name === "Quality Manager Team"
     );
-    try {
-      const userSOPs = sopsWithPullRequests?.map((sop) => {
-        const authorData =
-          sops?.find((item) => item.branchId === sop?.branchId)?.author || [];
-        const author = [...new Set(authorData, userTeams)];
-        const approverData =
-          sops?.find((item) => item.branchId === sop?.branchId)?.approver || [];
 
-        const approver = [...new Set(approverData, userTeams)];
+    const userSOPs = sopsWithPullRequests?.map((sop) => {
+      const authorData =
+        sops?.find((item) => item.branchId === sop?.branchId)?.author || [];
+      const author = [...new Set(authorData, userTeams)];
+      const approverData =
+        sops?.find((item) => item.branchId === sop?.branchId)?.approver || [];
 
-        const templateBranches = branchTypes["temp"]
-          ?.filter((branch) => {
-            const path = branch?.name?.split("/");
-            if (path?.length < 6) {
-              return false;
-            }
-            if (path[path?.length - 4] === sop?.branchId) {
-              return true;
-            }
-            return false;
-          })
-          ?.map((temp) => {
-            const nameArray = temp?.relativePath?.split("_");
+      const approver = [...new Set(approverData, userTeams)];
 
-            const number = nameArray[0];
-            nameArray?.splice(0, 1);
+      const templates =
+        sops?.find((item) => item.branchId === sop?.branchId)?.templates || [];
 
-            return {
-              ...temp,
-              number,
-              type: temp?.name?.split("/")[1],
-              title: nameArray?.join(" "),
-            };
-          });
+      // const obj = branchFileNames?.find(
+      //   (item) => item.branchId === sop.branchId
+      // );
 
-        const templates = templateBranches || [];
+      return {
+        ...sop,
+        author,
+        approver,
+        templates,
+        // objectId: obj?.objectId,
+        // relativePath: obj?.relativePath,
+        type: obj?.type,
+        branchName: sop?.branchName,
+      };
+    });
 
-        const nameArray = sop?.relativePath?.split("_");
-        const number = nameArray[0];
-        nameArray?.splice(0, 1);
-        return {
-          ...sop,
-          author,
-          approver,
-          templates,
-          number,
-          title: nameArray?.join(" "),
-          type: "sop",
-          branchName: sop?.name,
-        };
-      });
-      set({ userSOPs });
-    } catch (e) {
-      set({ userSOPs: [] });
-    }
+    console.log(userSOPs);
+
+    set({ userSOPs });
   },
 
   refreshProductDBData: async (projectId, projectName, repositoryId) => {
@@ -611,7 +581,6 @@ export const refreshDataSlice = (set, get) => ({
     const products = get().products;
     const allTeams = get().teamsWithMembers;
     const branchFileNames = get().branchFileNames;
-    const branchTypes = get().branchTypes;
 
     const userTeams = allTeams
       ?.filter((team) =>
@@ -627,21 +596,19 @@ export const refreshDataSlice = (set, get) => ({
         const approver = [...new Set(product?.approver, userTeams)];
         const reader = [...new Set(product?.reader, userTeams)];
 
-        const obj = branchTypes["prod"]?.find(
+        const obj = branchFileNames?.find(
           (item) => item.branchId === product.branchId
         );
 
-        if (!obj) {
-          return;
-        }
-
         return {
           ...product,
-          ...obj,
           author,
           approver,
           reader,
-          branchName: obj?.name,
+          objectId: obj?.objectId,
+          relativePath: obj?.relativePath,
+          type: obj?.type,
+          branchName: obj?.branchName,
         };
       })
       ?.filter(
@@ -652,87 +619,5 @@ export const refreshDataSlice = (set, get) => ({
       );
 
     set({ userProducts });
-  },
-
-  refreshProductRecords: async (repositoryId, productId) => {
-    if (!repositoryId) return;
-
-    await get().setBranches(repositoryId);
-
-    // await get().getProjectTeamWithMembers(projectId);
-    // await get().loadProducts(repositoryId);
-
-    const products = get().products;
-    const allTeams = get().teamsWithMembers;
-    const branchFileNames = get().branchFileNames;
-    const branchTypes = get().branchTypes;
-    const userProducts = get().userProducts;
-
-    // const userTeams = allTeams
-    //   ?.filter((team) =>
-    //     team?.members?.filter(
-    //       (mem) => mem?.identity?.id === get()?.currentUser?.id
-    //     )
-    //   )
-    //   ?.map((item) => item?.id);
-
-    // const userProducts = products
-    //   ?.map((product) => {
-    //     const author = [...new Set(product?.author, userTeams)];
-    //     const approver = [...new Set(product?.approver, userTeams)];
-    //     const reader = [...new Set(product?.reader, userTeams)];
-
-    //     const obj = branchTypes["prod"]?.find(
-    //       (item) => item.branchId === product.branchId
-    //     );
-
-    //     if (!obj) {
-    //       return;
-    //     }
-    //     console.log(obj);
-
-    //     return {
-    //       ...product,
-    //       ...obj,
-    //       author,
-    //       approver,
-    //       reader,
-    //       branchName: obj?.name,
-    //     };
-    //   })
-    //   ?.filter(
-    //     (item) =>
-    //       item?.reader?.length > 0 ||
-    //       item?.author?.length > 0 ||
-    //       (item?.approver?.length > 0 && objectId)
-    //   );
-
-    // set({ userProducts });
-    const productRecords = branchTypes["rec"]
-      ?.filter((record) => {
-        const nameArray = record?.name?.split("/");
-        if (nameArray?.length < 8) {
-          return false;
-        }
-
-        // check for the product Id match
-        if (nameArray[nameArray?.length - 7] === productId) {
-          return true;
-        }
-        return false;
-      })
-      ?.map((record) => {
-        const nameArray = record?.name?.split("/");
-        const length = nameArray.length;
-        return {
-          ...record,
-          title: nameArray[length - 2],
-          templateId: nameArray[length - 5],
-          parentId: nameArray[length - 4],
-          sopId: nameArray[length - 6],
-          productId: nameArray[length - 7],
-        };
-      });
-    return productRecords || [];
   },
 });

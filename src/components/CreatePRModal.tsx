@@ -31,7 +31,6 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
     branchFileNames,
     repository,
     setBranches,
-    setFileNames,
     userSOPs,
     sops,
     saveToDatabase,

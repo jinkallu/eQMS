@@ -14,7 +14,6 @@ import useGetTeamMembers from "../CHooks/useGetTeamMembers";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditorSave from "./marked/EditerSave";
 
-
 export default function HTMLViewer() {
   //const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
   // useGetRepoDetails((state) => state);
@@ -25,7 +24,7 @@ export default function HTMLViewer() {
     htmlContents,
     fileContentLoading,
     branchFileNames,
-    setFileContent,
+    getFileContent,
     repository,
   } = useExtnStore((state) => state);
 
@@ -39,7 +38,7 @@ export default function HTMLViewer() {
   const { commit, loading: loadingCommit } = useCommit();
   const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
   const [searchParams] = useSearchParams();
-  const objectId = searchParams.get("objectId");
+  // const objectId = searchParams.get("objectId");
   const relativePath = searchParams.get("relativePath");
   const type = searchParams.get("type");
   const branchName = searchParams.get("branchName");
@@ -52,18 +51,21 @@ export default function HTMLViewer() {
     getProjectTeamWithMembers,
   } = useGetTeamMembers();
   const { readDatabase } = useExtnStore();
-  async function getFileContent(objectId) {
-    const branchData = branchFileNames?.find(
-      (item) => item.objectId === objectId
-    );
-    setBranch(branchData);
 
-    await setFileContent(
+  async function getFileContentData() {
+    console.log(type, branchName);
+    // const branchData = branchFileNames?.find(
+    //   (item) => item.objectId === objectId
+    // );
+    // setBranch(branchData);
+
+    const content = await getFileContent(
       repository.id,
-      `/qms/${branchData.type}/${branchData.relativePath}/${branchData.relativePath}.md`,
-      branchData.name,
-      branchData.objectId
+      `/qms/${type}/data.md`,
+      branchName
     );
+
+    setInputText(content);
   }
 
   async function getDatabaseContent(collectionName, repositoryId) {
@@ -115,8 +117,8 @@ export default function HTMLViewer() {
   }
 
   React.useEffect(() => {
-    if (!editMode) getFileContent(objectId);
-  }, [objectId, editMode]);
+    if (!editMode) getFileContentData();
+  }, [editMode]);
 
   React.useEffect(() => {
     console.log(project);
@@ -126,10 +128,10 @@ export default function HTMLViewer() {
 
     // const members = getTeamMembers(project.name, project.name + " Team");
     // console.log(members);
-    const text = htmlContents[objectId];
-    console.log(htmlContents);
-    setInputText(text);
-  }, [objectId, htmlContents]);
+    // const text = htmlContents[objectId];
+    // console.log(htmlContents);
+    // setInputText(text);
+  }, [htmlContents]);
   if (fileContentLoading) {
     return (
       <Box
@@ -191,20 +193,14 @@ export default function HTMLViewer() {
           <MarkedEditView
             inputText={inputText}
             setInputText={setInputText}
-            objectId={objectId}
+            objectId={""}
             type={type}
             branchName={branchName}
             relativePath={relativePath}
           ></MarkedEditView>
         )}
         {!editMode && (
-          <MarkedHTMLViewer
-            markedText={inputText}
-            ready={true}
-            edit = {false}
-          />
-
-
+          <MarkedHTMLViewer markedText={inputText} ready={true} edit={false} />
         )}
       </Box>
     </Box>

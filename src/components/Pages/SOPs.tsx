@@ -3,22 +3,22 @@ import {
   Grid,
   Box,
   Button,
-  TextField,
-  InputAdornment,
   Typography,
   CircularProgress,
+  Tooltip,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import SOPCard from "../SOPCard";
+import SOPTableView from "../../components/SOPTableView";
 
 import { useExtnStore } from "../../zustand/store";
 import { createSearchParams, useNavigate } from "react-router-dom";
+import TableViewIcon from "@mui/icons-material/TableView";
+import CreditCardIcon from "@mui/icons-material/CreditCard";
 import AddSOP from "../AddSOP";
 
 const SOPs = () => {
   const {
-    setFileNames,
     branchFileNames,
     userSOPs,
     isQualityMgrSelected,
@@ -32,6 +32,7 @@ const SOPs = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
   const [openAddSopModal, setOpenAddSopModal] = React.useState(false);
+  const [viewType, setViewType] = React.useState("card");
 
   async function refreshData(projectId, projectName, repositoryId) {
     setLoading(true);
@@ -50,22 +51,10 @@ const SOPs = () => {
     }
   }, [project, repository]);
 
-  React.useEffect(() => {
-    if (repository && repository?.id) {
-      branchTypes["sop"]?.map((branch) => {
-        setFileNames(repository?.id, branch.branchId, branch.name, "sop");
-      });
-
-      const type = "temp";
-      branchTypes[type]?.map((branch) => {
-        setFileNames(repository?.id, branch.branchId, branch.name, type);
-      });
-    }
-  }, [repository, branchTypes]);
-
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
       <AddSOP open={openAddSopModal} setOpen={setOpenAddSopModal}></AddSOP>
+
       <Box
         sx={{
           display: "flex",
@@ -89,18 +78,29 @@ const SOPs = () => {
           </Button>
         )}
         <Box sx={{ flexGrow: 1 }}></Box>
-        <TextField
-          id="searchInput"
-          placeholder="Search SOPs & Templates"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="end">
-                <SearchIcon />
-              </InputAdornment>
-            ),
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingRight: "32px",
           }}
-          variant="standard"
-        />
+        >
+          {viewType === "table" && (
+            <Tooltip title="Card view">
+              <CreditCardIcon
+                onClick={() => setViewType("card")}
+              ></CreditCardIcon>
+            </Tooltip>
+          )}
+          {viewType === "card" && (
+            <Tooltip title="Table view">
+              <TableViewIcon
+                onClick={() => setViewType("table")}
+              ></TableViewIcon>
+            </Tooltip>
+          )}
+        </Box>
       </Box>
       {loading ? (
         <Box
@@ -119,22 +119,27 @@ const SOPs = () => {
           columns={{ xs: 4, sm: 6, md: 10, lg: 10 }}
           sx={{ padding: "9px" }}
         >
-          {userSOPs
-            ?.sort((sop) => sop?.sortOrder)
-            ?.map((sop) => {
-              const branch = branchFileNames?.find(
-                (item) => item.branchId === sop.branchId && item.type === "sop"
-              );
-              const edit = branches.find(
-                (item) => item.name === `qms/sop/${sop.branchId}/edit`
-              );
-              //
-              return (
-                <Grid key={sop.branchId} item xs={2} sm={2} md={2} lg={2}>
-                  <SOPCard branch={branch} edit={edit} sop={sop}></SOPCard>
-                </Grid>
-              );
-            })}
+          {viewType === "table" && (
+            <SOPTableView userSOPs={userSOPs}></SOPTableView>
+          )}
+          {viewType === "card" &&
+            userSOPs
+              ?.sort((sop) => sop?.sortOrder)
+              ?.map((sop) => {
+                // const branch = branchFileNames?.find(
+                //   (item) =>
+                //     item.branchId === sop.branchId && item.type === "sop"
+                // );
+                const edit = branches.find(
+                  (item) => item.name === `qms/sop/${sop.branchId}/edit`
+                );
+                //
+                return (
+                  <Grid key={sop.branchId} item xs={2} sm={2} md={2} lg={2}>
+                    <SOPCard edit={edit} sop={sop}></SOPCard>
+                  </Grid>
+                );
+              })}
         </Grid>
       ) : (
         <Typography>No SOPs to display</Typography>
