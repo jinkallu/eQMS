@@ -255,15 +255,15 @@ function useMarkdToHTML() {
     parseDOMCustomTags(markedAzureSDK, newDocument, type, 0).then(htmlDOMCustom => {
       if (htmlDOMCustom !== null) {
         addToParentElement(newDocument, parentNodeId);
-        if(type === 1){
+        if (type === 1) {
           setHtmlEditorReady(true);
         }
 
       }
     });
 
-    
-    
+    markedAzureSDK = null;
+
 
   }
   /*
@@ -335,7 +335,7 @@ function useMarkdToHTML() {
       let markedAzureSDK = new MarkedAzureSDK();
       console.log("Editor");
       parseDOMCustomTags(markedAzureSDK, htmlDOM, type, inheritance).then(htmlDOMCustom => {
-        
+
         if (htmlDOMCustom !== null) {
           // Now you can work with htmlDOMCustom
           console.log("Before Add to parent");
@@ -347,11 +347,36 @@ function useMarkdToHTML() {
         }
       });
     }
-    else {
+    else if (type === 1 || type === 2) {
       if (type === 1) {
         setHtmlEditorReady(false);
       }
       createHTMLViewer(parentNodeId, type);
+    }
+    else if (type === 3) {
+      // main qms viewer
+      //const htmlString: string = parseMarkdownToHTMLString(markdown);
+      //let htmlDOM: Document = parseHTMLStringToDOM(htmlString);
+      const mdTags = htmlDOM.getElementsByTagName('md');
+      for(let i = 0; i<mdTags.length; i++){
+        let parentAttribute = mdTags[i].getAttribute('level');
+            if (parentAttribute === null) {
+                parentAttribute = '1';
+            }
+            else{
+              parentAttribute = (parseInt(parentAttribute) + 1).toString();
+            }
+            mdTags[i].setAttribute('level', parentAttribute);
+      }
+      let markedAzureSDK = new MarkedAzureSDK();
+      parseDOMCustomTags(markedAzureSDK, htmlDOM, 0, 0).then(htmlDOMCustom => {
+        if (htmlDOMCustom !== null) {
+          addToParentElement(htmlDOM, parentNodeId);
+
+
+        }
+      });
+      markedAzureSDK = null;
     }
 
   }

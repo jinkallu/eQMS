@@ -19,7 +19,8 @@ export default function MarkedHTMLViewer({ markedText,  ready, edit}) {
           const childHTMLDOM = markdToCustom(false, markedText, "markedHTMLViewer", 2, 0, null);
         }
         else{
-          const childHTMLDOM = markdToCustom(false, markedText, "markedHTMLViewer", 0, 0, null);
+          // TODO: correct it, now only showing edit mode!
+          const childHTMLDOM = markdToCustom(false, markedText, "markedHTMLViewer", 3, 0, null);
         }
       }
     }

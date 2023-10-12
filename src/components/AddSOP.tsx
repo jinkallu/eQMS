@@ -37,7 +37,7 @@ export default function AddSOP({
     branchFileNames,
     repository,
     setBranches,
-    setFileNames,
+
     teamsWithMembers,
     saveToDatabase,
     sops,
@@ -70,20 +70,13 @@ export default function AddSOP({
   };
 
   async function handleCreate() {
-    // check for duplicate name or number
-    const data = branchFileNames?.filter(
-      (item) =>
-        item.type === "sop" &&
-        (item.relativePath.split("-")[1] === number ||
-          item.relativePath.split("-")[2] === name)
-    );
-    if (data?.length > 0) {
-      setError("Another SOP for the same number or same exists...");
-      return;
-    }
+    const sopNamedata = `${number}_${name}`;
+    // replace spaces with underscores- branch name should not have spaces
+    const sopName = sopNamedata.replace(/ /g, "_");
+
     // create unique id for the sop branch name
     const uniqueId = uuidv4();
-    const branchName = `qms/sop/${uniqueId}/main`;
+    const branchName = `qms/sop/${uniqueId}/${sopName}/main`;
     const res = await createBranch(
       project.id,
       repository.id,
@@ -91,26 +84,15 @@ export default function AddSOP({
       branchName
     );
 
-    // create path for the sop like sop/management/
-    let newPath = name;
-    if (number) {
-      newPath = number + "-" + newPath;
-      newPath = "sop" + "-" + newPath;
-    }
-    const file_name = newPath + ".md";
-    newPath = "qms/" + "sop" + "/" + newPath + "/" + file_name;
-
-    newPath = "/" + newPath;
-    newPath = newPath.replace(/ /g, "-");
-
-    // rename the current readme.md so that the folder structure created..
+    const file_name = "data.md";
+    const path = `qms/sop/${file_name}`;
 
     const renameRes = await renameFile(
       project.id,
       repository.id,
       branchName,
       "/README.md",
-      newPath,
+      path,
       "rename default README.md file"
     );
     if (renameRes) {
@@ -145,33 +127,9 @@ export default function AddSOP({
 
     setName("");
     setNumber("");
-    // get the object id of the folder for navigation
-    const objectId = await setFileNames(
-      repository?.id,
-      uniqueId,
-      branchName,
-      "sop"
-    );
+
     refreshSOPDBData(project.id, project.name, repository.id);
     handleCancel();
-    // navigate({
-    //   pathname: "/qmshub.html/content/",
-    //   search: `?${createSearchParams({
-    //     objectId: objectId,
-    //     relativePath: newPath,
-    //     type: "sop",
-    //     branchName: branchName,
-    //   })}`,
-    // });
-
-    // if (objectId) {
-    //   navigate({
-    //     pathname: "/qmshub.html/content",
-    //     search: `?${createSearchParams({
-    //       objectId,
-    //     })}`,
-    //   });
-    // }
   }
 
   function handleCancel() {

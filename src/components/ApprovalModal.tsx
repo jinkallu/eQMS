@@ -47,7 +47,6 @@ export default function ApprovalModal({
     repository,
     currentUser,
     setBranches,
-    setFileNames,
     userSOPs,
     sops,
     saveToDatabase,
@@ -174,7 +173,7 @@ export default function ApprovalModal({
                     size="small"
                     variant="contained"
                     disabled={loading}
-                    color="primary"
+                    color="error"
                     onClick={() => handleApproval(-10)}
                   >
                     Reject

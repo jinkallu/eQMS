@@ -28,7 +28,7 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
     branchFileNames,
     repository,
     setBranches,
-    setFileNames,
+
     userSOPs,
     sops,
     saveToDatabase,
@@ -41,20 +41,23 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
   const project = useExtnStore((state) => state.project);
 
   async function handleCreate() {
+    const templateNameData = `${number}_${name}`;
+    // replace spaces with underscores- branch name should not have spaces
+    const templateName = templateNameData.replace(/ /g, "_");
     // check for duplicate name or number
-    const data = branchFileNames?.filter(
-      (item) =>
-        item.type === "template" &&
-        (item.relativePath.split("-")[1] === number ||
-          item.relativePath.split("-")[2] === name)
-    );
-    if (data?.length > 0) {
-      setError("Another SOP for the same number or same exists...");
-      return;
-    }
+    // const data = branchFileNames?.filter(
+    //   (item) =>
+    //     item.type === "template" &&
+    //     (item.relativePath.split("-")[1] === number ||
+    //       item.relativePath.split("-")[2] === name)
+    // );
+    // if (data?.length > 0) {
+    //   setError("Another SOP for the same number or same exists...");
+    //   return;
+    // }
     // create unique id for the sop branch name
     const uniqueId = uuidv4();
-    const branchName = `qms/temp/${uniqueId}/main`;
+    const branchName = `qms/temp/${branchId}/${uniqueId}/${templateName}/main`;
     const res = await createBranch(
       project.id,
       repository.id,
@@ -63,16 +66,9 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
     );
 
     // create path for the sop like sop/management/
-    let newPath = name;
-    if (number) {
-      newPath = number + "-" + newPath;
-      newPath = "temp" + "-" + newPath;
-    }
-    const file_name = newPath + ".md";
-    newPath = "qms/" + "temp" + "/" + newPath + "/" + file_name;
+    const file_name = "data.md";
 
-    newPath = "/" + newPath;
-    newPath = newPath.replace(/ /g, "-");
+    const path = `qms/temp/${file_name}`;
 
     // rename the current readme.md so that the folder structure created..
 
@@ -81,7 +77,7 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
       repository.id,
       branchName,
       "/README.md",
-      newPath,
+      path,
       "rename default README.md file"
     );
     if (renameRes) {
@@ -90,42 +86,38 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
     setName("");
     setNumber("");
 
-    const currSop = sops?.find((sop) => sop.branchId === branchId);
-    if (currSop) {
-      let temp = [];
-      if (currSop?.templates) {
-        temp = [...currSop.templates, uniqueId];
-      } else {
-        temp = [uniqueId];
-      }
+    // const currSop = sops?.find((sop) => sop.branchId === branchId);
+    // if (currSop) {
+    //   let temp = [];
+    //   if (currSop?.templates) {
+    //     temp = [...currSop.templates, uniqueId];
+    //   } else {
+    //     temp = [uniqueId];
+    //   }
 
-      const newSop = { ...currSop, templates: temp };
-      const oldSops = sops?.filter((sop) => sop.branchId !== branchId) || [];
+    //   const newSop = { ...currSop, templates: temp };
+    //   const oldSops = sops?.filter((sop) => sop.branchId !== branchId) || [];
 
-      oldSops.push(newSop);
+    //   oldSops.push(newSop);
 
-      const result = await saveToDatabase({
-        collectionName: "sops",
-        projectId: project.id,
-        repositoryId: repository.id,
-        newContent: JSON.stringify(oldSops),
-        commitMessage: `template added for ${branchId} `,
+    //   const result = await saveToDatabase({
+    //     collectionName: "sops",
+    //     projectId: project.id,
+    //     repositoryId: repository.id,
+    //     newContent: JSON.stringify(oldSops),
+    //     commitMessage: `template added for ${branchId} `,
+    //   });
+    if (renameRes) {
+      setAlertMessage({
+        message: "Template Created...",
+        severity: "success",
       });
-      if (result) {
-        setAlertMessage({
-          message: "Template Created...",
-          severity: "success",
-        });
-      } else {
-        setAlertMessage({
-          message: "Template Creation not successfull...",
-          severity: "error",
-        });
-      }
+    } else {
+      setAlertMessage({
+        message: "Template Creation not successfull...",
+        severity: "error",
+      });
     }
-
-    // get the object id of the folder for navigation
-    const objectId = await setFileNames(repository?.id, branchName, "temp");
 
     handleCancel();
     refreshSOPDBData(project.id, project.name, repository.id);

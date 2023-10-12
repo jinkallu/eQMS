@@ -35,7 +35,7 @@ import PreviewIcon from "@mui/icons-material/Preview";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import ApprovalModal from "./ApprovalModal";
 
-export default function SOPCard({ branch, sop, edit }) {
+export default function SOPCard({ sop, edit }) {
   const { branchFileNames, currentUser, teamsWithMembers } = useExtnStore(
     (state) => state
   );
@@ -68,7 +68,7 @@ export default function SOPCard({ branch, sop, edit }) {
     navigate({
       pathname: "/qmshub.html/content/",
       search: `?${createSearchParams({
-        objectId: branch?.objectId,
+        // objectId: branch?.objectId,
         relativePath: branch?.relativePath,
         type: branch?.type,
         branchName: branch?.name,
@@ -118,23 +118,23 @@ export default function SOPCard({ branch, sop, edit }) {
       <TemplateCRUD
         open={openAddTemplateModal}
         setOpen={setOpenAddTemplateModal}
-        branchId={branch?.branchId}
-        sopName={branch?.relativePath}
+        branchId={sop?.branchId}
+        sopName={sop?.relativePath}
       ></TemplateCRUD>
 
       <CreatePRModal
         open={openCreatePRModal}
         setOpen={setOpenCreatePRModal}
-        branchId={branch?.branchId}
-        sopName={branch?.relativePath}
+        branchId={sop?.branchId}
+        sopName={sop?.relativePath}
       ></CreatePRModal>
 
       <ApprovalModal
         open={openApprovalModal}
         setOpen={setOpenApprovalModal}
         pullRequest={sop?.pullRequest}
-        branchId={branch?.branchId}
-        sopName={branch?.relativePath}
+        branchId={sop?.branchId}
+        sopName={sop?.relativePath}
         canVote={enableApproval}
       ></ApprovalModal>
       <Card
@@ -148,9 +148,7 @@ export default function SOPCard({ branch, sop, edit }) {
           sx={{ paddingBottom: "5px" }}
           avatar={
             <Avatar aria-label="recipe" sx={{ backgroundColor: "#082567" }}>
-              <Typography sx={{ fontSize: "12px" }}>
-                {branch?.relativePath?.split("-")[1]}
-              </Typography>
+              <Typography sx={{ fontSize: "12px" }}>{sop?.number}</Typography>
             </Avatar>
           }
           title=<Tooltip title="Click to view SOP">
@@ -161,9 +159,9 @@ export default function SOPCard({ branch, sop, edit }) {
                 fontWeight: 600,
                 color: "#082567",
               }}
-              onClick={() => handleItemClick(branch)}
+              onClick={() => handleItemClick(sop)}
             >
-              {branch?.relativePath}
+              {sop?.title}
             </Typography>
           </Tooltip>
         />
@@ -211,20 +209,20 @@ export default function SOPCard({ branch, sop, edit }) {
             >
               {sop?.templates?.length > 0 ? (
                 sop?.templates?.map((template) => {
-                  const tempBranch = branchFileNames.find(
-                    (item) => item.type === "temp" && item.branchId === template
-                  );
+                  // const tempBranch = branchFileNames.find(
+                  //   (item) => item.type === "temp" && item.branchId === template
+                  // );
 
                   return (
                     <ListItem
-                      key={template}
+                      key={template?.branchId}
                       sx={{
                         cursor: "pointer",
                         "&:hover": { backgroundColor: "grey" },
                       }}
-                      onClick={() => handleItemClick(tempBranch)}
+                      onClick={() => handleItemClick(template)}
                     >
-                      <ListItemText primary={tempBranch?.relativePath} />
+                      <ListItemText primary={template?.title} />
                     </ListItem>
                   );
                 })
@@ -247,10 +245,7 @@ export default function SOPCard({ branch, sop, edit }) {
 
         <CardActions disableSpacing>
           <Tooltip title="View SOP">
-            <IconButton
-              aria-label="share"
-              onClick={() => handleItemClick(branch)}
-            >
+            <IconButton aria-label="share" onClick={() => handleItemClick(sop)}>
               <PreviewIcon color="primary" />
             </IconButton>
           </Tooltip>

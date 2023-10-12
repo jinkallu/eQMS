@@ -8,10 +8,13 @@ import {
   MenuItem,
   FormControlLabel,
   Switch,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import SearchIcon from "@mui/icons-material/Search";
 import { useExtnStore } from "../zustand/store";
 
 const Header = () => {
@@ -81,12 +84,35 @@ const Header = () => {
         alignItems: "center",
         padding: "5px",
         zIndex: 100,
+        height: "50px",
       }}
     >
-      <Box onClick={handleQuatraceClick}>
-        <Typography color="primary" sx={{ cursor: "pointer" }}>
-          Quatrace
-        </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "32px",
+        }}
+      >
+        <Box onClick={handleQuatraceClick}>
+          <Typography color="primary" sx={{ cursor: "pointer" }}>
+            Quatrace
+          </Typography>
+        </Box>
+        <Box>
+          <TextField
+            id="searchInput"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="end">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            variant="standard"
+          />
+        </Box>
       </Box>
       <Box
         sx={{

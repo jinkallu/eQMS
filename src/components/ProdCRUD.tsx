@@ -39,7 +39,6 @@ export default function ProdCRUD({
     branchFileNames,
     repository,
     setBranches,
-    setFileNames,
     teamsWithMembers,
     saveToDatabase,
     sops,
@@ -94,19 +93,21 @@ export default function ProdCRUD({
   };
   async function handleCreate() {
     // check for duplicate name or number
-    const data = branchFileNames?.filter(
-      (item) =>
-        item.type === "prod" &&
-        (item.relativePath.split("-")[1] === number ||
-          item.relativePath.split("-")[2] === name)
-    );
-    if (data?.length > 0) {
-      setError("Another Product for the same number or same exists...");
-      return;
-    }
+    // const data = branchFileNames?.filter(
+    //   (item) =>
+    //     item.type === "prod" &&
+    //     (item.relativePath.split("-")[1] === number ||
+    //       item.relativePath.split("-")[2] === name)
+    // );
+    // if (data?.length > 0) {
+    //   setError("Another Product for the same number or same exists...");
+    //   return;
+    // }
+
+    const prodName = name.replace(/ /g, "_");
     // create unique id for the sop branch name
     const uniqueId = uuidv4();
-    const branchName = `qms/prod/${uniqueId}/main`;
+    const branchName = `qms/prod/${uniqueId}/${prodName}/main`;
     const res = await createBranch(
       project.id,
       repository.id,
@@ -115,16 +116,13 @@ export default function ProdCRUD({
     );
 
     // create path for the sop like sop/management/
-    let newPath = name;
-    if (number) {
-      newPath = number + "-" + newPath;
-      newPath = "prod" + "-" + newPath;
-    }
-    const file_name = newPath + ".md";
-    newPath = "qms/" + "prod" + "/" + newPath + "/" + file_name;
-
-    newPath = "/" + newPath;
-    newPath = newPath.replace(/ /g, "-");
+    // let newPath = name;
+    // if (number) {
+    //   newPath = number + "-" + newPath;
+    //   newPath = "prod" + "-" + newPath;
+    // }
+    const file_name = "data.md";
+    const path = `qms/prod/${file_name}`;
 
     // rename the current readme.md so that the folder structure created..
 
@@ -133,7 +131,7 @@ export default function ProdCRUD({
       repository.id,
       branchName,
       "/README.md",
-      newPath,
+      path,
       "rename default README.md file"
     );
     if (renameRes) {
@@ -149,8 +147,6 @@ export default function ProdCRUD({
       reader: readers,
       sops: linkedSops,
     });
-
-    console.log(newContent);
 
     const commitMessage = "initial commit";
     const result = await saveToDatabase({
@@ -172,13 +168,7 @@ export default function ProdCRUD({
 
     setName("");
     setNumber("");
-    // get the object id of the folder for navigation
-    const objectId = await setFileNames(
-      repository?.id,
-      uniqueId,
-      branchName,
-      "prod"
-    );
+
     refreshProductDBData(project.id, project.name, repository.id);
     handleCancel();
   }
@@ -190,14 +180,6 @@ export default function ProdCRUD({
     setOpen(false);
   }
 
-  React.useEffect(() => {
-    // This is required to load the sops for the dropdown..
-    if (repository && repository?.id) {
-      branchTypes["sop"]?.map((branch) => {
-        setFileNames(repository?.id, branch.branchId, branch.name, "sop");
-      });
-    }
-  }, [repository, branchTypes]);
   return (
     <Modal
       open={open}
@@ -287,16 +269,14 @@ export default function ProdCRUD({
                 input={<OutlinedInput label="Linked SOPs" />}
                 // renderValue={(selected) => selected.join(", ")}
               >
-                {branchFileNames
-                  .filter((item) => item.type === "sop")
-                  .map((sop) => (
-                    <MenuItem key={sop.branchId} value={sop.branchId}>
-                      <Checkbox
-                        checked={linkedSops.indexOf(sop?.branchId) > -1}
-                      />
-                      <ListItemText primary={sop?.relativePath} />
-                    </MenuItem>
-                  ))}
+                {branchTypes["sop"]?.map((sop) => (
+                  <MenuItem key={sop.branchId} value={sop.branchId}>
+                    <Checkbox
+                      checked={linkedSops.indexOf(sop?.branchId) > -1}
+                    />
+                    <ListItemText primary={sop?.relativePath} />
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
 

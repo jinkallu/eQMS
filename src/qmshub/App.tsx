@@ -15,6 +15,7 @@ import TemplateCRUD from "../components/TemplateCRUD";
 import HTMLViewer from "../components/HTMLViewer";
 import SOPs from "../components/Pages/SOPs";
 import Products from "../components/Pages/Products";
+import Product from "../components/Pages/Product";
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
       {
         path: "/qmshub.html/products",
         element: <Products />,
+      },
+      {
+        path: "/qmshub.html/product",
+        element: <Product />,
       },
       {
         path: "/qmshub.html/marked",
