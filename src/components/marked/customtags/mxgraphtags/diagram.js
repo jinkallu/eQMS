@@ -25,8 +25,30 @@ DocumentShape.prototype.paintVertexShape = function (c, x, y, w, h) {
     c.lineTo(rx, y);
 
     c.close();
-    c.stroke();
-    //c.fillAndStroke();
+    //c.stroke();
+    c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape('documents', MultipleDocumentsShape);
+function MultipleDocumentsShape() { }
+MultipleDocumentsShape.prototype = new mxShape();
+MultipleDocumentsShape.prototype.constructor = MultipleDocumentsShape;
+
+MultipleDocumentsShape.prototype.paintVertexShape = function (c, x, y, w, h) {
+    
+    var horizontalSpacing = w / 10; // Horizontal spacing between documents
+    var verticalSpacing = h / 10; // Vertical spacing between documents
+    var numDocuments = 3; // The number of documents to display
+    var documentWidth = w - numDocuments * horizontalSpacing; // Width of an individual document
+    var documentHeight = h - numDocuments * verticalSpacing; // Height of an individual document
+
+    for (var i = numDocuments-1; i >= 0; i--) {
+        var documentX = x + i * ( horizontalSpacing);
+        var documentY = y + numDocuments * verticalSpacing  - i * (verticalSpacing);
+        
+        // Draw an individual document using the DocumentShape
+        DocumentShape.prototype.paintVertexShape(c, documentX, documentY, documentWidth, documentHeight);
+    }
 };
 class Diagram {
 
@@ -212,10 +234,11 @@ class Diagram {
             //new mxSwimlaneManager(graph);
             // layouts: mxHierarchicalLayout, mxCircleLayout, mxCompactTreeLayout, mxCompositeLayout, mxFastOrganicLayout, mxParallelEdgeLayout, mxPartitionLayout, mxStackLayout
             //var layout = new mxHierarchicalLayout(graph); // Not sure what it does
-            var layout = new mxStackLayout(graph);
-            layout.resizeParent = true; // Makes sure all children fit into the parent swimlane
-            layout.fill = true; // Applies the size to children if parent size changes
+            //var layout = new mxStackLayout(graph);
+            //layout.resizeParent = true; // Makes sure all children fit into the parent swimlane
+            //layout.fill = true; // Applies the size to children if parent size changes
             //layout.execute(swimlaneGroup);
+            swimlaneGroup.geometry.height = swimlaneGroup.geometry.height + 50;
 
 
         }
@@ -224,8 +247,8 @@ class Diagram {
 
     traverseHierarchy(graph, node, process_node_id, swimlaneGroup, mxVertexMap, y = 50) {
         if (node.id() !== process_node_id) {
-            const stepHeight = 100;
-            const stepWidth = 200;
+            const stepHeight = 150;
+            const stepWidth = 300;
             const stepSpacing = 40;
             let x = 20;
             y = y + stepSpacing;
@@ -265,7 +288,7 @@ class Diagram {
                     break;
 
                 case "template":
-                    shape = "shape=document;whiteSpace=wrap;html=1;";
+                    shape = "shape=documents;whiteSpace=wrap;html=1;align=left;";
                     const connectedEdges = node.connectedEdges();
                     console.log(connectedEdges);
                     for (let i = 0; i < connectedEdges.length; i++) {
