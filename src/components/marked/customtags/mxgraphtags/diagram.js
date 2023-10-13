@@ -14,8 +14,7 @@ DocumentShape.prototype.paintVertexShape = function (c, x, y, w, h) {
 
     c.begin();
     c.moveTo(x, y);
-    c.lineTo(rx, y);
-    c.lineTo(rx, ry - waveHeight);
+    c.lineTo(x, ry - waveHeight + (Math.sin(0 / waveLength * 2 * Math.PI) * waveHeight));
 
     // Draw the sine wave-like bottom edge
     for (var i = 0; i <= waveLength; i += 10) { // Adjust the step size as needed
@@ -23,10 +22,11 @@ DocumentShape.prototype.paintVertexShape = function (c, x, y, w, h) {
         var py = ry - waveHeight + (Math.sin(i / waveLength * 2 * Math.PI) * waveHeight);
         c.lineTo(px, py);
     }
+    c.lineTo(rx, y);
 
-    c.lineTo(x, ry - waveHeight);
     c.close();
-    c.fillAndStroke();
+    c.stroke();
+    //c.fillAndStroke();
 };
 class Diagram {
 
