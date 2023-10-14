@@ -12,8 +12,25 @@ import {
     mxImage,
     mxCellRenderer,
     mxShape,
-    mxPopupMenu
+    mxPopupMenu,
+    mxConstants
 } from "mxgraph-js";
+
+
+
+mxCellRenderer.getLabelValue = function (state) {
+    // Retrieve the cell's user value
+    var userValue = state.cell.getValue();
+    console.log(userValue);
+
+    if (userValue) {
+        // Customize the label value based on your user value
+        return userValue.label;
+    } else {
+        // Return the default label value
+        return state.cell.value;
+    }
+};
 
 
 var styleElement = document.createElement('style');
@@ -32,6 +49,17 @@ styleElement.innerHTML = `
 
 // Append the <style> element to the document's <head>
 document.head.appendChild(styleElement);
+
+var stylemxCellEditor = document.createElement('style');
+// Set the CSS styles
+stylemxCellEditor.innerHTML = `
+    body div.mxCellEditor {
+        position: absolute;
+    }
+`;
+
+// Append the <style> element to the document's <head>
+document.head.appendChild(stylemxCellEditor);
 
 mxCellRenderer.registerShape('document', DocumentShape);
 function DocumentShape() { }
@@ -94,9 +122,17 @@ function createPopupMenu(graph, menu, cell, evt) {
 
     if (cell != null) {
         if (model.isVertex(cell)) {
-            menu.addItem('Add child', null, function () {
-                Diagram.addChild(graph, cell);
-            });
+            const hasAlreadyNextCell = Diagram.hasNextCell(graph, cell);
+            if (!hasAlreadyNextCell.hasNextStep) {
+                menu.addItem('Next Step', null, function () {
+                    Diagram.addChild(graph, cell, "step");
+                });
+            }
+            if (!hasAlreadyNextCell.hasTemplate) {
+                menu.addItem('Add Template', null, function () {
+                    Diagram.addChild(graph, cell, "template");
+                });
+            }
         }
 
         menu.addItem('Edit label', null, function () {
@@ -283,7 +319,7 @@ class Diagram {
         // Enables automatic sizing for vertices after editing and
         // panning by using the left mouse button.
         graph.setCellsMovable(false);
-        graph.setAutoSizeCells(true);
+        graph.setAutoSizeCells(false);
         graph.setPanning(false);
         graph.centerZoom = false;
         graph.panningHandler.useLeftButtonForPanning = true;
@@ -383,33 +419,37 @@ class Diagram {
         const stepSpacing = 40;
         const stepHeight = 150;
         const stepWidth = 300;
-        var x = 20; 
+        var x = 20;
         y = y + stepSpacing;
         //var y = 20;
 
         switch (type) {
             case "step":
                 shape = "rounded=0;whiteSpace=wrap;html=1;";
-                if(sourceNode){
+                if (sourceNode) {
                     x = sourceNode.geometry.x;// + sourceNode.geometry.width + 20;
                     y = sourceNode.geometry.y + sourceNode.geometry.height + stepSpacing;
                 }
-                
+
                 break;
             case "condition":
                 shape = "shape=rhombus;whiteSpace=wrap;html=1;";
                 break;
             case "template":
                 shape = "shape=documents;whiteSpace=wrap;html=1;align=left;";
-                if(sourceNode){
+                if (sourceNode) {
                     x = sourceNode.geometry.x + sourceNode.geometry.width + stepSpacing;
                     y = sourceNode.geometry.y;
                 }
-                
+
                 break;
             default:
                 shape = "rounded=0;whiteSpace=wrap;html=1;";
                 break;
+        }
+        var userData = {
+            type: type,
+            label: label
         }
         const vertex = graph.insertVertex(
             swimlaneGroup,
@@ -422,44 +462,39 @@ class Diagram {
             shape
         );
 
+        var userData = {
+            type: type,
+            label: label
+        }
+
+        //vertex.setValue(userData);
+        //graph.setAttribute(vertex, 'userData', JSON.stringify(userData));
+        //vertex.value.setAttribute('type', type);
+
+        vertex.getGeometry().autosize = 0; // TODO: check this settings
+
         return vertex;
     }
 
-    static addChild(graph, cell) {
+    static addChild(graph, cell, type) {
         var model = graph.getModel();
         var parent = graph.getDefaultParent();
         var vertex;
 
         model.beginUpdate();
         try {
-            const type = "step";
+            //const type = "step";
             const id = "test";
             const label = "test";
             var y = 0;
             const vertex = Diagram.addChildCell(graph, type, cell, graph.getModel().getParent(cell), id, label, y)
-
-            /*vertex = graph.insertVertex(parent, null, 'Double click to set name');
-            var geometry = model.getGeometry(vertex);
-
-            // Updates the geometry of the vertex with the
-            // preferred size computed in the graph
-            var size = graph.getPreferredSizeForCell(vertex);
-            geometry.width = size.width;
-            geometry.height = size.height;
-
-            // Adds the edge between the existing cell
-            // and the new vertex and executes the
-            // automatic layout on the parent
-            var edge = graph.insertEdge(parent, null, '', cell, vertex);
-
-            // Configures the edge label "in-place" to reside
-            // at the end of the edge (x = 1) and with an offset
-            // of 20 pixels in negative, vertical direction.
-            edge.geometry.x = 1;
-            edge.geometry.y = 0;
-            edge.geometry.offset = new mxPoint(0, -20);*/
-
-            //addOverlays(graph, vertex, true);
+            graph.insertEdge(
+                graph.getModel().getParent(cell),
+                null, // Use null for edge ID
+                label, // No label for the edge
+                cell,
+                vertex
+            );
         }
         finally {
             model.endUpdate();
@@ -467,6 +502,85 @@ class Diagram {
 
         return vertex;
     };
+
+    static findStyleKey(styleString, styleKey) {
+        // Split the style string into individual key-value pairs
+        var stylePairs = styleString.split(';');
+
+        // Initialize a variable to store the value
+        var value = null;
+
+        // Iterate through the key-value pairs
+        for (var i = 0; i < stylePairs.length; i++) {
+            // Split each pair into key and value
+            var pair = stylePairs[i].split('=');
+
+            // Check if the key matches the one you're looking for
+            if (pair[0] === styleKey) {
+                value = pair[1];
+                return value;
+            }
+        }
+        return null;
+    }
+
+    static hasNextCell(graph, cell) {
+        if (cell == null) {
+            return { hasNextStep: true, hasTemplate: true };
+        }
+        let hasNextStep = false;
+        let hasTemplate = false;
+
+        //let retrievedSourceUserData = cell.getValue();
+        //let srcUserDataString = graph.getAttribute(cell, 'userData');
+        //console.log(srcUserDataString);
+        //let retrievedSourceUserData = JSON.parse(srcUserDataString);
+        let srcStyle = cell.getStyle();
+        console.log(srcStyle);
+
+        // Extract the shape from the style
+        //let shape = srcStyle[mxConstants.STYLE_SHAPE];
+        //var shape = mxUtils.getValue(srcStyle, mxConstants.STYLE_SHAPE,);
+        let srcShape = Diagram.findStyleKey(srcStyle, "shape");
+
+        console.log(srcShape);
+        if (srcShape === "documents" || srcShape === "document") {
+            hasNextStep = true;
+            hasTemplate = true;
+            // IF it is a template, then no next steps allowed
+            return { hasNextStep: hasNextStep, hasTemplate: hasTemplate };
+        }
+
+        var edges = graph.getEdges(cell);
+
+
+        for (var i = 0; i < edges.length; i++) {
+            var edge = edges[i];
+            //var source = edge.getSource();
+            var source = graph.model.getTerminal(edge, true);
+            console.log(source);
+
+            if (source == cell) {
+                // The cell is the source of this edge
+                var target = edge.getTarget();
+                console.log(target)
+                //let retrievedTargetUserData = target.getValue();
+                //let tgtUserDataString = graph.getAttribute(target, 'userData');
+                //let retrievedTargetUserData = JSON.parse(tgtUserDataString);
+                let tgtStyle = target.getStyle();
+                console.log(tgtStyle);
+                let tgtShape = Diagram.findStyleKey(tgtStyle, "shape");
+                if (tgtShape === "step") {
+                    hasNextStep = true;
+                }
+                else if (retrievedTargetUserData.type === "template") {
+                    hasTemplate = true;
+                }
+            }
+        }
+
+        return { hasNextStep: hasNextStep, hasTemplate: hasTemplate };
+    }
 
 
     traverseHierarchy(graph, node, process_node_id, swimlaneGroup, mxVertexMap, y = 50) {
@@ -530,17 +644,17 @@ class Diagram {
                     //shape = "rounded=0;whiteSpace=wrap;html=1;";
                     break;
             }
-            
-/*const vertex = graph.insertVertex(
-                swimlaneGroup,
-                id, // Use the Cytoscape node ID as the vertex ID
-                label,
-                x, // X-coordinate, you may need to adjust this
-                y, // Y-coordinate, you may need to adjust this
-                stepWidth, // Width of the vertex
-                stepHeight, // Height of the vertex
-                shape
-            );*/
+
+            /*const vertex = graph.insertVertex(
+                            swimlaneGroup,
+                            id, // Use the Cytoscape node ID as the vertex ID
+                            label,
+                            x, // X-coordinate, you may need to adjust this
+                            y, // Y-coordinate, you may need to adjust this
+                            stepWidth, // Width of the vertex
+                            stepHeight, // Height of the vertex
+                            shape
+                        );*/
             //console.log(graph, type, sourceNode, swimlaneGroup, id, label);
 
             const vertex = Diagram.addChildCell(graph, type, sourceNode, swimlaneGroup, id, label, y)
