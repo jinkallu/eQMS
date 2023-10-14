@@ -21,6 +21,8 @@ class CytoscapeTags {
             const diagram = new Diagram();
             var container_dgm = document.createElement('div');
             container_dgm.id = `${newElement_id}_dgm`;
+            document.body.appendChild(container_dgm); // TO Check: or remove!
+
 
             await Promise.all([
                await gAnalysis.analyse(cy)

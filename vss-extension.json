@@ -69,7 +69,10 @@
             "path": "dist", "addressable": true
         },
         {
-            "path": "images/logo.png", "addressable": true
+            "path": "images", "addressable": true
+        },
+        {
+            "path": "node_modules/mxgraph/javascript/src", "addressable": true
         }
     ],
     

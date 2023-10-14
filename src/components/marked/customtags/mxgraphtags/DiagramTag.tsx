@@ -20,6 +20,7 @@ class DiagramTag {
       return null;
     }
 
+
     const diagram = new Diagram();
     const tag = element.tagName.toLowerCase();
     if(tag === 'diagram'){

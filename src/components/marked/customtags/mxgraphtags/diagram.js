@@ -1,5 +1,74 @@
-mxClient.mxBasePath = 'mxgraph/src';
-import mxClient from "script-loader!mxgraph/javascript/mxClient";
+//import mxClient from "script-loader!mxgraph/javascript/mxClient";
+//mxClient.mxBasePath = 'node_modules/mxgraph/javascript/src';
+//mxClient.mxImageBasePath =  'node_modules/mxgraph/javascript/src/images';
+//console.log(mxClient.imageBasePath);
+import {
+    mxGraph,
+    mxRubberband,
+    mxKeyHandler,
+    mxClient,
+    mxUtils,
+    mxEvent,
+    mxConnectionConstraint,
+    mxPoint,
+    mxEdgeHandler,
+    mxConstraintHandler,
+    mxImage,
+    mxCellRenderer,
+    mxShape,
+    mxPopupMenu
+} from "mxgraph-js";
+//mxClient.loadResources = false;
+mxClient.onAllResourcesLoaded = function () {
+    // Initialize and use mxGraph here
+    console.log("loaded mxgraph");
+};
+
+var styleElement = document.createElement('style');
+// Set the CSS styles
+styleElement.innerHTML = `
+    body div.mxPopupMenu {
+        -webkit-box-shadow: 3px 3px 6px #C0C0C0;
+        -moz-box-shadow: 3px 3px 6px #C0C0C0;
+        box-shadow: 3px 3px 6px #C0C0C0;
+        background: white;
+        position: absolute;
+        border: 3px solid #e7e7e7;
+        padding: 3px;
+    }
+`;
+
+// Append the <style> element to the document's <head>
+document.head.appendChild(styleElement);
+//mxPopupMenu.prototype.submenuImage = null;
+
+/*class ContextMenu {
+    constructor() {
+        this.menu = new mxPopupMenu();
+        this.menu.addItem('Option 1', function () {
+            // Handle option 1 action
+        });
+        this.menu.addItem('Option 2', function () {
+            // Handle option 2 action
+        });
+    }
+
+    show(x, y, cell) {
+        this.menu.show(x, y, cell);
+    }
+}*/
+// Define a custom context menu
+//var customMenu = new mxPopupMenu();
+//var submenu = customMenu.addItem('Submenu', null, null);
+
+//customMenu.addMenu('Submenu');
+/*customMenu.addItem('Option 1', function() {
+  // Handle option 1 action
+});
+customMenu.addItem('Option 2', function() {
+  // Handle option 2 action
+});*/
+
 
 mxCellRenderer.registerShape('document', DocumentShape);
 function DocumentShape() { }
@@ -35,21 +104,98 @@ MultipleDocumentsShape.prototype = new mxShape();
 MultipleDocumentsShape.prototype.constructor = MultipleDocumentsShape;
 
 MultipleDocumentsShape.prototype.paintVertexShape = function (c, x, y, w, h) {
-    
+
     var horizontalSpacing = w / 10; // Horizontal spacing between documents
     var verticalSpacing = h / 10; // Vertical spacing between documents
     var numDocuments = 3; // The number of documents to display
     var documentWidth = w - numDocuments * horizontalSpacing; // Width of an individual document
     var documentHeight = h - numDocuments * verticalSpacing; // Height of an individual document
 
-    for (var i = numDocuments-1; i >= 0; i--) {
-        var documentX = x + i * ( horizontalSpacing);
-        var documentY = y + numDocuments * verticalSpacing  - i * (verticalSpacing);
-        
+    for (var i = numDocuments - 1; i >= 0; i--) {
+        var documentX = x + i * (horizontalSpacing);
+        var documentY = y + numDocuments * verticalSpacing - i * (verticalSpacing);
+
         // Draw an individual document using the DocumentShape
         DocumentShape.prototype.paintVertexShape(c, documentX, documentY, documentWidth, documentHeight);
     }
 };
+
+// Function to create the entries in the popupmenu
+function createPopupMenu(graph, menu, cell, evt) {
+    if (cell == null) {
+        return null;
+    }
+    var model = graph.getModel();
+
+
+
+    if (cell != null) {
+        if (model.isVertex(cell)) {
+            menu.addItem('Add child', null, function () {
+                //addChild(graph, cell);
+            });
+        }
+
+        menu.addItem('Edit label', null, function () {
+            graph.startEditingAtCell(cell);
+        });
+
+        if (cell.id != 'treeRoot' &&
+            model.isVertex(cell)) {
+            menu.addItem('Delete', null, function () {
+                //deleteSubtree(graph, cell);
+            });
+        }
+
+        menu.addSeparator();
+    }
+
+    menu.addItem('Fit', null, function () {
+        graph.fit();
+    });
+
+    menu.addItem('Actual', null, function () {
+        graph.zoomActual();
+    });
+
+    menu.addSeparator();
+
+    menu.addItem('Print', null, function () {
+        var preview = new mxPrintPreview(graph, 1);
+        preview.open();
+    });
+
+    menu.addItem('Poster Print', null, function () {
+        var pageCount = mxUtils.prompt('Enter maximum page count', '1');
+
+        if (pageCount != null) {
+            var scale = mxUtils.getScaleForPageCount(pageCount, graph);
+            var preview = new mxPrintPreview(graph, scale);
+            preview.open();
+        }
+    });
+
+    //console.log(evt);
+
+    //if (evt) {
+    //var x = mxEvent.getClientX(evt);
+    // y = mxEvent.getClientY(evt);
+    //menu.popup(0, 0, cell);
+
+
+    //console.log(evt.x, evt.y, evt.getX());
+    // Use evt to get the event's coordinates
+    //var x = mxEvent.getClientX(evt);
+    //var y = mxEvent.getClientY(evt);
+
+    // Display the context menu
+    //menu.popup(evt.x, evt.y);
+    //}
+
+};
+
+
+
 class Diagram {
 
     loadAndDisplayGraph(container) {
@@ -61,6 +207,28 @@ class Diagram {
 
 
         const graph = new mxGraph(container);
+
+        // Enables automatic sizing for vertices after editing and
+        // panning by using the left mouse button.
+        graph.setCellsMovable(false);
+        graph.setAutoSizeCells(true);
+        graph.setPanning(false);
+        graph.centerZoom = false;
+        graph.panningHandler.useLeftButtonForPanning = true;
+
+        // Displays a popupmenu when the user clicks
+        // on a cell (using the left mouse button) but
+        // do not select the cell when the popup menu
+        // is displayed
+        graph.panningHandler.popupMenuHandler = false;
+
+
+
+        /*
+        graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
+            return createPopupMenu(graph, menu, cell, evt);
+        };
+        */
 
         const xmlDoc = mxUtils.parseXml(xmlContent);
         const codec = new mxCodec(xmlDoc);
@@ -78,7 +246,7 @@ class Diagram {
     }
 
     testDiagram(container) {
-        //mxEvent.disableContextMenu(container);
+        mxEvent.disableContextMenu(container);
         /*
                 const xmlDoc = mxUtils.parseXml(xmlContent);
                 const codec = new mxCodec(xmlDoc);
@@ -167,15 +335,101 @@ class Diagram {
         mxEvent.disableContextMenu(container);
         var graph = new mxGraph(container);
 
+        // Enables automatic sizing for vertices after editing and
+        // panning by using the left mouse button.
+        graph.setCellsMovable(false);
+        graph.setAutoSizeCells(true);
+        graph.setPanning(false);
+        graph.centerZoom = false;
+        graph.panningHandler.useLeftButtonForPanning = true;
+
+        // Displays a popupmenu when the user clicks
+        // on a cell (using the left mouse button) but
+        // do not select the cell when the popup menu
+        // is displayed
+        graph.panningHandler.popupMenuHandler = false;
+        graph.popupMenuHandler.autoExpand = true;
+/*
+        var pointImage = new mxImage(
+            "https://raw.githubusercontent.com/jgraph/mxgraph/master/javascript/src/images/point.gif",
+            5,
+            5
+        );
+        //mxConstraintHandler.prototype.pointImage = pointImage;
+        mxPopupMenu.prototype.submenuImage = pointImage;*/
+
+
+        /*
+                var customMenu = new mxPopupMenu();
+        
+        
+                customMenu.addItem('Option 1', null, function() {
+                  console.log('Option 1');
+                });
+                
+                
+                customMenu.addItem('Option 2', null, function() {
+                  console.log('Option 2');
+                });*/
+
+        // Add a mouseover event listener to cells
+        /*graph.addListener(mxEvent.MOUSE_OVER, function (sender, evt) {
+            console.log(evt);
+            var cell = evt.getProperty('cell');
+
+            if (cell != null) {
+                // Display the custom menu when the mouse hovers over a cell
+                //customMenu.popup(evt.getGraphX(), evt.getGraphY(), cell);
+            }
+        });*/
+
+
+        graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
+            return createPopupMenu(graph, menu, cell, evt);
+            /*var customMenu = new mxPopupMenu();
+    customMenu.addItem('Item 1', function() {
+        // Handle Item 1 action
+    });*/
+            /*var customMenu = new mxPopupMenu();
+            
+            var submenu1 = customMenu.addItem('Submenu 1', null, null);
+            
+            customMenu.addItem('Subitem 1', null, function() {
+                // Handle Subitem 1 action
+            }, submenu1);
+            
+            customMenu.addItem('Subitem 2', null, function() {
+                // Handle Subitem 2 action
+            }, submenu1);*/
+            //return menu.addItem('Add child', null, function () {
+            //addChild(graph, cell);
+            //});
+
+            // Return the customMenu object to display it
+            //return customMenu;
+        };
+
+
         // Enable click handling on cells
         graph.setCellsSelectable(true);
-        graph.addListener(mxEvent.CLICK, function (sender, evt) {
+        /*graph.addListener(mxEvent.CLICK, function (sender, evt) {
             console.log(evt);
             var cell = evt.getProperty("cell"); // Get the clicked cell (vertex)
             if (cell != null && cell.isVertex()) {
                 console.log("Vertex clicked:", cell.getValue());
             }
-        });
+        });*/
+        //var customMenu = new ContextMenu();
+
+        // Add the context menu to the cell
+        /*graph.addListener(mxEvent.RIGHT_CLICK, function (sender, evt) {
+            var cell = evt.getProperty('cell');
+            if (cell) {
+                //customMenu.show(evt.getX(), evt.getY(), cell);
+                mxEvent.consume(evt);
+                console.log(evt);
+            }
+        });*/
 
         //new mxRubberband(graph);
 
@@ -257,21 +511,17 @@ class Diagram {
             var label = node.data("label"); // Assuming you have labels in Cytoscape nodes
             const type = node.data("type");
             var shape = "";
-            //console.log(type);
 
             switch (type) {
                 case "step":
                     shape = "rounded=0;whiteSpace=wrap;html=1;";
                     const connectedStepEdges = node.connectedEdges();
-                    //console.log(connectedEdges);
                     for (let i = 0; i < connectedStepEdges.length; i++) {
                         console.log(connectedStepEdges[i].source().id());
                         if (connectedStepEdges[i].source().data("type") === "step") {
                             if (connectedStepEdges[i].source().id() === node.id()) {
                                 continue;
                             }
-                            //console.log(connectedEdges[i].source().data("type"),  graph.$('#' + connectedEdges[i].source().id()));
-                            //console.log('[id="'+ connectedEdges[i].source().id() + '"]'); 
                             var sourceNode = mxVertexMap.get(connectedStepEdges[i].source().id());//graph.nodes('[id="'+ connectedEdges[i].source().id() + '"]');
                             console.log(sourceNode, x, y);
                             x = sourceNode.geometry.x;// + sourceNode.geometry.width + 20;
@@ -294,8 +544,6 @@ class Diagram {
                     for (let i = 0; i < connectedEdges.length; i++) {
                         console.log(connectedEdges[i].source().id());
                         if (connectedEdges[i].source().data("type") === "step") {
-                            //console.log(connectedEdges[i].source().data("type"),  graph.$('#' + connectedEdges[i].source().id()));
-                            //console.log('[id="'+ connectedEdges[i].source().id() + '"]'); 
                             var sourceNode = mxVertexMap.get(connectedEdges[i].source().id());//graph.nodes('[id="'+ connectedEdges[i].source().id() + '"]');
                             console.log(sourceNode, x, y);
                             x = sourceNode.geometry.x + sourceNode.geometry.width + stepSpacing;
@@ -304,7 +552,6 @@ class Diagram {
                             break;
                         }
                     }
-                    //console.log(node.connectedEdges()[0].source());
 
                     break;
 
@@ -322,7 +569,6 @@ class Diagram {
                 stepHeight, // Height of the vertex
                 shape
             );
-            //y += stepHeight + stepSpacing;
 
             mxVertexMap.set(id, vertex); // Store the mapping for future reference
         }
