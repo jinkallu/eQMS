@@ -433,7 +433,10 @@ class Diagram {
         model.beginUpdate();
         try {
             const type = "step";
-            const vertex = Diagram.addChildCell(graph, type, cell, swimlaneGroup, id, label, y)
+            const id = "test";
+            const label = "test";
+            var y = 0;
+            const vertex = Diagram.addChildCell(graph, type, cell, graph.getModel().getParent(cell), id, label, y)
 
             /*vertex = graph.insertVertex(parent, null, 'Double click to set name');
             var geometry = model.getGeometry(vertex);
