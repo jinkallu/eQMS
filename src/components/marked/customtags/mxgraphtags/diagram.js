@@ -1,7 +1,3 @@
-//import mxClient from "script-loader!mxgraph/javascript/mxClient";
-//mxClient.mxBasePath = 'node_modules/mxgraph/javascript/src';
-//mxClient.mxImageBasePath =  'node_modules/mxgraph/javascript/src/images';
-//console.log(mxClient.imageBasePath);
 import {
     mxGraph,
     mxRubberband,
@@ -18,11 +14,7 @@ import {
     mxShape,
     mxPopupMenu
 } from "mxgraph-js";
-//mxClient.loadResources = false;
-mxClient.onAllResourcesLoaded = function () {
-    // Initialize and use mxGraph here
-    console.log("loaded mxgraph");
-};
+
 
 var styleElement = document.createElement('style');
 // Set the CSS styles
@@ -40,35 +32,6 @@ styleElement.innerHTML = `
 
 // Append the <style> element to the document's <head>
 document.head.appendChild(styleElement);
-//mxPopupMenu.prototype.submenuImage = null;
-
-/*class ContextMenu {
-    constructor() {
-        this.menu = new mxPopupMenu();
-        this.menu.addItem('Option 1', function () {
-            // Handle option 1 action
-        });
-        this.menu.addItem('Option 2', function () {
-            // Handle option 2 action
-        });
-    }
-
-    show(x, y, cell) {
-        this.menu.show(x, y, cell);
-    }
-}*/
-// Define a custom context menu
-//var customMenu = new mxPopupMenu();
-//var submenu = customMenu.addItem('Submenu', null, null);
-
-//customMenu.addMenu('Submenu');
-/*customMenu.addItem('Option 1', function() {
-  // Handle option 1 action
-});
-customMenu.addItem('Option 2', function() {
-  // Handle option 2 action
-});*/
-
 
 mxCellRenderer.registerShape('document', DocumentShape);
 function DocumentShape() { }
@@ -132,7 +95,7 @@ function createPopupMenu(graph, menu, cell, evt) {
     if (cell != null) {
         if (model.isVertex(cell)) {
             menu.addItem('Add child', null, function () {
-                //addChild(graph, cell);
+                Diagram.addChild(graph, cell);
             });
         }
 
@@ -174,24 +137,6 @@ function createPopupMenu(graph, menu, cell, evt) {
             preview.open();
         }
     });
-
-    //console.log(evt);
-
-    //if (evt) {
-    //var x = mxEvent.getClientX(evt);
-    // y = mxEvent.getClientY(evt);
-    //menu.popup(0, 0, cell);
-
-
-    //console.log(evt.x, evt.y, evt.getX());
-    // Use evt to get the event's coordinates
-    //var x = mxEvent.getClientX(evt);
-    //var y = mxEvent.getClientY(evt);
-
-    // Display the context menu
-    //menu.popup(evt.x, evt.y);
-    //}
-
 };
 
 
@@ -349,87 +294,20 @@ class Diagram {
         // is displayed
         graph.panningHandler.popupMenuHandler = false;
         graph.popupMenuHandler.autoExpand = true;
-/*
-        var pointImage = new mxImage(
-            "https://raw.githubusercontent.com/jgraph/mxgraph/master/javascript/src/images/point.gif",
-            5,
-            5
-        );
-        //mxConstraintHandler.prototype.pointImage = pointImage;
-        mxPopupMenu.prototype.submenuImage = pointImage;*/
-
-
         /*
-                var customMenu = new mxPopupMenu();
-        
-        
-                customMenu.addItem('Option 1', null, function() {
-                  console.log('Option 1');
-                });
-                
-                
-                customMenu.addItem('Option 2', null, function() {
-                  console.log('Option 2');
-                });*/
-
-        // Add a mouseover event listener to cells
-        /*graph.addListener(mxEvent.MOUSE_OVER, function (sender, evt) {
-            console.log(evt);
-            var cell = evt.getProperty('cell');
-
-            if (cell != null) {
-                // Display the custom menu when the mouse hovers over a cell
-                //customMenu.popup(evt.getGraphX(), evt.getGraphY(), cell);
-            }
-        });*/
+                var pointImage = new mxImage(
+                    "https://raw.githubusercontent.com/jgraph/mxgraph/master/javascript/src/images/point.gif",
+                    5,
+                    5
+                );
+                mxPopupMenu.prototype.submenuImage = pointImage;*/
 
 
         graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
             return createPopupMenu(graph, menu, cell, evt);
-            /*var customMenu = new mxPopupMenu();
-    customMenu.addItem('Item 1', function() {
-        // Handle Item 1 action
-    });*/
-            /*var customMenu = new mxPopupMenu();
-            
-            var submenu1 = customMenu.addItem('Submenu 1', null, null);
-            
-            customMenu.addItem('Subitem 1', null, function() {
-                // Handle Subitem 1 action
-            }, submenu1);
-            
-            customMenu.addItem('Subitem 2', null, function() {
-                // Handle Subitem 2 action
-            }, submenu1);*/
-            //return menu.addItem('Add child', null, function () {
-            //addChild(graph, cell);
-            //});
-
-            // Return the customMenu object to display it
-            //return customMenu;
         };
-
-
         // Enable click handling on cells
         graph.setCellsSelectable(true);
-        /*graph.addListener(mxEvent.CLICK, function (sender, evt) {
-            console.log(evt);
-            var cell = evt.getProperty("cell"); // Get the clicked cell (vertex)
-            if (cell != null && cell.isVertex()) {
-                console.log("Vertex clicked:", cell.getValue());
-            }
-        });*/
-        //var customMenu = new ContextMenu();
-
-        // Add the context menu to the cell
-        /*graph.addListener(mxEvent.RIGHT_CLICK, function (sender, evt) {
-            var cell = evt.getProperty('cell');
-            if (cell) {
-                //customMenu.show(evt.getX(), evt.getY(), cell);
-                mxEvent.consume(evt);
-                console.log(evt);
-            }
-        });*/
 
         //new mxRubberband(graph);
 
@@ -485,6 +363,7 @@ class Diagram {
         } finally {
 
             graph.getModel().endUpdate();
+            graph.fit();
             //new mxSwimlaneManager(graph);
             // layouts: mxHierarchicalLayout, mxCircleLayout, mxCompactTreeLayout, mxCompositeLayout, mxFastOrganicLayout, mxParallelEdgeLayout, mxPartitionLayout, mxStackLayout
             //var layout = new mxHierarchicalLayout(graph); // Not sure what it does
@@ -492,12 +371,100 @@ class Diagram {
             //layout.resizeParent = true; // Makes sure all children fit into the parent swimlane
             //layout.fill = true; // Applies the size to children if parent size changes
             //layout.execute(swimlaneGroup);
-            swimlaneGroup.geometry.height = swimlaneGroup.geometry.height + 50;
+            //swimlaneGroup.geometry.height = swimlaneGroup.geometry.height + 50;
 
 
         }
 
     }
+
+    static addChildCell(graph, type, sourceNode, swimlaneGroup, id, label, y) {
+        var shape;
+        const stepSpacing = 40;
+        const stepHeight = 150;
+        const stepWidth = 300;
+        var x = 20; 
+        y = y + stepSpacing;
+        //var y = 20;
+
+        switch (type) {
+            case "step":
+                shape = "rounded=0;whiteSpace=wrap;html=1;";
+                if(sourceNode){
+                    x = sourceNode.geometry.x;// + sourceNode.geometry.width + 20;
+                    y = sourceNode.geometry.y + sourceNode.geometry.height + stepSpacing;
+                }
+                
+                break;
+            case "condition":
+                shape = "shape=rhombus;whiteSpace=wrap;html=1;";
+                break;
+            case "template":
+                shape = "shape=documents;whiteSpace=wrap;html=1;align=left;";
+                if(sourceNode){
+                    x = sourceNode.geometry.x + sourceNode.geometry.width + stepSpacing;
+                    y = sourceNode.geometry.y;
+                }
+                
+                break;
+            default:
+                shape = "rounded=0;whiteSpace=wrap;html=1;";
+                break;
+        }
+        const vertex = graph.insertVertex(
+            swimlaneGroup,
+            id, // Use the Cytoscape node ID as the vertex ID
+            label,
+            x, // X-coordinate, you may need to adjust this
+            y, // Y-coordinate, you may need to adjust this
+            stepWidth, // Width of the vertex
+            stepHeight, // Height of the vertex
+            shape
+        );
+
+        return vertex;
+    }
+
+    static addChild(graph, cell) {
+        var model = graph.getModel();
+        var parent = graph.getDefaultParent();
+        var vertex;
+
+        model.beginUpdate();
+        try {
+            const type = "step";
+            const vertex = Diagram.addChildCell(graph, type, cell, swimlaneGroup, id, label, y)
+
+            /*vertex = graph.insertVertex(parent, null, 'Double click to set name');
+            var geometry = model.getGeometry(vertex);
+
+            // Updates the geometry of the vertex with the
+            // preferred size computed in the graph
+            var size = graph.getPreferredSizeForCell(vertex);
+            geometry.width = size.width;
+            geometry.height = size.height;
+
+            // Adds the edge between the existing cell
+            // and the new vertex and executes the
+            // automatic layout on the parent
+            var edge = graph.insertEdge(parent, null, '', cell, vertex);
+
+            // Configures the edge label "in-place" to reside
+            // at the end of the edge (x = 1) and with an offset
+            // of 20 pixels in negative, vertical direction.
+            edge.geometry.x = 1;
+            edge.geometry.y = 0;
+            edge.geometry.offset = new mxPoint(0, -20);*/
+
+            //addOverlays(graph, vertex, true);
+        }
+        finally {
+            model.endUpdate();
+        }
+
+        return vertex;
+    };
+
 
     traverseHierarchy(graph, node, process_node_id, swimlaneGroup, mxVertexMap, y = 50) {
         if (node.id() !== process_node_id) {
@@ -511,10 +478,11 @@ class Diagram {
             var label = node.data("label"); // Assuming you have labels in Cytoscape nodes
             const type = node.data("type");
             var shape = "";
+            var sourceNode = null;
 
             switch (type) {
                 case "step":
-                    shape = "rounded=0;whiteSpace=wrap;html=1;";
+                    //shape = "rounded=0;whiteSpace=wrap;html=1;";
                     const connectedStepEdges = node.connectedEdges();
                     for (let i = 0; i < connectedStepEdges.length; i++) {
                         console.log(connectedStepEdges[i].source().id());
@@ -522,33 +490,33 @@ class Diagram {
                             if (connectedStepEdges[i].source().id() === node.id()) {
                                 continue;
                             }
-                            var sourceNode = mxVertexMap.get(connectedStepEdges[i].source().id());//graph.nodes('[id="'+ connectedEdges[i].source().id() + '"]');
-                            console.log(sourceNode, x, y);
-                            x = sourceNode.geometry.x;// + sourceNode.geometry.width + 20;
-                            y = sourceNode.geometry.y + sourceNode.geometry.height + stepSpacing;
-                            console.log(sourceNode, x, y);
+                            sourceNode = mxVertexMap.get(connectedStepEdges[i].source().id());//graph.nodes('[id="'+ connectedEdges[i].source().id() + '"]');
+                            //console.log(sourceNode, x, y);
+                            //x = sourceNode.geometry.x;// + sourceNode.geometry.width + 20;
+                            //y = sourceNode.geometry.y + sourceNode.geometry.height + stepSpacing;
+                            //console.log(sourceNode, x, y);
                             break;
                         }
                     }
                     break;
 
                 case "condition":
-                    shape = "shape=rhombus;whiteSpace=wrap;html=1;";
+                    //shape = "shape=rhombus;whiteSpace=wrap;html=1;";
                     label += node.data("result");
                     break;
 
                 case "template":
-                    shape = "shape=documents;whiteSpace=wrap;html=1;align=left;";
+                    //shape = "shape=documents;whiteSpace=wrap;html=1;align=left;";
                     const connectedEdges = node.connectedEdges();
                     console.log(connectedEdges);
                     for (let i = 0; i < connectedEdges.length; i++) {
                         console.log(connectedEdges[i].source().id());
                         if (connectedEdges[i].source().data("type") === "step") {
-                            var sourceNode = mxVertexMap.get(connectedEdges[i].source().id());//graph.nodes('[id="'+ connectedEdges[i].source().id() + '"]');
-                            console.log(sourceNode, x, y);
-                            x = sourceNode.geometry.x + sourceNode.geometry.width + stepSpacing;
-                            y = sourceNode.geometry.y;
-                            console.log(sourceNode, x, y);
+                            sourceNode = mxVertexMap.get(connectedEdges[i].source().id());//graph.nodes('[id="'+ connectedEdges[i].source().id() + '"]');
+                            //console.log(sourceNode, x, y);
+                            //x = sourceNode.geometry.x + sourceNode.geometry.width + stepSpacing;
+                            //y = sourceNode.geometry.y;
+                            //console.log(sourceNode, x, y);
                             break;
                         }
                     }
@@ -556,10 +524,11 @@ class Diagram {
                     break;
 
                 default:
-                    shape = "rounded=0;whiteSpace=wrap;html=1;";
+                    //shape = "rounded=0;whiteSpace=wrap;html=1;";
                     break;
             }
-            const vertex = graph.insertVertex(
+            
+/*const vertex = graph.insertVertex(
                 swimlaneGroup,
                 id, // Use the Cytoscape node ID as the vertex ID
                 label,
@@ -568,8 +537,10 @@ class Diagram {
                 stepWidth, // Width of the vertex
                 stepHeight, // Height of the vertex
                 shape
-            );
+            );*/
+            //console.log(graph, type, sourceNode, swimlaneGroup, id, label);
 
+            const vertex = Diagram.addChildCell(graph, type, sourceNode, swimlaneGroup, id, label, y)
             mxVertexMap.set(id, vertex); // Store the mapping for future reference
         }
         node.children().forEach(childNode => {
