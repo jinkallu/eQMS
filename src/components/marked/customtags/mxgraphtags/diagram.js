@@ -491,7 +491,7 @@ class Diagram {
             graph.insertEdge(
                 graph.getModel().getParent(cell),
                 null, // Use null for edge ID
-                label, // No label for the edge
+                null, // No label for the edge
                 cell,
                 vertex
             );
