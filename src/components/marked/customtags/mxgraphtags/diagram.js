@@ -425,7 +425,7 @@ class Diagram {
 
         switch (type) {
             case "step":
-                shape = "rounded=0;whiteSpace=wrap;html=1;";
+                shape = "type=step;rounded=0;whiteSpace=wrap;html=1;";
                 if (sourceNode) {
                     x = sourceNode.geometry.x;// + sourceNode.geometry.width + 20;
                     y = sourceNode.geometry.y + sourceNode.geometry.height + stepSpacing;
@@ -433,10 +433,10 @@ class Diagram {
 
                 break;
             case "condition":
-                shape = "shape=rhombus;whiteSpace=wrap;html=1;";
+                shape = "type=condition;shape=rhombus;whiteSpace=wrap;html=1;";
                 break;
             case "template":
-                shape = "shape=documents;whiteSpace=wrap;html=1;align=left;";
+                shape = "type=documents;shape=documents;whiteSpace=wrap;html=1;align=left;";
                 if (sourceNode) {
                     x = sourceNode.geometry.x + sourceNode.geometry.width + stepSpacing;
                     y = sourceNode.geometry.y;
@@ -541,7 +541,7 @@ class Diagram {
         // Extract the shape from the style
         //let shape = srcStyle[mxConstants.STYLE_SHAPE];
         //var shape = mxUtils.getValue(srcStyle, mxConstants.STYLE_SHAPE,);
-        let srcShape = Diagram.findStyleKey(srcStyle, "shape");
+        let srcShape = Diagram.findStyleKey(srcStyle, "type");
 
         console.log(srcShape);
         if (srcShape === "documents" || srcShape === "document") {
@@ -560,24 +560,26 @@ class Diagram {
             var source = graph.model.getTerminal(edge, true);
             console.log(source);
 
-            if (source == cell) {
+            if (source.getId() === cell.getId()) {
                 // The cell is the source of this edge
-                var target = edge.getTarget();
-                console.log(target)
+                var target = graph.model.getTerminal(edge, false);//edge.getTarget();
+                //console.log(target)
                 //let retrievedTargetUserData = target.getValue();
                 //let tgtUserDataString = graph.getAttribute(target, 'userData');
                 //let retrievedTargetUserData = JSON.parse(tgtUserDataString);
                 let tgtStyle = target.getStyle();
-                console.log(tgtStyle);
-                let tgtShape = Diagram.findStyleKey(tgtStyle, "shape");
+                //console.log(tgtStyle);
+                let tgtShape = Diagram.findStyleKey(tgtStyle, "type");
+                console.log(tgtShape);
                 if (tgtShape === "step") {
                     hasNextStep = true;
                 }
-                else if (retrievedTargetUserData.type === "template") {
+                else if (tgtShape === "documents" || tgtShape === "document") {
                     hasTemplate = true;
                 }
             }
         }
+        console.log(hasNextStep, hasTemplate);
 
         return { hasNextStep: hasNextStep, hasTemplate: hasTemplate };
     }
