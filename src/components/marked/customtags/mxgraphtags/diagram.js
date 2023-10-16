@@ -16,6 +16,12 @@ import {
     mxConstants
 } from "mxgraph-js";
 
+import React from 'react';
+//import {createRoot} from 'react-dom';
+import ReactDOM from 'react-dom';
+
+import StepForm from "./StepForm"
+
 
 
 mxCellRenderer.getLabelValue = function (state) {
@@ -476,11 +482,40 @@ class Diagram {
         return vertex;
     }
 
-    static addChild(graph, cell, type) {
-        var model = graph.getModel();
-        var parent = graph.getDefaultParent();
-        var vertex;
+    static openStepForm(graph, cell, type, model) {
+        //const [isFormOpen, setIsFormOpen] = useState(false);
+        //const [isFormOpen, setIsFormOpen] = React.useState(false);
 
+
+        const modalRoot = document.createElement('div');
+        modalRoot.id = 'modal-root';
+        document.body.appendChild(modalRoot);
+
+        let open = true;
+
+        const closeForm = () => {
+            //setIsFormOpen(false);
+            open = false;
+            ReactDOM.unmountComponentAtNode(modalRoot);
+            modalRoot.parentNode.removeChild(modalRoot);
+        };
+
+        const createStep = () => {
+            Diagram.createCell(graph, cell, type, model);
+            closeForm();
+        }
+
+        const openForm = () => {
+            //setIsFormOpen(true);
+            open = true;
+        };
+
+        //const root = createRoot(modalRoot);
+        //setIsFormOpen(true);
+        ReactDOM.render(<StepForm onClose={closeForm} onCreate={createStep} />, modalRoot);
+    }
+
+    static createCell(graph, cell, type, model) {
         model.beginUpdate();
         try {
             //const type = "step";
@@ -500,7 +535,24 @@ class Diagram {
             model.endUpdate();
         }
 
-        return vertex;
+    }
+
+    static addChild(graph, cell, type) {
+        var model = graph.getModel();
+        var parent = graph.getDefaultParent();
+        var vertex;
+
+        if (type === "step") {
+            // open step modal form
+            Diagram.openStepForm(graph, cell, type, model);
+        }
+        else{
+            Diagram.createCell(graph, cell, type, model);
+        }
+
+
+
+        //return vertex;
     };
 
     static findStyleKey(styleString, styleKey) {
