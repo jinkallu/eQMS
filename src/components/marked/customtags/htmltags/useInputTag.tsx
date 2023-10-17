@@ -1,21 +1,21 @@
-import MarkedAzureSDK from "../../MarkedAzureSDK";
+import {register} from "../../useMarkedAzureSDK";
 import MdFunctions from "../MdFunctions";
 
 
-class InputTag {
+const useInputTag = () => {
 
-    static register() {
-        InputTag.registerCondition();
-        InputTag.registerEvents();
+    const registerAllInputTags = () => {
+        registerCondition();
+        registerEvents();
     }
 
-    static registerCondition() {
-        MarkedAzureSDK.register('input', (element: Element, container_id: string, type: number) => {
-            return InputTag.parse(element, container_id, type);
+    const registerCondition = () => {
+        register('input', (element: Element, container_id: string, type: number) => {
+            return parse(element, container_id, type);
         });
     }
 
-    static async parse(element: Element, container_id: string, type: number): Promise<HTMLElement | null> {
+    const parse = async (element: Element, container_id: string, type: number): Promise<HTMLElement | null> => {
         return new Promise((resolve, reject) => {
             console.log(container_id, type);
             element.id = container_id;
@@ -84,32 +84,35 @@ class InputTag {
         });
     }
 
-    static registerEvents() {
+    const registerEvents = () => {
         const parentId = "HTMLEditor"; //TODO: get it from somewhere, not magic string 
         MdFunctions.register(parentId, (pId: string) => {
-            return InputTag.registerInputTagEvents(pId);
+            return registerInputTagEvents(pId);
         });
     }
 
-    static registerInputTagEvents(parentid: string) {
+    const registerInputTagEvents = (parentid: string) => {
         const parentElement = document.getElementById(parentid);
         const inputElements = parentElement.querySelectorAll('input');
         console.log(inputElements);
         inputElements.forEach((inputElement) => {
-            inputElement.addEventListener('input', InputTag.handleInputChange);
+            inputElement.addEventListener('input', handleInputChange);
         });
     }
 
-    static handleInputChange(event) {
+    const handleInputChange = (event) => {
         //const parent_id =  "markedHTMLViewer";
         const edit_id = event.target.id;
         const view_id = edit_id + "_viewer";
         console.log(view_id);
         const viewElement = document.getElementById(view_id);
+        console.log(viewElement, event.target.value)
         viewElement.textContent = event.target.value;
 
         //TextAreaUpdate.updated(event.target);
     }
+
+    return {registerAllInputTags};
 }
 
-export default InputTag;
+export default useInputTag;

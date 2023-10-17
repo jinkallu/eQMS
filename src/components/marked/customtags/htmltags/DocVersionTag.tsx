@@ -1,4 +1,4 @@
-import MarkedAzureSDK from "../../MarkedAzureSDK";
+import MarkedAzureSDK from "../../useMarkedAzureSDK";
 
 class DocVersionTag {
     static registerCondition() {

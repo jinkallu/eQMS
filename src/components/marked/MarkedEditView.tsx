@@ -32,7 +32,7 @@ export default function MarkedEditView({
   const [htmlWidth, setHtmlWidth] = React.useState(true);
   const [markedData, setMarkedData] = React.useState("");
 
-  const { editorReady, htmlEditorReady, loadingHTML, markdToCustom } = useMarkdToHTML();
+  const { editorReady, htmlEditorReady, loadingHTML, markdToCustom, registerAllCustomTags } = useMarkdToHTML();
 
   //   const [inputText, setInputText] = useState("");
   //const [parsedHTML, setParsedHTML] = useState("");
@@ -111,6 +111,11 @@ export default function MarkedEditView({
       }
     });
   }, [objectId, type, branchName, relativePath, repository, project]);
+
+  useEffect (() => {
+    console.log("Register all custom tags");
+    registerAllCustomTags();
+  }, []);
 
   return (
 

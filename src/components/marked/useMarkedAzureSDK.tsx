@@ -1,32 +1,36 @@
 //import DisplayTag from "./customtags/DisplayTag";
 //import DiagramTag from "./customtags/mxgraphtags/DiagramTag";
+import { useState, useEffect } from "react";
 import CytoscapeTags from "./customtags/cytoscapetags/CytoscapeTags";
 import { v4 as uuidv4 } from 'uuid';
 
+import useCustomTags from "./customtags/useCustomTags"
 
-import CustomTags from "./customtags/CustomTags"
-class MarkedAzureSDK {
-  private static callbacks: { condition: string, callback: (element: Element, container_id: string, type: number) => any }[] = [];
+const callbacks: { condition: string, callback: (element: Element, container_id: string, type: number) => any }[] = [];
 
-  static register(condition: string, callback: (element: Element, container_id: string, type: number) => any) {
-    MarkedAzureSDK.callbacks.push({ condition, callback });
-    console.log(condition);
+export function register(condition: string, callback: (element: Element, container_id: string, type: number) => any) {
+  callbacks.push({ condition, callback });
+  console.log(condition);
+}
+
+
+const useMarkedAzureSDK = () => {
+  const [promises, setPromises] = useState<Promise<HTMLElement | null>[]>([]);
+  const [elements, setElements] = useState<Element[]>([]);
+  //const [htmlDOM, setHtmlDOM] = useState<Document>();
+
+  const {registerCustomTags} = useCustomTags();
+
+  const registerAllCustomTags = () => {
+    registerCustomTags();
   }
 
-  private promises: Promise<HTMLElement | null>[] = [];
-  private elements: Element[] = [];
-  private htmlDOM: Document;
-
-  constructor() {
-    CustomTags.registerCustomTags();
-  }
-
-  async checkConditionsAndInvokeCallbacks(type: number, parentId: string) {
+  const checkConditionsAndInvokeCallbacks = async (htmlDOM: Document, type: number, parentId: string) => {
     console.log("Called checkConditionsAndInvokeCallbacks");
-    for (const item of MarkedAzureSDK.callbacks) {
+    for (const item of callbacks) {
       //console.log(MarkedAzureSDK.callbacks);
-      //console.log(item.condition, this.htmlDOM);
-      const elements = Array.from(this.htmlDOM.querySelectorAll(item.condition));
+      console.log(item.condition, htmlDOM);
+      const elements = Array.from(htmlDOM.querySelectorAll(item.condition));
       if (elements.length > 0) {
         for (let i = 0; i < elements.length; i++) {
           const element = elements[i];
@@ -39,10 +43,10 @@ class MarkedAzureSDK {
               const elementEditor = document.getElementById(parentId);
               //console.log(elementEditor);
               let condition = null;
-              if(item.condition === "textarea"){
+              if (item.condition === "textarea") {
                 condition = 'textarea[type="input"]';
               }
-              else{
+              else {
                 condition = item.condition;
               }
               var children = elementEditor.querySelectorAll(condition);
@@ -56,46 +60,55 @@ class MarkedAzureSDK {
             }
           }
           else {
-            if (type === 2){
+            if (type === 2) {
               id = element.id + "_viewer";
             }
-            else{
+            else {
               id = element.id;
             }
-            
+
           }
 
           const promise = item.callback(element, id, type);
-          this.promises.push(promise);
-          this.elements.push(element);
+          const promisesCopy = [...promises];
+          promisesCopy.push(promise);
+          setPromises(promisesCopy);
+
+          const elementsCopy = [...elements];
+          elementsCopy.push(element);
+          setElements(elementsCopy);
         }
       }
     }
   }
 
- 
 
-  
 
-  public async parseCustomTags(htmlDOM: Document, type: number, parentId: string): Promise<Document | null> {
-    this.promises.length = 0;
-    this.elements.length = 0;
-    this.htmlDOM = null;
+
+
+  const parseCustomTags = async (htmlDOM: Document, type: number, parentId: string): Promise<Document | null> => {
+    //this.promises.length = 0;
+    setPromises([]);
+    setElements([]);
+    //setHtmlDOM(null);
+
+    //setHtmlDOM(htmlDOM);
 
     try {
-      this.htmlDOM = htmlDOM;
-      this.checkConditionsAndInvokeCallbacks(type, parentId);
+      
+      //this.htmlDOM = htmlDOM;
+      checkConditionsAndInvokeCallbacks(htmlDOM, type, parentId);
       //this.displayWork();
       //this.diagram();
       //this.process();
       //this.processFlow();
 
-      if (this.promises.length > 0) {
+      if (promises.length > 0) {
 
-        const newElements = await Promise.all(this.promises);
+        const newElements = await Promise.all(promises);
 
         newElements.forEach((newElement, index) => {
-          const element = this.elements[index];
+          const element = elements[index];
           if (newElement) {
             element.parentNode?.replaceChild(newElement, element);
           }
@@ -108,6 +121,12 @@ class MarkedAzureSDK {
       return null;
     }
   }
+
+  useEffect(() => {
+
+  }, [])
+
+  return {registerAllCustomTags, parseCustomTags};
 }
 
-export default MarkedAzureSDK;
+export default useMarkedAzureSDK;

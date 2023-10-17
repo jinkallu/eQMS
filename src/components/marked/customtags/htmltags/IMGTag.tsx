@@ -1,4 +1,4 @@
-import MarkedAzureSDK from "../../MarkedAzureSDK";
+import MarkedAzureSDK from "../../useMarkedAzureSDK";
 import { GetBranchFile } from "./GetBranchFile";
 
 class IMGTag {

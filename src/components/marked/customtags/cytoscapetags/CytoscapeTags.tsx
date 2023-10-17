@@ -1,5 +1,5 @@
 import CScape from './cscape';
-import MarkedAzureSDK from '../../MarkedAzureSDK';
+import MarkedAzureSDK from '../../useMarkedAzureSDK';
 import Diagram from '../mxgraphtags/diagram';
 import GraphAnalysis from "./GraphAnalysis"
 

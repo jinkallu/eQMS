@@ -1,10 +1,10 @@
-import MarkedAzureSDK from "../../MarkedAzureSDK";
+import MarkedAzureSDK from "../../useMarkedAzureSDK";
 import MdFunctions from "../MdFunctions";
 import MathEvaluator from "./MathEvaluator";
 
-class TableTag {
+const useTableTag = () => {
 
-    static register() {
+    const registerAll() {
         TableTag.registerCondition();
         TableTag.registerEvents();
     }

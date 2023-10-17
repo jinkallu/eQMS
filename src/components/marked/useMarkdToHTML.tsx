@@ -1,12 +1,14 @@
 import { marked } from 'marked'; // Import marked without curly braces
 import { useState } from 'react';
 
-import MarkedAzureSDK from './MarkedAzureSDK';
+import useMarkedAzureSDK from './useMarkedAzureSDK';
 
 function useMarkdToHTML() {
   const [loadingHTML, setLoadingHTML] = useState(false);
   const [editorReady, setEditorReady] = useState(false);
   const [htmlEditorReady, setHtmlEditorReady] = useState(false);
+
+  const {registerAllCustomTags, parseCustomTags} = useMarkedAzureSDK();
 
 
   //const markedAzureSDK_viewer = new MarkedAzureSDK();
@@ -25,7 +27,7 @@ function useMarkdToHTML() {
     return doc;
   };
 
-  const parseDOMCustomTags = async (markedAzureSDK, htmlDOM: Document, type: number, inheritance: number): Promise<Document | null> => {
+  const parseDOMCustomTags = async (htmlDOM: Document, type: number, inheritance: number): Promise<Document | null> => {
     try {
       let result = null;
       /*if (editor) {
@@ -35,10 +37,10 @@ function useMarkdToHTML() {
         result = await markedAzureSDK_viewer.parseCustomTags(htmlDOM);
       }*/
       if (type === 2) {
-        result = await markedAzureSDK.parseCustomTags(htmlDOM, type, "HTMLEditor");
+        result = await parseCustomTags(htmlDOM, type, "HTMLEditor");
       }
       else {
-        result = await markedAzureSDK.parseCustomTags(htmlDOM, type, "");
+        result = await parseCustomTags(htmlDOM, type, "");
       }
       if (result !== null) {
         return result;
@@ -251,8 +253,8 @@ function useMarkdToHTML() {
       });*/
 
     }
-    let markedAzureSDK = new MarkedAzureSDK();
-    parseDOMCustomTags(markedAzureSDK, newDocument, type, 0).then(htmlDOMCustom => {
+    //let markedAzureSDK = new MarkedAzureSDK();
+    parseDOMCustomTags(newDocument, type, 0).then(htmlDOMCustom => {
       if (htmlDOMCustom !== null) {
         addToParentElement(newDocument, parentNodeId);
         if (type === 1) {
@@ -262,7 +264,7 @@ function useMarkdToHTML() {
       }
     });
 
-    markedAzureSDK = null;
+    //markedAzureSDK = null;
 
 
   }
@@ -332,16 +334,16 @@ function useMarkdToHTML() {
       setEditorReady(false);
       convL0MDEditToString(markdown, htmlDOM);
       //const htmlDOMCustom = parseDOMCustomTags(htmlDOM);
-      let markedAzureSDK = new MarkedAzureSDK();
+      //let markedAzureSDK = new MarkedAzureSDK();
       console.log("Editor");
-      parseDOMCustomTags(markedAzureSDK, htmlDOM, type, inheritance).then(htmlDOMCustom => {
+      parseDOMCustomTags(htmlDOM, type, inheritance).then(htmlDOMCustom => {
 
         if (htmlDOMCustom !== null) {
           // Now you can work with htmlDOMCustom
           console.log("Before Add to parent");
           addToParentElement(htmlDOMCustom, parentNodeId);
           console.log("After Add to parent");
-          markedAzureSDK = null;
+          //markedAzureSDK = null;
           setEditorReady(true);
           console.log("Set Editor teu");
         }
@@ -368,15 +370,15 @@ function useMarkdToHTML() {
             }
             mdTags[i].setAttribute('level', parentAttribute);
       }
-      let markedAzureSDK = new MarkedAzureSDK();
-      parseDOMCustomTags(markedAzureSDK, htmlDOM, 0, 0).then(htmlDOMCustom => {
+      //let markedAzureSDK = new MarkedAzureSDK();
+      parseDOMCustomTags(htmlDOM, 0, 0).then(htmlDOMCustom => {
         if (htmlDOMCustom !== null) {
           addToParentElement(htmlDOM, parentNodeId);
 
 
         }
       });
-      markedAzureSDK = null;
+      //markedAzureSDK = null;
     }
 
   }
@@ -386,7 +388,8 @@ function useMarkdToHTML() {
     htmlEditorReady,
     loadingHTML,
     markdToCustom,
-    textAreaUpdate
+    textAreaUpdate,
+    registerAllCustomTags
   };
 }
 

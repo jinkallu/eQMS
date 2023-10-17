@@ -1,4 +1,4 @@
-import MarkedAzureSDK from "../../MarkedAzureSDK";
+import MarkedAzureSDK from "../../useMarkedAzureSDK";
 import MdFunctions from "../MdFunctions";
 import { marked } from 'marked';
 
