@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import CytoscapeTags from "./customtags/cytoscapetags/CytoscapeTags";
 import { v4 as uuidv4 } from 'uuid';
 
-import useCustomTags from "./customtags/useCustomTags"
+import useCustomTags from "./customtags/useCustomTags";
+import {createPortal} from "react-dom";
 
 const callbacks: { condition: string, callback: (element: Element, container_id: string, type: number) => any }[] = [];
 
@@ -15,7 +16,7 @@ export function register(condition: string, callback: (element: Element, contain
 
 
 const useMarkedAzureSDK = () => {
-  const [promises, setPromises] = useState<Promise<HTMLElement | null>[]>([]);
+  const [promises, setPromises] = useState<Promise<React.ReactElement | null>[]>([]);
   const [elements, setElements] = useState<Element[]>([]);
   //const [htmlDOM, setHtmlDOM] = useState<Document>();
 
@@ -109,8 +110,10 @@ const useMarkedAzureSDK = () => {
 
         newElements.forEach((newElement, index) => {
           const element = elements[index];
+          console.log(newElement);
           if (newElement) {
-            element.parentNode?.replaceChild(newElement, element);
+            //element.parentNode?.replaceChild(newElement, element);
+            createPortal(newElement, document.body);
           }
         });
       }
