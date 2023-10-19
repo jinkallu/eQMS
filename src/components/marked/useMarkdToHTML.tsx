@@ -1,33 +1,37 @@
-import { marked } from 'marked'; // Import marked without curly braces
-import { useState } from 'react';
+import { marked } from "marked"; // Import marked without curly braces
+import { useState } from "react";
 
-import useMarkedAzureSDK from './useMarkedAzureSDK';
+import useMarkedAzureSDK from "./useMarkedAzureSDK";
 
 function useMarkdToHTML() {
   const [loadingHTML, setLoadingHTML] = useState(false);
   const [editorReady, setEditorReady] = useState(false);
   const [htmlEditorReady, setHtmlEditorReady] = useState(false);
 
-  const {registerAllCustomTags, parseCustomTags} = useMarkedAzureSDK();
-
+  const { registerAllCustomTags, parseCustomTags } = useMarkedAzureSDK();
 
   //const markedAzureSDK_viewer = new MarkedAzureSDK();
   //const markedAzureSDK_editor = new MarkedAzureSDK();
 
-
-
   const parseMarkdownToHTMLString = (markdownText: string) => {
     const parsedHtmlString = marked(markdownText);
+    console.log(parsedHtmlString);
     return parsedHtmlString;
   };
 
   const parseHTMLStringToDOM = (parsedHtmlString: string): Document => {
+    console.log(parsedHtmlString);
     const parser = new DOMParser();
-    const doc = parser.parseFromString(parsedHtmlString, 'text/html');
+    const doc = parser.parseFromString(parsedHtmlString, "text/html");
+    console.log(doc);
     return doc;
   };
 
-  const parseDOMCustomTags = async (htmlDOM: Document, type: number, inheritance: number): Promise<Document | null> => {
+  const parseDOMCustomTags = async (
+    htmlDOM: Document,
+    type: number,
+    inheritance: number
+  ): Promise<Document | null> => {
     try {
       let result = null;
       /*if (editor) {
@@ -38,32 +42,26 @@ function useMarkdToHTML() {
       }*/
       if (type === 2) {
         result = await parseCustomTags(htmlDOM, type, "HTMLEditor");
-      }
-      else {
+      } else {
         result = await parseCustomTags(htmlDOM, type, "");
       }
       if (result !== null) {
         return result;
       } else {
-        console.error('An error occurred while parsing custom tags.');
         return null;
       }
     } catch (error) {
-      console.error('An error occurred:', error);
       return null;
     }
   };
 
-
   const addToParentElement = (childHTMLDOM: Document, parentNodeId: string) => {
-    console.log(childHTMLDOM);
-    const existingDiv = document.getElementById(parentNodeId);//'markedHTMLViewer');
+    const existingDiv = document.getElementById(parentNodeId); //'markedHTMLViewer');
     if (!existingDiv) {
-      console.error(`Parent node with ID ${parentNodeId} not found.`);
       return;
     }
-    existingDiv.innerHTML = '';
-    Array.from(childHTMLDOM.body.childNodes).forEach(node => {
+    existingDiv.innerHTML = "";
+    Array.from(childHTMLDOM.body.childNodes).forEach((node) => {
       existingDiv.appendChild(node);
     });
   };
@@ -73,8 +71,6 @@ function useMarkdToHTML() {
     //const regex = /<md([^>]*\slevel=1[^>]*)>((?!<\/md>)[\s\S]|<\/md>)*<\/md>/g;
     //const regex = /<md[^>]*\slevel=1[^>]*>((?!<\/md>)[\s\S]*?)<\/md>/g;
     //const regex = /<md[^>]*\slevel=1[^>]*>((?!<\/md>)[\s\S]*?)<\/md>/g;
-
-
 
     //const matches = markdown.match(regex); // Matched <md level=1> ... </md>
 
@@ -88,7 +84,6 @@ function useMarkdToHTML() {
     const regex = /<md[^>]*\slevel=1[^>]*>/g;
     const mdOpenMatches = markdown.match(regex);
 
-
     if (mdOpenMatches) {
       mdOpenMatches.forEach((openingTag) => {
         let openPosition = markdown.indexOf(openingTag);
@@ -100,15 +95,16 @@ function useMarkdToHTML() {
           let currentPosition = openPosition;
           let closePosition = null;
           while (openTags !== closeTags && closePosition !== -1) {
-            closePosition = markdown.indexOf('</md>', currentPosition + 1);
+            closePosition = markdown.indexOf("</md>", currentPosition + 1);
 
             if (closePosition !== -1) {
               closeTags += 1;
               // Step 3: Check if there is an <md> open tag in between
-              const substring = markdown.substring(currentPosition + 1, closePosition);
+              const substring = markdown.substring(
+                currentPosition + 1,
+                closePosition
+              );
               const nestedMatches = substring.match(/<md[^>]*>/g);
-
-              console.log(substring);
 
               if (nestedMatches) {
                 openTags += nestedMatches.length;
@@ -117,8 +113,10 @@ function useMarkdToHTML() {
             }
           }
           if (closePosition !== null) {
-            const matchedContent = markdown.substring(openPosition, closePosition + 6);
-            console.log(matchedContent); // Output the matched content
+            const matchedContent = markdown.substring(
+              openPosition,
+              closePosition + 6
+            );
             matches.push(matchedContent);
           }
         }
@@ -135,8 +133,6 @@ function useMarkdToHTML() {
           matches.push(match[0]);
         }*/
 
-    console.log(matches);
-
     const mdElements = htmlDOM.querySelectorAll('md[level="1"]'); // find md elements from DOM
 
     for (let i = 0; i < matches.length; i++) {
@@ -145,12 +141,12 @@ function useMarkdToHTML() {
         const mdElement = mdElements[j];
 
         const parser = new DOMParser();
-        const doc = parser.parseFromString(match, 'text/html');
+        const doc = parser.parseFromString(match, "text/html");
 
-        const matchEle = doc.querySelector('md');
+        const matchEle = doc.querySelector("md");
 
-        const mdId = mdElement.getAttribute('id');
-        const matchId = matchEle.getAttribute('id');
+        const mdId = mdElement.getAttribute("id");
+        const matchId = matchEle.getAttribute("id");
 
         if (mdId === matchId) {
           while (mdElement.firstChild) {
@@ -171,8 +167,7 @@ function useMarkdToHTML() {
             //const closingTag = closingMatch[0];
 
             // Remove the first opening tag and the corresponding closing tag
-            const match_removed = match.replace(openingTag, '');
-            console.log(mdId, matchId, match_removed);
+            const match_removed = match.replace(openingTag, "");
 
             let match_tmp;
             while ((match_tmp = closingTagRegex.exec(match_removed)) !== null) {
@@ -184,31 +179,26 @@ function useMarkdToHTML() {
               const lastClosingTagPosition = closingTagPositions.pop();
 
               // Remove the last closing tag from the input string
-              const result = match_removed.substring(0, lastClosingTagPosition) + match_removed.substring(lastClosingTagPosition + 5);
-              console.log(mdElement);
+              const result =
+                match_removed.substring(0, lastClosingTagPosition) +
+                match_removed.substring(lastClosingTagPosition + 5);
               mdElement.setAttribute("mdstring", result);
-              console.log(result);
-              console.log(mdElement);
             }
-
 
             //mdElement.setAttribute("mdstring", );
 
             break;
           }
-
         }
       }
-
-
-      console.log(matches);
-
     }
-  }
+  };
 
   const createHTMLViewer = (parentNodeId: string, type: number) => {
-    const editDiv = document.getElementById("Editor");//'markedHTMLViewer');
-    const newDocument = document.implementation.createHTMLDocument('New Document_' + type);
+    const editDiv = document.getElementById("Editor"); //'markedHTMLViewer');
+    const newDocument = document.implementation.createHTMLDocument(
+      "New Document_" + type
+    );
     const childNodes = editDiv.childNodes;
     for (let i = 0; i < childNodes.length; i++) {
       const childNode = childNodes[i];
@@ -216,16 +206,18 @@ function useMarkdToHTML() {
       newDocument.body.appendChild(clonedChildNode);
     }
 
-    let mdTextAreaElements = newDocument.querySelectorAll('textarea'); // find md elements from DOM
+    let mdTextAreaElements = newDocument.querySelectorAll("textarea"); // find md elements from DOM
     // replace textareas with html
     for (let i = 0; i < mdTextAreaElements.length; i++) {
-      const htmlString: string = parseMarkdownToHTMLString(mdTextAreaElements[i].value);
+      const htmlString: string = parseMarkdownToHTMLString(
+        mdTextAreaElements[i].value
+      );
       const htmlDOM: Document = parseHTMLStringToDOM(htmlString);
 
-      const divElement = document.createElement('div');
+      const divElement = document.createElement("div");
       divElement.id = mdTextAreaElements[i].id.replace(/_textarea$/, "_div");
 
-      Array.from(htmlDOM.body.childNodes).forEach(node => {
+      Array.from(htmlDOM.body.childNodes).forEach((node) => {
         divElement.appendChild(node.cloneNode(true));
       });
       const parentElement = mdTextAreaElements[i].parentNode;
@@ -251,23 +243,19 @@ function useMarkdToHTML() {
           
         }
       });*/
-
     }
     //let markedAzureSDK = new MarkedAzureSDK();
-    parseDOMCustomTags(newDocument, type, 0).then(htmlDOMCustom => {
+    parseDOMCustomTags(newDocument, type, 0).then((htmlDOMCustom) => {
       if (htmlDOMCustom !== null) {
         addToParentElement(newDocument, parentNodeId);
         if (type === 1) {
           setHtmlEditorReady(true);
         }
-
       }
     });
 
     //markedAzureSDK = null;
-
-
-  }
+  };
   /*
   const createHTMLViewer = (parentNodeId: string, type: number) => {
     const editDiv = document.getElementById("Editor");//'markedHTMLViewer');
@@ -312,76 +300,75 @@ function useMarkdToHTML() {
   }
   */
 
-  const textAreaUpdate = (textarea: HTMLTextAreaElement) => {
-    console.log(textarea);
+  const textAreaUpdate = (textarea: HTMLTextAreaElement) => {};
 
+  function markedToDom(markdown) {
+    const html: string = parseMarkdownToHTMLString(markdown);
+
+    const dom = parseHTMLStringToDOM(html);
+    console.log(dom);
+    return dom?.body?.firstChild;
   }
 
-  const markdToCustom = (dom: boolean, markdown: string, parentNodeId: string, type: number, inheritance: number, htmlDocument: Document) => {
-    console.log(markdown, parentNodeId);
+  const markdToCustom = (
+    dom: boolean,
+    markdown: string,
+    parentNodeId: string,
+    type: number,
+    inheritance: number,
+    htmlDocument: Document
+  ) => {
     let htmlDOM: Document = null;
     if (!dom) {
       const htmlString: string = parseMarkdownToHTMLString(markdown);
       htmlDOM = parseHTMLStringToDOM(htmlString);
-    }
-    else {
+      console.log(htmlDOM);
+    } else {
       htmlDOM = htmlDocument;
+      console.log("else", htmlDOM);
     }
-
-    console.log(htmlDOM);
 
     if (type === 0) {
       setEditorReady(false);
       convL0MDEditToString(markdown, htmlDOM);
       //const htmlDOMCustom = parseDOMCustomTags(htmlDOM);
       //let markedAzureSDK = new MarkedAzureSDK();
-      console.log("Editor");
-      parseDOMCustomTags(htmlDOM, type, inheritance).then(htmlDOMCustom => {
-
+      parseDOMCustomTags(htmlDOM, type, inheritance).then((htmlDOMCustom) => {
         if (htmlDOMCustom !== null) {
           // Now you can work with htmlDOMCustom
-          console.log("Before Add to parent");
           addToParentElement(htmlDOMCustom, parentNodeId);
-          console.log("After Add to parent");
           //markedAzureSDK = null;
           setEditorReady(true);
-          console.log("Set Editor teu");
         }
       });
-    }
-    else if (type === 1 || type === 2) {
+    } else if (type === 1 || type === 2) {
       if (type === 1) {
         setHtmlEditorReady(false);
       }
       createHTMLViewer(parentNodeId, type);
-    }
-    else if (type === 3) {
+    } else if (type === 3) {
       // main qms viewer
       //const htmlString: string = parseMarkdownToHTMLString(markdown);
       //let htmlDOM: Document = parseHTMLStringToDOM(htmlString);
-      const mdTags = htmlDOM.getElementsByTagName('md');
-      for(let i = 0; i<mdTags.length; i++){
-        let parentAttribute = mdTags[i].getAttribute('level');
-            if (parentAttribute === null) {
-                parentAttribute = '1';
-            }
-            else{
-              parentAttribute = (parseInt(parentAttribute) + 1).toString();
-            }
-            mdTags[i].setAttribute('level', parentAttribute);
+      const mdTags = htmlDOM.getElementsByTagName("md");
+      for (let i = 0; i < mdTags.length; i++) {
+        let parentAttribute = mdTags[i].getAttribute("level");
+        if (parentAttribute === null) {
+          parentAttribute = "1";
+        } else {
+          parentAttribute = (parseInt(parentAttribute) + 1).toString();
+        }
+        mdTags[i].setAttribute("level", parentAttribute);
       }
       //let markedAzureSDK = new MarkedAzureSDK();
-      parseDOMCustomTags(htmlDOM, 0, 0).then(htmlDOMCustom => {
+      parseDOMCustomTags(htmlDOM, 0, 0).then((htmlDOMCustom) => {
         if (htmlDOMCustom !== null) {
           addToParentElement(htmlDOM, parentNodeId);
-
-
         }
       });
       //markedAzureSDK = null;
     }
-
-  }
+  };
 
   return {
     editorReady,
@@ -389,7 +376,8 @@ function useMarkdToHTML() {
     loadingHTML,
     markdToCustom,
     textAreaUpdate,
-    registerAllCustomTags
+    registerAllCustomTags,
+    markedToDom,
   };
 }
 
