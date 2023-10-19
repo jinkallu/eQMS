@@ -8,7 +8,8 @@ import HTMLEditor from "./HTMLEditor";
 import MarkedHTMLViewer from "./MarkedHTMLViewer";
 import { Box, Chip, Paper, Typography, Grid } from "@mui/material";
 import { useExtnStore } from "../../zustand/store";
-import { createPortal } from "react-dom";
+import MarkedToHTML from "./MarkedToHTML";
+//import { createPortal } from "react-dom";
 //export default function MarkedEditView({ inData }) {
 
 // function EditorNew({ htmlDom }) {
@@ -29,7 +30,7 @@ import { createPortal } from "react-dom";
 
 //   return <div ref={ref}></div>;
 // }
-
+/*
 function ElementContainer({ marked }) {
   const [state, setState] = React.useState("");
   return (
@@ -80,7 +81,7 @@ function EditorEle({ marked, order, state, setState }) {
       return <h1>Error</h1>;
       break;
   }
-}
+}*/
 
 export default function MarkedEditView({
   inputText,
@@ -108,9 +109,10 @@ export default function MarkedEditView({
     editorReady,
     htmlEditorReady,
     loadingHTML,
-    markdToCustom,
+    //markdToCustom,
     registerAllCustomTags,
-    markedToDom,
+    //markedToDom,
+    markedToComponents
   } = useMarkdToHTML();
 
   //   const [inputText, setInputText] = useState("");
@@ -141,14 +143,14 @@ export default function MarkedEditView({
     // Call the parseMarkdown function whenever inputText changes
     parseMarkdown();
 
-    const htmlDomData = markedToDom(markedData);
-    console.log(htmlDomData);
+    //const htmlDomData = markedToDom(markedData);
+    //console.log(htmlDomData);
 
-    setHtmlDom(htmlDomData);
+    //setHtmlDom(htmlDomData);
   }, [markedData]);
 
   useEffect(() => {
-    if (editorReady) {
+    /*if (editorReady) {
       const htmlEditor = markdToCustom(
         false,
         markedData,
@@ -157,7 +159,7 @@ export default function MarkedEditView({
         0,
         null
       );
-    }
+    }*/
   }, [editorReady]);
 
   useEffect(() => {
@@ -220,7 +222,8 @@ export default function MarkedEditView({
         ></Chip> */}
       {/* <Editor editorReady={editorReady} /> */}
 
-      <ElementContainer marked="<input>"></ElementContainer>
+      {/* <ElementContainer marked="<input>"></ElementContainer> */}
+      { <MarkedToHTML mdstring = "<input></input><input></input>" />}
       {/* </Paper> */}
 
       {/* <Paper elevation={3} sx={{ height: "100%", flex: markWidth ? 1 : 0 }}>

@@ -1,5 +1,7 @@
 import { marked } from "marked"; // Import marked without curly braces
-import { useState } from "react";
+import React, { useState } from "react";
+import { Grid } from "@mui/material";
+
 
 import useMarkedAzureSDK from "./useMarkedAzureSDK";
 
@@ -370,6 +372,58 @@ function useMarkdToHTML() {
     }
   };
 
+  const markedToComponents = ({ marked }) => {
+      const [state, setState] = React.useState("");
+      return (
+        <Grid container spacing={2} columns={{ xs: 12 }}>
+          <Grid item xs={4}>
+            <EditorEle
+              state={state}
+              setState={setState}
+              marked={marked}
+              order={"first"}
+            ></EditorEle>
+          </Grid>
+          <Grid item xs={4}>
+            <EditorEle
+              state={state}
+              setState={setState}
+              marked={marked}
+              order={"middle"}
+            ></EditorEle>
+          </Grid>
+          <Grid item xs={4}>
+            <EditorEle
+              state={state}
+              setState={setState}
+              marked={marked}
+              order={"last"}
+            ></EditorEle>
+          </Grid>
+        </Grid>
+      );
+    }
+
+    function EditorEle({ marked, order, state, setState }) {
+      switch (order) {
+        case "first":
+          return marked;
+    
+          break;
+    
+        case "middle":
+          return (
+            <input value={state} onChange={(e) => setState(e.target.value)}></input>
+          );
+          break;
+        case "last":
+          return <span>{state}</span>;
+        default:
+          return <h1>Error</h1>;
+          break;
+      }
+    }
+
   return {
     editorReady,
     htmlEditorReady,
@@ -378,6 +432,7 @@ function useMarkdToHTML() {
     textAreaUpdate,
     registerAllCustomTags,
     markedToDom,
+    markedToComponents
   };
 }
 
