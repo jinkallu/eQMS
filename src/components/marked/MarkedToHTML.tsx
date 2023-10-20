@@ -28,18 +28,47 @@ export default function MarkedToHTML({ mdstring }) {
         //return dom?.body?.firstChild;
     }
 
+    // function RenderDomTree({element}) {
+    //     //element = element as HTMLElement;
+    //      if (element.nodeType === Node.ELEMENT_NODE) {
+    //         // If it's an element, create a React component for it
+    //         const component = (
+    //             <MarkedToCustom  element={element}>
+    //                 { element.childNodes.length > 0 && Array.from(element.childNodes).map((child, index) => <RenderDomTree key={index} element={child}></RenderDomTree>)}
+    //             </MarkedToCustom>
+    //         );
+
+    //         return component;
+    //      } else {
+    //     //     // If it's not an element, just return the text content
+    //          return (<div></div>)
+    //      }
+    // }
+    function RenderDomTree({ element }) {
+        //element = element as HTMLElement;
+        // If it's an element, create a React component for it
+        return element && element?.nodeType === Node.ELEMENT_NODE ?
+                    <div>
+                        <MarkedToCustom element={element} >
+                        {element.childNodes.length > 0 && Array.from(element.childNodes).map((child, index) => <RenderDomTree key={index} element={child}></RenderDomTree>)}
+                        </MarkedToCustom>
+
+                    </div> : <div></div>
+
+    }
+
     useEffect(() => {
-        if(mdstring && mdstring.trim() !== ""){
+        if (mdstring && mdstring.trim() !== "") {
             markedToDom();
         }
     }, [mdstring]);
 
     return (
         <div>
-            {dom && Array.from(dom.childNodes).map((item, index) => (
-                dom && <MarkedToCustom key={index} element={item} />
-            ))}
+            {<RenderDomTree element={dom}></RenderDomTree>}
+            {/* {dom && Array.from(dom.childNodes).map((child, index) => <RenderDomTree key={index} element={child}></RenderDomTree>)} */}
         </div>
     )
+
 
 }

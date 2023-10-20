@@ -3,7 +3,7 @@ import InputTagViewer from "./InputTagViewer";
 
 export default function Viewers({ element, order, state, setState }) {
     console.log(element.tagName);
-    if (element.tagName && element.tagName === "input") {
+    if (element.tagName && element.tagName === "INPUT") {
         return (
             <InputTagViewer
                 state={state}
@@ -13,6 +13,9 @@ export default function Viewers({ element, order, state, setState }) {
             />
         )
     }
+    else if(element.tagName && element.tagName === "BODY"){
+        return <div id="body"></div>
+    }
     else if (element.tagName) {
         const clonedElement = element.cloneNode();
 
@@ -20,6 +23,8 @@ export default function Viewers({ element, order, state, setState }) {
         while (clonedElement.firstChild) {
             clonedElement.removeChild(clonedElement.firstChild);
         }
-        return <div dangerouslySetInnerHTML={{ __html: clonedElement.outerHTML }}></div>;
+        console.log(clonedElement.outerHTML);
+        return  <div dangerouslySetInnerHTML={{ __html: clonedElement.outerHTML }}></div>;
+        //return (<p></p>)
     }
 }

@@ -3,7 +3,7 @@ import Viewers from "./Viewers";
 import React, { useState, useEffect, useRef } from "react";
 
 
-export default function MarkedToCustom({ element }) {
+export default function MarkedToCustom({ element, children }) {
     const [state, setState] = React.useState("");
     return (
         <div>
@@ -33,6 +33,7 @@ export default function MarkedToCustom({ element }) {
                     ></Viewers>
                 </Grid>
             </Grid>
+            {children}
         </div>
     );
 }
