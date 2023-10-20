@@ -112,7 +112,7 @@ export default function MarkedEditView({
     //markdToCustom,
     registerAllCustomTags,
     //markedToDom,
-    markedToComponents
+    markedToComponents,
   } = useMarkdToHTML();
 
   //   const [inputText, setInputText] = useState("");
@@ -192,7 +192,6 @@ export default function MarkedEditView({
     }).then((data) => {
       if (data) {
         //setInputText(data); // changed here, because inputText is already contains main branch data
-        console.log(data);
         setMarkedData(data);
       }
     });
@@ -223,7 +222,8 @@ export default function MarkedEditView({
       {/* <Editor editorReady={editorReady} /> */}
 
       {/* <ElementContainer marked="<input>"></ElementContainer> */}
-      { <MarkedToHTML mdstring = "<input></input><input></input>" />}
+      {/* { <MarkedToHTML mdstring = "<input></input><input></input>" />} */}
+      {<MarkedToHTML mdstring={markedData}></MarkedToHTML>}
       {/* </Paper> */}
 
       {/* <Paper elevation={3} sx={{ height: "100%", flex: markWidth ? 1 : 0 }}>

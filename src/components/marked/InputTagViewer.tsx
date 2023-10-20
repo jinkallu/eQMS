@@ -1,19 +1,15 @@
-export default function InputTagViewer ({ element, order, state, setState }) {
-    switch (order) {
-        case "first":
-            return element.outerHTML;
+import Grid from "@mui/material/Grid";
+export default function InputTagViewer({ element, order, state, setState }) {
+  return (
+    <Grid container spacing={2}>
+      <Grid item>{element.outerHTML}</Grid>
 
-            break;
-
-        case "middle":
-            return (
-                <input value={state} onChange={(e) => setState(e.target.value)}></input>
-            );
-            break;
-        case "last":
-            return <span>{state}</span>;
-        default:
-            return <h1>Error</h1>;
-            break;
-    }
+      <Grid item>
+        <input value={state} onChange={(e) => setState(e.target.value)}></input>
+      </Grid>
+      <Grid item>
+        <span>{state}</span>
+      </Grid>
+    </Grid>
+  );
 }
