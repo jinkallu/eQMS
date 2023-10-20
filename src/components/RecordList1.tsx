@@ -227,10 +227,7 @@ export default function RecordList({
         flexGrow: 1,
       }}
     >
-      {/* <Fab size="small" color="primary" onClick={handleNewCreate}>
-        <AddIcon></AddIcon>
-      </Fab> */}
-      <Button size="small" color="primary" onClick={handleNewCreate}>
+      <Button variant="contained" size="small" onClick={handleNewCreate}>
         Create New
       </Button>
       <div>

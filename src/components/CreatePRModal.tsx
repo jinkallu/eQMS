@@ -19,6 +19,7 @@ import { useNavigate } from "react-router";
 import { useExtnStore } from "../zustand/store";
 import { createPR } from "../utils/gitHelpers.js";
 export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
+  console.log(branchId, sopName);
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -103,8 +104,8 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
 
     // const reviewers = selectedApprovers?.join(";");
 
-    const sourceBranch = `qms/sop/${branchId}/edit`;
-    const targetBranch = `qms/sop/${branchId}/main`;
+    const sourceBranch = `qms/sop/${branchId}/${sopName}/edit`;
+    const targetBranch = `qms/sop/${branchId}/${sopName}/main`;
     const title = "Test pull Request";
 
     const res = await createPR(

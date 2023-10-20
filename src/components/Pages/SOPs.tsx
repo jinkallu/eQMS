@@ -32,7 +32,7 @@ const SOPs = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
   const [openAddSopModal, setOpenAddSopModal] = React.useState(false);
-  const [viewType, setViewType] = React.useState("card");
+  const [viewType, setViewType] = React.useState("table");
 
   async function refreshData(projectId, projectName, repositoryId) {
     setLoading(true);
@@ -126,12 +126,10 @@ const SOPs = () => {
             userSOPs
               ?.sort((sop) => sop?.sortOrder)
               ?.map((sop) => {
-                // const branch = branchFileNames?.find(
-                //   (item) =>
-                //     item.branchId === sop.branchId && item.type === "sop"
-                // );
                 const edit = branches.find(
-                  (item) => item.name === `qms/sop/${sop.branchId}/edit`
+                  (item) =>
+                    item.name ===
+                    `qms/sop/${sop.branchId}/${sop.relativePath}/edit`
                 );
                 //
                 return (

@@ -99,8 +99,6 @@ export default function HTMLViewer() {
       commitMessage
     );
 
-    console.log(created);
-
     return created;
     // if (created) {
     //   setAlertMessage({
@@ -171,11 +169,7 @@ export default function HTMLViewer() {
           handleClose={handleClose}
           saveContent={saveContent}
         ></EditConfModal>
-        <Chip
-          label={branch?.relativePath?.split("-")?.slice(1)?.join(" ")}
-          color="primary"
-          variant="outlined"
-        ></Chip>
+        <Chip label={relativePath} color="primary" variant="outlined"></Chip>
         <Box>
           {canEdit && editMode && (
             <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
