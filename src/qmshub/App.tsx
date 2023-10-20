@@ -16,6 +16,7 @@ import HTMLViewer from "../components/HTMLViewer";
 import SOPs from "../components/Pages/SOPs";
 import Products from "../components/Pages/Products";
 import Product from "../components/Pages/Product";
+import ProcessFlow from "../components/ProcessFlow";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,11 @@ const router = createBrowserRouter([
       {
         path: "/qmshub.html/",
         element: <h1>Home</h1>,
+      },
+
+      {
+        path: "/qmshub.html/processflow",
+        element: <ProcessFlow></ProcessFlow>,
       },
 
       {

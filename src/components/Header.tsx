@@ -33,6 +33,11 @@ const Header = () => {
       label: "Products",
       isSelected: false,
     },
+    {
+      type: "processflow",
+      label: "Process flow",
+      isSelected: false,
+    },
   ]);
   const open = Boolean(anchorEl);
 

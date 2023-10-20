@@ -3,6 +3,8 @@ import InputTagViewer from "./InputTagViewer";
 import RenderDomTree from "./RenderDomTree";
 import MarkedToCustom from "./MarkedToCustom";
 import GenericTag from "./GenericTag";
+import EndNode from "./EndNode";
+import ProcessFlow from "../ProcessFlow";
 
 export default function Viewers({ element, order, state, setState, children }) {
   //   const childNodes =
@@ -13,8 +15,7 @@ export default function Viewers({ element, order, state, setState, children }) {
 
   console.log(element?.tageName, element?.textContent);
   if (!element?.tagName) {
-    console.log("element...", element);
-    return element?.textContent || element;
+    return <EndNode element={element?.textContent || element}></EndNode>;
   }
 
   console.log(
@@ -39,8 +40,12 @@ export default function Viewers({ element, order, state, setState, children }) {
     //   return children;
     // }
     return <p>{children}</p>;
+  }
+
+  if (element.tagName && element.tagName === "PROCESSFLOW") {
+    return <ProcessFlow></ProcessFlow>;
   } else if (children.length === 0) {
-    return element;
+    return <EndNode element={element?.textContent || element}></EndNode>;
   } else {
     const clonedElement = element.cloneNode();
 
@@ -74,7 +79,7 @@ export default function Viewers({ element, order, state, setState, children }) {
         children
       );
     } else {
-      return element;
+      return <EndNode element={element?.textContent || element}></EndNode>;
     }
 
     return newEle;
