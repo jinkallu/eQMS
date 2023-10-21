@@ -29,6 +29,7 @@
     "@babel/preset-react": "^7.18.6",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@monaco-editor/react": "^4.6.0",
     "@mui/icons-material": "^5.14.1",
     "@mui/material": "^5.11.13",
     "@mui/x-data-grid": "^6.16.1",

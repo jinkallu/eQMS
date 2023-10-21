@@ -58,7 +58,7 @@ export default function MarkedToHTML({ mdstring }) {
       {/* {<RenderDomTree element={dom}></RenderDomTree>}
        */}
 
-      <MarkedToCustom element={dom}></MarkedToCustom>
+      {/* <MarkedToCustom element={dom} open={open} setOpen={}></MarkedToCustom> */}
       {/* {dom && Array.from(dom.childNodes).map((child, index) => <RenderDomTree key={index} element={child}></RenderDomTree>)} */}
     </div>
   );

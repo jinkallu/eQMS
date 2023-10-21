@@ -6,7 +6,13 @@ import GenericTag from "./GenericTag";
 import EndNode from "./EndNode";
 import ProcessFlow from "../ProcessFlow";
 
-export default function Viewers({ element, order, state, setState, children }) {
+export default function Viewers({
+  element,
+  order,
+  state,
+  handleChange,
+  children,
+}) {
   //   const childNodes =
   //     element?.childNodes?.length > 0 &&
   //     Array.from(element.childNodes).map((child, index) => (
@@ -18,17 +24,30 @@ export default function Viewers({ element, order, state, setState, children }) {
     return <EndNode element={element?.textContent || element}></EndNode>;
   }
 
-  console.log(
-    element.tagName,
-    element?.childNodes?.length,
-    element.innerHTML.element?.childNodes
-  );
+  //   if (order === "middle") {
+  //     console.log("order is middle");
+  //     if (element.tagName && element.tagName === "INPUT") {
+  //       const id = element.getAttribute("id");
+  //       console.log("middle input", id);
+  //       return (
+  //         <InputTagViewer
+  //           state={state}
+  //           id={id}
+  //           handleChange={handleChange}
+  //           element={element}
+  //           order={order}
+  //         />
+  //       );
+  //     } else return <div>{children}</div>;
+  //   }
 
   if (element.tagName && element.tagName === "INPUT") {
+    const id = element.getAttribute("id");
     return (
       <InputTagViewer
         state={state}
-        setState={setState}
+        id={id}
+        handleChange={handleChange}
         element={element}
         order={order}
       />
@@ -66,11 +85,9 @@ export default function Viewers({ element, order, state, setState, children }) {
           return prop;
         });
 
-        console.log(styleVal);
         newAttribute[item.name] = { ...styleVal };
       } else newAttribute[item.name] = item.value;
     });
-    console.log(newAttribute);
     let newEle;
     if (children?.length > 0) {
       newEle = React.createElement(

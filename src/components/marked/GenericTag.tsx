@@ -19,11 +19,7 @@ export default function GenericTag({
 
   return (
     <div>
-      <Grid container spacing={2}>
-        <Grid item>{newEle}</Grid>
-        <Grid item>{newEle}</Grid>
-        <Grid item>{newEle}</Grid>
-      </Grid>
+      {newEle}
       {children}
     </div>
   );
