@@ -213,7 +213,6 @@ export const createPR = async (
       autoCompleteSetBy: { id: creatorId },
     };
 
-    console.log(pullRequestDetails);
     const newPullRequest = await gitClient.createPullRequest(
       pullRequestDetails,
       repositoryId,

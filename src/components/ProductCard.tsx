@@ -4,7 +4,6 @@ import { createSearchParams } from "react-router-dom";
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
-  console.log(product);
 
   async function handleItemClick() {
     navigate({

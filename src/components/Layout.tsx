@@ -1,6 +1,7 @@
 import React from "react";
 
-import { Box } from "@mui/material";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
 import { Outlet } from "react-router";
 import { useExtnStore } from "../zustand/store";
 import useRWDataStorage from "../CHooks/useRWDataStorage";
@@ -72,16 +73,18 @@ export default function Layout() {
         display: "flex",
         flexDirection: "column",
         width: "100%",
-        minHeight: "95vh",
         padding: 0,
         margin: 0,
         backgroundColor: "#F5F5F5",
+        height: "100vh",
       }}
     >
       <AlertSnackbar></AlertSnackbar>
       <Header></Header>
-      <div style={{ marginTop: 50 }}></div>
-      <Outlet></Outlet>
+      <Toolbar></Toolbar>
+      <Box sx={{ flexGrow: 1 }}>
+        <Outlet></Outlet>
+      </Box>
     </Box>
   );
 }

@@ -12,6 +12,7 @@ import NoteAltIcon from "@mui/icons-material/NoteAlt";
 
 import { useExtnStore } from "../zustand/store";
 import Tooltip from "@mui/material/Tooltip";
+import RecordViewModal from "./RecordViewModal";
 
 const RecordEle = ({
   record,
@@ -24,9 +25,12 @@ const RecordEle = ({
   productRecords,
   activeLevel,
   isIncrement,
+  setMaxLevel,
 }) => {
   const [expand, setExpand] = React.useState(false);
   const [currentRecordId, setCurrentRecordId] = React.useState("");
+  const [openViewRecordModal, setOpenViewRecordModal] = React.useState(false);
+  const [showChildrenIcon, setShowChildrenicon] = React.useState(false);
 
   function handleExpandClick(recordId) {
     setCurrentRecordId(recordId);
@@ -47,18 +51,30 @@ const RecordEle = ({
     setOpenCreateRecordModal(true);
   }
 
-  const showChildrenIcon =
-    step?.children
-      ?.map((item) => item?.records?.length)
-      ?.filter((item) => item > 0)?.length > 0;
-
+  React.useEffect(() => {
+    setShowChildrenicon(
+      productRecords?.filter((rec) => rec.parentId === record.branchId)
+        ?.length > 0
+    );
+  }, [record]);
   React.useEffect(() => {
     if (isIncrement) {
-      if (level <= activeLevel) setExpand(true);
+      if (level < activeLevel) setExpand(true);
     } else {
-      if (level > activeLevel) setExpand(false);
+      if (level >= activeLevel) setExpand(false);
     }
   }, [level, activeLevel, isIncrement]);
+
+  React.useEffect(() => {
+    setMaxLevel((prev) => {
+      if (prev === level && showChildrenIcon) {
+        return prev + 1;
+        // return prev + 1;
+      } else {
+        return prev;
+      }
+    });
+  }, [level, showChildrenIcon]);
 
   return (
     <div
@@ -69,6 +85,12 @@ const RecordEle = ({
         paddingBottom: "5px",
       }}
     >
+      <RecordViewModal
+        open={openViewRecordModal}
+        setOpen={setOpenViewRecordModal}
+        record={record}
+      ></RecordViewModal>
+
       <Grid
         container
         spacing={2}
@@ -80,9 +102,11 @@ const RecordEle = ({
           },
         }}
       >
-        <Grid item xs={2}>
+        <Grid item xs={3}>
           <Grid container direction="row" alignItems="center" spacing={2}>
-            <Grid item xs={1}>
+            <Grid item xs={1}></Grid>
+            <Grid item xs={1}></Grid>
+            <Grid item xs={2}>
               {step?.children?.length > 0 && (
                 <IconButton
                   size="small"
@@ -94,9 +118,7 @@ const RecordEle = ({
                 </IconButton>
               )}
             </Grid>
-            <Grid item xs={1}></Grid>
-            <Grid item xs={1}></Grid>
-            <Grid item xs={8}>
+            <Grid item xs={7}>
               <span>{step?.name}</span>
             </Grid>
             <Grid item xs={1}>
@@ -131,7 +153,15 @@ const RecordEle = ({
               paddingLeft: `${level * 15}px`,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                cursor: "pointer",
+              }}
+              onClick={() => setOpenViewRecordModal(true)}
+            >
               <NoteAltIcon
                 height={24}
                 width={24}
@@ -149,7 +179,6 @@ const RecordEle = ({
         <Grid item xs={1}>
           {record?.commit?.committer?.date?.toDateString()}
         </Grid>
-        <Grid item xs={1}></Grid>
         <Grid item xs={1}></Grid>
         <Grid item xs={1}></Grid>
       </Grid>
@@ -173,6 +202,7 @@ const RecordEle = ({
                   productRecords={productRecords}
                   activeLevel={activeLevel}
                   isIncrement={isIncrement}
+                  setMaxLevel={setMaxLevel}
                 ></RecordEle>
               ))
         )}
@@ -189,11 +219,14 @@ export default function RecordList({
   setOpenCreateRecordModal,
   setStepSelector,
   handleNewCreate,
+  setCurrentRecordforView,
 }) {
   const { refreshProductRecords, repository } = useExtnStore();
   const [productRecords, setProductRecords] = React.useState([]);
+
   const [stepTree, setSetTree] = React.useState([]);
-  const [activeLevel, setActivelevel] = React.useState(-1);
+  const [activeLevel, setActivelevel] = React.useState(0);
+  const [maxLevel, setMaxLevel] = React.useState(0);
 
   const [isIncrement, setIsIncrement] = React.useState(null);
 
@@ -212,18 +245,18 @@ export default function RecordList({
   }, [productRecords, processFlowTree]);
 
   function handleActiveLevelAddClick() {
-    setActivelevel((prev) => prev + 1);
+    if (activeLevel < maxLevel) {
+      setActivelevel((prev) => prev + 1);
+    }
     setIsIncrement(true);
   }
   function handleActiveLevelMinusClick() {
-    if (activeLevel <= -1) {
+    if (activeLevel === 0) {
       return;
     }
     setActivelevel((prev) => prev - 1);
     setIsIncrement(false);
   }
-
-  function handleLevelClick(val) {}
 
   function getStepsTreeWithRecords(steps) {
     return steps?.map((step, index) => {
@@ -254,8 +287,9 @@ export default function RecordList({
         paddingX: "32px",
         paddingY: "9px",
         flexGrow: 1,
-        minWidth: "1300px",
-        height: "80vh",
+        minWidth: "70vw",
+        maxHeight: "70vh",
+        overflow: "auto",
       }}
     >
       {/* <Fab size="small" color="primary" onClick={handleNewCreate}>
@@ -266,7 +300,7 @@ export default function RecordList({
       </Button>
       <div>
         <Grid container spacing={2} direction="row" alignItems="center">
-          <Grid item xs={2}>
+          <Grid item xs={3}>
             <Grid container direction="row" alignItems="center" spacing={2}>
               <Grid item xs={1}>
                 <Tooltip title="Expand one level">
@@ -305,7 +339,8 @@ export default function RecordList({
                 </Tooltip>
               </Grid>
               <Grid item xs={1}></Grid>
-              <Grid item xs={8}>
+              <Grid item xs={1}></Grid>
+              <Grid item xs={7}>
                 <span style={{ color: "#0000008C", fontSize: "12px" }}>
                   Action
                 </span>
@@ -330,7 +365,6 @@ export default function RecordList({
           </Grid>
           <Grid item xs={1}></Grid>
           <Grid item xs={1}></Grid>
-          <Grid item xs={1}></Grid>
         </Grid>
       </div>
       {stepTree?.length > 0 &&
@@ -348,6 +382,7 @@ export default function RecordList({
             productRecords={productRecords}
             activeLevel={activeLevel}
             isIncrement={isIncrement}
+            setMaxLevel={setMaxLevel}
           />
         ))}
     </Paper>

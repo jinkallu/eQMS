@@ -9,6 +9,7 @@ import CreateRecordModal from "../CreateRecordModal";
 import AddIcon from "@mui/icons-material/Add";
 import RecordList from "../RecordList";
 import { callbackify } from "util";
+import RecordViewModal from "../RecordViewModal";
 
 export default function ProductSOP({ process, prodBranchId }) {
   const [processFlowTree, setProcessFlowTree] = useState(null);
@@ -128,11 +129,7 @@ export default function ProductSOP({ process, prodBranchId }) {
     //   newPath = number + "-" + newPath;
     //   newPath = "sop" + "-" + newPath;
     // }
-    const file_name = newPath + ".md";
-    newPath = "qms/" + "rec" + "/" + newPath + "/" + file_name;
-
-    newPath = "/" + newPath;
-    newPath = newPath.replace(/ /g, "-");
+    newPath = "qms/rec/data.md";
 
     // rename the current readme.md so that the folder structure created..
 
@@ -167,6 +164,8 @@ export default function ProductSOP({ process, prodBranchId }) {
     setOpenCreateRecordModal(true);
   }
 
+  function setCurrentRecordforView(record) {}
+
   useEffect(() => {
     if (process && process?.sop) {
       createStepsTree(process);
@@ -179,8 +178,7 @@ export default function ProductSOP({ process, prodBranchId }) {
         display: "flex",
         flexDirection: "column",
         width: "100%",
-        height: "80vh",
-        overflowX: "scroll",
+        height: "100%",
       }}
     >
       <CreateRecordModal
@@ -192,6 +190,7 @@ export default function ProductSOP({ process, prodBranchId }) {
         stepSelector={stepSelector}
         setCurrentTemplateId={setCurrentTemplateId}
       ></CreateRecordModal>
+
       {process && process?.sop && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: "32px" }}>
           <RecordList
@@ -203,6 +202,7 @@ export default function ProductSOP({ process, prodBranchId }) {
             setCurrentTemplateId={setCurrentTemplateId}
             setStepSelector={setStepSelector}
             handleNewCreate={handleNewCreate}
+            setCurrentRecordforView={setCurrentRecordforView}
           ></RecordList>
         </Box>
       )}

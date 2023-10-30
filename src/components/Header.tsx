@@ -10,6 +10,7 @@ import {
   Switch,
   TextField,
   InputAdornment,
+  Toolbar,
 } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -84,7 +85,6 @@ const Header = () => {
         alignItems: "center",
         padding: "5px",
         zIndex: 100,
-        height: "50px",
       }}
     >
       <Box
@@ -95,6 +95,7 @@ const Header = () => {
           gap: "32px",
         }}
       >
+        <Toolbar></Toolbar>
         <Box onClick={handleQuatraceClick}>
           <Typography color="primary" sx={{ cursor: "pointer" }}>
             Quatrace

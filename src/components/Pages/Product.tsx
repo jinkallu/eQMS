@@ -63,7 +63,6 @@ export default function Product() {
           sx={{
             display: "flex",
             alignItems: "center",
-            overflowX: "auto",
           }}
         >
           {processflows
@@ -91,7 +90,7 @@ export default function Product() {
           <ArrowBack></ArrowBack>
         </IconButton>
       </Box>
-      <Box>
+      <Box sx={{ marginTop: "9px" }}>
         {currentProcess ? (
           <ProductSOP
             prodBranchId={prodBranchId}
