@@ -28,10 +28,15 @@ const Header = () => {
       isSelected: false,
     },
 
-    { type: "sops", label: "SOPs", isSelected: false },
+    { type: "sops", label: "SOPs", isSelected: true },
     {
       type: "products",
       label: "Products",
+      isSelected: false,
+    },
+    {
+      type: "processflow",
+      label: "Process flow",
       isSelected: false,
     },
   ]);

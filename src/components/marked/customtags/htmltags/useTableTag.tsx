@@ -1,21 +1,21 @@
-import MarkedAzureSDK from "../../MarkedAzureSDK";
+import MarkedAzureSDK from "../../useMarkedAzureSDK";
 import MdFunctions from "../MdFunctions";
+import MathEvaluator from "./MathEvaluator";
 
+const useTableTag = () => {
 
-class InputTag {
-
-    static register() {
-        InputTag.registerCondition();
-        InputTag.registerEvents();
+    function registerAll() {
+        registerCondition();
+        registerEvents();
     }
 
-    static registerCondition() {
-        MarkedAzureSDK.register('input', (element: Element, container_id: string, type: number) => {
-            return InputTag.parse(element, container_id, type);
-        });
+    function registerCondition() {
+        // MarkedAzureSDK.register('table', (element: Element, container_id: string, type: number) => {
+        //     return parse(element, container_id, type);
+        // });
     }
 
-    static async parse(element: Element, container_id: string, type: number): Promise<HTMLElement | null> {
+     async function parse(element: Element, container_id: string, type: number): Promise<HTMLElement | null> {
         return new Promise((resolve, reject) => {
             console.log(container_id, type);
             element.id = container_id;
@@ -24,6 +24,9 @@ class InputTag {
                 inputLevelAttribute = '0';
                 element.setAttribute('inputlevel', inputLevelAttribute);
             }
+
+            resolve(element as HTMLElement);
+            /*
 
             if (type === 0) { // Editor
                 if (inputLevelAttribute === '0') {
@@ -81,35 +84,88 @@ class InputTag {
                     resolve(element as HTMLElement);
                 }
             }
+            */
         });
     }
 
-    static registerEvents() {
+    function registerEvents() {
         const parentId = "HTMLEditor"; //TODO: get it from somewhere, not magic string 
         MdFunctions.register(parentId, (pId: string) => {
-            return InputTag.registerInputTagEvents(pId);
+            return registerInputTagEvents(pId);
         });
     }
 
-    static registerInputTagEvents(parentid: string) {
+    function registerInputTagEvents(parentid: string) {
         const parentElement = document.getElementById(parentid);
-        const inputElements = parentElement.querySelectorAll('input');
+        const inputElements = parentElement.querySelectorAll('table');
         console.log(inputElements);
         inputElements.forEach((inputElement) => {
-            inputElement.addEventListener('input', InputTag.handleInputChange);
+            inputElement.addEventListener('input', handleInputChange);
         });
     }
 
-    static handleInputChange(event) {
+    function cellRowCol(target){
+        let parentCell = target.closest("td");
+        let parentRow = target.closest("tr");
+        let rowNumber = parentRow.rowIndex;
+
+        var cells = parentRow.getElementsByTagName("td"); 
+        var columnNumber = Array.prototype.indexOf.call(cells, parentCell);
+
+        return {r: rowNumber, c: columnNumber};
+    }
+
+    function cellsWithMath(target){
+        let table = target.closest("table");
+        let elementsWithMathAttribute = table.querySelectorAll('[math]');
+        //for(let i = 0; i < elementsWithMathAttribute.length; i++){
+        //    console.log(elementsWithMathAttribute[i].getAttribute("math"));
+        //}
+        return elementsWithMathAttribute;
+        //console.log(elementsWithMathAttribute.length);
+        //console.log(elementsWithMathAttribute[0].getAttribute("math"));
+        // TODO: PArse the math expression and implement the corresponding...
+
+    }
+
+    /*static evaluateExpression(expression, rowData) {
+        // Convert the expression to a JavaScript function
+        const jsCode = `(${expression})`;
+        const compiled = new Function('rowData', 'return ' + jsCode);
+      
+        // Evaluate the expression with the provided row data
+        return compiled(rowData);
+      }*/
+
+    function parseMath(mathElement: HTMLElement, triggerElement: HTMLElement){
+        //const expression = element.getAttribute("math");
+        MathEvaluator.evaluate(mathElement, triggerElement);
+        //const expression = element.getAttribute("math");
+        //console.log(expression);
+        //const body = acorn.parse(expression, {ecmaVersion: 2020});
+        //console.log(body);
+    }
+
+    function handleInputChange(event) {
+        
+        let res = cellRowCol(event.target);
+        console.log(res.r, res.c);
+        const elementsWithMathAttribute = cellsWithMath(event.target);
+        for(let i = 0; i < elementsWithMathAttribute.length; i++){
+            parseMath(elementsWithMathAttribute[i], event.target)
+        }
+
         //const parent_id =  "markedHTMLViewer";
+        /*
         const edit_id = event.target.id;
         const view_id = edit_id + "_viewer";
         console.log(view_id);
         const viewElement = document.getElementById(view_id);
         viewElement.textContent = event.target.value;
+        */
 
         //TextAreaUpdate.updated(event.target);
     }
 }
 
-export default InputTag;
+export default useTableTag;

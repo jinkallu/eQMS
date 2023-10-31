@@ -1,4 +1,4 @@
-import MarkedAzureSDK from "../../MarkedAzureSDK";
+import MarkedAzureSDK from "../../useMarkedAzureSDK";
 import MdFunctions from "../MdFunctions";
 import { marked } from 'marked';
 
@@ -11,9 +11,9 @@ class InputTextAreaTag {
     }
 
     static registerCondition() {
-        MarkedAzureSDK.register('textarea', (element: Element, container_id: string, type: number) => {
-            return InputTextAreaTag.parse(element, container_id, type);
-        });
+        // MarkedAzureSDK.register('textarea', (element: Element, container_id: string, type: number) => {
+        //     return InputTextAreaTag.parse(element, container_id, type);
+        // });
     }
 
     static async parse(element: Element, container_id: string, type: number): Promise<HTMLElement | null> {

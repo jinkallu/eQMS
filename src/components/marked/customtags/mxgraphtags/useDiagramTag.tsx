@@ -1,24 +1,25 @@
 import Diagram from './diagram';
-import MarkedAzureSDK from '../../MarkedAzureSDK';
+import {register} from '../../useMarkedAzureSDK';
 
-class DiagramTag {
-  static registerCondition() {
-    MarkedAzureSDK.register('diagram', (element: Element, container_id: string) => {
-      return DiagramTag.parse(element, container_id);
+const useDiagramTag = () => {
+  const registerCondition = () => {
+    register('diagram', (element: Element, container_id: string) => {
+      return parse(element, container_id);
     });
 
-    MarkedAzureSDK.register('process', (element: Element, container_id: string) => {
-      return DiagramTag.parse(element, container_id);
+    register('process', (element: Element, container_id: string) => {
+      return parse(element, container_id);
     });
 }
 
-  static async initializeMxGraph(element: Element, container_id: string): Promise<HTMLElement | null> {
+  const initializeMxGraph = async (element: Element, container_id: string): Promise<HTMLElement | null> => {
     const container = document.createElement('div');
     container.id = container_id;
     if (!container) {
       console.log(container_id, 'not available');
       return null;
     }
+
 
     const diagram = new Diagram();
     const tag = element.tagName.toLowerCase();
@@ -35,11 +36,11 @@ class DiagramTag {
     return container;
   }
 
-  static async parse(element: Element, newElement_id: string): Promise<HTMLElement | null> {
+  const parse = async (element: Element, newElement_id: string): Promise<HTMLElement | null> => {
     try {
       // Get the value of the "type" attribute
       //const id = element.getAttribute('id');
-      const newElement = this.initializeMxGraph(element, newElement_id);
+      const newElement = initializeMxGraph(element, newElement_id);
       
       //const newElement = document.createElement('div');
       //newElement.textContent = work; // Set the content of the new element
@@ -54,5 +55,5 @@ class DiagramTag {
   }
 }
 
-export default DiagramTag;
+export default useDiagramTag;
 

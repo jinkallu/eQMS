@@ -1,10 +1,10 @@
-import MarkedAzureSDK from "../../MarkedAzureSDK";
+import MarkedAzureSDK from "../../useMarkedAzureSDK";
 import MdFunctions from "../MdFunctions";
 class DocLogoTag {
     static registerCondition() {
-        MarkedAzureSDK.register('doclogo', (element: Element, container_id: string) => {
-            return DocLogoTag.parse(element, container_id);
-        });
+        // MarkedAzureSDK.register('doclogo', (element: Element, container_id: string) => {
+        //     return DocLogoTag.parse(element, container_id);
+        // });
     }
 
     

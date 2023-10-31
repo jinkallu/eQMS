@@ -1,14 +1,14 @@
 import CScape from './cscape';
-import MarkedAzureSDK from '../../MarkedAzureSDK';
+import MarkedAzureSDK from '../../useMarkedAzureSDK';
 import Diagram from '../mxgraphtags/diagram';
 import GraphAnalysis from "./GraphAnalysis"
 
 
 class CytoscapeTags {
     static registerCondition() {
-        MarkedAzureSDK.register('processflow', (element: Element, container_id: string) => {
-            return CytoscapeTags.parse(element, container_id);
-        });
+        // MarkedAzureSDK.register('processflow', (element: Element, container_id: string) => {
+        //     return CytoscapeTags.parse(element, container_id);
+        // });
     }
 
     static async parse(element: Element, newElement_id: string): Promise<HTMLElement | null> {
@@ -21,6 +21,8 @@ class CytoscapeTags {
             const diagram = new Diagram();
             var container_dgm = document.createElement('div');
             container_dgm.id = `${newElement_id}_dgm`;
+            document.body.appendChild(container_dgm); // TO Check: or remove!
+
 
             await Promise.all([
                await gAnalysis.analyse(cy)

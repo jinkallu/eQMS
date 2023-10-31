@@ -1,6 +1,6 @@
 import { marked } from 'marked';
-import MarkedAzureSDK from './MarkedAzureSDK';
-const markedAzureSDK = new MarkedAzureSDK();
+//import MarkedAzureSDK from './useMarkedAzureSDK';
+//const markedAzureSDK = new MarkedAzureSDK();
 
 const DisplayTasksRenderer = new marked.Renderer();
 
