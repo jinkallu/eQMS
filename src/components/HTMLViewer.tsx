@@ -13,6 +13,7 @@ import EditConfModal from "./EditConfModal";
 import useGetTeamMembers from "../CHooks/useGetTeamMembers";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditorSave from "./marked/EditerSave";
+import MonacoEditor from "./MonacoEditor";
 
 export default function HTMLViewer() {
   //const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
@@ -184,14 +185,14 @@ export default function HTMLViewer() {
         sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
       >
         {editMode && (
-          <MarkedEditView
+          <MonacoEditor
             inputText={inputText}
             setInputText={setInputText}
             objectId={""}
             type={type}
             branchName={branchName}
             relativePath={relativePath}
-          ></MarkedEditView>
+          ></MonacoEditor>
         )}
         {!editMode && (
           <MarkedHTMLViewer markedText={inputText} ready={true} edit={false} />

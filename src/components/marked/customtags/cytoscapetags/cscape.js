@@ -14,7 +14,7 @@ class CScape {
         container.style.position = 'relative';
         container.style.left = '0';
         container.style.top = '200px';
-        console.log(container.id);
+        console.log(element);
         console.log("init");
 
         try {
@@ -40,10 +40,13 @@ class CScape {
 
             const steps = element.querySelectorAll("step");
             steps.forEach(step => {
-                const stepName = step.getAttribute("name");
-                if (stepName === null && stepName.trim() === '') {
+                let stepName = step.getAttribute("name");
+                if (stepName === null) {
                     stepName = "Error! Give proper step name";
                     //throw new Error("This is an error message.");
+                }
+                else if(stepName.trim() === ''){
+                    stepName = "Error! Give proper step name";
                 }
 
                 cy.add({
@@ -58,8 +61,12 @@ class CScape {
 
                 const template = step.querySelector("template");
                 if(template){
-                    const template_name = template.getAttribute("name");
-                    if (template_name === null && template_name.trim() === '') {
+                    let template_name = template.getAttribute("name");
+                    if (template_name === null) {
+                        template_name = "Error! Give proper template name";
+                        //throw new Error("This is an error message.");
+                    }
+                    else if(template_name.trim() === '') {
                         template_name = "Error! Give proper template name";
                         //throw new Error("This is an error message.");
                     }
@@ -187,7 +194,7 @@ class CScape {
             console.error("Error creating Cytoscape instance:", error);
             container.innerHTML = "";
             container.innerText = "Error in syntax!";
-            return container;
+            return cy;
         }
 
         //console.log(cy);

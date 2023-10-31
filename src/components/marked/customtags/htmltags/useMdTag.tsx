@@ -1,24 +1,27 @@
-import MarkedAzureSDK from "../../MarkedAzureSDK";
+import {register} from "../../useMarkedAzureSDK";
 import MdFunctions from "../MdFunctions";
-import TextAreaUpdate from "../../TextAreaUpdate";
+import useTextAreaUpdate from "../../useTextAreaUpdate";
 
 
-class MdTag {
+const useMdTag = () => {
 
-    static register(){
-        MdTag.registerCondition();
-        MdTag.registerEvents();
+    //const {updated} = useTextAreaUpdate();
+
+    const registerAllMdTags = () => {
+        registerCondition();
+        registerEvents();
     }
 
-    static registerCondition() {
-        MarkedAzureSDK.register('md', (element: Element, container_id: string) => {
-            return MdTag.parse(element, container_id);
+    const registerCondition = () => {
+        console.log("Registering MdTags");
+        register('md', (element: Element, container_id: string) => {
+            return parse(element, container_id);
         });
     }
 
-    static async parse(element: Element, container_id: string): Promise<HTMLElement | null> {
+    const parse = async (element: Element, container_id: string): Promise<HTMLElement | null> => {
         return new Promise((resolve, reject) => {
-            //console.log(element);
+            console.log("Parsing ", element);
             let parentAttribute = element.getAttribute('level');
             if (parentAttribute === null) {
                 parentAttribute = '0';
@@ -61,25 +64,27 @@ class MdTag {
         });
     }
 
-    static registerEvents(){
+    const registerEvents = () => {
         const parentId = "Editor"; //TODO: get it from somewhere, not magic string 
         MdFunctions.register(parentId, (pId: string) => {
-            return MdTag.registerMdTagTextAreaEvents(pId);
+            return registerMdTagTextAreaEvents(pId);
         });
     }
 
-    static registerMdTagTextAreaEvents(parentid: string){
+    const registerMdTagTextAreaEvents = (parentid: string) => {
         const parentElement = document.getElementById(parentid);
         const textAreaElements = parentElement.querySelectorAll('textarea[type="md"]');
         console.log(textAreaElements);
         textAreaElements.forEach((textAreaElement) => {
-            textAreaElement.addEventListener('input', MdTag.handleTextareaChange);
+            textAreaElement.addEventListener('input', handleTextareaChange);
         });
     }
 
-    static handleTextareaChange(event){
-        TextAreaUpdate.updated(event.target);
+    const handleTextareaChange = (event) => {
+        //updated(event.target);
     }
+
+    return {registerAllMdTags};
 }
 
-export default MdTag;
+export default useMdTag;

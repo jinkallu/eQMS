@@ -1,10 +1,10 @@
-import MarkedAzureSDK from "../../MarkedAzureSDK";
+import MarkedAzureSDK from "../../useMarkedAzureSDK";
 
 class DocNameTag {
     static registerCondition() {
-        MarkedAzureSDK.register('docname', (element: Element, container_id: string) => {
-            return DocNameTag.parse(element, container_id);
-        });
+        // MarkedAzureSDK.register('docname', (element: Element, container_id: string) => {
+        //     return DocNameTag.parse(element, container_id);
+        // });
     }
 
     static async parse(element: Element, container_id: string): Promise<HTMLElement | null> {

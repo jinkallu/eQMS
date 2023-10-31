@@ -1,12 +1,12 @@
-import MarkedAzureSDK from "../../MarkedAzureSDK";
+import MarkedAzureSDK from "../../useMarkedAzureSDK";
 import { GetBranchFile } from "./GetBranchFile";
 
 class IMGTag {
     static registerCondition() {
         console.log("Calling register");
-        MarkedAzureSDK.register('img', (element: Element, container_id: string) => {
-            return IMGTag.parse(element, container_id);
-        });
+        // MarkedAzureSDK.register('img', (element: Element, container_id: string) => {
+        //     return IMGTag.parse(element, container_id);
+        // });
     }
 
     static async parse(element: Element, container_id: string): Promise<HTMLElement | null> {

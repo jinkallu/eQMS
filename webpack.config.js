@@ -1,6 +1,6 @@
 const path = require("path");
 
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
   watch: false, // make it true only for dev, otherwise azure devops pipeline will not return
@@ -12,6 +12,10 @@ module.exports = {
   mode: "development",
   module: {
     rules: [
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
+      },
       {
         test: /\.tsx?$/,
         loader: "ts-loader",

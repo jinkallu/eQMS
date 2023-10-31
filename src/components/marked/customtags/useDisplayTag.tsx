@@ -1,25 +1,25 @@
 import { WorkItemHelper } from "./WorkItemHelper";
 import { WorkItem } from "azure-devops-extension-api/WorkItemTracking";
-import MarkedAzureSDK from "../MarkedAzureSDK";
+import {register} from "../useMarkedAzureSDK";
 
-class DisplayTag {
-    static registerCondition() {
+const  useDisplayTag = () => {
+    const registerCondition = () => {
         console.log("Calling register");
-        MarkedAzureSDK.register('displaywork', (element: Element, container_id: string) => {
-            return DisplayTag.parse(element, container_id);
+        register('displaywork', (element: Element, container_id: string) => {
+            return parse(element, container_id);
         });
     }
 
-    static async parse(element: Element, container_id: string): Promise<HTMLElement | null> {
+    const parse = async (element: Element, container_id: string): Promise<HTMLElement | null> => {
         try {
             const newElement = document.createElement('div');
             newElement.id = container_id;
 
             const id = element.getAttribute('id');
             if (id !== null && id.trim() !== '') {
-                const work = await DisplayTag.loadWorkItem(id);
+                const work = await loadWorkItem(id);
 
-                const table = this.createTable(work, element, id);
+                const table = createTable(work, element, id);
                 // Append the table to the div
                 newElement.appendChild(table);
             }
@@ -40,7 +40,7 @@ class DisplayTag {
         }
     }
 
-    static createCellFromFields(work: WorkItem, field: string): HTMLElement {
+    const createCellFromFields = (work: WorkItem, field: string): HTMLElement => {
         const cell = document.createElement('td');
         cell.style.border = '1px solid #000'; // Cell border
         cell.style.padding = '8px'; // Cell padding
@@ -48,7 +48,7 @@ class DisplayTag {
         return cell;
     }
 
-    static createCell(work: WorkItem, id: string): HTMLElement {
+    const createCell = (work: WorkItem, id: string): HTMLElement => {
         const cell = document.createElement('td');
         cell.style.border = '1px solid #000'; // Cell border
         cell.style.padding = '8px'; // Cell padding
@@ -56,7 +56,7 @@ class DisplayTag {
         return cell;
     }
 
-    static createCellWithLink(work: WorkItem, id: string): HTMLElement {
+    const createCellWithLink = (work: WorkItem, id: string): HTMLElement => {
         const cell = document.createElement('td');
         cell.style.border = '1px solid #000'; // Cell border
         cell.style.padding = '8px'; // Cell padding
@@ -68,7 +68,7 @@ class DisplayTag {
         return cell;
     }
 
-    static createTableHead(fieldsArray: string[]): HTMLElement {
+    const createTableHead = (fieldsArray: string[]): HTMLElement => {
         const headerRow = document.createElement('tr');
         for (const fieldValue of fieldsArray) {
             const columnHeader = document.createElement("th");
@@ -80,20 +80,20 @@ class DisplayTag {
         return headerRow;
     }
 
-    static createRow(work: WorkItem, fieldsArray: string[], id: string): HTMLElement {
+    const createRow = (work: WorkItem, fieldsArray: string[], id: string): HTMLElement => {
         const row = document.createElement('tr');
         if (id) {
-            const cell = this.createCellWithLink(work, id);
+            const cell = createCellWithLink(work, id);
             row.appendChild(cell);
         }
         for (const fieldValue of fieldsArray) {
-            const cell = this.createCellFromFields(work, fieldValue);
+            const cell = createCellFromFields(work, fieldValue);
             row.appendChild(cell);
         }
         return row;
     }
 
-    static createTable(work: WorkItem, element: Element, id: string): HTMLElement {
+    const createTable = (work: WorkItem, element: Element, id: string): HTMLElement => {
         const fields = element.getAttribute('fields');
         const table = document.createElement('table');
         table.style.borderCollapse = 'collapse'; // Combine cell borders
@@ -103,10 +103,10 @@ class DisplayTag {
         if (fields) {
             const fieldsArray = fields.split(' ');
             const tableHead = document.createElement('thead');
-            const headerRow = this.createTableHead(["Id", ...fieldsArray])
+            const headerRow = createTableHead(["Id", ...fieldsArray])
             tableHead.appendChild(headerRow);
             table.appendChild(tableHead);
-            const row = this.createRow(work, fieldsArray, id);
+            const row = createRow(work, fieldsArray, id);
             table.appendChild(row);
         } else {
         }
@@ -114,12 +114,12 @@ class DisplayTag {
         return table;
     }
 
-    static async loadWorkItem(id): Promise<WorkItem> {
+    const loadWorkItem = async (id): Promise<WorkItem> => {
         const workItemHelper = new WorkItemHelper();
         const workItem = await workItemHelper.loadWorkItem(id);
         return workItem;
     }
-
+    return {registerCondition, parse};
 }
 
-export default DisplayTag;
+export default useDisplayTag;
