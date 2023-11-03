@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 // import useMarkdToHTML from "";
 import Editor, { useMonaco } from "@monaco-editor/react";
+import SaveIcon from "@mui/icons-material/Save";
 
 import { marked } from "marked";
 
@@ -12,6 +13,8 @@ import {
   Grid,
   Button,
   Modal,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
 
 import { useExtnStore } from "../zustand/store";
@@ -19,27 +22,26 @@ import MarkedToCustom from "./marked/MarkedToCustom";
 import useMarkdToHTML from "./marked/useMarkdToHTML";
 
 export default function MonacoEditor({
-  inputText,
-  setInputText,
   objectId,
   relativePath,
   type,
   branchName,
+  html,
+  setHtml,
+  setOpenEditModal,
 }: {
-  inputText: string;
-  setInputText: (val: string) => void;
   objectId: string;
   type: string;
   relativePath: string;
   branchName: string;
+  html: Document;
+  setHtml: (val: Document) => void;
+  setOpenEditModal: (val: boolean) => void;
 }) {
-  //const [inputText, setInputText] = useState(inData);
-
-  const [markedData, setMarkedData] = React.useState<string>();
-  const [html, setHtml] = React.useState<HTMLElement>();
+  // const [markedData, setMarkedData] = React.useState<string>();
   const [open, setOpen] = React.useState(false);
-  const [modalContent, setModalContent] = React.useState();
   const [state, setState] = React.useState({});
+  const [editorView, setEditorView] = React.useState("editor");
 
   const { getEditBranch, repository } = useExtnStore((state) => state);
   const project = useExtnStore((state) => state.project);
@@ -57,46 +59,47 @@ export default function MonacoEditor({
       repositoryId: repository.id,
       projectId: project.id,
     });
-    setMarkedData(data);
+
+    console.log(branchName, data);
+    // setMarkedData(data);
+    const parser = new DOMParser();
+    //const htmlString = marked(data);
+    const htmlData = parser.parseFromString(data, "text/html");
+
+    setHtml(htmlData);
   }
 
-  useEffect(() => {
-    if (markedData && markedData.trim() !== "") {
-      const parser = new DOMParser();
-      const htmlString = marked(markedData);
-      const htmlData = parser.parseFromString(htmlString, "text/html");
-    //   const mdElements = htmlData.querySelectorAll('md[level="1"]');
-    //   mdElements.forEach(element => {
-        
-    // });
-      //convL0MDEditToString(markedData, htmlData);
-      console.log(htmlData);
+  // useEffect(() => {
+  //   if (markedData && markedData.trim() !== "") {
+  //     const parser = new DOMParser();
+  //     //const htmlString = marked(markedData);
+  //     const htmlData = parser.parseFromString(markedData, "text/html");
 
-      setHtml(htmlData.body);
+  //     setHtml(htmlData);
+  //   }
+  // }, [markedData]);
 
-      console.log(htmlData.body.getElementsByTagName("INPUT"));
-    }
-  }, [markedData]);
-
-  /*useEffect(() => {
-    console.log(state.tag);
-    if(state.tag === "MD"){
-      console.log("MD Tag", state);
-      // TODO: updatte html, select element by id editor, clone and set it to html
-    }
-  }, [state])*/
-
-  function handleChangeEditor(value, event) {
-    setMarkedData(value);
-  }
+  // function handleChangeEditor(value, event) {
+  //   setMarkedData(value);
+  // }
   const handleChange = (id, value) => {
-    setState((values) => ({ ...values, [id]: value}));
-    
+    setState((values) => ({ ...values, [id]: value }));
   };
+
+  function handleEditorViewChange(e) {
+    setEditorView(e.target.value);
+  }
   //console.log(modalContent);
   useEffect(() => {
     getData();
   }, [objectId, type, branchName, relativePath, repository, project]);
+
+  useEffect(() => {
+    Object.keys(state)?.map((key) => {
+      const ele = html.getElementById(key);
+      if (ele) ele.setAttribute("value", state[key]);
+    });
+  }, [state]);
 
   return (
     <Box
@@ -105,77 +108,73 @@ export default function MonacoEditor({
         flexDirection: "column",
         flexGrow: 1,
         width: "100%",
-        border: "1px solid black",
+        position: "relative",
       }}
     >
-       <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+      <Paper
+        sx={{
+          display: "flex",
+          justifyContent: "space-around",
+          alignItems: "center",
+          position: "fixed",
+          width: "100%",
+          zIndex: 100,
+          opacity: 1,
+          height: "40px",
+        }}
       >
         <Box
           sx={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            flexDirection: "column",
-            padding: "24px",
+            gap: "9px",
           }}
         >
-          <Paper
-            elevation={3}
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: "36px",
-              flexDirection: "column",
-              gap: "12px",
-              height: "100%",
-            }}
+          <ToggleButtonGroup
+            color="primary"
+            value={editorView}
+            exclusive
+            onChange={handleEditorViewChange}
+            aria-label="Editor type"
+            size="small"
           >
-            {html?.getElementsByTagName("INPUT")?.length > 0 &&
-              Array.from(html?.getElementsByTagName("INPUT"))?.map((item) => {
-                const id = item.getAttribute("id");
-
-                return (
-                  <input
-                    value={state[id]}
-                    onChange={(e) => handleChange(id, e.target.value)}
-                  ></input>
-                );
-              })}
-          </Paper>
+            <ToggleButton value="editor">Editor</ToggleButton>
+            <ToggleButton value="form">Form</ToggleButton>
+          </ToggleButtonGroup>
+          <SaveIcon onClick={() => setOpenEditModal(true)}></SaveIcon>
         </Box>
-      </Modal> 
-      <Button onClick={() => setOpen(true)}>Open form </Button>
-      <Grid container spacing={2}>
-        <Grid item xs={6} sm={6} md={6} lg={6}>
-          Editor
-          {<MarkedToCustom
-            element={html}
-            open={open}
-            setOpen={setOpen}
-            order="first"
-            state={state}
-            handleChange={handleChange}
-          ></MarkedToCustom> }
-        </Grid>
+        <Typography>Viewer</Typography>
+      </Paper>
+      <Box sx={{ marginTop: "40px" }}>
+        <Grid container spacing={2}>
+          <Grid item xs={6} sm={6} md={6} lg={6}>
+            <Paper sx={{ paddingX: "9px" }}>
+              <MarkedToCustom
+                element={html?.body}
+                open={open}
+                setOpen={setOpen}
+                order={editorView === "editor" ? "first" : "middle"}
+                state={state}
+                handleChange={handleChange}
+              ></MarkedToCustom>
+            </Paper>
+          </Grid>
 
-        <Grid item xs={6} sm={6} md={6} lg={6}>
-          Viewer
-          {<MarkedToCustom
-            element={html}
-            open={open}
-            setOpen={setOpen}
-            order="last"
-            state={state}
-            handleChange={handleChange}
-          ></MarkedToCustom> }
-          {/* <div dangerouslySetInnerHTML={{ __html: html }}></div> */}
+          <Grid item xs={6} sm={6} md={6} lg={6}>
+            <Paper sx={{ paddingX: "9px" }}>
+              <MarkedToCustom
+                element={html?.body}
+                open={open}
+                setOpen={setOpen}
+                order="last"
+                state={state}
+                handleChange={handleChange}
+              ></MarkedToCustom>
+            </Paper>
+          </Grid>
         </Grid>
-      </Grid>
+      </Box>
     </Box>
   );
 }

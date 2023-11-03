@@ -6,23 +6,22 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   addEdge,
-  FitView
+  FitView,
 } from "reactflow";
-import ContextMenu from './ContextMenu';
+import ContextMenu from "./ContextMenu";
 import DecisionNode from "./DecisionNode";
 import StepNode from "./StepNode";
 import TemplateNode from "./TemplateNode";
 import TemplatesNode from "./TemplatesNode";
 
-
 import "reactflow/dist/style.css";
-import './style.css';
+import "./style.css";
 
 const nodeTypes = {
   decision: DecisionNode,
   step: StepNode,
   template: TemplateNode,
-  templates: TemplatesNode
+  templates: TemplatesNode,
   // Define other custom node types here if needed
 };
 
@@ -32,7 +31,7 @@ const nodeTypes = {
 ];
 const initialEdges = [{ id: "e1-2", source: "1", target: "2" }];*/
 
-export default function ProcessFlow({ graphData }) {
+export default function ProcessFlow({ graphData, editable }) {
   const initialNodes = graphData?.initialNodes || [];
   const initialEdges = graphData?.initialEdges || [];
 
@@ -43,8 +42,15 @@ export default function ProcessFlow({ graphData }) {
   const [edges, setEdges, onEdgesChange] = useEdgesState(myEdges);
   const [menu, setMenu] = useState(null);
 
-  const [viewportSize, setViewportSize] = useState({ width: "100vw", height: "50vh" });
+  const [viewportSize, setViewportSize] = useState({
+    width: "100vw",
+    height: "50vh",
+  });
 
+  /* const [editable, setEditable] = useState(true);
+  if(order === "last"){
+    setEditable(false);
+  }*/
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
@@ -54,35 +60,32 @@ export default function ProcessFlow({ graphData }) {
   useEffect(() => {
     setNodes(graphData?.initialNodes);
     setEdges(graphData?.initialEdges);
-  }, [graphData])
+  }, [graphData]);
 
   const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
   const ref = useRef(null);
 
   useEffect(() => {
     //const newViewportSize =  {width: "100vw", height: "150vh" };
-    console.log(nodes);
-    if(nodes && nodes.length > 0){
+    if (nodes && nodes.length > 0) {
+      const objectWithLargestY = nodes.reduce((prev, current) => {
+        return current.position.y > prev.position.y ? current : prev;
+      });
 
-    
-    const objectWithLargestY = nodes.reduce((prev, current) => {
-      return current.position.y > prev.position.y ? current : prev;
-    });
+      const newViewportSize = {
+        width: "48vw",
+        height: objectWithLargestY.position.y + 350 + "px",
+      };
 
-    const newViewportSize =  {width: "100vw", height: objectWithLargestY.position.y + 350 + "px" };
-    console.log(newViewportSize);
-
-    setViewportSize (newViewportSize);
-  }
-  }, [nodes])
-
+      setViewportSize(newViewportSize);
+    }
+  }, [nodes]);
 
   const onNodeContextMenu = useCallback(
     (event, node) => {
       //console.log(event, node);
       // Prevent native context menu from showing
       event.preventDefault();
-      console.log(nodes);
 
       // Calculate position of the context menu. We want to make sure it
       // doesn't get positioned off-screen.
@@ -92,7 +95,8 @@ export default function ProcessFlow({ graphData }) {
         top: event.clientY < pane.height - 200 && event.clientY,
         left: event.clientX < pane.width - 200 && event.clientX,
         right: event.clientX >= pane.width - 200 && pane.width - event.clientX,
-        bottom: event.clientY >= pane.height - 200 && pane.height - event.clientY,
+        bottom:
+          event.clientY >= pane.height - 200 && pane.height - event.clientY,
         myNodes: nodes,
         setMyNodes: setNodes,
         myEdges: edges,
@@ -102,9 +106,17 @@ export default function ProcessFlow({ graphData }) {
     [nodes, setNodes, edges, setEdges, setMenu]
   );
 
-
+  //if(editable) {
   return (
-    <div style={{ width: viewportSize.width, height: viewportSize.height }}>
+    <div
+      style={{
+        display: "flex",
+        width: viewportSize.width,
+        height: viewportSize.height,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <ReactFlow
         ref={ref}
         nodes={nodes}
@@ -115,19 +127,21 @@ export default function ProcessFlow({ graphData }) {
         onPaneClick={onPaneClick}
         onNodeContextMenu={onNodeContextMenu}
         zoomOnDoubleClick={false} // Disable zoom on double-click
-        zoomOnScroll={false}     // Disable zoom on scroll
+        zoomOnScroll={false} // Disable zoom on scroll
         nodesDraggable={false}
         panOnDrag={false}
         zoomOnPinch={false}
         nodeTypes={nodeTypes}
-        
+        preventScrolling={false}
+        elementsSelectable={editable}
       >
         {/* <Controls /> */}
-        <MiniMap />
+        {/* <MiniMap /> */}
         <Background gap={12} size={1} />
         <Background />
         {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
       </ReactFlow>
     </div>
   );
+  //}
 }

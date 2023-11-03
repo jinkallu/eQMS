@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import MarkedToCustom from "../MarkedToCustom";
+import Box from "@mui/material/Box";
 
 export default function MDTagView({
   element,
@@ -13,22 +14,22 @@ export default function MDTagView({
   const [markedData, setMarkedData] = React.useState<string>();
 
   function handleChangeEditor(value, event) {
-    console.log(value);
-
-    handleChange(id, value);
+    if (handleChange) {
+      handleChange(id, value);
+    }
   }
 
   useEffect(() => {}, [element]);
 
+  let parentAttribute = element.getAttribute("level");
+  if (parentAttribute === null) {
+    parentAttribute = "0";
+    element.setAttribute("level", parentAttribute);
+  }
+
   let component;
   switch (order) {
     case "first":
-      let parentAttribute = element.getAttribute("level");
-      if (parentAttribute === null) {
-        parentAttribute = "0";
-        element.setAttribute("level", parentAttribute);
-      }
-
       if (parentAttribute === "0") {
         component = <textarea>{children}</textarea>;
         //const mdElement = document.createElement('textarea');
@@ -45,13 +46,21 @@ export default function MDTagView({
         //const  value=state[id];
         //setMarkedData(value);
         component = (
-          <Editor
-            height="25vh"
-            defaultLanguage="html"
-            defaultValue={element.innerHTML}
-            value={state[id]}
-            onChange={handleChangeEditor}
-          />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Editor
+              height="25vh"
+              defaultLanguage="html"
+              defaultValue={element.innerHTML}
+              value={state[id]}
+              onChange={handleChangeEditor}
+            />
+          </Box>
         );
 
         //component = <textarea id={id} defaultValue={element.innerHTML} rows={10} value={state[id]} style={textareaStyle} onChange={handleChangeEditor}></textarea>
@@ -68,66 +77,88 @@ export default function MDTagView({
       }
       //component = <div>{children}</div>;
       break;
+    // case "middle":
+    //   component = <div>{children}</div>;
+    //   break;
     case "middle":
-      component = <div>{children}</div>;
-      break;
     case "last":
-      parentAttribute = element.getAttribute("level");
-      if (parentAttribute === null) {
-        parentAttribute = "0";
-        element.setAttribute("level", parentAttribute);
-      }
-      if (parentAttribute === "0") {
-        component = <div></div>;
-      } else if (parentAttribute === "1") {
-        const htmlString = state[id] || element.innerHTML; // We are not getting the string from textarea here
-        console.log(htmlString);
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlString, "text/html");
-        /*const divElement = document.createElement('div');
-                const bodyChildren = Array.from(doc.body.children);
-                bodyChildren.forEach(child => {
-                    divElement.appendChild(child);
-                });*/
-        console.log(doc);
+      try {
+        // parentAttribute = element.getAttribute("level");
+        // if (parentAttribute === null) {
+        //   parentAttribute = "0";
+        //   element.setAttribute("level", parentAttribute);
+        // }
+        if (parentAttribute === "0") {
+          component = (
+            <textarea
+              readOnly={true}
+              rows={10}
+              placeholder={"Editer for the future inherited documents"}
+              style={{ width: "100%" }}
+            ></textarea>
+          );
+        } else if (parentAttribute === "1") {
+          let htmlString;
+          if (state) {
+            if (state[id]) {
+              htmlString = state[id];
+            } else {
+              htmlString = element.innerHTML;
+            }
+          } else {
+            htmlString = element.innerHTML;
+          }
+          //htmlString = state[id] || element.innerHTML; // We are not getting the string from textarea here
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(htmlString, "text/html");
+          //console.log(doc);
+          /*const divElement = document.createElement('div');
+                  const bodyChildren = Array.from(doc.body.children);
+                  bodyChildren.forEach(child => {
+                      divElement.appendChild(child);
+                  });*/
 
-        component = (
-          <MarkedToCustom
-            element={doc.body}
-            open={open}
-            setOpen={null}
-            order="last"
-            state={state}
-            handleChange={handleChange}
-          ></MarkedToCustom>
-        );
-        console.log("MD");
-      } else {
-        component = <div>{children}</div>;
-      }
-      /* const htmlString = "TEST";//state[id]; // We are not getting the string from textarea here
-             const parser = new DOMParser();
-             const doc = parser.parseFromString(htmlString, "text/html");
-             const divElement = document.createElement('div');
-             const bodyChildren = Array.from(doc.body.children);
-             bodyChildren.forEach(child => {
-                 divElement.appendChild(child);
-             });
-             console.log(doc);
- 
-             component = <MarkedToCustom
-                 element={doc.body}
-                 open={open}
-                 setOpen={null}
-                 order="last"
-                 state={state}
-                 handleChange={handleChange}
-             ></MarkedToCustom>
-             console.log("MD")*/
+          component = (
+            <MarkedToCustom
+              element={doc.body}
+              open={open}
+              setOpen={null}
+              order={order}
+              state={state}
+              handleChange={handleChange}
+            ></MarkedToCustom>
+          );
+        } else {
+          component = <div>{children}</div>;
+        }
+        /* const htmlString = "TEST";//state[id]; // We are not getting the string from textarea here
+               const parser = new DOMParser();
+               const doc = parser.parseFromString(htmlString, "text/html");
+               const divElement = document.createElement('div');
+               const bodyChildren = Array.from(doc.body.children);
+               bodyChildren.forEach(child => {
+                   divElement.appendChild(child);
+               });
+               console.log(doc);
+   
+               component = <MarkedToCustom
+                   element={doc.body}
+                   open={open}
+                   setOpen={null}
+                   order="last"
+                   state={state}
+                   handleChange={handleChange}
+               ></MarkedToCustom>
+               console.log("MD")*/
 
-      //component = <div>{state[id]}</div>
-      //console.log(tempcomponent);
+        //component = <div>{state[id]}</div>
+        //console.log(tempcomponent);
+      } catch (error) {
+        component = <div>Error</div>;
+        console.log(error);
+      }
       break;
+
     default:
       component = <span>"Error";</span>;
       break;

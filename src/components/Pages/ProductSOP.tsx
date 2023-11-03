@@ -129,7 +129,7 @@ export default function ProductSOP({ process, prodBranchId }) {
     //   newPath = number + "-" + newPath;
     //   newPath = "sop" + "-" + newPath;
     // }
-    newPath = "qms/rec/data.md";
+    newPath = "qms/rec/data.html";
 
     // rename the current readme.md so that the folder structure created..
 

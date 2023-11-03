@@ -80,9 +80,11 @@ export default function Layout() {
       }}
     >
       <AlertSnackbar></AlertSnackbar>
+
       <Header></Header>
       <Toolbar></Toolbar>
-      <Box sx={{ flexGrow: 1 }}>
+
+      <Box>
         <Outlet></Outlet>
       </Box>
     </Box>

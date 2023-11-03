@@ -15,7 +15,7 @@ export default function MarkedToCustom({
   }
 
   return (
-    <div>
+    // <Box>
       <Viewers
         state={state}
         handleChange={handleChange}
@@ -24,7 +24,6 @@ export default function MarkedToCustom({
       >
         {element?.childNodes?.length > 0 &&
           Array.from(element.childNodes).map((child, index) => (
-            
             <MarkedToCustom
               key={index}
               element={child}
@@ -36,6 +35,6 @@ export default function MarkedToCustom({
             ></MarkedToCustom>
           ))}
       </Viewers>
-    </div>
+    //</Box>
   );
 }

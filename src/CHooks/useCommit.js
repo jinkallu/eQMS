@@ -63,6 +63,7 @@ const useCommit = () => {
       created = true;
       return created;
     } catch (error) {
+      console.log(error);
       //setLoading(false);
       //setBranchCreated(false);
       created = false;
