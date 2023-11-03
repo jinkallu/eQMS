@@ -16,6 +16,8 @@ import TemplatesNode from "./TemplatesNode";
 
 import "reactflow/dist/style.css";
 import "./style.css";
+import CreateStepModal from "./CreateStepModal";
+import CreateStepTemplateModal from "./CreateStepTemplateModal";
 
 const nodeTypes = {
   decision: DecisionNode,
@@ -35,11 +37,23 @@ export default function ProcessFlow({ graphData, editable }) {
   const initialNodes = graphData?.initialNodes || [];
   const initialEdges = graphData?.initialEdges || [];
 
-  const [myNodes, setMyNodes] = useState(initialNodes);
-  const [myEdges, setMyEdges] = useState(initialEdges);
+  const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
+  const [openCreateStepTemplateModal, setOpenCreateStepTemplateModal] =
+    React.useState(false);
+  const [stepName, setStepName] = React.useState("");
+  const [currentNode, setCurrentNode] = React.useState<{
+    node: any;
+    top: number;
+    left: number;
+    right: number;
+    bottom: number;
+  }>();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(myNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(myEdges);
+  // const [myNodes, setMyNodes] = useState(initialNodes);
+  // const [myEdges, setMyEdges] = useState(initialEdges);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [menu, setMenu] = useState(null);
 
   const [viewportSize, setViewportSize] = useState({
@@ -51,6 +65,60 @@ export default function ProcessFlow({ graphData, editable }) {
   if(order === "last"){
     setEditable(false);
   }*/
+
+  function createStep() {
+    const position = {
+      x: currentNode.node.position.x,
+      y: currentNode.node.position.y + 200,
+    };
+
+    const data = {
+      label: stepName,
+      type: "step",
+    };
+
+    //const parentExtent = getNode("A").extent;
+
+    const newNode = {
+      ...currentNode.node,
+      id: `${stepName}-step`,
+      position: position,
+      data: data,
+      //parentNode: "A",
+      //extent: 'parent'
+    };
+
+    const myNewNodes = [...nodes];
+    myNewNodes.push(newNode);
+    const processflowId = "A";
+
+    const foundElement = myNewNodes.find(
+      (element) => element.id === processflowId
+    );
+    if (foundElement) {
+      foundElement.style.height = position.y + 300;
+    }
+    // setMyNodes(myNewNodes);
+
+    setNodes((nodes) => {
+      return [...nodes, newNode];
+    });
+
+    const newEdge = {
+      id: currentNode.node.id + "_" + newNode.id,
+      source: currentNode.node.id,
+      target: newNode.id,
+      sourceHandle: "source_bottom",
+      targetHandle: "target",
+    };
+
+    const myNewEdges = [...edges];
+    myNewEdges.push(newEdge);
+    // setMyEdges(myNewEdges);
+    setEdges((edges) => {
+      return [...edges, newEdge];
+    });
+  }
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
@@ -90,17 +158,29 @@ export default function ProcessFlow({ graphData, editable }) {
       // Calculate position of the context menu. We want to make sure it
       // doesn't get positioned off-screen.
       const pane = ref.current.getBoundingClientRect();
+      const id = node.id;
+      const top = event.clientY < pane.height - 200 && event.clientY;
+      const left = event.clientX < pane.width - 200 && event.clientX;
+      const right =
+        event.clientX >= pane.width - 200 && pane.width - event.clientX;
+      const bottom =
+        event.clientY >= pane.height - 200 && pane.height - event.clientY;
+
+      const currentNodeData = { node, top, left, right, bottom };
+      setCurrentNode(currentNodeData);
       setMenu({
-        id: node.id,
-        top: event.clientY < pane.height - 200 && event.clientY,
-        left: event.clientX < pane.width - 200 && event.clientX,
-        right: event.clientX >= pane.width - 200 && pane.width - event.clientX,
-        bottom:
-          event.clientY >= pane.height - 200 && pane.height - event.clientY,
+        id,
+        top,
+        left,
+        right,
+        bottom,
         myNodes: nodes,
         setMyNodes: setNodes,
         myEdges: edges,
         setMyEdges: setEdges,
+        setOpenCreateStepModal,
+        setOpenCreateStepTemplateModal,
+        stepName,
       });
     },
     [nodes, setNodes, edges, setEdges, setMenu]
@@ -117,6 +197,21 @@ export default function ProcessFlow({ graphData, editable }) {
         alignItems: "center",
       }}
     >
+      <CreateStepModal
+        setOpen={setOpenCreateStepModal}
+        open={openCreateStepModal}
+        stepName={stepName}
+        setStepName={setStepName}
+        createStep={createStep}
+      ></CreateStepModal>
+
+      <CreateStepTemplateModal
+        setOpen={setOpenCreateStepTemplateModal}
+        open={openCreateStepTemplateModal}
+        currentNode={currentNode}
+        setNodes={setNodes}
+        setEdges={setEdges}
+      ></CreateStepTemplateModal>
       <ReactFlow
         ref={ref}
         nodes={nodes}
