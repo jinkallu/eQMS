@@ -2,7 +2,6 @@ import { marked } from "marked"; // Import marked without curly braces
 import React, { useState } from "react";
 import { Grid } from "@mui/material";
 
-
 import useMarkedAzureSDK from "./useMarkedAzureSDK";
 
 function useMarkdToHTML() {
@@ -17,15 +16,12 @@ function useMarkdToHTML() {
 
   const parseMarkdownToHTMLString = (markdownText: string) => {
     const parsedHtmlString = marked(markdownText);
-    console.log(parsedHtmlString);
     return parsedHtmlString;
   };
 
   const parseHTMLStringToDOM = (parsedHtmlString: string): Document => {
-    console.log(parsedHtmlString);
     const parser = new DOMParser();
     const doc = parser.parseFromString(parsedHtmlString, "text/html");
-    console.log(doc);
     return doc;
   };
 
@@ -308,7 +304,6 @@ function useMarkdToHTML() {
     const html: string = parseMarkdownToHTMLString(markdown);
 
     const dom = parseHTMLStringToDOM(html);
-    console.log(dom);
     return dom?.body?.firstChild;
   }
 
@@ -324,10 +319,8 @@ function useMarkdToHTML() {
     if (!dom) {
       const htmlString: string = parseMarkdownToHTMLString(markdown);
       htmlDOM = parseHTMLStringToDOM(htmlString);
-      console.log(htmlDOM);
     } else {
       htmlDOM = htmlDocument;
-      console.log("else", htmlDOM);
     }
 
     if (type === 0) {
@@ -373,56 +366,59 @@ function useMarkdToHTML() {
   };
 
   const markedToComponents = ({ marked }) => {
-      const [state, setState] = React.useState("");
-      return (
-        <Grid container spacing={2} columns={{ xs: 12 }}>
-          <Grid item xs={4}>
-            <EditorEle
-              state={state}
-              setState={setState}
-              marked={marked}
-              order={"first"}
-            ></EditorEle>
-          </Grid>
-          <Grid item xs={4}>
-            <EditorEle
-              state={state}
-              setState={setState}
-              marked={marked}
-              order={"middle"}
-            ></EditorEle>
-          </Grid>
-          <Grid item xs={4}>
-            <EditorEle
-              state={state}
-              setState={setState}
-              marked={marked}
-              order={"last"}
-            ></EditorEle>
-          </Grid>
+    const [state, setState] = React.useState("");
+    return (
+      <Grid container spacing={2} columns={{ xs: 12 }}>
+        <Grid item xs={4}>
+          <EditorEle
+            state={state}
+            setState={setState}
+            marked={marked}
+            order={"first"}
+          ></EditorEle>
         </Grid>
-      );
-    }
+        <Grid item xs={4}>
+          <EditorEle
+            state={state}
+            setState={setState}
+            marked={marked}
+            order={"middle"}
+          ></EditorEle>
+        </Grid>
+        <Grid item xs={4}>
+          <EditorEle
+            state={state}
+            setState={setState}
+            marked={marked}
+            order={"last"}
+          ></EditorEle>
+        </Grid>
+      </Grid>
+    );
+  };
 
-    function EditorEle({ marked, order, state, setState }) {
-      switch (order) {
-        case "first":
-          return marked;
-    
-          break;
-    
-        case "middle":
-          return (
-            <input value={state} onChange={(e) => setState(e.target.value)}></input>
-          );
-          break;
-        case "last":
-          return <span>{state}</span>;
-        default:
-          return <h1>Error</h1>;
-          break;
-      }
+  function EditorEle({ marked, order, state, setState }) {
+    switch (order) {
+      case "first":
+        return marked;
+
+        break;
+
+      case "middle":
+        return (
+          <input
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+          ></input>
+        );
+        break;
+      case "last":
+        return <span>{state}</span>;
+      default:
+        return <h1>Error</h1>;
+        break;
     }
+  }
 
   return {
     editorReady,
@@ -433,7 +429,7 @@ function useMarkdToHTML() {
     registerAllCustomTags,
     markedToDom,
     markedToComponents,
-    convL0MDEditToString
+    convL0MDEditToString,
   };
 }
 

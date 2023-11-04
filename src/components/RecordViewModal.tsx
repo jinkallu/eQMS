@@ -27,7 +27,7 @@ export default function RecordViewModal({
   React.useEffect(() => {
     if (repository.id && record) {
       const nameArray = record.name.split("/");
-      const path = [nameArray[0], nameArray[1], "data.md"]?.join("/");
+      const path = [nameArray[0], nameArray[1], "data.html"]?.join("/");
 
       getFileData(repository.id, path, record?.name);
     }

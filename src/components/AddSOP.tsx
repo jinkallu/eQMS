@@ -84,7 +84,7 @@ export default function AddSOP({
       branchName
     );
 
-    const file_name = "data.md";
+    const file_name = "data.html";
     const path = `qms/sop/${file_name}`;
 
     const renameRes = await renameFile(

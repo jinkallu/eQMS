@@ -66,7 +66,7 @@ export default function TemplateCRUD({ open, setOpen, branchId, sopName }) {
     );
 
     // create path for the sop like sop/management/
-    const file_name = "data.md";
+    const file_name = "data.html";
 
     const path = `qms/temp/${file_name}`;
 

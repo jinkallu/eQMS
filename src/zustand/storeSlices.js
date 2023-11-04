@@ -102,7 +102,7 @@ export const repositorySlice = (set, get) => ({
               return {
                 ...item,
                 name: item.name,
-                filePath: `${nameArray[0]}/${type}/data.md`,
+                filePath: `${nameArray[0]}/${type}/data.html`,
                 relativePath: nameArray[nameArray?.length - 2],
                 branchId: nameArray[nameArray?.length - 3],
               };
@@ -269,7 +269,7 @@ export const repositorySlice = (set, get) => ({
     let path = "";
 
     let editBranchName = branchName.split("/");
-    path = [editBranchName[0], type, `data.md`];
+    path = [editBranchName[0], type, `data.html`];
     path = path.join("/");
 
     editBranchName.splice(-1);

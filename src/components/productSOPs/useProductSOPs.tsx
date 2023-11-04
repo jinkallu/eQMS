@@ -93,7 +93,7 @@ function useProductSOPs() {
     const dataPromise = await userSOPs?.map(async (sop) => {
       const content = await getFileContent(
         repository.id,
-        `/qms/${sop.type}/data.md`,
+        `/qms/${sop.type}/data.html`,
         sop.name
       );
       return { ...sop, content };

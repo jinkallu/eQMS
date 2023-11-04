@@ -7,22 +7,38 @@ export default function InputTagViewer({
   handleChange,
 }) {
   function handleChangeFun(e) {
-    handleChange(id, e.target.value);
+    if(handleChange){
+      handleChange(id, e.target.value);
+    }
   }
   let component;
+  const val = element.getAttribute("value");
   switch (order) {
     case "first":
       //component = element.outerHTML;
-      component = <input value={state[id]} onChange={handleChangeFun}></input>;
+      component = (
+        <input value={state[id] || val} onChange={handleChangeFun}></input>
+      );
 
       break;
     case "middle":
-      component = <input value={state[id]} onChange={handleChangeFun}></input>;
-      console.log(component);
+      component = (
+        <input value={state[id] || val} onChange={handleChangeFun}></input>
+      );
       break;
     case "last":
-      console.log("last", state);
-      component = <span>{state[id]}</span>;
+      if(state){
+        if(state[id]){
+          component = <span>{state[id]}</span>
+        }
+        else{
+          component = <span>{val}</span>;
+        }
+      }
+      else{
+        component = <span>{val}</span>;
+      }
+      
       //component = <input value={state[id]} onChange={handleChangeFun}></input>;
 
       break;

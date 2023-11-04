@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
 import ProcessFlow from "./ProcessFlow";
 import CScape from "../../customtags/cytoscapetags/cscape";
 
 //import GraphAnalysis from "../../customtags/cytoscapetags/GraphAnalysis"; // TODO: for future graph analysis
 
-export default function ProcessFlowView({ element, order, state, id, handleChange }) {
-
+export default function ProcessFlowView({
+  element,
+  order,
+  state,
+  id,
+  handleChange,
+}) {
   const [graphData, setGraphData] = useState(null);
 
   function traverseGraph(node, initialNodes, initialEdges, x, y) {
     const id = node.id(); // Assuming you have unique node IDs in Cytoscape
     const label = node.data("label"); // Assuming you have labels in Cytoscape nodes
     const type = node.data("type");
-    console.log(node.parent());
     switch (type) {
       case "step":
         x = 10;
@@ -30,69 +35,66 @@ export default function ProcessFlowView({ element, order, state, id, handleChang
         type: type,
         position: {
           x: x,
-          y: y
+          y: y,
         },
         data: {
           label: label,
-          type: type
+          type: type,
         },
-        parentNode: 'A',
+        parentNode: "A",
         extent: type,
-        draggable: false
+        draggable: false,
       });
-    }
-    else {
+    } else {
       y = y - 50;
     }
 
-    node.children().forEach(childNode => {
+    node.children().forEach((childNode) => {
       y = y + 100;
       traverseGraph(childNode, initialNodes, initialEdges, x, y);
     });
-
   }
 
   function createProcessGraph(element) {
     const cScape = new CScape();
     const cy = cScape.init(element.id, element);
     const process_node = cy.elements('[type="process"]');
-    console.log(process_node.data("label"));
 
     const initialNodes = [];
-    const initialEdges = [];//[{ id: "e1-2", source: "1", target: "2" }];
+    const initialEdges = []; //[{ id: "e1-2", source: "1", target: "2" }];
 
     initialNodes.push({
-      id: 'A', // TODO: change this id to a unique
-      type: 'group',
-      data: { 
+      id: "A", // TODO: change this id to a unique
+      type: "group",
+      data: {
         label: null,
-        type: process_node.data("type")
+        type: process_node.data("type"),
       },
       position: { x: 0, y: 0 },
       style: {
         width: 470,
         height: 640,
       },
-      draggable: false
+      draggable: false,
     });
     initialNodes.push({
       id: process_node.data("label"),
       position: {
         x: 0,
-        y: 0
+        y: 0,
       },
       style: {
         width: 470,
         height: 50,
-        backgroundColor: 'rgba(240,240,240,0.25)',
+        backgroundColor: "rgba(240,240,240,0.25)",
       },
       data: {
         label: process_node.data("label"),
-        type: process_node.data("type") + "_label"
+        type: process_node.data("type") + "_label",
       },
-      parentNode: 'A',
-      extent: 'parent',
-      draggable: false
+      parentNode: "A",
+      extent: "parent",
+      draggable: false,
     });
 
     const mxVertexMap = new Map();
@@ -100,7 +102,7 @@ export default function ProcessFlowView({ element, order, state, id, handleChang
     traverseGraph(process_node, initialNodes, initialEdges, 10, 50);
 
     const cyEdges = cy.edges();
-    cyEdges.forEach(cyEdge => {
+    cyEdges.forEach((cyEdge) => {
       const sourceId = cyEdge.data().source;
       const targetId = cyEdge.data().target;
       const label = cyEdge.data().label;
@@ -111,10 +113,10 @@ export default function ProcessFlowView({ element, order, state, id, handleChang
       const srcType = srcNode.data("type");
       const tgtType = tgtNode.data("type");
 
-      let sourceHandle, targetHandle; 
-      switch(srcType){
+      let sourceHandle, targetHandle;
+      switch (srcType) {
         case "step":
-          switch(tgtType){
+          switch (tgtType) {
             case "step":
               sourceHandle = "source_bottom";
               targetHandle = "target";
@@ -124,22 +126,21 @@ export default function ProcessFlowView({ element, order, state, id, handleChang
               targetHandle = "target";
               break;
           }
-        break;
+          break;
       }
-      
+
       //const sourceVertex = mxVertexMap.get(sourceId);
       //const targetVertex = mxVertexMap.get(targetId);
 
       //if (sourceVertex && targetVertex) {
-        initialEdges.push({ 
-          id: sourceId + "_" + targetId, 
-          source:sourceId, 
-          target: targetId,
-          targetHandle: targetHandle,
-          sourceHandle: sourceHandle
-        })
+      initialEdges.push({
+        id: sourceId + "_" + targetId,
+        source: sourceId,
+        target: targetId,
+        targetHandle: targetHandle,
+        sourceHandle: sourceHandle,
+      });
       //}
-      
     });
 
     setGraphData({ initialNodes: initialNodes, initialEdges: initialEdges });
@@ -147,13 +148,22 @@ export default function ProcessFlowView({ element, order, state, id, handleChang
 
   useEffect(() => {
     createProcessGraph(element);
-  }, [element])
+  }, [element]);
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={3}>
-        <ProcessFlow graphData={graphData} />
+    (order === "middle" && (
+      <Grid container spacing={2}>
+        <Grid item xs={3}>
+          <ProcessFlow graphData={graphData} editable={true} />
+        </Grid>
       </Grid>
-    </Grid>
+    )) ||
+    (order === "last" && (
+      <Grid container spacing={2}>
+        <Grid item xs={3}>
+          <ProcessFlow graphData={graphData} editable={false} />
+        </Grid>
+      </Grid>
+    ))
   );
 }

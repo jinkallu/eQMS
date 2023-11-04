@@ -88,7 +88,7 @@ const Header = () => {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        padding: "5px",
+        paddingX: "5px",
         zIndex: 100,
       }}
     >

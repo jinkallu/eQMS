@@ -121,7 +121,7 @@ export default function ProdCRUD({
     //   newPath = number + "-" + newPath;
     //   newPath = "prod" + "-" + newPath;
     // }
-    const file_name = "data.md";
+    const file_name = "data.html";
     const path = `qms/prod/${file_name}`;
 
     // rename the current readme.md so that the folder structure created..

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useExtnStore } from "../zustand/store";
 import React from "react";
 import { markedToHtml } from "../utils/markedHelper";
-import { Box, Chip, CircularProgress, Typography } from "@mui/material";
+import { Box, Chip, CircularProgress, Paper } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import MarkedEditView from "./marked/MarkedEditView";
@@ -32,6 +32,8 @@ export default function HTMLViewer() {
   const project = useExtnStore((state) => state.project);
 
   const [inputText, setInputText] = React.useState("");
+  const [html, setHtml] = React.useState<Document>();
+
   const [branch, setBranch] = React.useState<any>();
   const [editMode, setEditMode] = React.useState(false);
   const [open, setOpen] = React.useState(false);
@@ -62,7 +64,7 @@ export default function HTMLViewer() {
 
     const content = await getFileContent(
       repository.id,
-      `/qms/${type}/data.md`,
+      `/qms/${type}/data.html`,
       branchName
     );
 
@@ -81,22 +83,22 @@ export default function HTMLViewer() {
     let path = [];
 
     let editBranchNameArr = branchName.split("/");
-    path = [editBranchNameArr[0], type, relativePath, `${relativePath}.md`];
+    path = [editBranchNameArr[0], type, `data.html`];
     const filePath = path.join("/");
 
     editBranchNameArr.splice(-1);
     editBranchNameArr.push("edit");
     const editBranchName = editBranchNameArr.join("/");
 
-    const md = EditorSave.findEditableMds(inputText, "Editor");
-    console.log(md);
+    // const md = EditorSave.findEditableMds(inputText, "Editor");
+    console.log(html);
 
     const created = await commit(
       project.id,
       repository.id,
       editBranchName,
       filePath,
-      md,
+      html?.body?.innerHTML,
       commitMessage
     );
 
@@ -145,57 +147,76 @@ export default function HTMLViewer() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        maxHeight: "100vh",
-        overflowY: "scroll",
-        paddingTop: "9px",
+        position: "relative",
       }}
     >
+      {!editMode && (
+        <Paper
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            paddingX: "24px",
+            height: "50px",
+            position: "fixed",
+            width: "100%",
+            opacity: 1,
+            zIndex: 100,
+          }}
+        >
+          <ArrowBackIcon
+            sx={{ cursor: "pointer" }}
+            onClick={() => navigate(-1)}
+          ></ArrowBackIcon>
+
+          <Chip label={relativePath} color="primary" variant="outlined"></Chip>
+          <Box>
+            {canEdit && editMode && (
+              <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
+            )}
+            <EditIcon
+              onClick={toggleEditModeData}
+              sx={{ cursor: "pointer" }}
+            ></EditIcon>
+          </Box>
+        </Paper>
+      )}
+      <EditConfModal
+        commitMessage={commitMessage}
+        setOpen={setOpen}
+        loading={loadingCommit}
+        setCommitMessage={setCommitMessage}
+        open={open}
+        handleClose={handleClose}
+        saveContent={saveContent}
+      ></EditConfModal>
+
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
-          paddingX: "24px",
+          justifyContent: "center",
+          alignItems: "center",
+          overflowY: "auto",
         }}
-      >
-        <ArrowBackIcon
-          sx={{ cursor: "pointer" }}
-          onClick={() => navigate(-1)}
-        ></ArrowBackIcon>
-        <EditConfModal
-          commitMessage={commitMessage}
-          setOpen={setOpen}
-          loading={loadingCommit}
-          setCommitMessage={setCommitMessage}
-          open={open}
-          handleClose={handleClose}
-          saveContent={saveContent}
-        ></EditConfModal>
-        <Chip label={relativePath} color="primary" variant="outlined"></Chip>
-        <Box>
-          {canEdit && editMode && (
-            <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
-          )}
-          <EditIcon
-            onClick={toggleEditModeData}
-            sx={{ cursor: "pointer" }}
-          ></EditIcon>
-        </Box>
-      </Box>
-      <Box
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
       >
         {editMode && (
           <MonacoEditor
-            inputText={inputText}
-            setInputText={setInputText}
             objectId={""}
             type={type}
             branchName={branchName}
             relativePath={relativePath}
+            html={html}
+            setHtml={setHtml}
+            setOpenEditModal={setOpen}
           ></MonacoEditor>
         )}
         {!editMode && (
-          <MarkedHTMLViewer markedText={inputText} ready={true} edit={false} />
+          <MarkedHTMLViewer
+            markedText={inputText}
+            ready={true}
+            edit={false}
+            html={html}
+            setHtml={setHtml}
+          />
         )}
       </Box>
     </Box>
