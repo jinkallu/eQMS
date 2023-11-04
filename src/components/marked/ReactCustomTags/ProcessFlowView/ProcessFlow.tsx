@@ -10,18 +10,22 @@ import ReactFlow, {
 } from "reactflow";
 import ContextMenu from "./ContextMenu";
 import DecisionNode from "./DecisionNode";
+import MultiDecisionNode from "./MultiDecisionNode";
 import StepNode from "./StepNode";
 import TemplateNode from "./TemplateNode";
 import TemplatesNode from "./TemplatesNode";
 
 import "reactflow/dist/style.css";
 import "./style.css";
+import "./MultiDecisionNode.css";
+
 import CreateStepModal from "./CreateStepModal";
 import CreateStepTemplateModal from "./CreateStepTemplateModal";
 import DeleteStepModal from "./DeleteStepModal";
 
 const nodeTypes = {
   decision: DecisionNode,
+  multidec: MultiDecisionNode,
   step: StepNode,
   template: TemplateNode,
   templates: TemplatesNode,

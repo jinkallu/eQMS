@@ -106,16 +106,38 @@ export default function CreateStepModal({
     //   });
     //   setNextStep(stepData);
     // }
+    //console.log(stepName, stepType);
 
     const position = {
       x: currentNode.node.position.x,
       y: currentNode.node.position.y + 200,
     };
 
-    const data = {
-      label: stepName,
-      type: "step",
-    };
+    let typ = stepType;
+    if(typ === "decision"){
+      typ = "multidec";
+    }
+
+    let data;
+    if(typ === "step"){
+      data = {
+        label: stepName,
+        type: typ,
+      };
+    }
+    else if(typ === "multidec"){
+      data = {
+        label: stepName,
+        type: typ,
+        field: "Gender", // TODO: get it from template field
+        conditions: [ // TODO: Get it from original conditions
+          "= Male",
+          "= Female",
+          "= Unknown"
+        ]  
+      };
+    }
+    
 
     //const parentExtent = getNode("A").extent;
 
@@ -124,6 +146,7 @@ export default function CreateStepModal({
       id: `${stepName}-step`,
       position: position,
       data: data,
+      type: typ,
       //parentNode: "A",
       //extent: 'parent'
     };
@@ -157,7 +180,11 @@ export default function CreateStepModal({
   };
 
   function handleStepTypeChange(e) {
-    setStepType(e.target.value);
+    let typ = e.target.value;
+    //if(typ === "decision"){
+    //  typ = "multidec";
+    //}
+    setStepType(typ);
   }
   function handleChange(e) {
     setTemplate(e.target.value);
@@ -225,7 +252,7 @@ export default function CreateStepModal({
           autoFocus
           margin="dense"
           id="message"
-          label="Message"
+          label="Step Name"
           fullWidth
           variant="standard"
           value={stepName}
