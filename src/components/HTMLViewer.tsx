@@ -56,7 +56,6 @@ export default function HTMLViewer() {
   const { readDatabase } = useExtnStore();
 
   async function getFileContentData() {
-    console.log(type, branchName);
     // const branchData = branchFileNames?.find(
     //   (item) => item.objectId === objectId
     // );
@@ -91,7 +90,6 @@ export default function HTMLViewer() {
     const editBranchName = editBranchNameArr.join("/");
 
     // const md = EditorSave.findEditableMds(inputText, "Editor");
-    console.log(html);
 
     const created = await commit(
       project.id,
@@ -122,8 +120,6 @@ export default function HTMLViewer() {
   }, [editMode]);
 
   React.useEffect(() => {
-    console.log(project);
-
     getDatabaseContent("standards", repository.id);
     const members = getTeamMembers("eQMS", "eQMS Team");
 

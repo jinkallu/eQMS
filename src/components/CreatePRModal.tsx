@@ -19,7 +19,6 @@ import { useNavigate } from "react-router";
 import { useExtnStore } from "../zustand/store";
 import { createPR } from "../utils/gitHelpers.js";
 export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
-  console.log(branchId, sopName);
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);

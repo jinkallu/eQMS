@@ -60,7 +60,6 @@ export default function MonacoEditor({
       projectId: project.id,
     });
 
-    console.log(branchName, data);
     // setMarkedData(data);
     const parser = new DOMParser();
     //const htmlString = marked(data);

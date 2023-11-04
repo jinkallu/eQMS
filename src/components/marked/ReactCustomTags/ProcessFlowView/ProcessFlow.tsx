@@ -18,6 +18,7 @@ import "reactflow/dist/style.css";
 import "./style.css";
 import CreateStepModal from "./CreateStepModal";
 import CreateStepTemplateModal from "./CreateStepTemplateModal";
+import DeleteStepModal from "./DeleteStepModal";
 
 const nodeTypes = {
   decision: DecisionNode,
@@ -38,9 +39,9 @@ export default function ProcessFlow({ graphData, editable }) {
   const initialEdges = graphData?.initialEdges || [];
 
   const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
+  const [openDeleteStepModal, setOpenDeleteStepModal] = React.useState(false);
   const [openCreateStepTemplateModal, setOpenCreateStepTemplateModal] =
     React.useState(false);
-  const [stepName, setStepName] = React.useState("");
   const [currentNode, setCurrentNode] = React.useState<{
     node: any;
     top: number;
@@ -65,60 +66,6 @@ export default function ProcessFlow({ graphData, editable }) {
   if(order === "last"){
     setEditable(false);
   }*/
-
-  function createStep() {
-    const position = {
-      x: currentNode.node.position.x,
-      y: currentNode.node.position.y + 200,
-    };
-
-    const data = {
-      label: stepName,
-      type: "step",
-    };
-
-    //const parentExtent = getNode("A").extent;
-
-    const newNode = {
-      ...currentNode.node,
-      id: `${stepName}-step`,
-      position: position,
-      data: data,
-      //parentNode: "A",
-      //extent: 'parent'
-    };
-
-    const myNewNodes = [...nodes];
-    myNewNodes.push(newNode);
-    const processflowId = "A";
-
-    const foundElement = myNewNodes.find(
-      (element) => element.id === processflowId
-    );
-    if (foundElement) {
-      foundElement.style.height = position.y + 300;
-    }
-    // setMyNodes(myNewNodes);
-
-    setNodes((nodes) => {
-      return [...nodes, newNode];
-    });
-
-    const newEdge = {
-      id: currentNode.node.id + "_" + newNode.id,
-      source: currentNode.node.id,
-      target: newNode.id,
-      sourceHandle: "source_bottom",
-      targetHandle: "target",
-    };
-
-    const myNewEdges = [...edges];
-    myNewEdges.push(newEdge);
-    // setMyEdges(myNewEdges);
-    setEdges((edges) => {
-      return [...edges, newEdge];
-    });
-  }
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
@@ -180,11 +127,17 @@ export default function ProcessFlow({ graphData, editable }) {
         setMyEdges: setEdges,
         setOpenCreateStepModal,
         setOpenCreateStepTemplateModal,
-        stepName,
+        setOpenDeleteStepModal,
       });
     },
     [nodes, setNodes, edges, setEdges, setMenu]
   );
+
+  function onNodeClick(e, node) {
+    console.log(e, node);
+    // To remove the context menu, if active
+    setMenu(null);
+  }
 
   //if(editable) {
   return (
@@ -200,10 +153,19 @@ export default function ProcessFlow({ graphData, editable }) {
       <CreateStepModal
         setOpen={setOpenCreateStepModal}
         open={openCreateStepModal}
-        stepName={stepName}
-        setStepName={setStepName}
-        createStep={createStep}
+        currentNode={currentNode}
+        setNodes={setNodes}
+        setEdges={setEdges}
       ></CreateStepModal>
+      <DeleteStepModal
+        setOpen={setOpenDeleteStepModal}
+        open={openDeleteStepModal}
+        currentNode={currentNode}
+        setNodes={setNodes}
+        setEdges={setEdges}
+        edges={edges}
+        nodes={nodes}
+      ></DeleteStepModal>
 
       <CreateStepTemplateModal
         setOpen={setOpenCreateStepTemplateModal}
@@ -212,6 +174,7 @@ export default function ProcessFlow({ graphData, editable }) {
         setNodes={setNodes}
         setEdges={setEdges}
       ></CreateStepTemplateModal>
+
       <ReactFlow
         ref={ref}
         nodes={nodes}
@@ -228,6 +191,7 @@ export default function ProcessFlow({ graphData, editable }) {
         zoomOnPinch={false}
         nodeTypes={nodeTypes}
         preventScrolling={false}
+        onNodeClick={onNodeClick}
         elementsSelectable={editable}
       >
         {/* <Controls /> */}

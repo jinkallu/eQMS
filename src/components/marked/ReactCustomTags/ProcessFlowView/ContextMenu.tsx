@@ -13,7 +13,7 @@ export default function ContextMenu({
   setMyEdges,
   setOpenCreateStepModal,
   setOpenCreateStepTemplateModal,
-  stepName,
+  setOpenDeleteStepModal,
   ...props
 }) {
   const { getNode, getNodes, addNodes, addEdges, setEdges, getEdges, fitView } =
@@ -21,6 +21,7 @@ export default function ContextMenu({
   const [nextStep, setNextStep] = useState({
     hasNextStep: true,
     hasTemplate: true,
+    type: null,
   });
 
   const duplicateNode = useCallback(() => {
@@ -35,10 +36,12 @@ export default function ContextMenu({
     //console.log(getNode(`${node.id}-step`))
   }, [id, getNode, addNodes]);
 
-  const deleteNode = useCallback(() => {
+  const deleteNode = () => {
+    setOpenDeleteStepModal(true);
+
     //setNodes((nodes) => nodes.filter((node) => node.id !== id));
-    setEdges((edges) => edges.filter((edge) => edge.source !== id));
-  }, [id, setEdges]);
+    // setEdges((edges) => edges.filter((edge) => edge.source !== id));
+  };
 
   const addNextStep = () => {
     setOpenCreateStepModal(true);
@@ -50,11 +53,11 @@ export default function ContextMenu({
   useEffect(() => {
     const node = getNode(id);
     if (node.data.type === "template") {
-      setNextStep({ hasNextStep: true, hasTemplate: true });
+      setNextStep({ hasNextStep: true, hasTemplate: true, type: "template" });
     } else if (node.data.type === "step") {
       const edges = getEdges();
       const connectedChildren = edges.filter((edge) => edge.source == id);
-      const stepData = { hasNextStep: false, hasTemplate: false };
+      const stepData = { hasNextStep: false, hasTemplate: false, type: "step" };
       connectedChildren.forEach((child) => {
         const targetNode = getNode(child.target);
         if (targetNode.data.type === "step") {
@@ -77,13 +80,17 @@ export default function ContextMenu({
       <p style={{ margin: "0.5em" }}>
         <small>node: {id}</small>
       </p>
-      {!nextStep.hasNextStep && (
+
+      {nextStep.type === "step" && (
         <button onClick={addNextStep}>Next Step</button>
       )}
-      {!nextStep.hasTemplate && (
+      {!nextStep.hasTemplate && nextStep.type === "step" && (
         <button onClick={addTemplate}>Add Template</button>
       )}
-      <button onClick={duplicateNode}>duplicate</button>
+      {nextStep.type === "step" && (
+        <button onClick={duplicateNode}>duplicate</button>
+      )}
+      <button onClick={() => {}}>edit</button>
       <button onClick={deleteNode}>delete</button>
     </div>
   );
