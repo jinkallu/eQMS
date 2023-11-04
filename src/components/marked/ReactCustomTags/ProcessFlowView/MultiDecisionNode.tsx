@@ -26,7 +26,8 @@ export default function MultiDecisionNode({ data }) {
                 type="target"
                 position={Position.Top}
                 id="target"
-                style={{ top: 0, background: "#555" }}
+                style={{ top: -10, background: "#555", borderRadius: "0", transform: "rotate(45deg)", width: "20px", 
+                height: "20px" }}
                 onConnect={(params) => console.log("handle onConnect", params)}
                 isConnectable={true}
             />

@@ -17,7 +17,6 @@ import TemplatesNode from "./TemplatesNode";
 
 import "reactflow/dist/style.css";
 import "./style.css";
-import "./MultiDecisionNode.css";
 
 import CreateStepModal from "./CreateStepModal";
 import CreateStepTemplateModal from "./CreateStepTemplateModal";
