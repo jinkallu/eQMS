@@ -11,7 +11,15 @@ import {
   TextField,
   InputLabel,
   Box,
+  Paper,
+  Grid,
+  Typography,
+  Divider,
+  Input,
 } from "@mui/material";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
 
 import { useExtnStore } from "../../../../zustand/store";
 
@@ -32,6 +40,7 @@ export default function CreateStepModal({
     useExtnStore((state) => state);
   const [stepName, setStepName] = React.useState("");
   const [stepType, setStepType] = React.useState("step");
+  const [inputNodes, setInputNodes] = React.useState<HTMLCollection>(null);
   const [template, setTemplate] = React.useState<{
     branchId: string;
     name: string;
@@ -73,7 +82,7 @@ export default function CreateStepModal({
           const parser = new DOMParser();
           const html = parser.parseFromString(data, "text/html");
           const inputNodes = html.getElementsByTagName("input");
-          console.log(html, inputNodes);
+          setInputNodes(inputNodes);
         }
       }
     );
@@ -160,7 +169,7 @@ export default function CreateStepModal({
         <Box
           sx={{
             display: "flex",
-            justifyContent: "center",
+            justifyContent: "space-between",
             alignItems: "center",
             padding: "24px",
             margin: "9px",
@@ -205,6 +214,9 @@ export default function CreateStepModal({
             </FormControl>
           )}
         </Box>
+        <Divider></Divider>
+
+        <InputElements inputs={inputNodes}></InputElements>
 
         <DialogContentText>
           Please enter a name for the step...
@@ -229,3 +241,197 @@ export default function CreateStepModal({
     </Dialog>
   );
 }
+
+const InputElements = ({ inputs }: { inputs: HTMLCollection }) => {
+  const [inputEl, setInputEl] = React.useState([]);
+
+  const operators = [
+    {
+      id: 1,
+      operator: "===",
+      val: "equal to",
+    },
+    { id: 2, operator: "!==", val: "Not equal to" },
+  ];
+
+  const [conditions, setConditions] = React.useState<
+    { operator: string; value: string; stepName: string; id: number }[]
+  >([{ operator: "=", value: "", id: 1, stepName: "My step 1" }]);
+
+  useEffect(() => {
+    if (!inputs) {
+      setInputEl([]);
+      return;
+    }
+    const data =
+      Array.from(inputs)?.map((inp) => {
+        const id = inp.getAttribute("id");
+        const name = inp.getAttribute("name");
+
+        return { id, name, selected: false };
+      }) || [];
+    setInputEl(data);
+  }, [inputs]);
+
+  function handleClick(inp) {
+    setInputEl((val) => {
+      return val?.map((item) => {
+        if (item.id === inp.id) {
+          return { ...item, selected: true };
+        } else {
+          return { ...item, selected: false };
+        }
+      });
+    });
+  }
+
+  function handleAddCondition() {
+    const id = conditions.length + 1;
+    const newCondition = {
+      operator: "=",
+      value: "",
+      id,
+      stepName: `My step ${id}`,
+    };
+    setConditions((prev) => [...prev, newCondition]);
+  }
+
+  function handleRemoveCondition(id) {
+    setConditions((prev) => prev?.filter((item) => item.id !== id));
+  }
+
+  function handleChangeValue(id, e) {
+    setConditions((cond) =>
+      cond?.map((item) => {
+        if (item.id === id) {
+          return { ...item, value: e.target.value };
+        } else return item;
+      })
+    );
+  }
+
+  function handleChangeStepName(id, e) {
+    setConditions((cond) =>
+      cond?.map((item) => {
+        if (item.id === id) {
+          return { ...item, stepName: e.target.value };
+        } else return item;
+      })
+    );
+  }
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        marginY: "24px",
+        gap: "24px",
+      }}
+    >
+      <Typography>Choose an input field</Typography>
+      <Box sx={{ display: "flex", alignItems: "center", gap: "9px" }}>
+        {inputEl?.map((inp) => {
+          return (
+            <Paper
+              key={inp.id}
+              onClick={() => handleClick(inp)}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                padding: "11px",
+                fontSize: "9px",
+                cursor: "pointer",
+                "&:hover": { backgroundColor: "#dcdcdc" },
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  visibility: inp.selected ? "visible" : "hidden",
+                }}
+              >
+                <CheckCircleOutlineIcon color="primary"></CheckCircleOutlineIcon>
+              </Box>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <span>Id</span>
+                </Grid>
+                <Grid item xs={6}>
+                  <span style={{ fontWeight: "600" }}>{inp.id}</span>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <span>name</span>
+                </Grid>
+                <Grid item xs={6}>
+                  <span style={{ fontWeight: "600" }}>{inp.name}</span>
+                </Grid>
+              </Grid>
+            </Paper>
+          );
+        })}
+      </Box>
+      <Box sx={{ display: "flex", flexDirection: "column", paddingY: "9px" }}>
+        <Typography> Create Conditions</Typography>
+        {inputEl?.filter((item) => item.selected)?.length > 0 && (
+          <Box>
+            <Grid container spacing={2}>
+              <Grid item xs={2}>
+                Operator
+              </Grid>
+              <Grid item xs={3}>
+                Value
+              </Grid>
+              <Grid item xs={3}>
+                Step Name
+              </Grid>
+              <Grid item xs={4}>
+                Actions
+              </Grid>
+            </Grid>
+            {conditions?.map((cond, index) => (
+              <Grid container spacing={2} key={cond.id}>
+                <Grid item xs={2}>
+                  {cond.operator}
+                </Grid>
+                <Grid item xs={3}>
+                  <Input
+                    size="small"
+                    value={cond.value}
+                    onChange={(e) => handleChangeValue(cond.id, e)}
+                  ></Input>
+                </Grid>
+
+                <Grid item xs={3}>
+                  <Input
+                    size="small"
+                    value={cond.stepName}
+                    onChange={(e) => handleChangeStepName(cond.id, e)}
+                  ></Input>
+                </Grid>
+                <Grid item xs={2}>
+                  {index > 0 && (
+                    <CloseIcon
+                      sx={{ cursor: "pointer" }}
+                      onClick={() => handleRemoveCondition(cond.id)}
+                    ></CloseIcon>
+                  )}
+                </Grid>
+
+                <Grid item xs={2}>
+                  {index === conditions.length - 1 && (
+                    <AddIcon
+                      sx={{ cursor: "pointer" }}
+                      onClick={handleAddCondition}
+                    ></AddIcon>
+                  )}
+                </Grid>
+              </Grid>
+            ))}
+          </Box>
+        )}
+      </Box>
+    </Box>
+  );
+};
