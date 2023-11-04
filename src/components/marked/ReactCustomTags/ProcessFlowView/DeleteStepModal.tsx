@@ -32,7 +32,7 @@ export default function DeleteStepModal({
   const [stepName, setStepName] = React.useState("");
 
   async function handleDelete() {
-    createStep();
+    deleteStep();
     setOpen(false);
   }
 
@@ -40,7 +40,7 @@ export default function DeleteStepModal({
     setOpen(false);
   }
 
-  const createStep = () => {
+  const deleteStep = () => {
     // 1. delete current step
 
     // 2. Decrease position.y of all steps greater than current by 200
@@ -65,7 +65,10 @@ export default function DeleteStepModal({
             node.id !== currentNode.node.id && node.id !== templateNodeId
         )
         ?.map((node) => {
-          if (node?.position?.y > currentNode.node.position.y) {
+          if (
+            node?.position?.y > currentNode.node.position.y &&
+            currentNode.node.data.type === "step"
+          ) {
             return {
               ...node,
               position: { ...node.position, y: node.position.y - 200 },

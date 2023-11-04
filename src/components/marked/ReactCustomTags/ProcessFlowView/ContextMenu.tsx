@@ -24,18 +24,6 @@ export default function ContextMenu({
     type: null,
   });
 
-  const duplicateNode = useCallback(() => {
-    const node = getNode(id);
-    const position = {
-      x: node.position.x + 50,
-      y: node.position.y + 50,
-    };
-    //const newNodes = ;
-    //console.log(newNodes);
-    addNodes({ ...node, id: `${node.id}-copy`, position });
-    //console.log(getNode(`${node.id}-step`))
-  }, [id, getNode, addNodes]);
-
   const deleteNode = () => {
     setOpenDeleteStepModal(true);
 
@@ -87,9 +75,7 @@ export default function ContextMenu({
       {!nextStep.hasTemplate && nextStep.type === "step" && (
         <button onClick={addTemplate}>Add Template</button>
       )}
-      {nextStep.type === "step" && (
-        <button onClick={duplicateNode}>duplicate</button>
-      )}
+
       <button onClick={() => {}}>edit</button>
       <button onClick={deleteNode}>delete</button>
     </div>

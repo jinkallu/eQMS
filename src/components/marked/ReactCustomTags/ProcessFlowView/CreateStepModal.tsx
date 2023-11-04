@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   Dialog,
@@ -6,7 +6,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
+  Select,
   TextField,
+  InputLabel,
+  Box,
 } from "@mui/material";
 
 import { useExtnStore } from "../../../../zustand/store";
@@ -24,8 +28,15 @@ export default function CreateStepModal({
   setNodes: (val: any) => void;
   setEdges: (val: any) => void;
 }) {
-  const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
+  const { userSOPs, setAlertMessage, getFileContent, repository } =
+    useExtnStore((state) => state);
   const [stepName, setStepName] = React.useState("");
+  const [stepType, setStepType] = React.useState("step");
+  const [template, setTemplate] = React.useState<{
+    branchId: string;
+    name: string;
+    relativePath: string;
+  }>({ branchId: null, name: null, relativePath: null });
 
   async function handleCreate() {
     createStep();
@@ -35,6 +46,38 @@ export default function CreateStepModal({
   function handleClose() {
     setOpen(false);
   }
+
+  useEffect(() => {
+    if (!template) {
+      return;
+    }
+    console.log(template);
+    let temp;
+
+    userSOPs?.map((sop) => {
+      const templateNameData = sop?.templates?.find(
+        (item) => item.branchId === template
+      );
+      if (templateNameData) {
+        temp = templateNameData;
+      }
+      return sop;
+    });
+    if (!temp) {
+      return;
+    }
+
+    getFileContent(repository.id, "qms/temp/data.html", temp.name).then(
+      (data) => {
+        if (data) {
+          const parser = new DOMParser();
+          const html = parser.parseFromString(data, "text/html");
+          const inputNodes = html.getElementsByTagName("input");
+          console.log(html, inputNodes);
+        }
+      }
+    );
+  }, [template]);
 
   const createStep = () => {
     // const node = getNode(id);
@@ -104,10 +147,65 @@ export default function CreateStepModal({
     });
   };
 
+  function handleStepTypeChange(e) {
+    setStepType(e.target.value);
+  }
+  function handleChange(e) {
+    setTemplate(e.target.value);
+  }
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Add New Step</DialogTitle>
       <DialogContent>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "24px",
+            margin: "9px",
+          }}
+        >
+          <FormControl sx={{ m: 1, minWidth: 120 }}>
+            <InputLabel htmlFor="select">Select Step Type</InputLabel>
+            <Select
+              id="select"
+              native
+              defaultValue="step"
+              value={stepType}
+              onChange={handleStepTypeChange}
+            >
+              <option value="step"> Step</option>
+              <option value="decision"> Decision</option>
+            </Select>
+          </FormControl>
+
+          {stepType === "decision" && (
+            <FormControl sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel htmlFor="grouped-select">Select Template</InputLabel>
+              <Select
+                native
+                id="grouped-s"
+                value={template}
+                onChange={handleChange}
+              >
+                <option aria-label="None" value="" />
+                {userSOPs
+                  ?.filter((item) => item.templates?.length > 0)
+                  ?.map((sop) => (
+                    <optgroup key={sop.relativePath} label={sop?.relativePath}>
+                      {sop?.templates?.map((temp) => (
+                        <option key={temp.branchId} value={temp.branchId}>
+                          {temp?.relativePath}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+              </Select>
+            </FormControl>
+          )}
+        </Box>
+
         <DialogContentText>
           Please enter a name for the step...
         </DialogContentText>
