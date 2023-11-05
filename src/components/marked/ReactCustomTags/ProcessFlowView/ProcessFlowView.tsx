@@ -21,12 +21,12 @@ export default function ProcessFlowView({
     const type = node.data("type");
     switch (type) {
       case "step":
-        x = 10;
+        x = 200;
         break;
 
       case "template":
         y = y - 100;
-        x = x + 200;
+        x = x + 300;
         break;
     }
     if (type !== "process") {

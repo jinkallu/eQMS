@@ -179,7 +179,7 @@ export default function CreateStepModal({
       if (stepType === "multidec") {
         const newNodes = conditions?.map((cond, index) => {
           const positionData = {
-            x: position.x + 200 * (index + 1),
+            x: position.x + 100 * (index + 1),
             y: position.y + 200,
           };
 
