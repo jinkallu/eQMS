@@ -189,7 +189,7 @@ export default function ProcessFlow({ graphData, editable }) {
         onNodeContextMenu={onNodeContextMenu}
         zoomOnDoubleClick={false} // Disable zoom on double-click
         zoomOnScroll={false} // Disable zoom on scroll
-        nodesDraggable={false}
+        nodesDraggable={true}
         panOnDrag={false}
         zoomOnPinch={false}
         nodeTypes={nodeTypes}
