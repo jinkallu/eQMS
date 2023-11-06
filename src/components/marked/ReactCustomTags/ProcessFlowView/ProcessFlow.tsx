@@ -14,17 +14,13 @@ import StepNode from "./StepNode";
 import TemplateNode from "./TemplateNode";
 import TemplatesNode from "./TemplatesNode";
 
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-
 import "reactflow/dist/style.css";
 import "./style.css";
 
 import CreateStepModal from "./CreateStepModal";
 import CreateStepTemplateModal from "./CreateStepTemplateModal";
 import DeleteStepModal from "./DeleteStepModal";
-import ContextMenuOptions from "./ContextMenuOptions";
-import { NoEmitOnErrorsPlugin } from "webpack";
+import ContextMenu from "./ContextMenu";
 
 const nodeTypes = {
   decision: DecisionNode,
@@ -34,12 +30,6 @@ const nodeTypes = {
   templates: TemplatesNode,
   // Define other custom node types here if needed
 };
-
-/*const initialNodes = [
-  { id: "1", position: { x: 0, y: 0 }, data: { label: "1" } },
-  { id: "2", position: { x: 0, y: 100 }, data: { label: "2" } },
-];
-const initialEdges = [{ id: "e1-2", source: "1", target: "2" }];*/
 
 export default function ProcessFlow({ graphData, editable }) {
   const initialNodes = graphData?.initialNodes || [];
@@ -57,12 +47,6 @@ export default function ProcessFlow({ graphData, editable }) {
     bottom: number;
   }>();
 
-  // const [myNodes, setMyNodes] = useState(initialNodes);
-  // const [myEdges, setMyEdges] = useState(initialEdges);
-
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [menu, setMenu] = useState(null);
@@ -71,11 +55,6 @@ export default function ProcessFlow({ graphData, editable }) {
     width: "100vw",
     height: "50vh",
   });
-
-  /* const [editable, setEditable] = useState(true);
-  if(order === "last"){
-    setEditable(false);
-  }*/
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
@@ -87,10 +66,6 @@ export default function ProcessFlow({ graphData, editable }) {
     setEdges(graphData?.initialEdges);
   }, [graphData]);
 
-  const onPaneClick = useCallback(() => {
-    setMenu(null);
-    handleMenuClose();
-  }, [setMenu]);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -109,19 +84,24 @@ export default function ProcessFlow({ graphData, editable }) {
     }
   }, [nodes]);
 
+  function onNodeClick() {
+    setMenu(null);
+  }
+
   const onNodeContextMenu = (event, node) => {
     event.preventDefault();
 
     if (node.type !== "step") {
+      setMenu(null);
       return;
     }
 
-    handleProfileMenuOpen(event);
-
     const pane = ref.current.getBoundingClientRect();
     const id = node.id;
-    const top = event.clientY < pane.height - 200 && event.clientY;
-    const left = event.clientX < pane.width - 200 && event.clientX;
+    // const top = event.clientY < pane.height - 200 && event.clientY;
+    const top = event.clientY;
+    // const left = event.clientX < pane.width - 200 && event.clientX;
+    const left = event.clientX;
     const right =
       event.clientX >= pane.width - 200 && pane.width - event.clientX;
     const bottom =
@@ -131,8 +111,11 @@ export default function ProcessFlow({ graphData, editable }) {
     setCurrentNode(currentNodeData);
     setMenu({
       id,
-      anchorEl,
-      handleMenuClose,
+      top: pane.top + node.position.y,
+      left: pane.x + node.position.x + node.width,
+      setMenu,
+      right,
+      bottom,
       myNodes: nodes,
       setMyNodes: setNodes,
       myEdges: edges,
@@ -141,15 +124,6 @@ export default function ProcessFlow({ graphData, editable }) {
       setOpenCreateStepTemplateModal,
       setOpenDeleteStepModal,
     });
-  };
-
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.target);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setMenu(null);
   };
 
   //if(editable) {
@@ -195,7 +169,6 @@ export default function ProcessFlow({ graphData, editable }) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onPaneClick={onPaneClick}
         onNodeContextMenu={onNodeContextMenu}
         zoomOnDoubleClick={false} // Disable zoom on double-click
         zoomOnScroll={false} // Disable zoom on scroll
@@ -203,13 +176,14 @@ export default function ProcessFlow({ graphData, editable }) {
         panOnDrag={false}
         zoomOnPinch={false}
         nodeTypes={nodeTypes}
+        onNodeClick={onNodeClick}
         preventScrolling={false}
         elementsSelectable={editable}
       >
         {/* <Controls /> */}
         {/* <MiniMap /> */}
         <Background gap={12} size={1} />
-        <Background />)<ContextMenuOptions {...menu}></ContextMenuOptions>
+        <Background />){menu && <ContextMenu {...menu}></ContextMenu>}
       </ReactFlow>
     </div>
   );

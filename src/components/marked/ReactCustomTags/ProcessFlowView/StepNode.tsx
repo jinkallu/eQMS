@@ -13,16 +13,15 @@ const dragHandleStyle = {
 };
 export default function StepNode({ data }) {
   return (
-    <Paper sx={{ display: "flex" }}>
+    <Paper sx={{ display: "flex", width: "150px", height: "50px" }}>
       <Box
         style={{
-          width: "150px",
-          height: "50px",
           display: "flex",
           flexDirection: "column",
           border: "1px solid blue",
           backgroundColor: "lightblue",
           alignItems: "center",
+          width: "100%",
         }}
       >
         <Box

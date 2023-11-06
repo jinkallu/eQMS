@@ -2,14 +2,13 @@ import React from "react";
 import { Handle, Position } from "reactflow";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import { Paper } from "@mui/material";
 
 export default function DecisionNode({ data }) {
   return (
-    <Box>
+    <Paper sx={{ width: "150px", minHeight: "50px" }}>
       <Box
         style={{
-          width: "150px",
-          height: "50px",
           display: "flex",
           flexDirection: "column",
           border: "1px solid blue",
@@ -63,6 +62,6 @@ export default function DecisionNode({ data }) {
         style={{ bottom: 2, background: "#555" }}
         isConnectable={true}
       />
-    </Box>
+    </Paper>
   );
 }

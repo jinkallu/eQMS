@@ -265,40 +265,46 @@ export default function CreateStepModal({
             </Select>
           </FormControl>
 
-          {stepType === "multidec" && (
-            <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <InputLabel htmlFor="grouped-select">Select Template</InputLabel>
-              <Select
-                native
-                id="grouped-s"
-                value={template}
-                onChange={handleChange}
-              >
-                <option aria-label="None" value="" />
-                {userSOPs
-                  ?.filter((item) => item.templates?.length > 0)
-                  ?.map((sop) => (
-                    <optgroup key={sop.relativePath} label={sop?.relativePath}>
-                      {sop?.templates?.map((temp) => (
-                        <option key={temp.branchId} value={temp.branchId}>
-                          {temp?.relativePath}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-              </Select>
-            </FormControl>
-          )}
+          <FormControl
+            sx={{
+              m: 1,
+              minWidth: 120,
+              visibility: stepType === "multidec" ? "visible" : "hidden",
+            }}
+          >
+            <InputLabel htmlFor="grouped-select">Select Template</InputLabel>
+            <Select
+              native
+              id="grouped-s"
+              value={template}
+              onChange={handleChange}
+            >
+              <option aria-label="None" value="" />
+              {userSOPs
+                ?.filter((item) => item.templates?.length > 0)
+                ?.map((sop) => (
+                  <optgroup key={sop.relativePath} label={sop?.relativePath}>
+                    {sop?.templates?.map((temp) => (
+                      <option key={temp.branchId} value={temp.branchId}>
+                        {temp?.relativePath}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+            </Select>
+          </FormControl>
         </Box>
         <Divider></Divider>
 
-        <InputElements
-          inputs={inputNodes}
-          conditions={conditions}
-          setConditions={setConditions}
-          inputEl={inputEl}
-          setInputEl={setInputEl}
-        ></InputElements>
+        {stepType === "multidec" && (
+          <InputElements
+            inputs={inputNodes}
+            conditions={conditions}
+            setConditions={setConditions}
+            inputEl={inputEl}
+            setInputEl={setInputEl}
+          ></InputElements>
+        )}
 
         <DialogContentText>
           Please enter a name for the step...
@@ -417,6 +423,7 @@ const InputElements = ({
       }}
     >
       <Typography>Choose an input field</Typography>
+
       <Box sx={{ display: "flex", alignItems: "center", gap: "9px" }}>
         {inputEl?.map((inp) => {
           return (

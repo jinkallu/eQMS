@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useReactFlow } from "reactflow";
 
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-
-export default function ContextMenuOptions({
+export default function ContextMenu({
   id,
-  anchorEl,
-  handleMenuClose,
+  top,
+  left,
+  right,
+  bottom,
+  setMenu,
   myNodes,
   setMyNodes,
   myEdges,
@@ -19,8 +19,6 @@ export default function ContextMenuOptions({
 }) {
   const { getNode, getNodes, addNodes, addEdges, setEdges, getEdges, fitView } =
     useReactFlow();
-  const isMenuOpen = Boolean(anchorEl);
-
   const [nextStep, setNextStep] = useState({
     hasNextStep: true,
     hasTemplate: true,
@@ -28,22 +26,23 @@ export default function ContextMenuOptions({
   });
 
   const deleteNode = () => {
-    handleMenuClose();
     setOpenDeleteStepModal(true);
+    setMenu(null);
 
     //setNodes((nodes) => nodes.filter((node) => node.id !== id));
     // setEdges((edges) => edges.filter((edge) => edge.source !== id));
   };
 
   const addNextStep = () => {
-    handleMenuClose();
     setOpenCreateStepModal(true);
+    setMenu(null);
   };
 
   const addTemplate = () => {
-    handleMenuClose();
     setOpenCreateStepTemplateModal(true);
+    setMenu(null);
   };
+
   useEffect(() => {
     const node = getNode(id);
     if (node && node?.data?.type === "step") {
@@ -56,48 +55,29 @@ export default function ContextMenuOptions({
       };
       connectedChildren.forEach((child) => {
         const targetNode = getNode(child.target);
-        // if (targetNode.data.type === "step") {
         if (targetNode) {
           stepData.hasNextStep = true;
         }
-        // } else if (targetNode.data.type === "template") {
-        //   stepData.hasTemplate = true;
-        // }
       });
       setNextStep(stepData);
     }
-    //console.log(stepData);
   }, [id]);
 
   return (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      id={"11"}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
-    >
+    <div style={{ top, left }} className="context-menu" {...props}>
       <p style={{ margin: "0.5em" }}>
         <small>node: {id}</small>
       </p>
 
       {nextStep.type === "step" && (
-        <MenuItem onClick={addNextStep}>Next Step</MenuItem>
+        <button onClick={addNextStep}>Next Step</button>
       )}
       {!nextStep.hasTemplate && nextStep.type === "step" && (
-        <MenuItem onClick={addTemplate}>Add Template</MenuItem>
+        <button onClick={addTemplate}>Add Template</button>
       )}
 
-      <MenuItem onClick={handleMenuClose}>edit</MenuItem>
-      <MenuItem onClick={deleteNode}>delete</MenuItem>
-    </Menu>
+      <button onClick={() => {}}>edit</button>
+      <button onClick={deleteNode}>delete</button>
+    </div>
   );
 }
