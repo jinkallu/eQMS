@@ -19,6 +19,8 @@ export default function ProcessFlowView({
     const id = node.id(); // Assuming you have unique node IDs in Cytoscape
     const label = node.data("label"); // Assuming you have labels in Cytoscape nodes
     const type = node.data("type");
+    const templateName = node.data("templateName");
+    const templateId = node.data("templateId");
     switch (type) {
       case "step":
         x = 200;
@@ -38,8 +40,10 @@ export default function ProcessFlowView({
           y: y,
         },
         data: {
-          label: label,
-          type: type,
+          label,
+          type,
+          templateName,
+          templateId,
         },
         parentNode: "A",
         extent: type,

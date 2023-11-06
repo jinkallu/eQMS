@@ -8,12 +8,14 @@ import ReactFlow, {
   addEdge,
   FitView,
 } from "reactflow";
-import ContextMenu from "./ContextMenu";
 import DecisionNode from "./DecisionNode";
 import MultiDecisionNode from "./MultiDecisionNode";
 import StepNode from "./StepNode";
 import TemplateNode from "./TemplateNode";
 import TemplatesNode from "./TemplatesNode";
+
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 import "reactflow/dist/style.css";
 import "./style.css";
@@ -21,6 +23,8 @@ import "./style.css";
 import CreateStepModal from "./CreateStepModal";
 import CreateStepTemplateModal from "./CreateStepTemplateModal";
 import DeleteStepModal from "./DeleteStepModal";
+import ContextMenuOptions from "./ContextMenuOptions";
+import { NoEmitOnErrorsPlugin } from "webpack";
 
 const nodeTypes = {
   decision: DecisionNode,
@@ -56,6 +60,9 @@ export default function ProcessFlow({ graphData, editable }) {
   // const [myNodes, setMyNodes] = useState(initialNodes);
   // const [myEdges, setMyEdges] = useState(initialEdges);
 
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [menu, setMenu] = useState(null);
@@ -80,7 +87,10 @@ export default function ProcessFlow({ graphData, editable }) {
     setEdges(graphData?.initialEdges);
   }, [graphData]);
 
-  const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+  const onPaneClick = useCallback(() => {
+    setMenu(null);
+    handleMenuClose();
+  }, [setMenu]);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -99,48 +109,48 @@ export default function ProcessFlow({ graphData, editable }) {
     }
   }, [nodes]);
 
-  const onNodeContextMenu = useCallback(
-    (event, node) => {
-      //console.log(event, node);
-      // Prevent native context menu from showing
-      event.preventDefault();
+  const onNodeContextMenu = (event, node) => {
+    event.preventDefault();
 
-      // Calculate position of the context menu. We want to make sure it
-      // doesn't get positioned off-screen.
-      const pane = ref.current.getBoundingClientRect();
-      const id = node.id;
-      const top = event.clientY < pane.height - 200 && event.clientY;
-      const left = event.clientX < pane.width - 200 && event.clientX;
-      const right =
-        event.clientX >= pane.width - 200 && pane.width - event.clientX;
-      const bottom =
-        event.clientY >= pane.height - 200 && pane.height - event.clientY;
+    if (node.type !== "step") {
+      return;
+    }
 
-      const currentNodeData = { node, top, left, right, bottom };
-      setCurrentNode(currentNodeData);
-      setMenu({
-        id,
-        top,
-        left,
-        right,
-        bottom,
-        myNodes: nodes,
-        setMyNodes: setNodes,
-        myEdges: edges,
-        setMyEdges: setEdges,
-        setOpenCreateStepModal,
-        setOpenCreateStepTemplateModal,
-        setOpenDeleteStepModal,
-      });
-    },
-    [nodes, setNodes, edges, setEdges, setMenu]
-  );
+    handleProfileMenuOpen(event);
 
-  function onNodeClick(e, node) {
-    console.log(e, node);
-    // To remove the context menu, if active
+    const pane = ref.current.getBoundingClientRect();
+    const id = node.id;
+    const top = event.clientY < pane.height - 200 && event.clientY;
+    const left = event.clientX < pane.width - 200 && event.clientX;
+    const right =
+      event.clientX >= pane.width - 200 && pane.width - event.clientX;
+    const bottom =
+      event.clientY >= pane.height - 200 && pane.height - event.clientY;
+
+    const currentNodeData = { node, top, left, right, bottom };
+    setCurrentNode(currentNodeData);
+    setMenu({
+      id,
+      anchorEl,
+      handleMenuClose,
+      myNodes: nodes,
+      setMyNodes: setNodes,
+      myEdges: edges,
+      setMyEdges: setEdges,
+      setOpenCreateStepModal,
+      setOpenCreateStepTemplateModal,
+      setOpenDeleteStepModal,
+    });
+  };
+
+  const handleProfileMenuOpen = (event) => {
+    setAnchorEl(event.target);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
     setMenu(null);
-  }
+  };
 
   //if(editable) {
   return (
@@ -189,19 +199,17 @@ export default function ProcessFlow({ graphData, editable }) {
         onNodeContextMenu={onNodeContextMenu}
         zoomOnDoubleClick={false} // Disable zoom on double-click
         zoomOnScroll={false} // Disable zoom on scroll
-        nodesDraggable={true}
+        nodesDraggable={false}
         panOnDrag={false}
         zoomOnPinch={false}
         nodeTypes={nodeTypes}
         preventScrolling={false}
-        onNodeClick={onNodeClick}
         elementsSelectable={editable}
       >
         {/* <Controls /> */}
         {/* <MiniMap /> */}
         <Background gap={12} size={1} />
-        <Background />
-        {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
+        <Background />)<ContextMenuOptions {...menu}></ContextMenuOptions>
       </ReactFlow>
     </div>
   );

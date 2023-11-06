@@ -78,7 +78,6 @@ export default function CreateStepModal({
     if (!template) {
       return;
     }
-    console.log(template);
     let temp;
 
     userSOPs?.map((sop) => {

@@ -42,10 +42,10 @@ export default function CreateStepTemplateModal({
   }
 
   const addTemplate = () => {
-    const position = {
-      x: currentNode.node.position.x + 200,
-      y: currentNode.node.position.y,
-    };
+    // const position = {
+    //   x: currentNode.node.position.x + 200,
+    //   y: currentNode.node.position.y,
+    // };
 
     let templateName;
 
@@ -64,34 +64,42 @@ export default function CreateStepTemplateModal({
       return;
     }
 
-    const data = {
-      label: templateName,
-      type: "template",
-    };
+    // const data = {
+    //   label: templateName,
+    //   type: "template",
+    // };
 
-    const newNode = {
-      ...currentNode.node,
-      id: `${template}-template`,
-      position,
-      data,
-      type: "template",
-    };
+    // const newNode = {
+    //   ...currentNode.node,
+    //   id: `${template}-template`,
+    //   position,
+    //   data,
+    //   type: "template",
+    // };
 
     setNodes((nodes) => {
-      return [...nodes, newNode];
+      return nodes?.map((node) => {
+        if (node.id === currentNode.node.id) {
+          return {
+            ...node,
+            data: { ...node.data, templateName, templateId: template },
+          };
+        }
+        return node;
+      });
     });
 
-    const newEdge = {
-      id: currentNode.node.id + "_" + newNode.id,
-      source: currentNode.node.id,
-      target: newNode.id,
-      sourceHandle: "source_right",
-      targetHandle: "target",
-    };
+    // const newEdge = {
+    //   id: currentNode.node.id + "_" + newNode.id,
+    //   source: currentNode.node.id,
+    //   target: newNode.id,
+    //   sourceHandle: "source_right",
+    //   targetHandle: "target",
+    // };
 
-    setEdges((edges) => {
-      return [...edges, newEdge];
-    });
+    // setEdges((edges) => {
+    //   return [...edges, newEdge];
+    // });
 
     //fitView();
   };
