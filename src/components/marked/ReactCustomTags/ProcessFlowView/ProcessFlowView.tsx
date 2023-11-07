@@ -47,7 +47,7 @@ export default function ProcessFlowView({
         },
         parentNode: "A",
         extent: type,
-        draggable: false,
+        draggable: true,
       });
     } else {
       y = y - 50;
@@ -76,8 +76,8 @@ export default function ProcessFlowView({
       },
       position: { x: 0, y: 0 },
       style: {
-        width: 470,
-        height: 640,
+        width: "100%",
+        height: "100%",
       },
       draggable: false,
     });
@@ -88,7 +88,7 @@ export default function ProcessFlowView({
         y: 0,
       },
       style: {
-        width: 470,
+        width: "100%",
         height: 50,
         backgroundColor: "rgba(240,240,240,0.25)",
       },
