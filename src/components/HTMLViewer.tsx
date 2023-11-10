@@ -34,12 +34,20 @@ export default function HTMLViewer() {
   const [inputText, setInputText] = React.useState("");
   const [html, setHtml] = React.useState<Document>();
 
+  const [processFlowMain, setProcessFlowMain] = React.useState<{
+    nodes: [];
+    edges: [];
+  }>({ nodes: [], edges: [] });
+
   const [branch, setBranch] = React.useState<any>();
   const [editMode, setEditMode] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [commitMessage, setCommitMessage] = React.useState("");
   const { commit, loading: loadingCommit } = useCommit();
   const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
+  const [state, setState] = React.useState({
+    processFlow: { nodes: [], edges: [] },
+  });
   const [searchParams] = useSearchParams();
   // const objectId = searchParams.get("objectId");
   const relativePath = searchParams.get("relativePath");
@@ -55,6 +63,18 @@ export default function HTMLViewer() {
   } = useGetTeamMembers();
   const { readDatabase } = useExtnStore();
 
+  async function getProcessFlow(branchName) {
+    const processFlowData = await getFileContent(
+      repository.id,
+      "qms/sop/processFlow.txt",
+      branchName
+    );
+    if (processFlowData) {
+      setProcessFlowMain(JSON.parse(processFlowData));
+    }
+    return;
+  }
+
   async function getFileContentData() {
     // const branchData = branchFileNames?.find(
     //   (item) => item.objectId === objectId
@@ -66,7 +86,7 @@ export default function HTMLViewer() {
       `/qms/${type}/data.html`,
       branchName
     );
-
+    getProcessFlow(branchName);
     setInputText(content);
   }
 
@@ -80,10 +100,13 @@ export default function HTMLViewer() {
 
   async function saveContent(): Promise<boolean> {
     let path = [];
+    let processFlowPathArr = [];
 
     let editBranchNameArr = branchName.split("/");
     path = [editBranchNameArr[0], type, `data.html`];
+    processFlowPathArr = [editBranchNameArr[0], type, `processFlow.txt`];
     const filePath = path.join("/");
+    const processFlowPath = processFlowPathArr.join("/");
 
     editBranchNameArr.splice(-1);
     editBranchNameArr.push("edit");
@@ -91,7 +114,7 @@ export default function HTMLViewer() {
 
     // const md = EditorSave.findEditableMds(inputText, "Editor");
 
-    const created = await commit(
+    const createdData = await commit(
       project.id,
       repository.id,
       editBranchName,
@@ -100,7 +123,16 @@ export default function HTMLViewer() {
       commitMessage
     );
 
-    return created;
+    const createdProcessFlow = await commit(
+      project.id,
+      repository.id,
+      editBranchName,
+      processFlowPath,
+      JSON.stringify(state["processFlow"]),
+      commitMessage
+    );
+
+    return createdData && createdProcessFlow;
     // if (created) {
     //   setAlertMessage({
     //     message: "Data saved successfully",
@@ -203,6 +235,8 @@ export default function HTMLViewer() {
             html={html}
             setHtml={setHtml}
             setOpenEditModal={setOpen}
+            state={state}
+            setState={setState}
           ></MonacoEditor>
         )}
         {!editMode && (
@@ -212,6 +246,7 @@ export default function HTMLViewer() {
             edit={false}
             html={html}
             setHtml={setHtml}
+            processFlow={processFlowMain}
           />
         )}
       </Box>

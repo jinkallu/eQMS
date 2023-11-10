@@ -16,25 +16,25 @@ export default function MarkedToCustom({
 
   return (
     // <Box>
-      <Viewers
-        state={state}
-        handleChange={handleChange}
-        element={element}
-        order={order}
-      >
-        {element?.childNodes?.length > 0 &&
-          Array.from(element.childNodes).map((child, index) => (
-            <MarkedToCustom
-              key={index}
-              element={child}
-              open={open}
-              setOpen={setOpen}
-              order={order}
-              state={state}
-              handleChange={handleChange}
-            ></MarkedToCustom>
-          ))}
-      </Viewers>
+    <Viewers
+      state={state}
+      handleChange={handleChange}
+      element={element}
+      order={order}
+    >
+      {element?.childNodes?.length > 0 &&
+        Array.from(element.childNodes).map((child, index) => (
+          <MarkedToCustom
+            key={index}
+            element={child}
+            open={open}
+            setOpen={setOpen}
+            order={order}
+            state={state}
+            handleChange={handleChange}
+          ></MarkedToCustom>
+        ))}
+    </Viewers>
     //</Box>
   );
 }

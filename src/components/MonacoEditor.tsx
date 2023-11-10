@@ -29,6 +29,8 @@ export default function MonacoEditor({
   html,
   setHtml,
   setOpenEditModal,
+  state,
+  setState,
 }: {
   objectId: string;
   type: string;
@@ -37,15 +39,35 @@ export default function MonacoEditor({
   html: Document;
   setHtml: (val: Document) => void;
   setOpenEditModal: (val: boolean) => void;
+  state: any;
+  setState: (val: any) => void;
 }) {
   // const [markedData, setMarkedData] = React.useState<string>();
   const [open, setOpen] = React.useState(false);
-  const [state, setState] = React.useState({});
+  const [processFlowEdit, setProcessFlowEdit] = React.useState<{
+    nodes: [];
+    edges: [];
+  }>({ nodes: [], edges: [] });
+
   const [editorView, setEditorView] = React.useState("editor");
 
-  const { getEditBranch, repository } = useExtnStore((state) => state);
+  const { getEditBranch, repository, getFileContent } = useExtnStore(
+    (state) => state
+  );
   const project = useExtnStore((state) => state.project);
   //const {convL0MDEditToString} = useMarkdToHTML();
+
+  async function getProcessFlow(branchName) {
+    const processFlowData = await getFileContent(
+      repository.id,
+      "qms/sop/processFlow.txt",
+      branchName
+    );
+    if (processFlowData) {
+      return JSON.parse(processFlowData);
+    }
+    return;
+  }
 
   async function getData() {
     if (!repository?.id || !project?.id) {
@@ -66,21 +88,23 @@ export default function MonacoEditor({
     const htmlData = parser.parseFromString(data, "text/html");
 
     setHtml(htmlData);
+
+    let editBranchNameArr = branchName.split("/");
+    editBranchNameArr.splice(-1);
+    editBranchNameArr.push("edit");
+    const editBranchName = editBranchNameArr.join("/");
+
+    const processFlowData = await getProcessFlow(editBranchName);
+    if (processFlowData) {
+      setState((prev) => ({ ...prev, processFlow: processFlowData }));
+    }
   }
 
   // useEffect(() => {
-  //   if (markedData && markedData.trim() !== "") {
-  //     const parser = new DOMParser();
-  //     //const htmlString = marked(markedData);
-  //     const htmlData = parser.parseFromString(markedData, "text/html");
-
-  //     setHtml(htmlData);
+  //   if (processFlow) {
+  //     setState((prev) => ({ ...prev, processFlow: processFlow }));
   //   }
-  // }, [markedData]);
-
-  // function handleChangeEditor(value, event) {
-  //   setMarkedData(value);
-  // }
+  // }, [processFlow]);
   const handleChange = (id, value) => {
     setState((values) => ({ ...values, [id]: value }));
   };

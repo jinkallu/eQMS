@@ -40,14 +40,14 @@ export default function CreateStepModal({
   open,
   setOpen,
   currentNode,
-  setEdges,
-  setNodes,
+  state,
+  handleChange,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
   currentNode: any;
-  setNodes: (val: any) => void;
-  setEdges: (val: any) => void;
+  state: any;
+  handleChange: any;
 }) {
   const { userSOPs, setAlertMessage, getFileContent, repository } =
     useExtnStore((state) => state);
@@ -164,43 +164,45 @@ export default function CreateStepModal({
 
     // setMyNodes(myNewNodes);
 
-    setNodes((nodes) => {
-      const newPositionedNodes = nodes?.map((node) => {
-        if (node?.position?.y > currentNode.node.position.y) {
-          return {
-            ...node,
-            position: { ...node.position, y: node.position.y + 200 },
-          };
-        }
+    // setNodes((nodes) => {
+    let nodes = [];
+    const newPositionedNodes = state["processFlow"]?.nodes?.map((node) => {
+      if (node?.position?.y > currentNode.node.position.y) {
+        return {
+          ...node,
+          position: { ...node.position, y: node.position.y + 200 },
+        };
+      }
+      return node;
+    });
+
+    if (stepType === "multidec") {
+      const newNodes = conditions?.map((cond, index) => {
+        const positionData = {
+          x: position.x + 100 * (index + 1),
+          y: position.y + 200,
+        };
+
+        data = {
+          label: cond.stepName,
+          type: "step",
+        };
+        const node = {
+          ...newNode,
+          id: `${cond.stepName}-step`,
+          position: positionData,
+          data: data,
+          type: "step",
+        };
         return node;
       });
 
-      if (stepType === "multidec") {
-        const newNodes = conditions?.map((cond, index) => {
-          const positionData = {
-            x: position.x + 100 * (index + 1),
-            y: position.y + 200,
-          };
-
-          data = {
-            label: cond.stepName,
-            type: "step",
-          };
-          const node = {
-            ...newNode,
-            id: `${cond.stepName}-step`,
-            position: positionData,
-            data: data,
-            type: "step",
-          };
-          return node;
-        });
-
-        return [...newPositionedNodes, newNode, ...newNodes];
-      }
-      return [...newPositionedNodes, newNode];
-    });
-
+      nodes = [...newPositionedNodes, newNode, ...newNodes];
+    } else {
+      nodes = [...newPositionedNodes, newNode];
+    }
+    // });
+    let edges = [];
     const newEdge = {
       id: currentNode.node.id + "_" + newNode.id,
       source: currentNode.node.id,
@@ -209,23 +211,25 @@ export default function CreateStepModal({
       targetHandle: "target",
     };
 
-    setEdges((edges) => {
-      if (stepType === "multidec") {
-        const newEdges = conditions?.map((cond, index) => {
-          const newEdge = {
-            id: newNode.id + "_" + `${cond.stepName}-step`,
-            source: newNode.id,
-            target: `${cond.stepName}-step`,
-            sourceHandle: cond.value,
-            targetHandle: "target",
-          };
-          return newEdge;
-        });
+    // setEdges((edges) => {
+    if (stepType === "multidec") {
+      const newEdges = conditions?.map((cond, index) => {
+        const newEdge = {
+          id: newNode.id + "_" + `${cond.stepName}-step`,
+          source: newNode.id,
+          target: `${cond.stepName}-step`,
+          sourceHandle: cond.value,
+          targetHandle: "target",
+        };
+        return newEdge;
+      });
 
-        return [...edges, newEdge, ...newEdges];
-      }
-      return [...edges, newEdge];
-    });
+      edges = [...state["processFlow"]?.edges, newEdge, ...newEdges];
+    } else {
+      edges = [...state["processFlow"]?.edges, newEdge];
+    }
+    // });
+    handleChange("processFlow", { nodes, edges });
   };
 
   function handleStepTypeChange(e) {
@@ -235,7 +239,7 @@ export default function CreateStepModal({
     //}
     setStepType(typ);
   }
-  function handleChange(e) {
+  function handleChangeVal(e) {
     setTemplate(e.target.value);
   }
   return (
@@ -277,7 +281,7 @@ export default function CreateStepModal({
               native
               id="grouped-s"
               value={template}
-              onChange={handleChange}
+              onChange={handleChangeVal}
             >
               <option aria-label="None" value="" />
               {userSOPs

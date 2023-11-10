@@ -10,6 +10,7 @@ export default function MarkedHTMLViewer({
   edit,
   html,
   setHtml,
+  processFlow,
 }) {
   //const [html, setHtml] = React.useState();
 
@@ -75,14 +76,15 @@ export default function MarkedHTMLViewer({
         alignItems: "center",
         flexDirection: "column",
         marginTop: "40px",
+        border: "1px solid red",
       }}
     >
       <MarkedToCustom
         element={html?.body}
-        open={open}
+        open={null}
         setOpen={null}
         order="last"
-        state={null}
+        state={{ processFlow }}
         handleChange={null}
       ></MarkedToCustom>
     </div>

@@ -7,6 +7,8 @@ import ReactFlow, {
   useEdgesState,
   addEdge,
   FitView,
+  useReactFlow,
+  ReactFlowProvider,
 } from "reactflow";
 import DecisionNode from "./DecisionNode";
 import MultiDecisionNode from "./MultiDecisionNode";
@@ -31,9 +33,15 @@ const nodeTypes = {
   // Define other custom node types here if needed
 };
 
-export default function ProcessFlow({ graphData, editable }) {
+export default function ProcessFlow({
+  graphData,
+  editable,
+  state,
+  handleChange,
+}) {
   const initialNodes = graphData?.initialNodes || [];
   const initialEdges = graphData?.initialEdges || [];
+  // const reactFlowInstance = useReactFlow();
 
   const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
   const [openDeleteStepModal, setOpenDeleteStepModal] = React.useState(false);
@@ -47,8 +55,12 @@ export default function ProcessFlow({ graphData, editable }) {
     bottom: number;
   }>();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    state["processFlow"]?.nodes || []
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
+    state["processFlow"]?.edges || []
+  );
   const [menu, setMenu] = useState(null);
 
   const [viewportSize, setViewportSize] = useState({
@@ -56,24 +68,33 @@ export default function ProcessFlow({ graphData, editable }) {
     height: "50vh",
   });
 
-  const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
-  );
-
   useEffect(() => {
-    setNodes(graphData?.initialNodes);
-    setEdges(graphData?.initialEdges);
-  }, [graphData]);
+    if (state && state["processFlow"]) {
+      setNodes(state["processFlow"]?.nodes || []);
+      setEdges(state["processFlow"]?.edges || []);
+    }
+  }, [state]);
+
+  // const onConnect = useCallback(
+  //   (params) => setEdges((eds) => addEdge(params, eds)),
+  //   [setEdges]
+  // );
+
+  // useEffect(() => {
+  //   setNodes(graphData?.initialNodes);
+  //   setEdges(graphData?.initialEdges);
+  // }, [graphData]);
 
   const ref = useRef(null);
 
   useEffect(() => {
     //const newViewportSize =  {width: "100vw", height: "150vh" };
-    if (nodes && nodes.length > 0) {
-      const objectWithLargestY = nodes.reduce((prev, current) => {
-        return current.position.y > prev.position.y ? current : prev;
-      });
+    if (state["processFlow"] && state["processFlow"]?.nodes.length > 0) {
+      const objectWithLargestY = state["processFlow"]?.nodes.reduce(
+        (prev, current) => {
+          return current.position.y > prev.position.y ? current : prev;
+        }
+      );
 
       const newViewportSize = {
         width: "48vw",
@@ -82,7 +103,7 @@ export default function ProcessFlow({ graphData, editable }) {
 
       setViewportSize(newViewportSize);
     }
-  }, [nodes]);
+  }, [state]);
 
   function onNodeClick() {
     setMenu(null);
@@ -116,10 +137,6 @@ export default function ProcessFlow({ graphData, editable }) {
       setMenu,
       right,
       bottom,
-      myNodes: nodes,
-      setMyNodes: setNodes,
-      myEdges: edges,
-      setMyEdges: setEdges,
       setOpenCreateStepModal,
       setOpenCreateStepTemplateModal,
       setOpenDeleteStepModal,
@@ -141,10 +158,10 @@ export default function ProcessFlow({ graphData, editable }) {
         setOpen={setOpenCreateStepModal}
         open={openCreateStepModal}
         currentNode={currentNode}
-        setNodes={setNodes}
-        setEdges={setEdges}
+        state={state}
+        handleChange={handleChange}
       ></CreateStepModal>
-      <DeleteStepModal
+      {/* <DeleteStepModal
         setOpen={setOpenDeleteStepModal}
         open={openDeleteStepModal}
         currentNode={currentNode}
@@ -160,15 +177,15 @@ export default function ProcessFlow({ graphData, editable }) {
         currentNode={currentNode}
         setNodes={setNodes}
         setEdges={setEdges}
-      ></CreateStepTemplateModal>
+      ></CreateStepTemplateModal> */}
 
       <ReactFlow
         ref={ref}
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
+        // onNodesChange={onNodesChange}
+        // onEdgesChange={onEdgesChange}
+        // onConnect={onConnect}
         onNodeContextMenu={onNodeContextMenu}
         zoomOnDoubleClick={false} // Disable zoom on double-click
         zoomOnScroll={false} // Disable zoom on scroll

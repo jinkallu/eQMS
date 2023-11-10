@@ -158,14 +158,24 @@ export default function ProcessFlowView({
     (order === "middle" && (
       <Grid container spacing={2}>
         <Grid item xs={3}>
-          <ProcessFlow graphData={graphData} editable={true} />
+          <ProcessFlow
+            graphData={graphData}
+            state={state}
+            handleChange={handleChange}
+            editable={true}
+          />
         </Grid>
       </Grid>
     )) ||
     (order === "last" && (
       <Grid container spacing={2}>
         <Grid item xs={3}>
-          <ProcessFlow graphData={graphData} editable={false} />
+          <ProcessFlow
+            graphData={graphData}
+            editable={false}
+            state={state}
+            handleChange={handleChange}
+          />
         </Grid>
       </Grid>
     ))
