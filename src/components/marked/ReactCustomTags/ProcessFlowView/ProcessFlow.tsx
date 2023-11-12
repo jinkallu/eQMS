@@ -161,23 +161,21 @@ export default function ProcessFlow({
         state={state}
         handleChange={handleChange}
       ></CreateStepModal>
-      {/* <DeleteStepModal
+      <DeleteStepModal
         setOpen={setOpenDeleteStepModal}
         open={openDeleteStepModal}
         currentNode={currentNode}
-        setNodes={setNodes}
-        setEdges={setEdges}
-        edges={edges}
-        nodes={nodes}
+        state={state}
+        handleChange={handleChange}
       ></DeleteStepModal>
 
       <CreateStepTemplateModal
         setOpen={setOpenCreateStepTemplateModal}
         open={openCreateStepTemplateModal}
         currentNode={currentNode}
-        setNodes={setNodes}
-        setEdges={setEdges}
-      ></CreateStepTemplateModal> */}
+        state={state}
+        handleChange={handleChange}
+      ></CreateStepTemplateModal>
 
       <ReactFlow
         ref={ref}

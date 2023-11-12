@@ -15,18 +15,14 @@ export default function DeleteStepModal({
   open,
   setOpen,
   currentNode,
-  setEdges,
-  setNodes,
-  edges,
-  nodes,
+  state,
+  handleChange,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
   currentNode: any;
-  setNodes: (val: any) => void;
-  setEdges: (val: any) => void;
-  edges: any;
-  nodes: any;
+  state: any;
+  handleChange: any;
 }) {
   const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
   const [stepName, setStepName] = React.useState("");
@@ -47,10 +43,10 @@ export default function DeleteStepModal({
 
     let templateNodeId = currentNode.node.id;
 
-    edges
+    state["processFlow"]?.edges
       .filter((item) => item.source === currentNode.node.id)
       ?.map((edge) => {
-        const templateNode = nodes?.find(
+        const templateNode = state["processFlow"]?.nodes?.find(
           (node) => node.id === edge.target && node.data.type === "template"
         );
         if (templateNode) {
@@ -58,47 +54,47 @@ export default function DeleteStepModal({
         }
       });
 
-    setNodes((nodes) => {
-      const newPositionedNodes = nodes
-        ?.filter(
-          (node) =>
-            node.id !== currentNode.node.id && node.id !== templateNodeId
-        )
-        ?.map((node) => {
-          if (
-            node?.position?.y > currentNode.node.position.y &&
-            currentNode.node.data.type === "step"
-          ) {
-            return {
-              ...node,
-              position: { ...node.position, y: node.position.y - 200 },
-            };
-          }
-          return node;
-        });
-      return newPositionedNodes;
-    });
+    // setNodes((nodes) => {
+    const newPositionedNodes = state["processFlow"]?.nodes
+      ?.filter(
+        (node) => node.id !== currentNode.node.id && node.id !== templateNodeId
+      )
+      ?.map((node) => {
+        if (
+          node?.position?.y > currentNode.node.position.y &&
+          currentNode.node.data.type === "step"
+        ) {
+          return {
+            ...node,
+            position: { ...node.position, y: node.position.y - 200 },
+          };
+        }
+        return node;
+      });
+    // });
 
     // 3. Get all edges with current node as source or target, remove all edges with current node as target and  and change the source of the edges with source as current node to prev one
 
-    const targetEdge = edges.find(
+    const targetEdge = state["processFlow"]?.edges.find(
       (edge) => edge.target === currentNode.node.id
     );
-
+    let newEdges = state["processFlow"]?.edges;
     if (targetEdge) {
-      setEdges((edges) => {
-        const newEdges = edges?.filter(
-          (edge) => edge.id !== targetEdge.id && edge.target !== templateNodeId
-        );
-        return newEdges?.map((edge) => {
-          if (edge.source === currentNode.node.id) {
-            return { ...edge, source: targetEdge.source };
-          } else {
-            return edge;
-          }
-        });
+      // setEdges((edges) => {
+      newEdges = state["processFlow"]?.edges?.filter(
+        (edge) => edge.id !== targetEdge.id && edge.target !== templateNodeId
+      );
+      newEdges = newEdges?.map((edge) => {
+        if (edge.source === currentNode.node.id) {
+          return { ...edge, source: targetEdge.source };
+        } else {
+          return edge;
+        }
       });
+      // });
     }
+
+    handleChange("processFlow", { nodes: newPositionedNodes, edges: newEdges });
 
     // const newEdge = {
     //   id: currentNode.node.id + "_" + newNode.id,

@@ -20,14 +20,14 @@ export default function CreateStepTemplateModal({
   open,
   setOpen,
   currentNode,
-  setNodes,
-  setEdges,
+  state,
+  handleChange,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
   currentNode: any;
-  setNodes: (val: any) => void;
-  setEdges: (val: any) => void;
+  state: any;
+  handleChange: any;
 }) {
   const { setAlertMessage, userSOPs } = useExtnStore((state) => state);
   const [template, setTemplate] = React.useState<string>();
@@ -77,16 +77,18 @@ export default function CreateStepTemplateModal({
     //   type: "template",
     // };
 
-    setNodes((nodes) => {
-      return nodes?.map((node) => {
-        if (node.id === currentNode.node.id) {
-          return {
-            ...node,
-            data: { ...node.data, templateName, templateId: template },
-          };
-        }
-        return node;
-      });
+    const newNodes = state["processFlow"]?.nodes?.map((node) => {
+      if (node.id === currentNode.node.id) {
+        return {
+          ...node,
+          data: { ...node.data, templateName, templateId: template },
+        };
+      }
+      return node;
+    });
+    handleChange("processFlow", {
+      nodes: newNodes,
+      edges: state["processFlow"]?.edges,
     });
 
     // const newEdge = {
@@ -104,7 +106,7 @@ export default function CreateStepTemplateModal({
     //fitView();
   };
 
-  function handleChange(e) {
+  function handleChangeData(e) {
     setTemplate(e.target.value);
   }
   return (
@@ -122,7 +124,7 @@ export default function CreateStepTemplateModal({
             defaultValue=""
             id="grouped-s"
             value={template}
-            onChange={handleChange}
+            onChange={handleChangeData}
           >
             <option aria-label="None" value="" />
             {userSOPs
