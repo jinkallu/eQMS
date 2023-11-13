@@ -6,6 +6,7 @@ import InputTagViewer from "./ReactCustomTags/InputTagView";
 import EndNode from "./ReactCustomTags/EndNodeView";
 import ProcessFlowView from "./ReactCustomTags/ProcessFlowView/ProcessFlowView";
 import MDTagView from "./ReactCustomTags/MDTagView";
+import ChainedOptionTagView from "./ReactCustomTags/ChainedOptionTagView";
 
 export default function Viewers({
   element,
@@ -53,9 +54,23 @@ export default function Viewers({
         order={order}
       />
     );
-  } else if (element.tagName && element.tagName === "BODY") {
+  }
+  else if (element.tagName && element.tagName === "CHAINEDOPTION") {
+    const id = element.getAttribute("id");
+    return (
+      <ChainedOptionTagView
+        state={state}
+        id={id}
+        handleChange={handleChange}
+        element={element}
+        order={order}
+      />
+    );
+  }  
+  else if (element.tagName && element.tagName === "BODY") {
     return <div>{children}</div>;
-  } else if (element.tagName && element.tagName === "MD") {
+  } 
+  else if (element.tagName && element.tagName === "MD") {
     const id = element.getAttribute("id");
     return (
       <MDTagView
