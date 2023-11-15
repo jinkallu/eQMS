@@ -1,6 +1,11 @@
+import { useState } from 'react';
 import * as acorn from 'acorn';
 
+
+
 const useProgramEvaluator = () => {
+
+    const [databaseS, setDatabaseS] = useState(null);
 
     const evaluate = (programString:string) => {
         const program = acorn.parse(programString, { ecmaVersion: 2020 });
@@ -23,6 +28,8 @@ const useProgramEvaluator = () => {
                 return visitAssignmentExpression(node)
             case 'Identifier':
                 return node.name;
+                case 'Literal':
+                return node.value;
             case 'CallExpression':
                 return visitCallExpression(node);
 
@@ -53,7 +60,30 @@ const useProgramEvaluator = () => {
         }
         switch(callee){
             case "datafrom":
-            console.log(args);
+                let datasource = {tag: null, id: null};
+                for (const arg of args){
+                    datasource[arg.leftNodeValue] = arg.rightNodeValue;
+                }
+                let selector = `${datasource.tag}#${datasource.id}`;
+
+                console.log("datafrom", datasource);
+                const dataB = document.querySelector(selector)
+                //setDatabaseS(dataB);
+                break;
+            case "select":
+                let selectsource = {};
+                for (const arg of args){
+                    selectsource[arg.leftNodeValue] = arg.rightNodeValue;
+                }
+                console.log(selectsource);
+                break;
+            case "where":
+                let wheresource = {};
+                for (const arg of args){
+                    wheresource[arg.leftNodeValue] = arg.rightNodeValue;
+                }
+                console.log(wheresource);
+                break;
         }
     }
 

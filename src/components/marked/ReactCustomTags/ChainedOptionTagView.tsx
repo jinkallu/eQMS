@@ -31,7 +31,12 @@ export default function ChainedOptionTagView({
 
       break;
     case "middle":
-      evaluate("value = datafrom(tag=table, id=test, column=1)");
+      try{
+      evaluate("value = datafrom(tag=table, id=test); select(column=Qualitative); where(Quantitative=1)");
+      }
+      catch{
+        
+      }
       component = (
         <>
         <p>Select an Option:</p>
