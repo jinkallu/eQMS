@@ -1,16 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as acorn from 'acorn';
 
+import useDataFromTableElement from './useDataFromTableElement';
+
+let dataSource;
+let selectSource;
+let whereSource;
 
 
 const useProgramEvaluator = () => {
 
     const [databaseS, setDatabaseS] = useState(null);
 
+    const {retrieveTableData} = useDataFromTableElement();
+
+    const initNull = () => {
+        dataSource = null;
+        selectSource = null;
+        whereSource = null;
+    }
+
+
     const evaluate = (programString:string) => {
+        initNull();
         const program = acorn.parse(programString, { ecmaVersion: 2020 });
         console.log(program);
         const result = visitNodes(program);
+        console.log(dataSource, selectSource, whereSource);
+        const data = getData(dataSource, selectSource);
+        console.log(data);
+        return data;
     }
 
     const visitNodes = (nodes) => {
@@ -67,25 +86,49 @@ const useProgramEvaluator = () => {
                 let selector = `${datasource.tag}#${datasource.id}`;
 
                 console.log("datafrom", datasource);
-                const dataB = document.querySelector(selector)
+                const dataB = document.querySelector(selector);
+                console.log(dataB);
                 //setDatabaseS(dataB);
+                dataSource = dataB;
                 break;
             case "select":
-                let selectsource = {};
+                let sSource = [];
                 for (const arg of args){
-                    selectsource[arg.leftNodeValue] = arg.rightNodeValue;
+                    //console.log(arg);
+                    //switch (arg.type){
+                    //    case "Identifier":
+                            sSource.push(arg);
+                    //    break;
+                    //}
+                    //sSource[arg.leftNodeValue] = arg.rightNodeValue;
                 }
-                console.log(selectsource);
+                console.log(sSource);
+                selectSource = sSource; 
                 break;
             case "where":
-                let wheresource = {};
+                let wSource = {};
                 for (const arg of args){
-                    wheresource[arg.leftNodeValue] = arg.rightNodeValue;
+                    //wSource[arg.leftNodeValue] = arg.rightNodeValue;
                 }
-                console.log(wheresource);
+                console.log(wSource);
+                whereSource = wSource;
                 break;
         }
     }
+
+    // get data fields from the given element
+    const getData = (element, fields) => {
+        if(!element){
+            console.log("No element")
+            return;
+        }
+
+        const tagName = element.tagName;
+        switch(tagName){
+            case "TABLE":
+                return retrieveTableData(element, fields);
+        }
+    } 
 
     return {evaluate}
 }

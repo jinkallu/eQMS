@@ -9,15 +9,15 @@ export default function ChainedOptionTagView({
   handleChange,
 }) {
 
-  const {evaluate} = useProgramEvaluator();
+  const { evaluate } = useProgramEvaluator();
 
   function handleChangeFun(e) {
-    if(handleChange){
+    if (handleChange) {
       handleChange(id, e.target.value);
     }
   }
 
-  const options = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
+  //const options = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
 
 
   let component;
@@ -31,47 +31,47 @@ export default function ChainedOptionTagView({
 
       break;
     case "middle":
-      try{
-      evaluate("value = datafrom(tag=table, id=test); select(column=Qualitative); where(Quantitative=1)");
+      let options = {};
+      try {
+        let programAttribute = element.getAttribute('program');
+        options = evaluate(programAttribute);
+        //options = evaluate("value = datafrom(tag=table, id=riskprobability); select(Qualitative, QuantitativeUpperRange); where(Quantitative>1 && Quantitative < 2)");
       }
-      catch{
-        
+      catch (error) {
+        console.log(error);
       }
+      const fieldNames = Object.keys(options);
+
       component = (
         <>
-        <p>Select an Option:</p>
-      {options.map((option) => (
-        <label key={option}>
-          <input
-            type="radio"
-            value={option}
-            checked={state[id] === option}
-            onChange={handleChangeFun}
-          />
-          {option}
-        </label>
-      ))}
-
-
-      <div>
-        <strong>Selected Option:</strong> {state[id]}
-      </div>
-      </>
+          <p>Select {fieldNames[0]}:</p>
+          {options[fieldNames[0]].map((option) => (
+            <label key={option}>
+              <input
+                type="radio"
+                value={option}
+                checked={state[id] === option}
+                onChange={handleChangeFun}
+              />
+              {option}
+            </label>
+          ))}
+        </>
       );
       break;
     case "last":
-      if(state){
-        if(state[id]){
+      if (state) {
+        if (state[id]) {
           component = <span>{state[id]}</span>
         }
-        else{
+        else {
           component = <span>{val}</span>;
         }
       }
-      else{
+      else {
         component = <span>{val}</span>;
       }
-      
+
       //component = <input value={state[id]} onChange={handleChangeFun}></input>;
 
       break;
