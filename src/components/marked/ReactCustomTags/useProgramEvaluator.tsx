@@ -12,7 +12,7 @@ const useProgramEvaluator = () => {
 
     const [databaseS, setDatabaseS] = useState(null);
 
-    const {retrieveTableData} = useDataFromTableElement();
+    const { retrieveTableData } = useDataFromTableElement();
 
     const initNull = () => {
         dataSource = null;
@@ -21,13 +21,13 @@ const useProgramEvaluator = () => {
     }
 
 
-    const evaluate = (programString:string) => {
+    const evaluate = (programString: string) => {
         initNull();
         const program = acorn.parse(programString, { ecmaVersion: 2020 });
         console.log(program);
         const result = visitNodes(program);
         console.log(dataSource, selectSource, whereSource);
-        const data = getData(dataSource, selectSource);
+        const data = getData(dataSource, selectSource, whereSource);
         console.log(data);
         return data;
     }
@@ -40,14 +40,18 @@ const useProgramEvaluator = () => {
 
     const traverse = (node) => {
         console.log(node.type);
-        switch (node.type){
+        switch (node.type) {
             case 'ExpressionStatement':
                 return traverse(node.expression)
             case 'AssignmentExpression':
-                return visitAssignmentExpression(node)
+                return visitAssignmentExpression(node);
+            case 'LogicalExpression':
+                return visitAssignmentExpression(node);
+            case 'BinaryExpression':
+                return visitAssignmentExpression(node);
             case 'Identifier':
                 return node.name;
-                case 'Literal':
+            case 'Literal':
                 return node.value;
             case 'CallExpression':
                 return visitCallExpression(node);
@@ -58,9 +62,11 @@ const useProgramEvaluator = () => {
     const visitAssignmentExpression = (node) => {
         const leftNode = traverse(node.left);
         const rightNode = traverse(node.right);
-        return {leftNodeValue: leftNode, rightNodeValue: rightNode}
-    
-        
+        const operator = node.operator;
+        const type = node.type;
+        return { type: type, leftNodeValue: leftNode, operator: operator, rightNodeValue: rightNode }
+
+
         // switch(node.type){
         //     case 'CallExpression':
         //     default:
@@ -72,15 +78,16 @@ const useProgramEvaluator = () => {
 
     const visitCallExpression = (node) => {
         const callee = traverse(node.callee);
-        const args = [];
-        for(const arg of node.arguments){
-            const res = traverse(arg);
-            args.push(res);
-        }
-        switch(callee){
+
+        switch (callee) {
             case "datafrom":
-                let datasource = {tag: null, id: null};
-                for (const arg of args){
+                const fromArgs = [];
+                for (const arg of node.arguments) {
+                    const res = traverse(arg);
+                    fromArgs.push(res);
+                }
+                let datasource = { tag: null, id: null };
+                for (const arg of fromArgs) {
                     datasource[arg.leftNodeValue] = arg.rightNodeValue;
                 }
                 let selector = `${datasource.tag}#${datasource.id}`;
@@ -92,45 +99,45 @@ const useProgramEvaluator = () => {
                 dataSource = dataB;
                 break;
             case "select":
-                let sSource = [];
-                for (const arg of args){
-                    //console.log(arg);
-                    //switch (arg.type){
-                    //    case "Identifier":
-                            sSource.push(arg);
-                    //    break;
-                    //}
-                    //sSource[arg.leftNodeValue] = arg.rightNodeValue;
+                const selectArgs = [];
+                for (const arg of node.arguments) {
+                    const res = traverse(arg);
+                    selectArgs.push(res);
                 }
-                console.log(sSource);
-                selectSource = sSource; 
+                let sSource = [];
+                for (const arg of selectArgs) {
+                    sSource.push(arg);
+                }
+                selectSource = sSource;
                 break;
             case "where":
-                let wSource = {};
-                for (const arg of args){
-                    //wSource[arg.leftNodeValue] = arg.rightNodeValue;
+                //let wSource = {};
+                const whereArgs = [];
+                for (const arg of node.arguments) {
+                    const res = traverse(arg);
+                    whereArgs.push(res);
                 }
-                console.log(wSource);
-                whereSource = wSource;
+                console.log(whereArgs);
+                whereSource = whereArgs;
                 break;
         }
     }
 
     // get data fields from the given element
-    const getData = (element, fields) => {
-        if(!element){
+    const getData = (element, fields, conditions) => {
+        if (!element) {
             console.log("No element")
             return;
         }
 
         const tagName = element.tagName;
-        switch(tagName){
+        switch (tagName) {
             case "TABLE":
-                return retrieveTableData(element, fields);
+                return retrieveTableData(element, fields, conditions);
         }
-    } 
+    }
 
-    return {evaluate}
+    return { evaluate }
 }
 
 export default useProgramEvaluator;
