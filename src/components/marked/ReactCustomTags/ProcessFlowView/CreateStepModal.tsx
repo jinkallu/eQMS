@@ -229,6 +229,7 @@ export default function CreateStepModal({
       edges = [...state["processFlow"]?.edges, newEdge];
     }
     // });
+    console.log(nodes, edges);
     handleChange("processFlow", { nodes, edges });
   };
 

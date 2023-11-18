@@ -13,7 +13,10 @@ export default function ProcessFlowView({
   id,
   handleChange,
 }) {
-  const [graphData, setGraphData] = useState(null);
+  const [graphData, setGraphData] = useState({
+    initialNodes: [],
+    initialEdges: [],
+  });
 
   function traverseGraph(node, initialNodes, initialEdges, x, y) {
     const id = node.id(); // Assuming you have unique node IDs in Cytoscape
@@ -151,7 +154,50 @@ export default function ProcessFlowView({
   }
 
   useEffect(() => {
-    createProcessGraph(element);
+    // createProcessGraph(element);
+    let initialNodes = [];
+    initialNodes.push({
+      id: "A", // TODO: change this id to a unique
+      type: "group",
+      data: {
+        label: null,
+        type: "process",
+      },
+      position: { x: 0, y: 0 },
+      style: {
+        width: "100%",
+        height: "100%",
+      },
+      draggable: false,
+    });
+    initialNodes.push({
+      id: "test",
+      position: {
+        x: 0,
+        y: 0,
+      },
+      style: {
+        width: "100%",
+        height: 50,
+        backgroundColor: "rgba(240,240,240,0.25)",
+      },
+      data: {
+        label: "test",
+        type: "test",
+      },
+      parentNode: "A",
+      extent: "parent",
+      draggable: false,
+    });
+
+    const nodes = element?.dataset?.nodes
+      ? JSON.parse(element?.dataset?.nodes)
+      : [];
+    const initialEdges = element?.dataset?.edges
+      ? JSON.parse(element?.dataset?.edges)
+      : [];
+    initialNodes = [...initialNodes, ...nodes];
+    setGraphData({ initialNodes: initialNodes, initialEdges: initialEdges });
   }, [element]);
 
   return (

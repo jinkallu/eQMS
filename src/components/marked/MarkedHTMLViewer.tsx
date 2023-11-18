@@ -9,8 +9,8 @@ export default function MarkedHTMLViewer({
   ready,
   edit,
   html,
+  state,
   setHtml,
-  processFlow,
 }) {
   //const [html, setHtml] = React.useState();
 
@@ -84,25 +84,9 @@ export default function MarkedHTMLViewer({
         open={null}
         setOpen={null}
         order="last"
-        state={{ processFlow }}
+        state={state}
         handleChange={null}
       ></MarkedToCustom>
     </div>
   );
-  //import React from "react";
-
-  //export default function MarkedHTMLViewer({ inputText }) {
-
-  // return (
-  //   <div
-  //     id="markedHTMLViewer"
-  //     dangerouslySetInnerHTML={{ __html: html }}
-  //     style={{
-  //       boxSizing: "border-box",
-  //       display: "flex",
-  //       wordBreak: "break-word",
-  //       flexDirection: "column",
-  //     }}
-  //   ></div>
-  // );
 }

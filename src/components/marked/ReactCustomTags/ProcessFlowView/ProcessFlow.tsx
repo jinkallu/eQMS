@@ -39,8 +39,12 @@ export default function ProcessFlow({
   state,
   handleChange,
 }) {
-  const initialNodes = graphData?.initialNodes || [];
-  const initialEdges = graphData?.initialEdges || [];
+  // const initialNodes = element?.dataset?.nodes
+  //   ? JSON.parse(element?.dataset?.nodes)
+  //   : [];
+  // const initialEdges = element?.dataset?.edges
+  //   ? JSON.parse(element?.dataset?.edges)
+  //   : [];
   // const reactFlowInstance = useReactFlow();
 
   const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
@@ -56,10 +60,10 @@ export default function ProcessFlow({
   }>();
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    state["processFlow"]?.nodes || []
+    graphData?.initialNodes
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    state["processFlow"]?.edges || []
+    graphData?.initialEdges
   );
   const [menu, setMenu] = useState(null);
 
@@ -69,7 +73,9 @@ export default function ProcessFlow({
   });
 
   useEffect(() => {
+    console.log("state", state);
     if (state && state["processFlow"]) {
+      console.log("changed", state);
       setNodes(state["processFlow"]?.nodes || []);
       setEdges(state["processFlow"]?.edges || []);
     }
@@ -80,16 +86,16 @@ export default function ProcessFlow({
   //   [setEdges]
   // );
 
-  // useEffect(() => {
-  //   setNodes(graphData?.initialNodes);
-  //   setEdges(graphData?.initialEdges);
-  // }, [graphData]);
+  useEffect(() => {
+    setNodes(graphData?.initialNodes);
+    setEdges(graphData?.initialEdges);
+  }, [graphData]);
 
   const ref = useRef(null);
 
   useEffect(() => {
     //const newViewportSize =  {width: "100vw", height: "150vh" };
-    if (state["processFlow"] && state["processFlow"]?.nodes.length > 0) {
+    if (state["processFlow"] && state["processFlow"]?.nodes?.length > 0) {
       const objectWithLargestY = state["processFlow"]?.nodes.reduce(
         (prev, current) => {
           return current.position.y > prev.position.y ? current : prev;

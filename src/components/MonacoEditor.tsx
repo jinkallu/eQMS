@@ -57,17 +57,17 @@ export default function MonacoEditor({
   const project = useExtnStore((state) => state.project);
   //const {convL0MDEditToString} = useMarkdToHTML();
 
-  async function getProcessFlow(branchName) {
-    const processFlowData = await getFileContent(
-      repository.id,
-      "qms/sop/processFlow.txt",
-      branchName
-    );
-    if (processFlowData) {
-      return JSON.parse(processFlowData);
-    }
-    return;
-  }
+  // async function getProcessFlow(branchName) {
+  //   const processFlowData = await getFileContent(
+  //     repository.id,
+  //     "qms/sop/processFlow.txt",
+  //     branchName
+  //   );
+  //   if (processFlowData) {
+  //     return JSON.parse(processFlowData);
+  //   }
+  //   return;
+  // }
 
   async function getData() {
     if (!repository?.id || !project?.id) {
@@ -94,10 +94,10 @@ export default function MonacoEditor({
     editBranchNameArr.push("edit");
     const editBranchName = editBranchNameArr.join("/");
 
-    const processFlowData = await getProcessFlow(editBranchName);
-    if (processFlowData) {
-      setState((prev) => ({ ...prev, processFlow: processFlowData }));
-    }
+    // const processFlowData = await getProcessFlow(editBranchName);
+    // if (processFlowData) {
+    //   setState((prev) => ({ ...prev, processFlow: processFlowData }));
+    // }
   }
 
   // useEffect(() => {
@@ -106,6 +106,7 @@ export default function MonacoEditor({
   //   }
   // }, [processFlow]);
   const handleChange = (id, value) => {
+    console.log(id, value);
     setState((values) => ({ ...values, [id]: value }));
   };
 
