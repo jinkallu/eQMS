@@ -158,35 +158,16 @@ export default function ProcessFlowView({
     let initialNodes = [];
     initialNodes.push({
       id: "A", // TODO: change this id to a unique
-      type: "group",
       data: {
-        label: null,
-        type: "process",
+        label: "SOP Name",
       },
+      type: "group",
       position: { x: 0, y: 0 },
       style: {
-        width: "100%",
+        backgroundColor: "green",
         height: "100%",
-      },
-      draggable: false,
-    });
-    initialNodes.push({
-      id: "test",
-      position: {
-        x: 0,
-        y: 0,
-      },
-      style: {
         width: "100%",
-        height: 50,
-        backgroundColor: "rgba(240,240,240,0.25)",
       },
-      data: {
-        label: "test",
-        type: "test",
-      },
-      parentNode: "A",
-      extent: "parent",
       draggable: false,
     });
 
@@ -198,32 +179,35 @@ export default function ProcessFlowView({
       : [];
     initialNodes = [...initialNodes, ...nodes];
     setGraphData({ initialNodes: initialNodes, initialEdges: initialEdges });
+    console.log("initnodes", initialNodes, initialEdges);
   }, [element]);
 
   return (
-    (order === "middle" && (
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <ProcessFlow
-            graphData={graphData}
-            state={state}
-            handleChange={handleChange}
-            editable={true}
-          />
+    <Box sx={{ width: "100%" }}>
+      {order === "middle" && (
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <ProcessFlow
+              graphData={graphData}
+              state={state}
+              handleChange={handleChange}
+              editable={true}
+            />
+          </Grid>
         </Grid>
-      </Grid>
-    )) ||
-    (order === "last" && (
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <ProcessFlow
-            graphData={graphData}
-            editable={false}
-            state={state}
-            handleChange={handleChange}
-          />
+      )}{" "}
+      {order === "last" && (
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <ProcessFlow
+              graphData={graphData}
+              editable={false}
+              state={state}
+              handleChange={handleChange}
+            />
+          </Grid>
         </Grid>
-      </Grid>
-    ))
+      )}
+    </Box>
   );
 }

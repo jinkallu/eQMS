@@ -154,7 +154,7 @@ export default function ProcessFlow({
     <div
       style={{
         display: "flex",
-        width: viewportSize.width,
+        width: "100%",
         height: viewportSize.height,
         justifyContent: "center",
         alignItems: "center",
@@ -200,6 +200,7 @@ export default function ProcessFlow({
         onNodeClick={onNodeClick}
         preventScrolling={false}
         elementsSelectable={editable}
+        fitView
       >
         {/* <Controls /> */}
         {/* <MiniMap /> */}

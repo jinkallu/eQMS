@@ -158,9 +158,11 @@ export default function CreateStepModal({
       position: position,
       data: data,
       type: stepType,
-      //parentNode: "A",
-      //extent: 'parent'
+      parentNode: "A",
+      extent: "parent",
     };
+
+    console.log(state);
 
     // setMyNodes(myNewNodes);
 
@@ -200,6 +202,7 @@ export default function CreateStepModal({
       nodes = [...newPositionedNodes, newNode, ...newNodes];
     } else {
       nodes = [...newPositionedNodes, newNode];
+      console.log(nodes, newPositionedNodes);
     }
     // });
     let edges = [];

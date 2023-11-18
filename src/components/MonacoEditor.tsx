@@ -170,10 +170,10 @@ export default function MonacoEditor({
         </Box>
         <Typography>Viewer</Typography>
       </Paper>
-      <Box sx={{ marginTop: "40px" }}>
+      <Box sx={{ marginTop: "40px", border: "2px solid red", width: "100%" }}>
         <Grid container spacing={2}>
           <Grid item xs={6} sm={6} md={6} lg={6}>
-            <Paper sx={{ paddingX: "9px" }}>
+            <Paper sx={{ paddingX: "9px", border: "1px solid blue" }}>
               <MarkedToCustom
                 element={html?.body}
                 open={open}
@@ -186,7 +186,7 @@ export default function MonacoEditor({
           </Grid>
 
           <Grid item xs={6} sm={6} md={6} lg={6}>
-            <Paper sx={{ paddingX: "9px" }}>
+            <Paper sx={{ paddingX: "9px", border: "1px solid blue" }}>
               <MarkedToCustom
                 element={html?.body}
                 open={open}

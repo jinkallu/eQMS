@@ -15,7 +15,6 @@ export default function MarkedToCustom({
   }
 
   return (
-    // <Box>
     <Viewers
       state={state}
       handleChange={handleChange}
@@ -35,6 +34,5 @@ export default function MarkedToCustom({
           ></MarkedToCustom>
         ))}
     </Viewers>
-    //</Box>
   );
 }

@@ -14,6 +14,7 @@ import useGetTeamMembers from "../CHooks/useGetTeamMembers";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditorSave from "./marked/EditerSave";
 import MonacoEditor from "./MonacoEditor";
+import MarkedToCustom from "./marked/MarkedToCustom";
 
 export default function HTMLViewer() {
   //const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
@@ -96,8 +97,219 @@ export default function HTMLViewer() {
     const editBranchName = editBranchNameArr.join("/");
 
     const processFlowEls = html?.getElementsByTagName("PROCESSFLOW");
-    const edges = state["processFlow"]?.edges || [];
-    const nodes = state["processFlow"]?.nodes || [];
+    // const edges = state["processFlow"]?.edges || [];
+    // const nodes = state["processFlow"]?.nodes || [];
+
+    const nodes = [
+      {
+        id: "A",
+        data: {
+          label: "SOP Name",
+        },
+        type: "group",
+        position: {
+          x: 0,
+          y: 0,
+        },
+
+        draggable: true,
+      },
+
+      {
+        id: "Order Request",
+        type: "step",
+        position: {
+          x: 200,
+          y: 100,
+        },
+        data: {
+          label: "Order Request",
+          type: "step",
+          templateName: "Order Request Template",
+          templateId: null,
+        },
+        parentNode: "A",
+        extent: "parent",
+        draggable: true,
+        width: 150,
+        height: 50,
+      },
+      {
+        id: "Order Confirmation",
+        type: "step",
+        position: {
+          x: 200,
+          y: 200,
+        },
+        data: {
+          label: "Order Confirmation",
+          type: "step",
+          templateName: "Order Confirmation Template",
+          templateId: null,
+        },
+        parentNode: "A",
+        extent: "parent",
+        draggable: true,
+        width: 150,
+        height: 50,
+      },
+      {
+        width: 150,
+        height: 50,
+        id: "step11-step",
+        type: "step",
+        position: {
+          x: 200,
+          y: 400,
+        },
+        data: {
+          label: "step11",
+          type: "step",
+          templateName: "1_Risk_Management_Plan",
+          templateId: "a613d234-3519-4422-96b8-469823744d6f",
+        },
+        parentNode: "A",
+        extent: "parent",
+        draggable: true,
+        positionAbsolute: {
+          x: 200,
+          y: 200,
+        },
+      },
+      {
+        width: 150,
+        height: 50,
+        id: "sddfd-step",
+        type: "multidec",
+        position: {
+          x: 200,
+          y: 600,
+        },
+        data: {
+          label: "sddfd",
+          type: "multidec",
+          field: "Name",
+          conditions: ["44", "55"],
+        },
+        parentNode: "A",
+        extent: "parent",
+        draggable: true,
+        positionAbsolute: {
+          x: 200,
+          y: 400,
+        },
+      },
+      {
+        width: 150,
+        height: 50,
+        id: "My step 1-step",
+        type: "step",
+        position: {
+          x: 300,
+          y: 800,
+        },
+        data: {
+          label: "My step 1",
+          type: "step",
+        },
+        parentNode: "A",
+        extent: "parent",
+        draggable: true,
+        positionAbsolute: {
+          x: 200,
+          y: 400,
+        },
+      },
+      {
+        width: 150,
+        height: 50,
+        id: "My step 2-step",
+        type: "step",
+        position: {
+          x: 400,
+          y: 800,
+        },
+        data: {
+          label: "My step 2",
+          type: "step",
+        },
+        parentNode: "A",
+        extent: "parent",
+        draggable: true,
+        positionAbsolute: {
+          x: 200,
+          y: 400,
+        },
+      },
+      {
+        width: 150,
+        height: 50,
+        id: "sddfdsdsd-step",
+        type: "step",
+        position: {
+          x: 300,
+          y: 1000,
+        },
+        data: {
+          label: "sddfdsdsd",
+          type: "step",
+          templateName: "103_Temp3_Management",
+          templateId: "e82a0cb9-5c8e-48bd-8b98-70c209f025ad",
+        },
+        parentNode: "A",
+        extent: "parent",
+        draggable: true,
+        positionAbsolute: {
+          x: 300,
+          y: 800,
+        },
+      },
+    ];
+
+    const edges = [
+      {
+        id: "Order Request_Order Confirmation",
+        source: "Order Request",
+        target: "Order Confirmation",
+        targetHandle: "target",
+        sourceHandle: "source_bottom",
+      },
+      {
+        id: "Order Confirmation_step11-step",
+        source: "Order Confirmation",
+        target: "step11-step",
+        sourceHandle: "source_bottom",
+        targetHandle: "target",
+      },
+      {
+        id: "step11-step_sddfd-step",
+        source: "step11-step",
+        target: "sddfd-step",
+        sourceHandle: "source_bottom",
+        targetHandle: "target",
+      },
+      {
+        id: "sddfd-step_My step 1-step",
+        source: "sddfd-step",
+        target: "My step 1-step",
+        sourceHandle: "44",
+        targetHandle: "target",
+      },
+      {
+        id: "sddfd-step_My step 2-step",
+        source: "sddfd-step",
+        target: "My step 2-step",
+        sourceHandle: "55",
+        targetHandle: "target",
+      },
+      {
+        id: "My step 1-step_sddfdsdsd-step",
+        source: "My step 1-step",
+        target: "sddfdsdsd-step",
+        sourceHandle: "source_bottom",
+        targetHandle: "target",
+      },
+    ];
     Array.from(processFlowEls)?.map((flow: HTMLElement) => {
       flow.dataset.nodes = JSON.stringify(nodes);
       flow.dataset.edges = JSON.stringify(edges);
@@ -146,6 +358,16 @@ export default function HTMLViewer() {
   }, [editMode]);
 
   React.useEffect(() => {
+    if (inputText && inputText.trim() !== "") {
+      const parser = new DOMParser();
+      //const htmlString = marked(markedData);
+      const htmlData = parser.parseFromString(inputText, "text/html");
+
+      setHtml(htmlData);
+    }
+  }, [inputText]);
+
+  React.useEffect(() => {
     getDatabaseContent("standards", repository.id);
     const members = getTeamMembers("eQMS", "eQMS Team");
 
@@ -170,6 +392,7 @@ export default function HTMLViewer() {
         display: "flex",
         flexDirection: "column",
         position: "relative",
+        width: "100%",
       }}
     >
       {!editMode && (
@@ -218,6 +441,9 @@ export default function HTMLViewer() {
           justifyContent: "center",
           alignItems: "center",
           overflowY: "auto",
+          width: "100vw",
+          border: "1px solid yellow",
+          padding: "24px",
         }}
       >
         {editMode && (
@@ -234,14 +460,14 @@ export default function HTMLViewer() {
           ></MonacoEditor>
         )}
         {!editMode && (
-          <MarkedHTMLViewer
-            markedText={inputText}
-            ready={true}
-            edit={false}
-            html={html}
+          <MarkedToCustom
+            element={html?.body}
+            open={null}
+            setOpen={null}
+            order="last"
             state={state}
-            setHtml={setHtml}
-          />
+            handleChange={null}
+          ></MarkedToCustom>
         )}
       </Box>
     </Box>
