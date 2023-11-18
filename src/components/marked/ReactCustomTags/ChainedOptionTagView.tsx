@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import useProgramEvaluator from "./useProgramEvaluator";
 
@@ -9,13 +10,28 @@ export default function ChainedOptionTagView({
   handleChange,
 }) {
 
-  const { evaluate } = useProgramEvaluator();
+  //const [options, setOptions] = useState();
+  const { options, evaluate } = useProgramEvaluator();
 
   function handleChangeFun(e) {
     if (handleChange) {
       handleChange(id, e.target.value);
     }
   }
+
+  useEffect(() => {
+    switch (order) {
+      case "middle":
+        try {
+          let programAttribute = element.getAttribute('program');
+          evaluate(programAttribute);
+        }
+        catch (error) {
+          console.log(error);
+        }
+        break;
+    }
+  }, [])
 
   //const options = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
 
@@ -31,21 +47,16 @@ export default function ChainedOptionTagView({
 
       break;
     case "middle":
-      let options = {};
-      try {
-        let programAttribute = element.getAttribute('program');
-        options = evaluate(programAttribute);
-        //options = evaluate("value = datafrom(tag=table, id=riskprobability); select(Qualitative, QuantitativeUpperRange); where(Quantitative>1 && Quantitative < 2)");
+      //let options = {};
+      let fieldNames = null;
+      if(options){
+        fieldNames = Object.keys(options);
       }
-      catch (error) {
-        console.log(error);
-      }
-      const fieldNames = Object.keys(options);
 
       component = (
         <>
-          <p>Select {fieldNames[0]}:</p>
-          {options[fieldNames[0]].map((option) => (
+          {options && <p>Select {fieldNames[0]}:</p>}
+          {options && options[fieldNames[0]].map((option) => (
             <label key={option}>
               <input
                 type="radio"
