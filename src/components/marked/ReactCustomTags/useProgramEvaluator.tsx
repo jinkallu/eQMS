@@ -4,9 +4,9 @@ import * as acorn from 'acorn';
 import useDataFromTableElement from './useDataFromTableElement';
 import {useExtnStore} from "../../../zustand/store";
 
-let dataSource;
-let selectSource;
-let whereSource;
+let dataSource = null;
+let selectSource = null;
+let whereSource = null;
 
 
 const useProgramEvaluator = () => {

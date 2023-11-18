@@ -22,7 +22,15 @@ const useDataFromTableElement = () => {
                 if (cells.length > columnIndexes[i]) {
                     // Check conditions
                     const cellValue = cells[columnIndexes[i]].textContent.trim();
-                    if (conditions.every((condition) => evaluateCondition(condition, cells, table))) {
+                    if(conditions == null){
+                        conditions = [];
+                    }
+                    if (conditions.length > 0) {
+                        if (conditions.every((condition) => evaluateCondition(condition, cells, table))) {
+                            columnValues.push(cellValue);
+                        }
+                    }
+                    else{
                         columnValues.push(cellValue);
                     }
                     //columnValues.push(cells[columnIndexes[i]].textContent.trim());
