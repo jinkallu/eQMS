@@ -9,163 +9,192 @@ let selectSource = null;
 let whereSource = null;
 
 const useProgramEvaluator = () => {
-  const [options, setOptions] = useState(null);
-  const { repository, getFileContent, userSOPs } = useExtnStore(
-    (state) => state
-  );
-  const { retrieveTableData } = useDataFromTableElement();
-
-  const initNull = () => {
-    dataSource = null;
-    selectSource = null;
-    whereSource = null;
-  };
-
-  async function getTemplateData(sopId, templateId) {
-    const template = userSOPs
-      ?.find((item) => item.branchId === sopId)
-      ?.templates?.find((item) => item?.branchId === templateId);
-
-    console.log("template", template);
-
-    const data = await getFileContent(
-      repository.id,
-      template.filePath,
-      template.name
+    const [options, setOptions] = useState(null);
+    const { repository, getFileContent, userSOPs } = useExtnStore(
+        (state) => state
     );
-    //console.log("data is ", data);
-    if (data) {
-      const parser = new DOMParser();
-      const html = parser.parseFromString(data, "text/html");
-      return html;
-    }
-    return;
-  }
+    const { retrieveTableData } = useDataFromTableElement();
 
-  const evaluate = async (programString: string) => {
-    initNull();
-    const program = acorn.parse(programString, { ecmaVersion: 2020 });
-    console.log(program);
-    const result = await visitNodes(program);
-    console.log(dataSource, selectSource, whereSource);
-    const data = getData(dataSource, selectSource, whereSource);
-    console.log(data);
-    setOptions(data);
-    //return data;
-  };
-
-  const visitNodes = async (nodes) => {
-    for (const node of nodes.body) {
-      const result = await traverse(node);
-    }
-  };
-
-  const traverse = async (node) => {
-    console.log(node.type);
-    switch (node.type) {
-      case "ExpressionStatement":
-        return await traverse(node.expression);
-      case "AssignmentExpression":
-        return await visitAssignmentExpression(node);
-      case "LogicalExpression":
-        return await visitAssignmentExpression(node);
-      case "BinaryExpression":
-        return await visitAssignmentExpression(node);
-      case "Identifier":
-        return node.name;
-      case "Literal":
-        return node.value;
-      case "CallExpression":
-        return await visitCallExpression(node);
-    }
-  };
-
-  const visitAssignmentExpression = async (node) => {
-    const leftNode = await traverse(node.left);
-    const rightNode = await traverse(node.right);
-    const operator = node.operator;
-    const type = node.type;
-    return {
-      type: type,
-      leftNodeValue: leftNode,
-      operator: operator,
-      rightNodeValue: rightNode,
+    const initNull = () => {
+        dataSource = null;
+        selectSource = null;
+        whereSource = null;
     };
 
-    // switch(node.type){
-    //     case 'CallExpression':
-    //     default:
-    //         const rightNode = traverse(node.right);
-    //         return {leftNodeValue: leftNode, rightNodeValue: rightNode}
-    // }
-  };
+    async function getTemplateData(sopId, templateId) {
+        const template = userSOPs
+            ?.find((item) => item.branchId === sopId)
+            ?.templates?.find((item) => item?.branchId === templateId);
 
-  const visitCallExpression = async (node) => {
-    const callee = await traverse(node.callee);
+        console.log("template", template);
 
-    switch (callee) {
-      case "datafrom":
-        const fromArgs = [];
-        for (const arg of node.arguments) {
-          const res = await traverse(arg);
-          fromArgs.push(res);
+        const data = await getFileContent(
+            repository.id,
+            template.filePath,
+            template.name
+        );
+        //console.log("data is ", data);
+        if (data) {
+            const parser = new DOMParser();
+            const html = parser.parseFromString(data, "text/html");
+            return html;
         }
-        let datasource = { tag: null, id: null };
-        for (const arg of fromArgs) {
-          datasource[arg.leftNodeValue] = arg.rightNodeValue;
+        return;
+    }
+
+    const evaluate = async (programString: string) => {
+        initNull();
+        const program = acorn.parse(programString, { ecmaVersion: 2020 });
+        console.log(program);
+        const result = await visitNodes(program);
+        //console.log(dataSource, selectSource, whereSource);
+        //const data = getData(dataSource, selectSource, whereSource);
+        //console.log(data);
+        
+        //return data;
+    };
+
+    const visitNodes = async (nodes) => {
+        for (const node of nodes.body) {
+            const result = await traverse(node);
+            setOptions(result);
         }
-        let selector = `${datasource.tag}#${datasource.id}`;
+    };
 
-        const sopId = datasource["sopId"];
-        const templateId = datasource["templateId"];
+    const traverse = async (node) => {
+        console.log(node.type);
+        switch (node.type) {
+            case "ExpressionStatement":
+                return await traverse(node.expression);
+            case "AssignmentExpression":
+                return await visitAssignmentExpression(node);
+            case "LogicalExpression":
+                return await visitAssignmentExpression(node);
+            case "BinaryExpression":
+                return await visitAssignmentExpression(node);
+            case "Identifier":
+                return node.name;
+            case "Literal":
+                return node.value;
+            case "CallExpression":
+                return await visitCallExpression(node);
+            case "ObjectExpression":
+                return await visitObjectExpression(node);
+        }
+    };
 
+    const visitObjectExpression = async (node) => {
+        const object = {};
+        for (const property of node.properties) {
+            const key = await traverse(property.key);
+            const value = await traverse(property.value);
+            object[key] = value;
+        }
+        return object;
+    }
+
+    const visitAssignmentExpression = async (node) => {
+        const leftNode = await traverse(node.left);
+        const rightNode = await traverse(node.right);
+        const operator = node.operator;
+        const type = node.type;
+        return {
+            type: type,
+            leftNodeValue: leftNode,
+            operator: operator,
+            rightNodeValue: rightNode,
+        };
+
+        // switch(node.type){
+        //     case 'CallExpression':
+        //     default:
+        //         const rightNode = traverse(node.right);
+        //         return {leftNodeValue: leftNode, rightNodeValue: rightNode}
+        // }
+    };
+
+    const visitCallExpression = async (node) => {
+        const callee = await traverse(node.callee);
+
+        switch (callee) {
+            case "data":
+                const fromArgs = [];
+                for (const arg of node.arguments) {
+                    const res = await traverse(arg);
+                    fromArgs.push(res);
+                }
+                let datasource = {};
+                for (const arg of fromArgs) {
+                    datasource[arg.leftNodeValue] = arg.rightNodeValue;
+                }
+
+                console.log(datasource);
+
+                return await getData(datasource);
+                //console.log(dataB);
+                //dataSource = dataB;
+                break;
+            case "select":
+                const selectArgs = [];
+                for (const arg of node.arguments) {
+                    const res = await traverse(arg);
+                    selectArgs.push(res);
+                }
+                let sSource = {};
+                for (const arg of selectArgs) {
+                    sSource[arg.leftNodeValue] = arg.rightNodeValue;
+                }
+                console.log(sSource);
+                selectSource = sSource;
+                break;
+            case "where":
+                //let wSource = {};
+                const whereArgs = [];
+                for (const arg of node.arguments) {
+                    const res = await traverse(arg);
+                    whereArgs.push(res);
+                }
+                console.log(whereArgs);
+                whereSource = whereArgs;
+                break;
+        }
+    };
+
+    // get data fields from the given element
+    const getData = async (datasource) => {
         console.log("datafrom", datasource);
-        const html = await getTemplateData(sopId, templateId);
 
-        const dataB = html.querySelector(selector);
-        dataSource = dataB;
-        break;
-      case "select":
-        const selectArgs = [];
-        for (const arg of node.arguments) {
-          const res = await traverse(arg);
-          selectArgs.push(res);
+        let selector = `#${datasource["from"]["id"]}`;
+        //console.log(selector);
+
+        const sopId = datasource["from"]["sopId"];
+        const templateId = datasource["from"]["templateId"];
+
+        let element;
+        if (sopId && templateId) {
+            const html = await getTemplateData(sopId, templateId);
+            element = html.querySelector(selector);
         }
-        let sSource = {};
-        for (const arg of selectArgs) {
-          sSource[arg.leftNodeValue] = arg.rightNodeValue;
+        else {
+            element = document.querySelector(selector);
         }
-        console.log(sSource);
-        selectSource = sSource;
-        break;
-      case "where":
-        //let wSource = {};
-        const whereArgs = [];
-        for (const arg of node.arguments) {
-          const res = await traverse(arg);
-          whereArgs.push(res);
+
+        if (!element) {
+            console.log("No element");
+            return;
         }
-        console.log(whereArgs);
-        whereSource = whereArgs;
-        break;
-    }
-  };
 
-  // get data fields from the given element
-  const getData = (element, fields, conditions) => {
-    if (!element) {
-      console.log("No element");
-      return;
-    }
+        const tagName = element.tagName;
+        switch (tagName) {
+            case "INPUT":
+                return element.value;
+            case "TABLE":
+                return retrieveTableData(element, datasource["select"], datasource["where"]["condition"]);
+                //break;
+        }
+    };
 
-    const tagName = element.tagName;
-    switch (tagName) {
-      case "TABLE":
-        return retrieveTableData(element, fields, conditions);
-    }
-  };
-
-  return { options, evaluate };
+    return { options, evaluate };
 };
 
 export default useProgramEvaluator;

@@ -23,7 +23,7 @@ export default function InputTagViewer({
       break;
     case "middle":
       component = (
-        <input value={state[id] || val} onChange={handleChangeFun}></input>
+        <input value={state[id] || val} id= {element.id} onChange={handleChangeFun}></input>
       );
       break;
     case "last":
