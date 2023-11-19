@@ -55,8 +55,8 @@ export default function ChainedOptionTagView({
 
       component = (
         <>
-          {options && <p>Select {fieldNames[0]}:</p>}
-          {options && options[fieldNames[0]].map((option) => (
+          {/* {options && <p>Select {fieldNames[0]}:</p>} */}
+          {options && options.value?.map((option, index) => (
             <label key={option}>
               <input
                 type="radio"
@@ -64,7 +64,7 @@ export default function ChainedOptionTagView({
                 checked={state[id] === option}
                 onChange={handleChangeFun}
               />
-              {option}
+              {options.label?.[index]}
             </label>
           ))}
         </>

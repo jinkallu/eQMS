@@ -1,9 +1,21 @@
 import { useState, useEffect } from 'react';
 
 const useDataFromTableElement = () => {
+    /*
+    fields = {value : Quantity, label : Quantity} etc.
+    */
     const retrieveTableData = (table: HTMLTableElement, fields, conditions) => {
         //console.log(conditions);
-        const columnIndexes = getColumnIndexesByHeader(table, fields);
+        const keys = Object.keys(fields); // [value, label]
+        let colFields = []
+        for(let i = 0; i < keys.length; i++){
+            const key = keys[i];
+            colFields.push(fields[key]);
+        }
+        //console.log(keys);
+        //console.log(colFields);
+
+        const columnIndexes = getColumnIndexesByHeader(table, colFields);
         //console.log(columnIndexes);
 
         if (columnIndexes.length == 0) {
@@ -13,9 +25,12 @@ const useDataFromTableElement = () => {
         const columnsData = {};
         const rows = table.querySelectorAll('tbody tr');
 
+
+
         for (let i = 0; i < columnIndexes.length; i++) {
-            const columnName = fields[i];
+            const columnName = colFields[i];
             const columnValues = [];
+            const key = keys[i]; 
 
             rows.forEach((row) => {
                 const cells = (row as HTMLTableRowElement).cells;
@@ -36,8 +51,9 @@ const useDataFromTableElement = () => {
                     //columnValues.push(cells[columnIndexes[i]].textContent.trim());
                 }
             });
-            columnsData[columnName] = columnValues;
+            columnsData[key] = columnValues;
         }
+        //console.log(columnsData);
 
         return columnsData;
     }

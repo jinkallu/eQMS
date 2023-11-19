@@ -33,7 +33,7 @@ const useProgramEvaluator = () => {
       template.filePath,
       template.name
     );
-    console.log("data is ", data);
+    //console.log("data is ", data);
     if (data) {
       const parser = new DOMParser();
       const html = parser.parseFromString(data, "text/html");
@@ -131,10 +131,11 @@ const useProgramEvaluator = () => {
           const res = await traverse(arg);
           selectArgs.push(res);
         }
-        let sSource = [];
+        let sSource = {};
         for (const arg of selectArgs) {
-          sSource.push(arg);
+          sSource[arg.leftNodeValue] = arg.rightNodeValue;
         }
+        console.log(sSource);
         selectSource = sSource;
         break;
       case "where":
