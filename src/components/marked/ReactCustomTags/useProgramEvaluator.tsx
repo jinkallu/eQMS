@@ -189,7 +189,9 @@ const useProgramEvaluator = () => {
             case "INPUT":
                 return element.value;
             case "TABLE":
-                return retrieveTableData(element, datasource["select"], datasource["where"]["condition"]);
+                console.log(datasource["where"]["condition"]);
+                const conditions = [datasource["where"]["condition"]];
+                return retrieveTableData(element, datasource["select"], conditions);
                 //break;
         }
     };
