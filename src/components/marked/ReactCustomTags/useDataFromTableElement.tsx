@@ -37,7 +37,7 @@ const useDataFromTableElement = () => {
                 if (cells.length > columnIndexes[i]) {
                     // Check conditions
                     const cellValue = cells[columnIndexes[i]].textContent.trim();
-                    if(conditions == null){
+                    if(conditions === null){
                         conditions = [];
                     }
                     if (conditions.length > 0) {

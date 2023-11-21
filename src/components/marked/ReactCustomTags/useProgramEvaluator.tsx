@@ -169,13 +169,14 @@ const useProgramEvaluator = () => {
 
         const sopId = datasource["from"]["sopId"];
         const templateId = datasource["from"]["templateId"];
-
+console.log(sopId, templateId);
         let element;
         if (sopId && templateId) {
             const html = await getTemplateData(sopId, templateId);
             element = html.querySelector(selector);
         }
         else {
+            console.log(selector);
             element = document.querySelector(selector);
         }
 
@@ -189,8 +190,21 @@ const useProgramEvaluator = () => {
             case "INPUT":
                 return element.value;
             case "TABLE":
-                console.log(datasource["where"]["condition"]);
-                const conditions = [datasource["where"]["condition"]];
+                let conditions;
+                if (datasource.hasOwnProperty("where")) {
+                    if (datasource["where"].hasOwnProperty("condition")) {
+                        conditions = [datasource["where"]["condition"]];
+                    }
+                    else{
+                        conditions = [];    
+                    }
+                }
+                else{
+                    conditions = [];
+                }
+
+                //console.log(datasource["where"]["condition"]);
+                //conditions = [datasource["where"]["condition"]];
                 return retrieveTableData(element, datasource["select"], conditions);
                 //break;
         }

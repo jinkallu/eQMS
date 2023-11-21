@@ -63,6 +63,7 @@ export default function ChainedOptionTagView({
                 value={option}
                 checked={state[id] === option}
                 onChange={handleChangeFun}
+                id={element.id}
               />
               {options.label?.[index]}
             </label>
