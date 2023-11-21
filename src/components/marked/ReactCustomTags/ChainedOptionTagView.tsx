@@ -11,7 +11,8 @@ export default function ChainedOptionTagView({
 }) {
 
   //const [options, setOptions] = useState();
-  const { options, evaluate } = useProgramEvaluator();
+  const [dependStates, setDependStates] = useState(null);
+  const {dependStateIds, options, evaluate } = useProgramEvaluator();
 
   function handleChangeFun(e) {
     if (handleChange) {
@@ -32,6 +33,28 @@ export default function ChainedOptionTagView({
         break;
     }
   }, [])
+
+  // The following code must be executed dynamically, 
+  // especially to identify the independant elements.
+
+  useEffect(() => {
+    console.log(dependStates);
+    let programAttribute = element.getAttribute('program');
+          evaluate(programAttribute);
+  }, [dependStates])
+
+  useEffect(() => {
+    if(!dependStateIds){
+      return;
+    }
+
+    const newDpdStates = [];
+    for(let i = 0; i < dependStateIds.length; i++){
+      newDpdStates.push(state[dependStateIds[i]]);
+    }
+    console.log(dependStateIds);
+    setDependStates(newDpdStates);
+  }, [dependStateIds])
 
   //const options = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
 
@@ -72,6 +95,8 @@ export default function ChainedOptionTagView({
       );
       break;
     case "last":
+      console.log(state[id]);
+
       if (state) {
         if (state[id]) {
           component = <span>{state[id]}</span>

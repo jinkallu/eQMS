@@ -10,6 +10,7 @@ let whereSource = null;
 
 const useProgramEvaluator = () => {
     const [options, setOptions] = useState(null);
+    const [dependStateIds, setDependStateIds] = useState([]);
     const { repository, getFileContent, userSOPs } = useExtnStore(
         (state) => state
     );
@@ -170,25 +171,41 @@ const useProgramEvaluator = () => {
         const sopId = datasource["from"]["sopId"];
         const templateId = datasource["from"]["templateId"];
 console.log(sopId, templateId);
-        let element;
+        let elements;
         if (sopId && templateId) {
             const html = await getTemplateData(sopId, templateId);
-            element = html.querySelector(selector);
+            elements = html.querySelectorAll(selector);
         }
-        else {
+        else { // The source is an independant source from the same file.
             console.log(selector);
-            element = document.querySelector(selector);
+            if(!dependStateIds.includes(datasource["from"]["id"])){
+                setDependStateIds(dependStatesIds => [...dependStatesIds, datasource["from"]["id"]]);
+            }
+            elements = document.querySelectorAll(selector);
         }
 
-        if (!element) {
+        if (elements.length === 0) {
             console.log("No element");
             return;
         }
 
-        const tagName = element.tagName;
+        const tagName = elements[0].tagName;
+        console.log(tagName);
         switch (tagName) {
             case "INPUT":
-                return element.value;
+                //console.log(element.type);
+                switch(elements[0].type.toUpperCase()){
+                    case "RADIO":
+                        for(let i = 0; i < elements.length; i++){
+                            if(elements[i].checked){
+                                return elements[i].value;
+                            }
+                        }
+                    default:
+                        return elements[0].value;
+
+
+                }
             case "TABLE":
                 let conditions;
                 if (datasource.hasOwnProperty("where")) {
@@ -205,12 +222,12 @@ console.log(sopId, templateId);
 
                 //console.log(datasource["where"]["condition"]);
                 //conditions = [datasource["where"]["condition"]];
-                return retrieveTableData(element, datasource["select"], conditions);
+                return retrieveTableData(elements[0], datasource["select"], conditions);
                 //break;
         }
     };
 
-    return { options, evaluate };
+    return { dependStateIds, options, evaluate };
 };
 
 export default useProgramEvaluator;
