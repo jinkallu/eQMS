@@ -51,7 +51,7 @@ const useProgramEvaluator = () => {
         //console.log(dataSource, selectSource, whereSource);
         //const data = getData(dataSource, selectSource, whereSource);
         //console.log(data);
-        
+
         //return data;
     };
 
@@ -72,7 +72,7 @@ const useProgramEvaluator = () => {
             case "LogicalExpression":
                 return await visitAssignmentExpression(node);
             case "BinaryExpression":
-                return await visitAssignmentExpression(node);
+                return await visitBinaryExpression(node);
             case "Identifier":
                 return node.name;
             case "Literal":
@@ -105,13 +105,25 @@ const useProgramEvaluator = () => {
             operator: operator,
             rightNodeValue: rightNode,
         };
+    };
 
-        // switch(node.type){
-        //     case 'CallExpression':
-        //     default:
-        //         const rightNode = traverse(node.right);
-        //         return {leftNodeValue: leftNode, rightNodeValue: rightNode}
-        // }
+    const visitBinaryExpression = async (node) => {
+        const leftNode = await traverse(node.left);
+        const rightNode = await traverse(node.right);
+        const operator = node.operator;
+        console.log(leftNode, rightNode, operator);
+        switch (operator) {
+            case "*":
+                return parseFloat(leftNode) * parseFloat(rightNode);
+            default:
+                const type = node.type;
+                return {
+                    type: type,
+                    leftNodeValue: leftNode,
+                    operator: operator,
+                    rightNodeValue: rightNode,
+                };
+        }
     };
 
     const visitCallExpression = async (node) => {
@@ -170,7 +182,7 @@ const useProgramEvaluator = () => {
 
         const sopId = datasource["from"]["sopId"];
         const templateId = datasource["from"]["templateId"];
-console.log(sopId, templateId);
+        console.log(sopId, templateId);
         let elements;
         if (sopId && templateId) {
             const html = await getTemplateData(sopId, templateId);
@@ -178,7 +190,7 @@ console.log(sopId, templateId);
         }
         else { // The source is an independant source from the same file.
             console.log(selector);
-            if(!dependStateIds.includes(datasource["from"]["id"])){
+            if (!dependStateIds.includes(datasource["from"]["id"])) {
                 setDependStateIds(dependStatesIds => [...dependStatesIds, datasource["from"]["id"]]);
             }
             elements = document.querySelectorAll(selector);
@@ -194,10 +206,10 @@ console.log(sopId, templateId);
         switch (tagName) {
             case "INPUT":
                 //console.log(element.type);
-                switch(elements[0].type.toUpperCase()){
+                switch (elements[0].type.toUpperCase()) {
                     case "RADIO":
-                        for(let i = 0; i < elements.length; i++){
-                            if(elements[i].checked){
+                        for (let i = 0; i < elements.length; i++) {
+                            if (elements[i].checked) {
                                 return elements[i].value;
                             }
                         }
@@ -212,18 +224,18 @@ console.log(sopId, templateId);
                     if (datasource["where"].hasOwnProperty("condition")) {
                         conditions = [datasource["where"]["condition"]];
                     }
-                    else{
-                        conditions = [];    
+                    else {
+                        conditions = [];
                     }
                 }
-                else{
+                else {
                     conditions = [];
                 }
 
                 //console.log(datasource["where"]["condition"]);
                 //conditions = [datasource["where"]["condition"]];
                 return retrieveTableData(elements[0], datasource["select"], conditions);
-                //break;
+            //break;
         }
     };
 
