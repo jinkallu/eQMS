@@ -11,8 +11,8 @@ export default function ChainedOptionTagView({
 }) {
 
   //const [options, setOptions] = useState();
-  const [dependStates, setDependStates] = useState(null);
-  const {dependStateIds, options, evaluate } = useProgramEvaluator();
+  const [dependStates, setDependStates] = useState({});
+  const { dependStateIds, options, evaluate } = useProgramEvaluator();
 
   function handleChangeFun(e) {
     if (handleChange) {
@@ -38,19 +38,35 @@ export default function ChainedOptionTagView({
   // especially to identify the independant elements.
 
   useEffect(() => {
-    console.log(dependStates);
-    let programAttribute = element.getAttribute('program');
-          evaluate(programAttribute);
-  }, [dependStates])
+    let trigger = false;
+    for (let i = 0; i < dependStateIds.length; i++) {
+      const key = dependStateIds[i];
+      const newValue = state[key]; 
+      const oldValue = dependStates[key];
+      if( newValue !== oldValue){
+        trigger = true;
+        setDependStates(prevState => ({
+          ...prevState, 
+          [key]: newValue, 
+        }));
+      }
+      
+    }
+    if(trigger){
+      let programAttribute = element.getAttribute('program');
+      evaluate(programAttribute);
+    }
+    
+  }, [state])
 
   useEffect(() => {
-    if(!dependStateIds){
+    if (!dependStateIds) {
       return;
     }
 
-    const newDpdStates = [];
-    for(let i = 0; i < dependStateIds.length; i++){
-      newDpdStates.push(state[dependStateIds[i]]);
+    const newDpdStates = {};
+    for (let i = 0; i < dependStateIds.length; i++) {
+      newDpdStates[dependStateIds[i]] = null;
     }
     console.log(dependStateIds);
     setDependStates(newDpdStates);
@@ -72,7 +88,7 @@ export default function ChainedOptionTagView({
     case "middle":
       //let options = {};
       let fieldNames = null;
-      if(options){
+      if (options) {
         fieldNames = Object.keys(options);
       }
 
