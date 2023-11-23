@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useExtnStore } from "../zustand/store";
 import React from "react";
 import { markedToHtml } from "../utils/markedHelper";
-import { Box, Chip, CircularProgress, Paper } from "@mui/material";
+import { Box, Chip, CircularProgress, Paper, Toolbar } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import MarkedEditView from "./marked/MarkedEditView";
@@ -27,6 +27,7 @@ export default function HTMLViewer() {
     fileContentLoading,
     branchFileNames,
     getFileContent,
+    getEditBranch,
     repository,
   } = useExtnStore((state) => state);
 
@@ -74,6 +75,29 @@ export default function HTMLViewer() {
     setInputText(content);
   }
 
+  async function getEditContentData() {
+    const content = await getEditBranch({
+      branchName,
+      type,
+      relativePath,
+      repositoryId: repository.id,
+      projectId: project.id,
+    });
+    const processFlowdata = content.getElementById("processFlow");
+    if (processFlowdata) {
+      let nodes = [];
+      let edges = [];
+      try {
+        nodes = JSON.parse(processFlowdata.dataset.nodes);
+        edges = JSON.parse(processFlowdata.dataset.edges);
+        setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
+      } catch (e) {
+        setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
+      }
+    }
+    setInputText(content);
+  }
+
   async function getDatabaseContent(collectionName, repositoryId) {
     await readDatabase({ collectionName, repositoryId });
   }
@@ -97,223 +121,13 @@ export default function HTMLViewer() {
     const editBranchName = editBranchNameArr.join("/");
 
     const processFlowEls = html?.getElementsByTagName("PROCESSFLOW");
-    // const edges = state["processFlow"]?.edges || [];
-    // const nodes = state["processFlow"]?.nodes || [];
+    const edges = state["processFlow"]?.edges || [];
+    const nodes = state["processFlow"]?.nodes || [];
 
-    const nodes = [
-      {
-        id: "A",
-        data: {
-          label: "SOP Name",
-        },
-        type: "group",
-        position: {
-          x: 0,
-          y: 0,
-        },
-
-        draggable: true,
-      },
-
-      {
-        id: "Order Request",
-        type: "step",
-        position: {
-          x: 200,
-          y: 100,
-        },
-        data: {
-          label: "Order Request",
-          type: "step",
-          templateName: "Order Request Template",
-          templateId: null,
-        },
-        parentNode: "A",
-        extent: "parent",
-        draggable: true,
-        width: 150,
-        height: 50,
-      },
-      {
-        id: "Order Confirmation",
-        type: "step",
-        position: {
-          x: 200,
-          y: 200,
-        },
-        data: {
-          label: "Order Confirmation",
-          type: "step",
-          templateName: "Order Confirmation Template",
-          templateId: null,
-        },
-        parentNode: "A",
-        extent: "parent",
-        draggable: true,
-        width: 150,
-        height: 50,
-      },
-      {
-        width: 150,
-        height: 50,
-        id: "step11-step",
-        type: "step",
-        position: {
-          x: 200,
-          y: 400,
-        },
-        data: {
-          label: "step11",
-          type: "step",
-          templateName: "1_Risk_Management_Plan",
-          templateId: "a613d234-3519-4422-96b8-469823744d6f",
-        },
-        parentNode: "A",
-        extent: "parent",
-        draggable: true,
-        positionAbsolute: {
-          x: 200,
-          y: 200,
-        },
-      },
-      {
-        width: 150,
-        height: 50,
-        id: "sddfd-step",
-        type: "multidec",
-        position: {
-          x: 200,
-          y: 600,
-        },
-        data: {
-          label: "sddfd",
-          type: "multidec",
-          field: "Name",
-          conditions: ["44", "55"],
-        },
-        parentNode: "A",
-        extent: "parent",
-        draggable: true,
-        positionAbsolute: {
-          x: 200,
-          y: 400,
-        },
-      },
-      {
-        width: 150,
-        height: 50,
-        id: "My step 1-step",
-        type: "step",
-        position: {
-          x: 300,
-          y: 800,
-        },
-        data: {
-          label: "My step 1",
-          type: "step",
-        },
-        parentNode: "A",
-        extent: "parent",
-        draggable: true,
-        positionAbsolute: {
-          x: 200,
-          y: 400,
-        },
-      },
-      {
-        width: 150,
-        height: 50,
-        id: "My step 2-step",
-        type: "step",
-        position: {
-          x: 400,
-          y: 800,
-        },
-        data: {
-          label: "My step 2",
-          type: "step",
-        },
-        parentNode: "A",
-        extent: "parent",
-        draggable: true,
-        positionAbsolute: {
-          x: 200,
-          y: 400,
-        },
-      },
-      {
-        width: 150,
-        height: 50,
-        id: "sddfdsdsd-step",
-        type: "step",
-        position: {
-          x: 300,
-          y: 1000,
-        },
-        data: {
-          label: "sddfdsdsd",
-          type: "step",
-          templateName: "103_Temp3_Management",
-          templateId: "e82a0cb9-5c8e-48bd-8b98-70c209f025ad",
-        },
-        parentNode: "A",
-        extent: "parent",
-        draggable: true,
-        positionAbsolute: {
-          x: 300,
-          y: 800,
-        },
-      },
-    ];
-
-    const edges = [
-      {
-        id: "Order Request_Order Confirmation",
-        source: "Order Request",
-        target: "Order Confirmation",
-        targetHandle: "target",
-        sourceHandle: "source_bottom",
-      },
-      {
-        id: "Order Confirmation_step11-step",
-        source: "Order Confirmation",
-        target: "step11-step",
-        sourceHandle: "source_bottom",
-        targetHandle: "target",
-      },
-      {
-        id: "step11-step_sddfd-step",
-        source: "step11-step",
-        target: "sddfd-step",
-        sourceHandle: "source_bottom",
-        targetHandle: "target",
-      },
-      {
-        id: "sddfd-step_My step 1-step",
-        source: "sddfd-step",
-        target: "My step 1-step",
-        sourceHandle: "44",
-        targetHandle: "target",
-      },
-      {
-        id: "sddfd-step_My step 2-step",
-        source: "sddfd-step",
-        target: "My step 2-step",
-        sourceHandle: "55",
-        targetHandle: "target",
-      },
-      {
-        id: "My step 1-step_sddfdsdsd-step",
-        source: "My step 1-step",
-        target: "sddfdsdsd-step",
-        sourceHandle: "source_bottom",
-        targetHandle: "target",
-      },
-    ];
-    Array.from(processFlowEls)?.map((flow: HTMLElement) => {
-      flow.dataset.nodes = JSON.stringify(nodes);
-      flow.dataset.edges = JSON.stringify(edges);
-      return flow;
+    Array.from(processFlowEls)?.map((item: HTMLElement) => {
+      item.dataset.nodes = JSON.stringify(nodes);
+      item.dataset.edges = JSON.stringify(edges);
+      return item;
     });
 
     // const md = EditorSave.findEditableMds(inputText, "Editor");
@@ -353,8 +167,17 @@ export default function HTMLViewer() {
     setEditMode((prev) => !prev);
   }
 
+  const handleChange = (id, value) => {
+    console.log(id, value);
+    setState((values) => ({ ...values, [id]: value }));
+  };
+
   React.useEffect(() => {
-    if (!editMode) getFileContentData();
+    if (!editMode) {
+      getFileContentData();
+    } else {
+      getEditContentData();
+    }
   }, [editMode]);
 
   React.useEffect(() => {
@@ -362,7 +185,7 @@ export default function HTMLViewer() {
       const parser = new DOMParser();
       //const htmlString = marked(markedData);
       const htmlData = parser.parseFromString(inputText, "text/html");
-
+      console.log(htmlData);
       setHtml(htmlData);
     }
   }, [inputText]);
@@ -401,7 +224,6 @@ export default function HTMLViewer() {
             display: "flex",
             justifyContent: "space-between",
             paddingX: "24px",
-            height: "50px",
             position: "fixed",
             width: "100%",
             opacity: 1,
@@ -442,8 +264,6 @@ export default function HTMLViewer() {
           alignItems: "center",
           overflowY: "auto",
           width: "100vw",
-          border: "1px solid yellow",
-          padding: "24px",
         }}
       >
         {editMode && (
@@ -456,18 +276,20 @@ export default function HTMLViewer() {
             setHtml={setHtml}
             setOpenEditModal={setOpen}
             state={state}
-            setState={setState}
+            handleChange={handleChange}
           ></MonacoEditor>
         )}
         {!editMode && (
-          <MarkedToCustom
-            element={html?.body}
-            open={null}
-            setOpen={null}
-            order="last"
-            state={state}
-            handleChange={null}
-          ></MarkedToCustom>
+          <Box sx={{ paddingY: "24px" }}>
+            <MarkedToCustom
+              element={html?.body}
+              open={null}
+              setOpen={null}
+              order="last"
+              state={state}
+              handleChange={handleChange}
+            ></MarkedToCustom>
+          </Box>
         )}
       </Box>
     </Box>

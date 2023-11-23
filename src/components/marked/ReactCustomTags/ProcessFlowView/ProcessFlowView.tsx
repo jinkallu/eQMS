@@ -7,11 +7,11 @@ import CScape from "../../customtags/cytoscapetags/cscape";
 //import GraphAnalysis from "../../customtags/cytoscapetags/GraphAnalysis"; // TODO: for future graph analysis
 
 export default function ProcessFlowView({
-  element,
   order,
   state,
   id,
   handleChange,
+  element,
 }) {
   const [graphData, setGraphData] = useState({
     initialNodes: [],
@@ -150,37 +150,44 @@ export default function ProcessFlowView({
       //}
     });
 
-    setGraphData({ initialNodes: initialNodes, initialEdges: initialEdges });
+    // setGraphData({ initialNodes: initialNodes, initialEdges: initialEdges });
   }
 
-  useEffect(() => {
-    // createProcessGraph(element);
-    let initialNodes = [];
-    initialNodes.push({
-      id: "A", // TODO: change this id to a unique
-      data: {
-        label: "SOP Name",
-      },
-      type: "group",
-      position: { x: 0, y: 0 },
-      style: {
-        backgroundColor: "green",
-        height: "100%",
-        width: "100%",
-      },
-      draggable: false,
-    });
+  // useEffect(() => {
+  //   // createProcessGraph(element);
+  //   let initialNodes = [];
 
-    const nodes = element?.dataset?.nodes
-      ? JSON.parse(element?.dataset?.nodes)
-      : [];
-    const initialEdges = element?.dataset?.edges
-      ? JSON.parse(element?.dataset?.edges)
-      : [];
-    initialNodes = [...initialNodes, ...nodes];
-    setGraphData({ initialNodes: initialNodes, initialEdges: initialEdges });
-    console.log("initnodes", initialNodes, initialEdges);
-  }, [element]);
+  //   const nodes = element?.dataset?.nodes
+  //     ? JSON.parse(element?.dataset?.nodes)
+  //     : [];
+  //   const initialEdges = element?.dataset?.edges
+  //     ? JSON.parse(element?.dataset?.edges)
+  //     : [];
+  //   initialNodes.push({
+  //     id: "A", // TODO: change this id to a unique
+  //     data: {
+  //       label: "SOP Name",
+  //     },
+  //     type: "group",
+  //     position: { x: 0, y: 0 },
+  //     style: {
+  //       backgroundColor: "green",
+  //       height: "100%",
+  //       width: "100%",
+  //     },
+  //     draggable: false,
+  //   });
+
+  //   if (nodes?.find((item) => item?.id === "A")) {
+  //     initialNodes = [...nodes];
+  //   } else {
+  //     initialNodes = [...initialNodes, ...nodes];
+  //   }
+  //   // setGraphData({ initialNodes: initialNodes, initialEdges: initialEdges });
+
+  //   if (handleChange)
+  //     handleChange("processFlow", { nodes: initialNodes, edges: initialEdges });
+  // }, [handleChange]);
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -188,21 +195,21 @@ export default function ProcessFlowView({
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <ProcessFlow
-              graphData={graphData}
               state={state}
               handleChange={handleChange}
               editable={true}
+              element={element}
             />
           </Grid>
         </Grid>
-      )}{" "}
-      {order === "last" && (
+      )}
+      {order === "last" && handleChange && (
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <ProcessFlow
-              graphData={graphData}
-              editable={false}
               state={state}
+              element={element}
+              editable={false}
               handleChange={handleChange}
             />
           </Grid>

@@ -34,10 +34,10 @@ const nodeTypes = {
 };
 
 export default function ProcessFlow({
-  graphData,
   editable,
-  state,
   handleChange,
+  element,
+  state,
 }) {
   // const initialNodes = element?.dataset?.nodes
   //   ? JSON.parse(element?.dataset?.nodes)
@@ -45,7 +45,9 @@ export default function ProcessFlow({
   // const initialEdges = element?.dataset?.edges
   //   ? JSON.parse(element?.dataset?.edges)
   //   : [];
-  // const reactFlowInstance = useReactFlow();
+  // // const reactFlowInstance = useReactFlow();
+  // const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  // const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
   const [openDeleteStepModal, setOpenDeleteStepModal] = React.useState(false);
@@ -59,12 +61,6 @@ export default function ProcessFlow({
     bottom: number;
   }>();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(
-    graphData?.initialNodes
-  );
-  const [edges, setEdges, onEdgesChange] = useEdgesState(
-    graphData?.initialEdges
-  );
   const [menu, setMenu] = useState(null);
 
   const [viewportSize, setViewportSize] = useState({
@@ -73,23 +69,70 @@ export default function ProcessFlow({
   });
 
   useEffect(() => {
-    console.log("state", state);
-    if (state && state["processFlow"]) {
-      console.log("changed", state);
-      setNodes(state["processFlow"]?.nodes || []);
-      setEdges(state["processFlow"]?.edges || []);
+    // createProcessGraph(element);
+    let initialNodes = [];
+
+    const nodesData = element?.dataset?.nodes
+      ? JSON.parse(element?.dataset?.nodes)
+      : [];
+    const initialEdges = element?.dataset?.edges
+      ? JSON.parse(element?.dataset?.edges)
+      : [];
+    initialNodes.push({
+      id: "A", // TODO: change this id to a unique
+      data: {
+        label: "SOP Name",
+      },
+      type: "group",
+      position: { x: 0, y: 0 },
+      style: {
+        backgroundColor: "green",
+        height: "100%",
+        width: "100%",
+      },
+      draggable: true,
+    });
+
+    if (nodesData?.find((item) => item?.id === "A")) {
+      initialNodes = [...nodesData];
+    } else {
+      initialNodes = [...initialNodes, ...nodesData];
     }
-  }, [state]);
+    handleChange("processFlow", { nodes: initialNodes, edges: initialEdges });
+    // setNodes(initialNodes);
+    // setEdges(initialEdges);
+
+    console.log(editable, initialNodes, initialEdges);
+    console.log(JSON.parse(element.dataset.nodes));
+  }, []);
+
+  // useEffect(() => {
+  //   if (handleChange) handleChange("processFlow", { nodes, edges });
+  // }, [nodes, edges, handleChange]);
+
+  // useEffect(() => {
+  //   console.log("state", state);
+  //   if (state && state["processFlow"]) {
+  //     // console.log("changed", state);
+  //     setNodes(state["processFlow"]?.nodes || []);
+  //     setEdges(state["processFlow"]?.edges || []);
+  //   }
+  // }, [state]);
 
   // const onConnect = useCallback(
   //   (params) => setEdges((eds) => addEdge(params, eds)),
   //   [setEdges]
   // );
 
-  useEffect(() => {
-    setNodes(graphData?.initialNodes);
-    setEdges(graphData?.initialEdges);
-  }, [graphData]);
+  // useEffect(() => {
+  //   // setNodes(graphData?.initialNodes);
+  //   // setEdges(graphData?.initialEdges);
+  //   if (handleChange)
+  //     handleChange("processFlow", {
+  //       nodes: graphData?.initialNodes,
+  //       edges: graphData?.initialEdges,
+  //     });
+  // }, [graphData, handleChange]);
 
   const ref = useRef(null);
 
@@ -116,6 +159,11 @@ export default function ProcessFlow({
   }
 
   const onNodeContextMenu = (event, node) => {
+    if (!editable) {
+      setMenu(null);
+
+      return;
+    }
     event.preventDefault();
 
     if (node.type !== "step") {
@@ -171,7 +219,7 @@ export default function ProcessFlow({
         setOpen={setOpenDeleteStepModal}
         open={openDeleteStepModal}
         currentNode={currentNode}
-        state={state}
+        state={{}}
         handleChange={handleChange}
       ></DeleteStepModal>
 
@@ -185,22 +233,21 @@ export default function ProcessFlow({
 
       <ReactFlow
         ref={ref}
-        nodes={nodes}
-        edges={edges}
+        nodes={state["processFlow"]?.nodes || []}
+        edges={state["processFlow"]?.edges || []}
         // onNodesChange={onNodesChange}
         // onEdgesChange={onEdgesChange}
         // onConnect={onConnect}
         onNodeContextMenu={onNodeContextMenu}
         zoomOnDoubleClick={false} // Disable zoom on double-click
         zoomOnScroll={false} // Disable zoom on scroll
-        nodesDraggable={false}
+        nodesDraggable={true}
         panOnDrag={false}
         zoomOnPinch={false}
         nodeTypes={nodeTypes}
         onNodeClick={onNodeClick}
         preventScrolling={false}
-        elementsSelectable={editable}
-        fitView
+        elementsSelectable={true}
       >
         {/* <Controls /> */}
         {/* <MiniMap /> */}
