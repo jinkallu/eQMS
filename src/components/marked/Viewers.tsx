@@ -7,6 +7,7 @@ import EndNode from "./ReactCustomTags/EndNodeView";
 import ProcessFlowView from "./ReactCustomTags/ProcessFlowView/ProcessFlowView";
 import MDTagView from "./ReactCustomTags/MDTagView";
 import ChainedOptionTagView from "./ReactCustomTags/ChainedOptionTagView";
+import SliderTagView from "./ReactCustomTags/SliderTagView";
 
 export default function Viewers({
   element,
@@ -59,6 +60,18 @@ export default function Viewers({
     const id = element.getAttribute("id");
     return (
       <ChainedOptionTagView
+        state={state}
+        id={id}
+        handleChange={handleChange}
+        element={element}
+        order={order}
+      />
+    );
+  }  
+  else if (element.tagName && element.tagName === "SLIDER") {
+    const id = element.getAttribute("id");
+    return (
+      <SliderTagView
         state={state}
         id={id}
         handleChange={handleChange}
