@@ -75,28 +75,28 @@ export default function HTMLViewer() {
     setInputText(content);
   }
 
-  async function getEditContentData() {
-    const content = await getEditBranch({
-      branchName,
-      type,
-      relativePath,
-      repositoryId: repository.id,
-      projectId: project.id,
-    });
-    const processFlowdata = content.getElementById("processFlow");
-    if (processFlowdata) {
-      let nodes = [];
-      let edges = [];
-      try {
-        nodes = JSON.parse(processFlowdata.dataset.nodes);
-        edges = JSON.parse(processFlowdata.dataset.edges);
-        setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
-      } catch (e) {
-        setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
-      }
-    }
-    setInputText(content);
-  }
+  // async function getEditContentData() {
+  //   const content = await getEditBranch({
+  //     branchName,
+  //     type,
+  //     relativePath,
+  //     repositoryId: repository.id,
+  //     projectId: project.id,
+  //   });
+  //   const processFlowdata = content.getElementById("processFlow");
+  //   if (processFlowdata) {
+  //     let nodes = [];
+  //     let edges = [];
+  //     try {
+  //       nodes = JSON.parse(processFlowdata.dataset.nodes);
+  //       edges = JSON.parse(processFlowdata.dataset.edges);
+  //       setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
+  //     } catch (e) {
+  //       setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
+  //     }
+  //   }
+  //   setInputText(content);
+  // }
 
   async function getDatabaseContent(collectionName, repositoryId) {
     await readDatabase({ collectionName, repositoryId });
@@ -175,8 +175,6 @@ export default function HTMLViewer() {
   React.useEffect(() => {
     if (!editMode) {
       getFileContentData();
-    } else {
-      getEditContentData();
     }
   }, [editMode]);
 
