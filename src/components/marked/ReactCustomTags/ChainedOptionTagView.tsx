@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import useProgramEvaluator from "./useProgramEvaluator";
+import Radios from "./Radios";
 
 export default function ChainedOptionTagView({
   element,
@@ -12,7 +13,7 @@ export default function ChainedOptionTagView({
 
   //const [options, setOptions] = useState();
   const [dependStates, setDependStates] = useState({});
-  const { dependStateIds, options, evaluate } = useProgramEvaluator();
+  const { dependStateIds, options, evaluate } = useProgramEvaluator(state);
 
   function handleChangeFun(e) {
     if (handleChange) {
@@ -91,24 +92,26 @@ export default function ChainedOptionTagView({
       if (options) {
         fieldNames = Object.keys(options);
       }
+      console.log(options);
+      component = <Radios state = {state} id={id} handleChange={handleChange} options={options}/>
 
-      component = (
-        <>
-          {/* {options && <p>Select {fieldNames[0]}:</p>} */}
-          {options && options.value?.map((option, index) => (
-            <label key={option}>
-              <input
-                type="radio"
-                value={option}
-                checked={state[id] === option}
-                onChange={handleChangeFun}
-                id={element.id}
-              />
-              {options.label?.[index]}
-            </label>
-          ))}
-        </>
-      );
+      // component = (
+      //   <>
+      //     {/* {options && <p>Select {fieldNames[0]}:</p>} */}
+      //     {options && options.value?.map((option, index) => (
+      //       <label key={option}>
+      //         <input
+      //           type="radio"
+      //           value={option}
+      //           checked={state[id] === option}
+      //           onChange={handleChangeFun}
+      //           id={element.id}
+      //         />
+      //         {options.label?.[index]}
+      //       </label>
+      //     ))}
+      //   </>
+      // );
       break;
     case "last":
       console.log(state[id]);

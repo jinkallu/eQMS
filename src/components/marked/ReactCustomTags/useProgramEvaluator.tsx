@@ -8,7 +8,7 @@ let dataSource = null;
 let selectSource = null;
 let whereSource = null;
 
-const useProgramEvaluator = () => {
+const useProgramEvaluator = (state) => {
     const [options, setOptions] = useState(null);
     const [dependStateIds, setDependStateIds] = useState([]);
     const { repository, getFileContent, userSOPs } = useExtnStore(
@@ -205,7 +205,7 @@ const useProgramEvaluator = () => {
         console.log(tagName);
         switch (tagName) {
             case "INPUT":
-                //console.log(element.type);
+                console.log(elements[0].type);
                 switch (elements[0].type.toUpperCase()) {
                     case "RADIO":
                         for (let i = 0; i < elements.length; i++) {
@@ -236,6 +236,8 @@ const useProgramEvaluator = () => {
                 //conditions = [datasource["where"]["condition"]];
                 return retrieveTableData(elements[0], datasource["select"], conditions);
             //break;
+            default:
+                return state[datasource["from"]["id"]];
         }
     };
 

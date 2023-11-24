@@ -14,11 +14,23 @@ export default function SliderTagView({
 }) {
 
     const [dependStates, setDependStates] = useState({});
-    const { dependStateIds, options, evaluate } = useProgramEvaluator();
+    const { dependStateIds, options, evaluate } = useProgramEvaluator(state);
 
     function handleChangeFun(e) {
         if (handleChange) {
-            handleChange(id, e.target.value);
+            const scale = element.getAttribute('scale');
+            if(scale){
+                switch(scale){
+                    case "log":
+                        handleChange(id, Math.pow(10, e.target.value));
+                        break;
+                    default:
+                        handleChange(id, e.target.value);
+                } 
+            }
+            else{
+                handleChange(id, e.target.value);
+            }
         }
     }
 
@@ -122,16 +134,37 @@ export default function SliderTagView({
 
 
             if (options) {
+                let range = null;
+                if (options.range) {
+                    range = true;
+                }
                 const scale = element.getAttribute('scale');
                 for (let i = 0; i < options.value?.length; i++) {
-                    switch (scale) {
-                        case "log":
-                            marks.push({ value: Math.log10(options.value[i]), label: options.label?.[i] });
-                            break;
-                        default:
-                            marks.push({ value: options.value[i], label: options.label?.[i] });
+                    if (!range) {
+                        switch (scale) {
+                            case "log":
+                                marks.push({ value: Math.log10(options.value[i]), label: options.label?.[i] });
+                                break;
+                            default:
+                                marks.push({ value: parseFloat(options.value[i]), label: options.label?.[i] });
+                        }
+                    }
+                    else{ // range with upper value
+                        switch (scale) {
+                            case "log":
+                                const lower_range = Math.log10(options.value[i]);
+                                const upper_range = Math.log10(options.range[i]);
+                                const middle_range = lower_range + (upper_range - lower_range) / 2.0;
+                                marks.push({ value: lower_range, label: "" });
+                                marks.push({ value: middle_range, label: options.label?.[i] });
+                                marks.push({ value: upper_range, label: "" });
+                                break;
+                            default:
+                                marks.push({ value: options.value[i], label: options.label?.[i] });
+                        }
                     }
                 }
+                
 
                 min = marks.reduce((min, mark) => (mark.value < min ? mark.value : min), marks[0].value);
 
@@ -139,19 +172,27 @@ export default function SliderTagView({
 
                 step = Math.abs(max - min) / (marks.length * 10); // needs to be adjusted
 
+                console.log(marks, min, max, step);
+
+                //handleChange(id, min);
+                //state[id] = min;
+
             }
             component = (
                 <>
                     {options && <Box sx={{ width: 400 }}>
                         <Slider
+                            id={element.id}
                             track={false}
                             aria-labelledby="track-false-slider"
                             getAriaValueText={valuetext}
                             defaultValue={min}
+                            //value={state[id]}
                             marks={marks}
                             max={max}
                             min={min}
                             step={step}
+                            onChange={handleChangeFun}
                         />
                     </Box>}
                 </>
@@ -163,6 +204,7 @@ export default function SliderTagView({
             if (state) {
                 if (state[id]) {
                     component = <span>{state[id]}</span>
+                    
                 }
                 else {
                     component = <span>{val}</span>;
