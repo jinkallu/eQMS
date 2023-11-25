@@ -188,16 +188,16 @@ export default function HTMLViewer() {
     }
   }, [inputText]);
 
-  React.useEffect(() => {
-    getDatabaseContent("standards", repository.id);
-    const members = getTeamMembers("eQMS", "eQMS Team");
+  // React.useEffect(() => {
+  //   getDatabaseContent("standards", repository.id);
+  //   const members = getTeamMembers("eQMS", "eQMS Team");
 
-    // const members = getTeamMembers(project.name, project.name + " Team");
-    // console.log(members);
-    // const text = htmlContents[objectId];
-    // console.log(htmlContents);
-    // setInputText(text);
-  }, [htmlContents]);
+  //   // const members = getTeamMembers(project.name, project.name + " Team");
+  //   // console.log(members);
+  //   // const text = htmlContents[objectId];
+  //   // console.log(htmlContents);
+  //   // setInputText(text);
+  // }, [htmlContents]);
   if (fileContentLoading) {
     return (
       <Box

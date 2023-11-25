@@ -46,7 +46,7 @@ export default function MonacoEditor({
   // const [markedData, setMarkedData] = React.useState<string>();
   const [open, setOpen] = React.useState(false);
 
-  const [editorView, setEditorView] = React.useState("editor");
+  const [editorView, setEditorView] = React.useState("form");
 
   const { getEditBranch, repository } = useExtnStore((state) => state);
   const project = useExtnStore((state) => state.project);
@@ -72,6 +72,7 @@ export default function MonacoEditor({
     const parser = new DOMParser();
     //const htmlString = marked(data);
     const htmlData = parser.parseFromString(data, "text/html");
+    console.log("edit branch data", htmlData);
 
     setHtml(htmlData);
   }
@@ -89,7 +90,7 @@ export default function MonacoEditor({
       const ele = html.getElementById(key);
       if (ele) ele.setAttribute("value", state[key]);
     });
-  }, [state]);
+  }, [state, html]);
 
   return (
     <Box
@@ -136,35 +137,37 @@ export default function MonacoEditor({
         </Box>
         <Typography>Viewer</Typography>
       </Paper>
-      <Box sx={{ marginTop: "40px", width: "100%" }}>
-        <Grid container spacing={2}>
-          <Grid item xs={6} sm={6} md={6} lg={6}>
-            <Paper sx={{ paddingX: "9px" }}>
-              <MarkedToCustom
-                element={html?.body}
-                open={open}
-                setOpen={setOpen}
-                order={editorView === "editor" ? "first" : "middle"}
-                state={state}
-                handleChange={handleChange}
-              ></MarkedToCustom>
-            </Paper>
-          </Grid>
+      {html && (
+        <Box sx={{ marginTop: "40px", width: "100%" }}>
+          <Grid container spacing={2}>
+            <Grid item xs={6} sm={6} md={6} lg={6}>
+              <Paper sx={{ paddingX: "9px" }}>
+                <MarkedToCustom
+                  element={html?.body}
+                  open={open}
+                  setOpen={setOpen}
+                  order={editorView === "editor" ? "first" : "middle"}
+                  state={state}
+                  handleChange={handleChange}
+                ></MarkedToCustom>
+              </Paper>
+            </Grid>
 
-          <Grid item xs={6} sm={6} md={6} lg={6}>
-            <Paper sx={{ paddingX: "9px" }}>
-              <MarkedToCustom
-                element={html?.body}
-                open={open}
-                setOpen={setOpen}
-                order="last"
-                state={state}
-                handleChange={handleChange}
-              ></MarkedToCustom>
-            </Paper>
+            <Grid item xs={6} sm={6} md={6} lg={6}>
+              <Paper sx={{ paddingX: "9px" }}>
+                <MarkedToCustom
+                  element={html?.body}
+                  open={open}
+                  setOpen={setOpen}
+                  order="last"
+                  state={state}
+                  handleChange={handleChange}
+                ></MarkedToCustom>
+              </Paper>
+            </Grid>
           </Grid>
-        </Grid>
-      </Box>
+        </Box>
+      )}
     </Box>
   );
 }
