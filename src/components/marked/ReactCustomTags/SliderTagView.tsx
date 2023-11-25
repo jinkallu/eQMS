@@ -17,6 +17,7 @@ export default function SliderTagView({
     const { dependStateIds, options, evaluate } = useProgramEvaluator(state);
 
     function handleChangeFun(e) {
+        console.log(e.target)
         if (handleChange) {
             const scale = element.getAttribute('scale');
             if(scale){
@@ -191,7 +192,7 @@ export default function SliderTagView({
                             marks={marks}
                             max={max}
                             min={min}
-                            step={step}
+                            step={null}
                             onChange={handleChangeFun}
                         />
                     </Box>}
@@ -199,20 +200,20 @@ export default function SliderTagView({
             );
             break;
         case "last":
-            console.log(state[id]);
+            //console.log(state[id]);
 
             if (state) {
                 if (state[id]) {
                     component = <span>{state[id]}</span>
                     
                 }
-                else {
-                    component = <span>{val}</span>;
-                }
+                //else {
+                //    component = <span>{val}</span>;
+                //}
             }
-            else {
+            /*else {
                 component = <span>{val}</span>;
-            }
+            }*/
 
             //component = <input value={state[id]} onChange={handleChangeFun}></input>;
 

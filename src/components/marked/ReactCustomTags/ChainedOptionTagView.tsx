@@ -120,13 +120,13 @@ export default function ChainedOptionTagView({
         if (state[id]) {
           component = <span>{state[id]}</span>
         }
-        else {
-          component = <span>{val}</span>;
-        }
+        // else {
+        //   component = <span>{val}</span>;
+        // }
       }
-      else {
-        component = <span>{val}</span>;
-      }
+      // else {
+      //   component = <span>{val}</span>;
+      // }
 
       //component = <input value={state[id]} onChange={handleChangeFun}></input>;
 

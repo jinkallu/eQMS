@@ -115,6 +115,8 @@ const useProgramEvaluator = (state) => {
         switch (operator) {
             case "*":
                 return parseFloat(leftNode) * parseFloat(rightNode);
+            case "/":
+                return parseFloat(leftNode) / parseFloat(rightNode);
             default:
                 const type = node.type;
                 return {
@@ -236,6 +238,8 @@ const useProgramEvaluator = (state) => {
                 //conditions = [datasource["where"]["condition"]];
                 return retrieveTableData(elements[0], datasource["select"], conditions);
             //break;
+            case "SELECT":
+                return elements[0].value;
             default:
                 return state[datasource["from"]["id"]];
         }
