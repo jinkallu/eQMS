@@ -157,6 +157,22 @@ export default function ProcessFlow({
   function onNodeClick() {
     setMenu(null);
   }
+  // function toggleEdit(val) {
+  //   const newNodes = state["processFlow"]?.nodes?.map((item) => ({
+  //     ...item,
+
+  //     position: { ...item.position, y: item.position.y + (val ? 200 : 0) },
+  //     positionAbsolute: {
+  //       ...item.position,
+  //       y: item.position.y + (val ? 200 : 0),
+  //     },
+  //     data: { ...item.data, editable: val },
+  //   }));
+  //   handleChange("processFlow", {
+  //     nodes: newNodes,
+  //     edges: state["processFlow"]?.edges,
+  //   });
+  // }
 
   const onNodeContextMenu = (event, node) => {
     if (!editable) {
@@ -194,6 +210,7 @@ export default function ProcessFlow({
       setOpenCreateStepModal,
       setOpenCreateStepTemplateModal,
       setOpenDeleteStepModal,
+      // toggleEdit,
     });
   };
 
