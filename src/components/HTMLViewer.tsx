@@ -19,7 +19,6 @@ import MarkedToCustom from "./marked/MarkedToCustom";
 export default function HTMLViewer() {
   //const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
   // useGetRepoDetails((state) => state);
-  //console.log(htmlContents);
 
   //export default function HTMLViewer() {
   const {
@@ -168,7 +167,6 @@ export default function HTMLViewer() {
   }
 
   const handleChange = (id, value) => {
-    console.log(id, value);
     setState((values) => ({ ...values, [id]: value }));
   };
 

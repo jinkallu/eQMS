@@ -101,38 +101,7 @@ export default function ProcessFlow({
     handleChange("processFlow", { nodes: initialNodes, edges: initialEdges });
     // setNodes(initialNodes);
     // setEdges(initialEdges);
-
-    console.log(editable, initialNodes, initialEdges);
-    console.log(JSON.parse(element.dataset.nodes));
   }, []);
-
-  // useEffect(() => {
-  //   if (handleChange) handleChange("processFlow", { nodes, edges });
-  // }, [nodes, edges, handleChange]);
-
-  // useEffect(() => {
-  //   console.log("state", state);
-  //   if (state && state["processFlow"]) {
-  //     // console.log("changed", state);
-  //     setNodes(state["processFlow"]?.nodes || []);
-  //     setEdges(state["processFlow"]?.edges || []);
-  //   }
-  // }, [state]);
-
-  // const onConnect = useCallback(
-  //   (params) => setEdges((eds) => addEdge(params, eds)),
-  //   [setEdges]
-  // );
-
-  // useEffect(() => {
-  //   // setNodes(graphData?.initialNodes);
-  //   // setEdges(graphData?.initialEdges);
-  //   if (handleChange)
-  //     handleChange("processFlow", {
-  //       nodes: graphData?.initialNodes,
-  //       edges: graphData?.initialEdges,
-  //     });
-  // }, [graphData, handleChange]);
 
   const ref = useRef(null);
 
@@ -157,22 +126,6 @@ export default function ProcessFlow({
   function onNodeClick() {
     setMenu(null);
   }
-  // function toggleEdit(val) {
-  //   const newNodes = state["processFlow"]?.nodes?.map((item) => ({
-  //     ...item,
-
-  //     position: { ...item.position, y: item.position.y + (val ? 200 : 0) },
-  //     positionAbsolute: {
-  //       ...item.position,
-  //       y: item.position.y + (val ? 200 : 0),
-  //     },
-  //     data: { ...item.data, editable: val },
-  //   }));
-  //   handleChange("processFlow", {
-  //     nodes: newNodes,
-  //     edges: state["processFlow"]?.edges,
-  //   });
-  // }
 
   const onNodeContextMenu = (event, node) => {
     if (!editable) {

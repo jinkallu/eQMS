@@ -25,7 +25,9 @@ import {
   OutlinedInput,
   Box,
   Chip,
+  IconButton,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 
 import { useExtnStore } from "../../../../zustand/store";
 const ITEM_HEIGHT = 48;
@@ -55,6 +57,8 @@ export default function CreateStepTemplateModal({
   const { getFileContent, repository, project, userSOPs } = useExtnStore(
     (state) => state
   );
+
+  const [editMode, setEditMode] = React.useState(false);
   const [template, setTemplate] = React.useState<string>();
   const [nodesTemp, setNodesTemp] = React.useState([]);
 
@@ -66,83 +70,52 @@ export default function CreateStepTemplateModal({
 
   async function handleCreate() {
     addTemplate();
+    setNodesTemp(state["processFlow"]?.nodes);
+
     setOpen(false);
   }
 
   function handleClose() {
+    setNodesTemp(state["processFlow"]?.nodes);
+
     setOpen(false);
   }
 
   const addTemplate = () => {
-    // const position = {
-    //   x: currentNode.node.position.x + 200,
-    //   y: currentNode.node.position.y,
-    // };
-
-    // let templateName;
-
-    // userSOPs?.map((sop) => {
-    //   const templateNameData = sop?.templates?.find(
-    //     (item) => item.branchId === template
-    //   )?.relativePath;
-    //   if (templateNameData) {
-    //     templateName = templateNameData;
-    //   }
-    //   return sop;
-    // });
-
-    // if (!templateName) {
-    //   // show some error here
-    //   return;
-    // }
-
-    // const data = {
-    //   label: templateName,
-    //   type: "template",
-    // };
-
-    // const newNode = {
-    //   ...currentNode.node,
-    //   id: `${template}-template`,
-    //   position,
-    //   data,
-    //   type: "template",
-    // };
-
-    // const newNodes = state["processFlow"]?.nodes?.map((node) => {
-    //   if (node.id === currentNode.node.id) {
-    //     return {
-    //       ...node,
-    //       data: { ...node.data, templateName, templateId: template },
-    //     };
-    //   }
-    //   return node;
-    // });
     handleChange("processFlow", {
       nodes: nodesTemp,
       edges: state["processFlow"]?.edges,
     });
-
-    // const newEdge = {
-    //   id: currentNode.node.id + "_" + newNode.id,
-    //   source: currentNode.node.id,
-    //   target: newNode.id,
-    //   sourceHandle: "source_right",
-    //   targetHandle: "target",
-    // };
-
-    // setEdges((edges) => {
-    //   return [...edges, newEdge];
-    // });
-
-    //fitView();
   };
+
+  async function handleEditMode(node) {
+    let groupingData;
+    if (node?.data?.templateId) {
+      groupingData = await getTemplateData(node?.data?.templateId);
+    }
+    const newNodes = nodesTemp?.map((item) => {
+      if (item.data.label === node.data.label) {
+        return { ...item, editMode: true, groupingData };
+      } else {
+        if (item?.data?.templateId === node?.data?.templateId) {
+          return { ...item, editMode: false, groupingData };
+        }
+        return { ...item, editMode: false };
+      }
+    });
+
+    setNodesTemp(newNodes);
+  }
 
   function handleReset() {
     setNodesTemp(state["processFlow"]?.nodes);
   }
 
-  function handleChangeData(e, node) {
+  async function handleChangeData(e, node) {
+    let groupingData;
+    if (node?.data?.templateId) {
+      groupingData = await getTemplateData(e.target.value);
+    }
     let templateName;
     userSOPs?.map((sop) => {
       const tempData = sop?.templates?.find(
@@ -156,6 +129,7 @@ export default function CreateStepTemplateModal({
       if (item.data.label === node.data.label) {
         return {
           ...item,
+          groupingData,
           data: {
             ...item.data,
             templateId: e.target.value,
@@ -165,6 +139,7 @@ export default function CreateStepTemplateModal({
       }
       return item;
     });
+
     setNodesTemp(newNodes);
     // handleChange("processFlow", {
     //   nodes: newNodes,
@@ -173,12 +148,12 @@ export default function CreateStepTemplateModal({
     // setTemplate(e.target.value);
   }
 
-  async function getTemplateData() {
+  async function getTemplateData(templateId) {
     let templateFull;
 
     userSOPs?.map((sop) => {
       const templateNameData = sop?.templates?.find(
-        (item) => item.branchId === template
+        (item) => item.branchId === templateId
       );
       if (templateNameData) {
         templateFull = templateNameData;
@@ -186,7 +161,6 @@ export default function CreateStepTemplateModal({
 
       return sop;
     });
-    console.log(templateFull);
 
     if (templateFull) {
       const data = await getFileContent(
@@ -198,25 +172,52 @@ export default function CreateStepTemplateModal({
         const parser = new DOMParser();
         const html = parser.parseFromString(data, "text/html");
         const groupingData = html.getElementsByTagName("GROUPING");
-        return groupingData;
+        if (groupingData) {
+          const groupingMatrix = Array.from(groupingData)?.map(
+            (item, index) => {
+              const id = item.getAttribute("id");
+              const name = item.getAttribute("name");
+              return { id, name, order: index };
+            }
+          );
+          return groupingMatrix;
+        }
       }
 
       return;
     }
   }
 
-  async function createTemplateGroupingMatrix() {
-    const groupingEls = await getTemplateData();
-    if (!groupingEls) {
-      return [];
-    }
-    const groupingMatrix = Array.from(groupingEls)?.map((item, index) => {
-      const id = item.getAttribute("id");
-      const name = item.getAttribute("name");
-      return { id, name, order: index };
-    });
-  }
+  // async function createTemplateGroupingMatrix() {
+  //   const groupingEls = await getTemplateData();
+  //   if (!groupingEls) {
+  //     return [];
+  //   }
+  //   const groupingMatrix = Array.from(groupingEls)?.map((item, index) => {
+  //     const id = item.getAttribute("id");
+  //     const name = item.getAttribute("name");
+  //     return { id, name, order: index };
+  //   });
+  // }
 
+  function handleGroupChange(e, node) {
+    const {
+      target: { value },
+    } = e;
+    const val =
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value;
+
+    const newNodes = nodesTemp?.map((item) => {
+      if (item.data.label === node.data.label) {
+        return { ...item, data: { ...item.data, grouping: val } };
+      } else {
+        return item;
+      }
+    });
+
+    setNodesTemp(newNodes);
+  }
   // useEffect(() => {
   //   if (
   //     open &&
@@ -238,15 +239,25 @@ export default function CreateStepTemplateModal({
   //   }
   // }, [userSOPs, state, open]);
 
-  useEffect(() => {
-    createTemplateGroupingMatrix();
-  }, [template]);
+  // useEffect(() => {
+  //   createTemplateGroupingMatrix();
+  // }, []);
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      sx={{
+        "& .MuiDialog-container": {
+          "& .MuiPaper-root": {
+            width: "100%",
+            maxWidth: "800px", // Set your width here
+          },
+        },
+      }}
+    >
       <DialogTitle>Template Management</DialogTitle>
       <DialogContent>
         <DialogContentText>Edit / Add Templates</DialogContentText>
-
         <TableContainer component={Paper}>
           <Table stickyHeader aria-label="Step Templates">
             <TableHead>
@@ -254,11 +265,12 @@ export default function CreateStepTemplateModal({
                 <TableCell>Step Name</TableCell>
                 <TableCell align="center">Template Name</TableCell>
                 <TableCell align="center">Grouping</TableCell>
+                <TableCell align="center">Edit</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {nodesTemp
-                ?.filter((node) => node.type === "step")
+                ?.filter((node) => node?.type === "step")
                 ?.map((node) => (
                   <TableRow
                     key={node.data.label}
@@ -272,6 +284,7 @@ export default function CreateStepTemplateModal({
                         </InputLabel>
                         <Select
                           native
+                          disabled={!node?.editMode}
                           defaultValue={node?.data?.templateId}
                           id="grouped-s"
                           value={node.templateId}
@@ -299,49 +312,67 @@ export default function CreateStepTemplateModal({
                       </FormControl>
                     </TableCell>
                     <TableCell align="left">
-                      <FormControl sx={{ m: 1, width: 300 }}>
-                        <InputLabel id="demo-multiple-chip-label">
-                          Grouping
-                        </InputLabel>
-                        <Select
-                          labelId="demo-multiple-chip-label"
-                          id="demo-multiple-chip"
-                          multiple
-                          value={node.data.grouping || []}
-                          onChange={handleChange}
-                          input={
-                            <OutlinedInput
-                              id="select-multiple-chip"
-                              label="Grouping"
-                            />
-                          }
-                          renderValue={(selected) => (
-                            <Box
-                              sx={{
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: 0.5,
-                              }}
-                            >
-                              {selected.map((value) => (
-                                <Chip key={value} label={value} />
-                              ))}
-                            </Box>
-                          )}
-                          MenuProps={MenuProps}
-                        >
-                          <MenuItem key={"all"} value={"all"}>
-                            <Checkbox checked={true} />
-                            <ListItemText primary={"All"} />
-                          </MenuItem>
-                          {/* {names.map((name) => (
-            <MenuItem key={name} value={name}>
-              <Checkbox checked={personName.indexOf(name) > -1} />
-              <ListItemText primary={name} />
-            </MenuItem>
-          ))} */}
-                        </Select>
-                      </FormControl>
+                      {node?.editMode ? (
+                        <FormControl sx={{ m: 1, width: 300 }}>
+                          <InputLabel id="demo-multiple-chip-label">
+                            Grouping
+                          </InputLabel>
+                          <Select
+                            labelId="demo-multiple-chip-label"
+                            id="demo-multiple-chip"
+                            multiple
+                            value={node.data.grouping || []}
+                            onChange={(e) => handleGroupChange(e, node)}
+                            input={
+                              <OutlinedInput
+                                id="select-multiple-chip"
+                                label="Grouping"
+                              />
+                            }
+                            renderValue={(selected) => (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 0.5,
+                                }}
+                              >
+                                {selected.map((value) => (
+                                  <Chip key={value} label={value} />
+                                ))}
+                              </Box>
+                            )}
+                            MenuProps={MenuProps}
+                          >
+                            {/* <MenuItem key={"all"} value={"all"}>
+                              <Checkbox checked={true} />
+                              <ListItemText primary={"All"} />
+                            </MenuItem> */}
+                            {node?.groupingData?.map((gpdata) => (
+                              <MenuItem key={gpdata.name} value={gpdata.name}>
+                                <Checkbox
+                                  checked={
+                                    node?.data?.grouping?.indexOf(gpdata.name) >
+                                    -1
+                                  }
+                                />
+                                <ListItemText primary={gpdata.name} />
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      ) : (
+                        <Box>
+                          {node?.data?.grouping?.map((item) => (
+                            <Chip key={item} label={item}></Chip>
+                          ))}
+                        </Box>
+                      )}
+                    </TableCell>
+                    <TableCell align="left">
+                      <IconButton onClick={() => handleEditMode(node)}>
+                        <EditIcon></EditIcon>
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}

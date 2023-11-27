@@ -72,7 +72,6 @@ export default function MonacoEditor({
     const parser = new DOMParser();
     //const htmlString = marked(data);
     const htmlData = parser.parseFromString(data, "text/html");
-    console.log("edit branch data", htmlData);
 
     setHtml(htmlData);
   }
@@ -80,7 +79,6 @@ export default function MonacoEditor({
   function handleEditorViewChange(e) {
     setEditorView(e.target.value);
   }
-  //console.log(modalContent);
   useEffect(() => {
     getData();
   }, [objectId, type, branchName, relativePath, repository, project]);
