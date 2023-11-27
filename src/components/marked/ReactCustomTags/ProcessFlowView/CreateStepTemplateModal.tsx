@@ -54,12 +54,10 @@ export default function CreateStepTemplateModal({
   state: any;
   handleChange: any;
 }) {
-  const { getFileContent, repository, project, userSOPs } = useExtnStore(
+  const { getFileContent, repository, userSOPs } = useExtnStore(
     (state) => state
   );
 
-  const [editMode, setEditMode] = React.useState(false);
-  const [template, setTemplate] = React.useState<string>();
   const [nodesTemp, setNodesTemp] = React.useState([]);
 
   React.useEffect(() => {
@@ -111,11 +109,45 @@ export default function CreateStepTemplateModal({
     setNodesTemp(state["processFlow"]?.nodes);
   }
 
-  async function handleChangeData(e, node) {
+  function confictChecker(nodes) {
+    const tempGpArray = {};
+
+    const newNodesData = nodes?.map((node) => {
+      node?.data?.grouping?.map((item) => {
+        if (tempGpArray[node?.data?.templateId + item]) {
+          tempGpArray[node?.data?.templateId + item] =
+            tempGpArray[node?.data?.templateId + item] + 1;
+        } else {
+          tempGpArray[node?.data?.templateId + item] = 1;
+        }
+        return item;
+      });
+    });
+    const newArr = [];
+    Object.keys(tempGpArray)?.map((key) => {
+      if (tempGpArray[key] > 1) {
+        newArr.push(key);
+      }
+    });
+
+    const newNodes = nodes?.map((node) => {
+      const errors = newArr?.some((r) =>
+        node?.data?.grouping
+          ?.map((item) => node?.data?.templateId + item)
+          ?.includes(r)
+      );
+
+      return { ...node, errors };
+    });
+    return newNodes;
+  }
+
+  async function handleTemplateChange(e, node) {
     let groupingData;
     if (node?.data?.templateId) {
       groupingData = await getTemplateData(e.target.value);
     }
+
     let templateName;
     userSOPs?.map((sop) => {
       const tempData = sop?.templates?.find(
@@ -125,7 +157,7 @@ export default function CreateStepTemplateModal({
         templateName = tempData.relativePath;
       }
     });
-    const newNodes = nodesTemp?.map((item) => {
+    const newNodesData = nodesTemp?.map((item) => {
       if (item.data.label === node.data.label) {
         return {
           ...item,
@@ -134,18 +166,19 @@ export default function CreateStepTemplateModal({
             ...item.data,
             templateId: e.target.value,
             templateName: templateName,
+            grouping:
+              item?.data?.templateId === e.target.value
+                ? item?.data?.grouping
+                : [],
           },
         };
       }
       return item;
     });
 
+    const newNodes = confictChecker(newNodesData);
+
     setNodesTemp(newNodes);
-    // handleChange("processFlow", {
-    //   nodes: newNodes,
-    //   edges: state["processFlow"]?.edges,
-    // });
-    // setTemplate(e.target.value);
   }
 
   async function getTemplateData(templateId) {
@@ -188,17 +221,7 @@ export default function CreateStepTemplateModal({
     }
   }
 
-  // async function createTemplateGroupingMatrix() {
-  //   const groupingEls = await getTemplateData();
-  //   if (!groupingEls) {
-  //     return [];
-  //   }
-  //   const groupingMatrix = Array.from(groupingEls)?.map((item, index) => {
-  //     const id = item.getAttribute("id");
-  //     const name = item.getAttribute("name");
-  //     return { id, name, order: index };
-  //   });
-  // }
+  const disableCreate = nodesTemp?.filter((node) => node?.errors)?.length > 0;
 
   function handleGroupChange(e, node) {
     const {
@@ -216,32 +239,10 @@ export default function CreateStepTemplateModal({
       }
     });
 
-    setNodesTemp(newNodes);
+    const newNodesData = confictChecker(newNodes);
+    setNodesTemp(newNodesData);
   }
-  // useEffect(() => {
-  //   if (
-  //     open &&
-  //     userSOPs?.length > 0 &&
-  //     state &&
-  //     state["processFlow"]?.nodes?.length >= 0
-  //   ) {
-  //     const nodes = state["processFlow"]?.nodes;
-  //     const newUserSops = userSOPs?.map((sop) => {
-  //       const templates = sop?.templates?.map((temp) => {
-  //         const steps =
-  //           nodes?.filter((node) => node?.data?.templateId === temp.branchId) ||
-  //           [];
-  //         return { ...temp, steps };
-  //       });
-  //       return { ...sop, templates };
-  //     });
-  //     console.log(newUserSops);
-  //   }
-  // }, [userSOPs, state, open]);
 
-  // useEffect(() => {
-  //   createTemplateGroupingMatrix();
-  // }, []);
   return (
     <Dialog
       open={open}
@@ -274,9 +275,15 @@ export default function CreateStepTemplateModal({
                 ?.map((node) => (
                   <TableRow
                     key={node.data.label}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    sx={{
+                      "&:last-child td, &:last-child th": { border: 0 },
+                    }}
                   >
-                    <TableCell align="left">{node?.data?.label}</TableCell>
+                    <TableCell align="left">
+                      <span style={{ color: node?.errors ? "red" : " black" }}>
+                        {node?.data?.label}
+                      </span>
+                    </TableCell>
                     <TableCell align="left">
                       <FormControl sx={{ m: 1, minWidth: 120 }}>
                         <InputLabel htmlFor="grouped-select">
@@ -288,7 +295,7 @@ export default function CreateStepTemplateModal({
                           defaultValue={node?.data?.templateId}
                           id="grouped-s"
                           value={node.templateId}
-                          onChange={(e) => handleChangeData(e, node)}
+                          onChange={(e) => handleTemplateChange(e, node)}
                         >
                           <option aria-label="None" value="" />
                           {userSOPs
@@ -383,7 +390,9 @@ export default function CreateStepTemplateModal({
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
         <Button onClick={handleReset}>Reset</Button>
-        <Button onClick={handleCreate}>Create</Button>
+        <Button disabled={disableCreate} onClick={handleCreate}>
+          Create
+        </Button>
       </DialogActions>
     </Dialog>
   );

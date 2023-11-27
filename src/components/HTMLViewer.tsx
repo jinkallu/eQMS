@@ -181,21 +181,10 @@ export default function HTMLViewer() {
       const parser = new DOMParser();
       //const htmlString = marked(markedData);
       const htmlData = parser.parseFromString(inputText, "text/html");
-      console.log(htmlData);
       setHtml(htmlData);
     }
   }, [inputText]);
 
-  // React.useEffect(() => {
-  //   getDatabaseContent("standards", repository.id);
-  //   const members = getTeamMembers("eQMS", "eQMS Team");
-
-  //   // const members = getTeamMembers(project.name, project.name + " Team");
-  //   // console.log(members);
-  //   // const text = htmlContents[objectId];
-  //   // console.log(htmlContents);
-  //   // setInputText(text);
-  // }, [htmlContents]);
   if (fileContentLoading) {
     return (
       <Box
