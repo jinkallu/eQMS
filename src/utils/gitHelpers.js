@@ -285,6 +285,7 @@ export const updateVote = async (
       repositoryId,
       pullRequestId
     );
+    console.log(updateRequest);
     return pullRequest;
   } catch (error) {
     console.log(error);

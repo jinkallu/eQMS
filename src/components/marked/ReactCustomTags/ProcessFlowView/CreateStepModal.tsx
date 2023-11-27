@@ -158,14 +158,16 @@ export default function CreateStepModal({
       position: position,
       data: data,
       type: stepType,
-      //parentNode: "A",
-      //extent: 'parent'
+      parentNode: "A",
+      extent: "parent",
     };
+
+    console.log(state);
 
     // setMyNodes(myNewNodes);
 
     // setNodes((nodes) => {
-    let nodes = [];
+    let nodesNew = [];
     const newPositionedNodes = state["processFlow"]?.nodes?.map((node) => {
       if (node?.position?.y > currentNode.node.position.y) {
         return {
@@ -197,12 +199,12 @@ export default function CreateStepModal({
         return node;
       });
 
-      nodes = [...newPositionedNodes, newNode, ...newNodes];
+      nodesNew = [...newPositionedNodes, newNode, ...newNodes];
     } else {
-      nodes = [...newPositionedNodes, newNode];
+      nodesNew = [...newPositionedNodes, newNode];
     }
     // });
-    let edges = [];
+    let edgesNew = [];
     const newEdge = {
       id: currentNode.node.id + "_" + newNode.id,
       source: currentNode.node.id,
@@ -224,12 +226,14 @@ export default function CreateStepModal({
         return newEdge;
       });
 
-      edges = [...state["processFlow"]?.edges, newEdge, ...newEdges];
+      // edges = [...state["processFlow"]?.edges, newEdge, ...newEdges];
+      edgesNew = [...state["processFlow"]?.edges, newEdge, ...newEdges];
     } else {
-      edges = [...state["processFlow"]?.edges, newEdge];
+      // edges = [...state["processFlow"]?.edges, newEdge];
+      edgesNew = [...state["processFlow"]?.edges, newEdge];
     }
     // });
-    handleChange("processFlow", { nodes, edges });
+    handleChange("processFlow", { nodes: nodesNew, edges: edgesNew });
   };
 
   function handleStepTypeChange(e) {
@@ -383,7 +387,7 @@ const InputElements = ({
   }
 
   function handleAddCondition() {
-    const id = conditions.length + 1;
+    const id = conditions?.length + 1;
     const newCondition: IConditions = {
       operator: "=",
       value: "",

@@ -1,8 +1,16 @@
 import MoreVert from "@mui/icons-material/MoreVert";
-import { Box, Typography, Paper, IconButton } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Paper,
+  FormControl,
+  InputLabel,
+  Select,
+} from "@mui/material";
 import { GridMoreVertIcon } from "@mui/x-data-grid";
 import React, { memo } from "react";
 import { Handle, Position } from "reactflow";
+import { useExtnStore } from "../../../../zustand/store";
 const dragHandleStyle = {
   display: "inline-block",
   width: 25,
@@ -12,8 +20,23 @@ const dragHandleStyle = {
   borderRadius: "50%",
 };
 export default function StepNode({ data }) {
+  const { userSOPs } = useExtnStore();
+  const [templateId, setTemplateId] = React.useState(data.templateId);
+  const [height, setHeight] = React.useState(data?.editable ? "100px" : "50px");
+
+  React.useEffect(() => {
+    setHeight(data?.editable ? "100px" : "50px");
+  }, [data]);
+
   return (
-    <Paper sx={{ display: "flex", width: "150px", height: "50px" }}>
+    <Paper
+      sx={{
+        display: "flex",
+        width: "150px",
+        height: { height },
+        overFlowY: "auto",
+      }}
+    >
       <Box
         style={{
           display: "flex",
@@ -36,6 +59,30 @@ export default function StepNode({ data }) {
             {data.label}
           </Typography>
         </Box>
+        {data?.editable && (
+          <FormControl sx={{ m: 1, minWidth: 120 }}>
+            <InputLabel htmlFor="grouped-select">Select Template</InputLabel>
+            <Select
+              native
+              id="grouped-s"
+              value={templateId}
+              onChange={() => {}}
+            >
+              <option aria-label="None" value="" />
+              {userSOPs
+                ?.filter((item) => item.templates?.length > 0)
+                ?.map((sop) => (
+                  <optgroup key={sop.relativePath} label={sop?.relativePath}>
+                    {sop?.templates?.map((temp) => (
+                      <option key={temp.branchId} value={temp.branchId}>
+                        {temp?.relativePath}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+            </Select>
+          </FormControl>
+        )}
         <Box sx={{ display: "flex", alignItems: "start" }}>
           <Typography sx={{ fontSize: 10 }} variant="subtitle2">
             {data?.templateName}

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useExtnStore } from "../zustand/store";
 import React from "react";
 import { markedToHtml } from "../utils/markedHelper";
-import { Box, Chip, CircularProgress, Paper } from "@mui/material";
+import { Box, Chip, CircularProgress, Paper, Toolbar } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import MarkedEditView from "./marked/MarkedEditView";
@@ -14,11 +14,11 @@ import useGetTeamMembers from "../CHooks/useGetTeamMembers";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditorSave from "./marked/EditerSave";
 import MonacoEditor from "./MonacoEditor";
+import MarkedToCustom from "./marked/MarkedToCustom";
 
 export default function HTMLViewer() {
   //const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
   // useGetRepoDetails((state) => state);
-  //console.log(htmlContents);
 
   //export default function HTMLViewer() {
   const {
@@ -26,6 +26,7 @@ export default function HTMLViewer() {
     fileContentLoading,
     branchFileNames,
     getFileContent,
+    getEditBranch,
     repository,
   } = useExtnStore((state) => state);
 
@@ -33,11 +34,6 @@ export default function HTMLViewer() {
 
   const [inputText, setInputText] = React.useState("");
   const [html, setHtml] = React.useState<Document>();
-
-  const [processFlowMain, setProcessFlowMain] = React.useState<{
-    nodes: [];
-    edges: [];
-  }>({ nodes: [], edges: [] });
 
   const [branch, setBranch] = React.useState<any>();
   const [editMode, setEditMode] = React.useState(false);
@@ -63,18 +59,6 @@ export default function HTMLViewer() {
   } = useGetTeamMembers();
   const { readDatabase } = useExtnStore();
 
-  async function getProcessFlow(branchName) {
-    const processFlowData = await getFileContent(
-      repository.id,
-      "qms/sop/processFlow.txt",
-      branchName
-    );
-    if (processFlowData) {
-      setProcessFlowMain(JSON.parse(processFlowData));
-    }
-    return;
-  }
-
   async function getFileContentData() {
     // const branchData = branchFileNames?.find(
     //   (item) => item.objectId === objectId
@@ -86,9 +70,32 @@ export default function HTMLViewer() {
       `/qms/${type}/data.html`,
       branchName
     );
-    getProcessFlow(branchName);
+
     setInputText(content);
   }
+
+  // async function getEditContentData() {
+  //   const content = await getEditBranch({
+  //     branchName,
+  //     type,
+  //     relativePath,
+  //     repositoryId: repository.id,
+  //     projectId: project.id,
+  //   });
+  //   const processFlowdata = content.getElementById("processFlow");
+  //   if (processFlowdata) {
+  //     let nodes = [];
+  //     let edges = [];
+  //     try {
+  //       nodes = JSON.parse(processFlowdata.dataset.nodes);
+  //       edges = JSON.parse(processFlowdata.dataset.edges);
+  //       setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
+  //     } catch (e) {
+  //       setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
+  //     }
+  //   }
+  //   setInputText(content);
+  // }
 
   async function getDatabaseContent(collectionName, repositoryId) {
     await readDatabase({ collectionName, repositoryId });
@@ -104,13 +111,23 @@ export default function HTMLViewer() {
 
     let editBranchNameArr = branchName.split("/");
     path = [editBranchNameArr[0], type, `data.html`];
-    processFlowPathArr = [editBranchNameArr[0], type, `processFlow.txt`];
+    // processFlowPathArr = [editBranchNameArr[0], type, `processFlow.txt`];
     const filePath = path.join("/");
-    const processFlowPath = processFlowPathArr.join("/");
+    // const processFlowPath = processFlowPathArr.join("/");
 
     editBranchNameArr.splice(-1);
     editBranchNameArr.push("edit");
     const editBranchName = editBranchNameArr.join("/");
+
+    const processFlowEls = html?.getElementsByTagName("PROCESSFLOW");
+    const edges = state["processFlow"]?.edges || [];
+    const nodes = state["processFlow"]?.nodes || [];
+
+    Array.from(processFlowEls)?.map((item: HTMLElement) => {
+      item.dataset.nodes = JSON.stringify(nodes);
+      item.dataset.edges = JSON.stringify(edges);
+      return item;
+    });
 
     // const md = EditorSave.findEditableMds(inputText, "Editor");
 
@@ -122,17 +139,19 @@ export default function HTMLViewer() {
       html?.body?.innerHTML,
       commitMessage
     );
+    // let createdProcessFlow;
+    // if (type === "sop") {
+    //   createdProcessFlow = await commit(
+    //     project.id,
+    //     repository.id,
+    //     editBranchName,
+    //     processFlowPath,
+    //     JSON.stringify(state["processFlow"]),
+    //     commitMessage
+    //   );
+    // }
 
-    const createdProcessFlow = await commit(
-      project.id,
-      repository.id,
-      editBranchName,
-      processFlowPath,
-      JSON.stringify(state["processFlow"]),
-      commitMessage
-    );
-
-    return createdData && createdProcessFlow;
+    return createdData;
     // if (created) {
     //   setAlertMessage({
     //     message: "Data saved successfully",
@@ -147,20 +166,25 @@ export default function HTMLViewer() {
     setEditMode((prev) => !prev);
   }
 
+  const handleChange = (id, value) => {
+    setState((values) => ({ ...values, [id]: value }));
+  };
+
   React.useEffect(() => {
-    if (!editMode) getFileContentData();
+    if (!editMode) {
+      getFileContentData();
+    }
   }, [editMode]);
 
   React.useEffect(() => {
-    getDatabaseContent("standards", repository.id);
-    const members = getTeamMembers("eQMS", "eQMS Team");
+    if (inputText && inputText.trim() !== "") {
+      const parser = new DOMParser();
+      //const htmlString = marked(markedData);
+      const htmlData = parser.parseFromString(inputText, "text/html");
+      setHtml(htmlData);
+    }
+  }, [inputText]);
 
-    // const members = getTeamMembers(project.name, project.name + " Team");
-    // console.log(members);
-    // const text = htmlContents[objectId];
-    // console.log(htmlContents);
-    // setInputText(text);
-  }, [htmlContents]);
   if (fileContentLoading) {
     return (
       <Box
@@ -176,6 +200,7 @@ export default function HTMLViewer() {
         display: "flex",
         flexDirection: "column",
         position: "relative",
+        width: "100%",
       }}
     >
       {!editMode && (
@@ -184,7 +209,6 @@ export default function HTMLViewer() {
             display: "flex",
             justifyContent: "space-between",
             paddingX: "24px",
-            height: "50px",
             position: "fixed",
             width: "100%",
             opacity: 1,
@@ -224,6 +248,7 @@ export default function HTMLViewer() {
           justifyContent: "center",
           alignItems: "center",
           overflowY: "auto",
+          width: "100vw",
         }}
       >
         {editMode && (
@@ -236,18 +261,20 @@ export default function HTMLViewer() {
             setHtml={setHtml}
             setOpenEditModal={setOpen}
             state={state}
-            setState={setState}
+            handleChange={handleChange}
           ></MonacoEditor>
         )}
         {!editMode && (
-          <MarkedHTMLViewer
-            markedText={inputText}
-            ready={true}
-            edit={false}
-            html={html}
-            setHtml={setHtml}
-            processFlow={processFlowMain}
-          />
+          <Box sx={{ paddingY: "24px" }}>
+            <MarkedToCustom
+              element={html?.body}
+              open={null}
+              setOpen={null}
+              order="last"
+              state={state}
+              handleChange={handleChange}
+            ></MarkedToCustom>
+          </Box>
         )}
       </Box>
     </Box>

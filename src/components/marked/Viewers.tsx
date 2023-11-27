@@ -55,8 +55,7 @@ export default function Viewers({
         order={order}
       />
     );
-  }
-  else if (element.tagName && element.tagName === "CHAINEDOPTION") {
+  } else if (element.tagName && element.tagName === "CHAINEDOPTION") {
     const id = element.getAttribute("id");
     return (
       <ChainedOptionTagView
@@ -82,8 +81,7 @@ export default function Viewers({
   }  
   else if (element.tagName && element.tagName === "BODY") {
     return <div>{children}</div>;
-  } 
-  else if (element.tagName && element.tagName === "MD") {
+  } else if (element.tagName && element.tagName === "MD") {
     const id = element.getAttribute("id");
     return (
       <MDTagView
@@ -118,6 +116,14 @@ export default function Viewers({
     return <div>Error</div>;
   } else if (element.tagName && element.tagName === "PROCESSFLOW") {
     const id = element.getAttribute("id");
+
+    // let nodes = [];
+    // let edges = [];
+    // try {
+    //   nodes = JSON.parse(element.dataset.nodes) || [];
+    //   edges = JSON.parse(element.dataset.edges) || [];
+    // } catch (e) {}
+    // console.log(nodes, edges);
     return (
       <ProcessFlowView
         element={element}

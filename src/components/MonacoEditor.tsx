@@ -15,6 +15,7 @@ import {
   Modal,
   ToggleButtonGroup,
   ToggleButton,
+  Toolbar,
 } from "@mui/material";
 
 import { useExtnStore } from "../zustand/store";
@@ -30,7 +31,7 @@ export default function MonacoEditor({
   setHtml,
   setOpenEditModal,
   state,
-  setState,
+  handleChange,
 }: {
   objectId: string;
   type: string;
@@ -40,39 +41,24 @@ export default function MonacoEditor({
   setHtml: (val: Document) => void;
   setOpenEditModal: (val: boolean) => void;
   state: any;
-  setState: (val: any) => void;
+  handleChange: any;
 }) {
   // const [markedData, setMarkedData] = React.useState<string>();
   const [open, setOpen] = React.useState(false);
-  const [processFlowEdit, setProcessFlowEdit] = React.useState<{
-    nodes: [];
-    edges: [];
-  }>({ nodes: [], edges: [] });
 
-  const [editorView, setEditorView] = React.useState("editor");
+  const [editorView, setEditorView] = React.useState("form");
 
-  const { getEditBranch, repository, getFileContent } = useExtnStore(
-    (state) => state
-  );
+  const { getEditBranch, repository } = useExtnStore((state) => state);
   const project = useExtnStore((state) => state.project);
-  //const {convL0MDEditToString} = useMarkdToHTML();
-
-  async function getProcessFlow(branchName) {
-    const processFlowData = await getFileContent(
-      repository.id,
-      "qms/sop/processFlow.txt",
-      branchName
-    );
-    if (processFlowData) {
-      return JSON.parse(processFlowData);
-    }
-    return;
-  }
 
   async function getData() {
-    if (!repository?.id || !project?.id) {
+    if (!repository?.id || !project?.id || !branchName) {
       return;
     }
+    // let editBranchNameArr = branchName?.split("/");
+    // editBranchNameArr.splice(-1);
+    // editBranchNameArr.push("edit");
+    // const editBranchName = editBranchNameArr.join("/");
     const data = await getEditBranch({
       objectId,
       branchName,
@@ -88,31 +74,11 @@ export default function MonacoEditor({
     const htmlData = parser.parseFromString(data, "text/html");
 
     setHtml(htmlData);
-
-    let editBranchNameArr = branchName.split("/");
-    editBranchNameArr.splice(-1);
-    editBranchNameArr.push("edit");
-    const editBranchName = editBranchNameArr.join("/");
-
-    const processFlowData = await getProcessFlow(editBranchName);
-    if (processFlowData) {
-      setState((prev) => ({ ...prev, processFlow: processFlowData }));
-    }
   }
-
-  // useEffect(() => {
-  //   if (processFlow) {
-  //     setState((prev) => ({ ...prev, processFlow: processFlow }));
-  //   }
-  // }, [processFlow]);
-  const handleChange = (id, value) => {
-    setState((values) => ({ ...values, [id]: value }));
-  };
 
   function handleEditorViewChange(e) {
     setEditorView(e.target.value);
   }
-  //console.log(modalContent);
   useEffect(() => {
     getData();
   }, [objectId, type, branchName, relativePath, repository, project]);
@@ -122,7 +88,7 @@ export default function MonacoEditor({
       const ele = html.getElementById(key);
       if (ele) ele.setAttribute("value", state[key]);
     });
-  }, [state]);
+  }, [state, html]);
 
   return (
     <Box
@@ -143,7 +109,7 @@ export default function MonacoEditor({
           width: "100%",
           zIndex: 100,
           opacity: 1,
-          height: "40px",
+          // height: "40px",
         }}
       >
         <Box
@@ -169,35 +135,37 @@ export default function MonacoEditor({
         </Box>
         <Typography>Viewer</Typography>
       </Paper>
-      <Box sx={{ marginTop: "40px" }}>
-        <Grid container spacing={2}>
-          <Grid item xs={6} sm={6} md={6} lg={6}>
-            <Paper sx={{ paddingX: "9px" }}>
-              <MarkedToCustom
-                element={html?.body}
-                open={open}
-                setOpen={setOpen}
-                order={editorView === "editor" ? "first" : "middle"}
-                state={state}
-                handleChange={handleChange}
-              ></MarkedToCustom>
-            </Paper>
-          </Grid>
+      {html && (
+        <Box sx={{ marginTop: "40px", width: "100%" }}>
+          <Grid container spacing={2}>
+            <Grid item xs={6} sm={6} md={6} lg={6}>
+              <Paper sx={{ paddingX: "9px" }}>
+                <MarkedToCustom
+                  element={html?.body}
+                  open={open}
+                  setOpen={setOpen}
+                  order={editorView === "editor" ? "first" : "middle"}
+                  state={state}
+                  handleChange={handleChange}
+                ></MarkedToCustom>
+              </Paper>
+            </Grid>
 
-          <Grid item xs={6} sm={6} md={6} lg={6}>
-            <Paper sx={{ paddingX: "9px" }}>
-              <MarkedToCustom
-                element={html?.body}
-                open={open}
-                setOpen={setOpen}
-                order="last"
-                state={state}
-                handleChange={handleChange}
-              ></MarkedToCustom>
-            </Paper>
+            <Grid item xs={6} sm={6} md={6} lg={6}>
+              <Paper sx={{ paddingX: "9px" }}>
+                <MarkedToCustom
+                  element={html?.body}
+                  open={open}
+                  setOpen={setOpen}
+                  order="last"
+                  state={state}
+                  handleChange={handleChange}
+                ></MarkedToCustom>
+              </Paper>
+            </Grid>
           </Grid>
-        </Grid>
-      </Box>
+        </Box>
+      )}
     </Box>
   );
 }

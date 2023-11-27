@@ -11,6 +11,7 @@ export default function ContextMenu({
   setOpenCreateStepModal,
   setOpenCreateStepTemplateModal,
   setOpenDeleteStepModal,
+  // toggleEdit,
   ...props
 }) {
   const { getNode, getNodes, addNodes, addEdges, setEdges, getEdges, fitView } =
@@ -35,6 +36,7 @@ export default function ContextMenu({
   };
 
   const addTemplate = () => {
+    // toggleEdit(true);
     setOpenCreateStepTemplateModal(true);
     setMenu(null);
   };
@@ -68,8 +70,8 @@ export default function ContextMenu({
       {nextStep.type === "step" && (
         <button onClick={addNextStep}>Next Step</button>
       )}
-      {!nextStep.hasTemplate && nextStep.type === "step" && (
-        <button onClick={addTemplate}>Add Template</button>
+      {nextStep.type === "step" && (
+        <button onClick={addTemplate}>Manage Template</button>
       )}
 
       <button onClick={() => {}}>edit</button>
