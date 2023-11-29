@@ -27,7 +27,7 @@ export default function ProductSOP({ process, prodBranchId }) {
 
   const {stepTree, createStepTree} = useProcessSteps();
 
-  // Below code to be removed after tests //
+  /*/ Below code to be removed after tests //
 
   const nodes = [
     {
@@ -62,10 +62,11 @@ export default function ProductSOP({ process, prodBranchId }) {
   useEffect(() => {
     createStepTree(nodes, edges);
   }, [])
-  // //
+  // /*/
     
   useEffect(() => {
     console.log(stepTree);
+    setProcessFlowTree(stepTree);
   }, [stepTree])
 
   function iterateSteps(idx, processflowElm, stepsCreated) {
@@ -144,12 +145,22 @@ export default function ProductSOP({ process, prodBranchId }) {
         processFlow.steps.push(step);
       }
     }
-
+    console.log(processFlow);
     setProcessFlowTree(processFlow);
   }
 
   function createStepsTree(process) {
-    parseProcessFlow(process);
+    try{
+    console.log("parse", JSON.parse(process.processflowElement.dataset.nodes), JSON.parse(process.processflowElement.dataset.edges));
+    const nodes = JSON.parse(process.processflowElement.dataset.nodes);
+    const edges = JSON.parse(process.processflowElement.dataset.edges);
+
+    createStepTree(nodes, edges, process.sop.branchId);
+  }
+    catch{
+
+    }
+    //parseProcessFlow(process);
   }
 
   async function handleCreate(title) {

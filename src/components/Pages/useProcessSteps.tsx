@@ -51,10 +51,11 @@ const useProcessSteps = () => {
 
     const createTree = (step) => {
         const tree = {
-            id: step.id,
+            name: step.id,
             // stepElm: stepElm,
-            // templateName: templateName,
-            // templateId,
+            templateName: step.data.templateName,
+            templateId: step.data.templateId,
+            type: step.data.type,
             children: [],
           };
           return tree;
@@ -65,19 +66,19 @@ const useProcessSteps = () => {
         console.log(srcNodes);
         for(let i = 0; i < srcNodes.length; i++){
             const childTree = createTree(srcNodes[i]);
-            const populatedChildTree = traverse(childTree.id, nodes, edges, childTree);
+            const populatedChildTree = traverse(childTree.name, nodes, edges, childTree);
             tree.children.push(populatedChildTree);
         }
 
         return tree;
     }
 
-    const createStepTree = (nodes, edges) => {
+    const createStepTree = (nodes, edges, sopId) => {
         const initStepId = initialStep(edges);
         const step = findStepWithId(initStepId, nodes);
         const tree = createTree(step);
-        const finalTree = traverse(tree.id, nodes, edges, tree);
-        setStepTree(finalTree);
+        const finalTree = traverse(tree.name, nodes, edges, tree);
+        setStepTree({sopId: sopId, steps: [finalTree]});
     }
 
     return {stepTree, createStepTree};
