@@ -10,6 +10,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RecordList from "../RecordList";
 import { callbackify } from "util";
 import RecordViewModal from "../RecordViewModal";
+import useProcessSteps from "./useProcessSteps";
 
 export default function ProductSOP({ process, prodBranchId }) {
   const [processFlowTree, setProcessFlowTree] = useState(null);
@@ -23,6 +24,49 @@ export default function ProductSOP({ process, prodBranchId }) {
   const [stepSelector, setStepSelector] = useState([]);
 
   const [parentId, setParentId] = useState("0");
+
+  const {stepTree, createStepTree} = useProcessSteps();
+
+  // Below code to be removed after tests //
+
+  const nodes = [
+    {
+      id: "Risk Management Plan",
+    },
+    {
+      id: "Risk Analysis"
+    },
+    {
+      id: "Risk Evaluation",
+    },
+    {
+      id: "Risk Mitigation",
+    }
+
+  ];
+  const edges = [
+    {
+      source: "Risk Management Plan",
+      target: "Risk Analysis"
+    },
+    {
+      source: "Risk Analysis",
+      target: "Risk Evaluation"
+    },
+    {
+      source: "Risk Analysis",
+      target: "Risk Mitigation"
+    }
+  ]
+
+  useEffect(() => {
+    createStepTree(nodes, edges);
+  }, [])
+  // //
+    
+  useEffect(() => {
+    console.log(stepTree);
+  }, [stepTree])
 
   function iterateSteps(idx, processflowElm, stepsCreated) {
     if (!stepsCreated[idx].created) {

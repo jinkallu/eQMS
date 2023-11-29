@@ -224,8 +224,6 @@ export default function SOPTableView({ userSOPs }) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [expandAll, setExpandAll] = React.useState(false);
 
-  console.log(branches);
-
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };

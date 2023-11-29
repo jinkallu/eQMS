@@ -7,26 +7,31 @@ import CScape from "../../customtags/cytoscapetags/cscape";
 //import GraphAnalysis from "../../customtags/cytoscapetags/GraphAnalysis"; // TODO: for future graph analysis
 
 export default function ProcessFlowView({
-  element,
   order,
   state,
   id,
   handleChange,
+  element,
 }) {
-  const [graphData, setGraphData] = useState(null);
+  const [graphData, setGraphData] = useState({
+    initialNodes: [],
+    initialEdges: [],
+  });
 
   function traverseGraph(node, initialNodes, initialEdges, x, y) {
     const id = node.id(); // Assuming you have unique node IDs in Cytoscape
     const label = node.data("label"); // Assuming you have labels in Cytoscape nodes
     const type = node.data("type");
+    const templateName = node.data("templateName");
+    const templateId = node.data("templateId");
     switch (type) {
       case "step":
-        x = 10;
+        x = 200;
         break;
 
       case "template":
         y = y - 100;
-        x = x + 200;
+        x = x + 300;
         break;
     }
     if (type !== "process") {
@@ -38,12 +43,14 @@ export default function ProcessFlowView({
           y: y,
         },
         data: {
-          label: label,
-          type: type,
+          label,
+          type,
+          templateName,
+          templateId,
         },
         parentNode: "A",
         extent: type,
-        draggable: false,
+        draggable: true,
       });
     } else {
       y = y - 50;
@@ -72,8 +79,8 @@ export default function ProcessFlowView({
       },
       position: { x: 0, y: 0 },
       style: {
-        width: 470,
-        height: 640,
+        width: "100%",
+        height: "100%",
       },
       draggable: false,
     });
@@ -84,7 +91,7 @@ export default function ProcessFlowView({
         y: 0,
       },
       style: {
-        width: 470,
+        width: "100%",
         height: 50,
         backgroundColor: "rgba(240,240,240,0.25)",
       },
@@ -143,27 +150,71 @@ export default function ProcessFlowView({
       //}
     });
 
-    setGraphData({ initialNodes: initialNodes, initialEdges: initialEdges });
+    // setGraphData({ initialNodes: initialNodes, initialEdges: initialEdges });
   }
 
-  useEffect(() => {
-    createProcessGraph(element);
-  }, [element]);
+  // useEffect(() => {
+  //   // createProcessGraph(element);
+  //   let initialNodes = [];
+
+  //   const nodes = element?.dataset?.nodes
+  //     ? JSON.parse(element?.dataset?.nodes)
+  //     : [];
+  //   const initialEdges = element?.dataset?.edges
+  //     ? JSON.parse(element?.dataset?.edges)
+  //     : [];
+  //   initialNodes.push({
+  //     id: "A", // TODO: change this id to a unique
+  //     data: {
+  //       label: "SOP Name",
+  //     },
+  //     type: "group",
+  //     position: { x: 0, y: 0 },
+  //     style: {
+  //       backgroundColor: "green",
+  //       height: "100%",
+  //       width: "100%",
+  //     },
+  //     draggable: false,
+  //   });
+
+  //   if (nodes?.find((item) => item?.id === "A")) {
+  //     initialNodes = [...nodes];
+  //   } else {
+  //     initialNodes = [...initialNodes, ...nodes];
+  //   }
+  //   // setGraphData({ initialNodes: initialNodes, initialEdges: initialEdges });
+
+  //   if (handleChange)
+  //     handleChange("processFlow", { nodes: initialNodes, edges: initialEdges });
+  // }, [handleChange]);
 
   return (
-    (order === "middle" && (
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <ProcessFlow graphData={graphData} editable={true} />
+    <Box sx={{ width: "100%" }}>
+      {order === "middle" && (
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <ProcessFlow
+              state={state}
+              handleChange={handleChange}
+              editable={true}
+              element={element}
+            />
+          </Grid>
         </Grid>
-      </Grid>
-    )) ||
-    (order === "last" && (
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <ProcessFlow graphData={graphData} editable={false} />
+      )}
+      {order === "last" && handleChange && (
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <ProcessFlow
+              state={state}
+              element={element}
+              editable={false}
+              handleChange={handleChange}
+            />
+          </Grid>
         </Grid>
-      </Grid>
-    ))
+      )}
+    </Box>
   );
 }

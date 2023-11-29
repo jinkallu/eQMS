@@ -1,5 +1,5 @@
 import Grid from "@mui/material/Grid";
-export default function InputTagViewer({
+export default function OutputTagView({
   element,
   order,
   state,
@@ -17,13 +17,13 @@ export default function InputTagViewer({
     case "first":
       //component = element.outerHTML;
       component = (
-        <input value={state[id] || val} onChange={handleChangeFun}></input>
+        <span> {state[id]} </span>
       );
 
       break;
     case "middle":
       component = (
-        <input value={state[id] || val} id= {element.id} onChange={handleChangeFun}></input>
+        <span id= {element.id} >{state[id]}</span>
       );
       break;
     case "last":
