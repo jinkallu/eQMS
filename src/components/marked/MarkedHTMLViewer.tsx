@@ -3,47 +3,15 @@ import MdFunctions from "./customtags/MdFunctions";
 import { markedToHtml } from "../../utils/markedHelper";
 import useMarkdToHTML from "./useMarkdToHTML";
 import MarkedToCustom from "./MarkedToCustom";
-
+import Box from "@mui/material/Box";
 export default function MarkedHTMLViewer({
   markedText,
   ready,
   edit,
   html,
+  state,
   setHtml,
 }) {
-  //const [html, setHtml] = React.useState();
-
-  // const { editorReady, htmlEditorReady, loadingHTML, markdToCustom } =
-  //   useMarkdToHTML();
-
-  // useEffect(() => {
-  //   if (ready) {
-  //     if (markedText && markedText.trim() !== "") {
-  //       //console.log(markedText);
-  //       if (edit) {
-  //         const childHTMLDOM = markdToCustom(
-  //           false,
-  //           markedText,
-  //           "markedHTMLViewer",
-  //           2,
-  //           0,
-  //           null
-  //         );
-  //       } else {
-  //         // TODO: correct it, now only showing edit mode!
-  //         const childHTMLDOM = markdToCustom(
-  //           false,
-  //           markedText,
-  //           "markedHTMLViewer",
-  //           3,
-  //           0,
-  //           null
-  //         );
-  //       }
-  //     }
-  //   }
-  // }, [ready, markedText, edit]);
-
   useEffect(() => {
     if (markedText && markedText.trim() !== "") {
       const parser = new DOMParser();
@@ -64,43 +32,25 @@ export default function MarkedHTMLViewer({
   // }, [markedText]);
 
   return (
-    <div
-      id="markedHTMLViewer"
-      //dangerouslySetInnerHTML={{ __html: markedText }} // TODO: Set proper html
-      style={{
-        boxSizing: "border-box",
+    <Box
+      sx={{
         display: "flex",
-        wordBreak: "break-word",
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "column",
         marginTop: "40px",
+        border: "1px solid red",
+        padding: "24px",
       }}
     >
       <MarkedToCustom
         element={html?.body}
-        open={open}
+        open={null}
         setOpen={null}
         order="last"
-        state={null}
+        state={state}
         handleChange={null}
       ></MarkedToCustom>
-    </div>
+    </Box>
   );
-  //import React from "react";
-
-  //export default function MarkedHTMLViewer({ inputText }) {
-
-  // return (
-  //   <div
-  //     id="markedHTMLViewer"
-  //     dangerouslySetInnerHTML={{ __html: html }}
-  //     style={{
-  //       boxSizing: "border-box",
-  //       display: "flex",
-  //       wordBreak: "break-word",
-  //       flexDirection: "column",
-  //     }}
-  //   ></div>
-  // );
 }

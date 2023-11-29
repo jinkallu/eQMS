@@ -51,7 +51,7 @@ function useProductSOPs() {
         //return null;
         //TODO: MAnage this error
       } else {
-        order = processflowElements[0].getAttribute("order");
+        order = processflowElements[0].getAttribute("order"); // order is phase related
       }
 
       let orderInt = -1;

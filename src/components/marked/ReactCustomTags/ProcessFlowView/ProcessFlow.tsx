@@ -7,9 +7,11 @@ import ReactFlow, {
   useEdgesState,
   addEdge,
   FitView,
+  useReactFlow,
+  ReactFlowProvider,
 } from "reactflow";
-import ContextMenu from "./ContextMenu";
 import DecisionNode from "./DecisionNode";
+import MultiDecisionNode from "./MultiDecisionNode";
 import StepNode from "./StepNode";
 import TemplateNode from "./TemplateNode";
 import TemplatesNode from "./TemplatesNode";
@@ -17,29 +19,48 @@ import TemplatesNode from "./TemplatesNode";
 import "reactflow/dist/style.css";
 import "./style.css";
 
+import CreateStepModal from "./CreateStepModal";
+import CreateStepTemplateModal from "./CreateStepTemplateModal";
+import DeleteStepModal from "./DeleteStepModal";
+import ContextMenu from "./ContextMenu";
+
 const nodeTypes = {
   decision: DecisionNode,
+  multidec: MultiDecisionNode,
   step: StepNode,
   template: TemplateNode,
   templates: TemplatesNode,
   // Define other custom node types here if needed
 };
 
-/*const initialNodes = [
-  { id: "1", position: { x: 0, y: 0 }, data: { label: "1" } },
-  { id: "2", position: { x: 0, y: 100 }, data: { label: "2" } },
-];
-const initialEdges = [{ id: "e1-2", source: "1", target: "2" }];*/
+export default function ProcessFlow({
+  editable,
+  handleChange,
+  element,
+  state,
+}) {
+  // const initialNodes = element?.dataset?.nodes
+  //   ? JSON.parse(element?.dataset?.nodes)
+  //   : [];
+  // const initialEdges = element?.dataset?.edges
+  //   ? JSON.parse(element?.dataset?.edges)
+  //   : [];
+  // // const reactFlowInstance = useReactFlow();
+  // const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  // const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-export default function ProcessFlow({ graphData, editable }) {
-  const initialNodes = graphData?.initialNodes || [];
-  const initialEdges = graphData?.initialEdges || [];
+  const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
+  const [openDeleteStepModal, setOpenDeleteStepModal] = React.useState(false);
+  const [openCreateStepTemplateModal, setOpenCreateStepTemplateModal] =
+    React.useState(false);
+  const [currentNode, setCurrentNode] = React.useState<{
+    node: any;
+    top: number;
+    left: number;
+    right: number;
+    bottom: number;
+  }>();
 
-  const [myNodes, setMyNodes] = useState(initialNodes);
-  const [myEdges, setMyEdges] = useState(initialEdges);
-
-  const [nodes, setNodes, onNodesChange] = useNodesState(myNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(myEdges);
   const [menu, setMenu] = useState(null);
 
   const [viewportSize, setViewportSize] = useState({
@@ -47,30 +68,51 @@ export default function ProcessFlow({ graphData, editable }) {
     height: "50vh",
   });
 
-  /* const [editable, setEditable] = useState(true);
-  if(order === "last"){
-    setEditable(false);
-  }*/
-
-  const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
-  );
-
   useEffect(() => {
-    setNodes(graphData?.initialNodes);
-    setEdges(graphData?.initialEdges);
-  }, [graphData]);
+    // createProcessGraph(element);
+    let initialNodes = [];
 
-  const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+    const nodesData = element?.dataset?.nodes
+      ? JSON.parse(element?.dataset?.nodes)
+      : [];
+    const initialEdges = element?.dataset?.edges
+      ? JSON.parse(element?.dataset?.edges)
+      : [];
+    initialNodes.push({
+      id: "A", // TODO: change this id to a unique
+      data: {
+        label: "SOP Name",
+      },
+      type: "group",
+      position: { x: 0, y: 0 },
+      style: {
+        backgroundColor: "green",
+        height: "100%",
+        width: "100%",
+      },
+      draggable: true,
+    });
+
+    if (nodesData?.find((item) => item?.id === "A")) {
+      initialNodes = [...nodesData];
+    } else {
+      initialNodes = [...initialNodes, ...nodesData];
+    }
+    handleChange("processFlow", { nodes: initialNodes, edges: initialEdges });
+    // setNodes(initialNodes);
+    // setEdges(initialEdges);
+  }, []);
+
   const ref = useRef(null);
 
   useEffect(() => {
     //const newViewportSize =  {width: "100vw", height: "150vh" };
-    if (nodes && nodes.length > 0) {
-      const objectWithLargestY = nodes.reduce((prev, current) => {
-        return current.position.y > prev.position.y ? current : prev;
-      });
+    if (state["processFlow"] && state["processFlow"]?.nodes?.length > 0) {
+      const objectWithLargestY = state["processFlow"]?.nodes.reduce(
+        (prev, current) => {
+          return current.position.y > prev.position.y ? current : prev;
+        }
+      );
 
       const newViewportSize = {
         width: "48vw",
@@ -79,67 +121,108 @@ export default function ProcessFlow({ graphData, editable }) {
 
       setViewportSize(newViewportSize);
     }
-  }, [nodes]);
+  }, [state]);
 
-  const onNodeContextMenu = useCallback(
-    (event, node) => {
-      //console.log(event, node);
-      // Prevent native context menu from showing
-      event.preventDefault();
+  function onNodeClick() {
+    setMenu(null);
+  }
 
-      // Calculate position of the context menu. We want to make sure it
-      // doesn't get positioned off-screen.
-      const pane = ref.current.getBoundingClientRect();
-      setMenu({
-        id: node.id,
-        top: event.clientY < pane.height - 200 && event.clientY,
-        left: event.clientX < pane.width - 200 && event.clientX,
-        right: event.clientX >= pane.width - 200 && pane.width - event.clientX,
-        bottom:
-          event.clientY >= pane.height - 200 && pane.height - event.clientY,
-        myNodes: nodes,
-        setMyNodes: setNodes,
-        myEdges: edges,
-        setMyEdges: setEdges,
-      });
-    },
-    [nodes, setNodes, edges, setEdges, setMenu]
-  );
+  const onNodeContextMenu = (event, node) => {
+    if (!editable) {
+      setMenu(null);
+
+      return;
+    }
+    event.preventDefault();
+
+    if (node.type !== "step") {
+      setMenu(null);
+      return;
+    }
+
+    const pane = ref.current.getBoundingClientRect();
+    const id = node.id;
+    // const top = event.clientY < pane.height - 200 && event.clientY;
+    const top = event.clientY;
+    // const left = event.clientX < pane.width - 200 && event.clientX;
+    const left = event.clientX;
+    const right =
+      event.clientX >= pane.width - 200 && pane.width - event.clientX;
+    const bottom =
+      event.clientY >= pane.height - 200 && pane.height - event.clientY;
+
+    const currentNodeData = { node, top, left, right, bottom };
+    setCurrentNode(currentNodeData);
+    setMenu({
+      id,
+      top: pane.top + node.position.y,
+      left: pane.x + node.position.x + node.width,
+      setMenu,
+      right,
+      bottom,
+      setOpenCreateStepModal,
+      setOpenCreateStepTemplateModal,
+      setOpenDeleteStepModal,
+      // toggleEdit,
+    });
+  };
 
   //if(editable) {
   return (
     <div
       style={{
         display: "flex",
-        width: viewportSize.width,
+        width: "100%",
         height: viewportSize.height,
         justifyContent: "center",
         alignItems: "center",
       }}
     >
+      <CreateStepModal
+        setOpen={setOpenCreateStepModal}
+        open={openCreateStepModal}
+        currentNode={currentNode}
+        state={state}
+        handleChange={handleChange}
+      ></CreateStepModal>
+      <DeleteStepModal
+        setOpen={setOpenDeleteStepModal}
+        open={openDeleteStepModal}
+        currentNode={currentNode}
+        state={{}}
+        handleChange={handleChange}
+      ></DeleteStepModal>
+
+      <CreateStepTemplateModal
+        setOpen={setOpenCreateStepTemplateModal}
+        open={openCreateStepTemplateModal}
+        currentNode={currentNode}
+        state={state}
+        handleChange={handleChange}
+      ></CreateStepTemplateModal>
+
       <ReactFlow
         ref={ref}
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onPaneClick={onPaneClick}
+        nodes={state["processFlow"]?.nodes || []}
+        edges={state["processFlow"]?.edges || []}
+        // onNodesChange={onNodesChange}
+        // onEdgesChange={onEdgesChange}
+        // onConnect={onConnect}
         onNodeContextMenu={onNodeContextMenu}
         zoomOnDoubleClick={false} // Disable zoom on double-click
         zoomOnScroll={false} // Disable zoom on scroll
-        nodesDraggable={false}
+        nodesDraggable={true}
         panOnDrag={false}
         zoomOnPinch={false}
         nodeTypes={nodeTypes}
+        onNodeClick={onNodeClick}
         preventScrolling={false}
-        elementsSelectable={editable}
+        elementsSelectable={true}
       >
         {/* <Controls /> */}
         {/* <MiniMap /> */}
         <Background gap={12} size={1} />
-        <Background />
-        {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
+        <Background />){menu && <ContextMenu {...menu}></ContextMenu>}
       </ReactFlow>
     </div>
   );

@@ -38,6 +38,8 @@ class CScape {
       const steps = element.querySelectorAll("step");
       steps.forEach((step) => {
         let stepName = step.getAttribute("name");
+        const templateName = step.getAttribute("templateName");
+        const templateId = step.getAttribute("templateId");
         if (stepName === null) {
           stepName = "Error! Give proper step name";
           //throw new Error("This is an error message.");
@@ -51,42 +53,45 @@ class CScape {
             id: stepName,
             label: stepName.replace(/_/g, " "),
             type: "step",
+            templateName,
+            templateId,
             parent: process_id,
+            dragHandle: ".custom-drag-handle",
           },
         });
 
-        const template = step.querySelector("template");
-        if (template) {
-          let template_name = template.getAttribute("name");
-          if (template_name === null) {
-            template_name = "Error! Give proper template name";
-            //throw new Error("This is an error message.");
-          } else if (template_name.trim() === "") {
-            template_name = "Error! Give proper template name";
-            //throw new Error("This is an error message.");
-          }
-          cy.add({
-            group: "nodes",
-            data: {
-              id: `${stepName}_template`,
-              label: template_name,
-              type: "template",
-              parent: process_id,
-            },
-          });
+        // const template = step.querySelector("template");
+        // if (template) {
+        //   let template_name = template.getAttribute("name");
+        //   if (template_name === null) {
+        //     template_name = "Error! Give proper template name";
+        //     //throw new Error("This is an error message.");
+        //   } else if (template_name.trim() === "") {
+        //     template_name = "Error! Give proper template name";
+        //     //throw new Error("This is an error message.");
+        //   }
+        //   cy.add({
+        //     group: "nodes",
+        //     data: {
+        //       id: `${stepName}_template`,
+        //       label: template_name,
+        //       type: "template",
+        //       parent: process_id,
+        //     },
+        //   });
 
-          cy.add([
-            {
-              group: "edges",
-              data: {
-                id: `edge_${stepName}_template`,
-                source: stepName,
-                target: `${stepName}_template`,
-                parent: process_id,
-              },
-            },
-          ]);
-        }
+        //   cy.add([
+        //     {
+        //       group: "edges",
+        //       data: {
+        //         id: `edge_${stepName}_template`,
+        //         source: stepName,
+        //         target: `${stepName}_template`,
+        //         parent: process_id,
+        //       },
+        //     },
+        //   ]);
+        // }
 
         const condition = step.querySelector("connections");
         if (condition) {
