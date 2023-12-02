@@ -21,6 +21,7 @@ import { createPR } from "../utils/gitHelpers.js";
 //import Editor from "./marked/Editor";
 //import useMarkdToHTML from "./marked/useMarkdToHTML";
 import RecordView from "./Pages/RecordView";
+import MarkedToCustom from "./marked/MarkedToCustom";
 
 export default function CreateRecordModal({
   open,
@@ -35,10 +36,13 @@ export default function CreateRecordModal({
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const { getFileContent, branchTypes, repository } = useExtnStore();
+  const [state, setState] = React.useState({
+    processFlow: { nodes: [], edges: [] },
+  });
   const [approverList, setApproverList] =
     React.useState<{ uniqueName: string; url: string; selected: boolean }[]>();
 
-  const [md, setMd] = React.useState("");
+  const [md, setMd] = React.useState<HTMLElement>(null);
 
   const [selectedApprovers, setSeletedApprovers] = React.useState([]);
 
@@ -47,11 +51,42 @@ export default function CreateRecordModal({
   async function getFileData(repositoryId, path, branchName) {
     const data = await getFileContent(repositoryId, path, branchName);
     console.log(data);
-    setMd(data);
+    const parser = new DOMParser();
+    const html = parser.parseFromString(data, "text/html");
+    const grouping = stepSelector?.find(
+      (item) => item.templateId === currentTemplateId
+    )?.data?.grouping;
+    // let els;
+
+    let searchQueryArray = [];
+    grouping?.map((item) => {
+      searchQueryArray.push(`GROUPING[name][name="${item}"]`);
+    });
+
+    const searchString = searchQueryArray.join(",");
+
+    // const els = html.querySelectorAll('GROUPING[name][name="Customer Basic"]');
+    const els = html.querySelectorAll(searchString);
+    // const els = html.getElementsByTagName("SECTION");
+
+    const newDiv = document.createElement("div");
+
+    Array.from(els)?.map((item) => {
+      newDiv.appendChild(item);
+      return item;
+    });
+    // const els = html.querySelectorAll(grouping);
+
+    // console.log(els);
+
+    setMd(newDiv);
   }
 
   React.useEffect(() => {
     if (!currentTemplateId || !repository?.id) return;
+    console.log(
+      stepSelector?.find((item) => item.templateId === currentTemplateId)
+    );
 
     const branch = branchTypes["temp"]?.find(
       (item) => item.branchId === currentTemplateId
@@ -72,6 +107,9 @@ export default function CreateRecordModal({
     setOpen(false);
     // navigate("/qmshub.html/");
   }
+  const handleChange = (id, value) => {
+    setState((values) => ({ ...values, [id]: value }));
+  };
 
   function handleSelectChange(e) {
     const templateId = stepSelector?.find(
@@ -134,7 +172,12 @@ export default function CreateRecordModal({
                 onChange={handleSelectChange}
               >
                 {stepSelector?.map((item) => (
-                  <MenuItem value={item.templateId}>{item.name}</MenuItem>
+                  <MenuItem
+                    key={item.name + item.templateId}
+                    value={item.templateId}
+                  >
+                    {item.name}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -142,13 +185,23 @@ export default function CreateRecordModal({
 
           <FormControl sx={{ m: 1, width: 300 }}>
             <TextField
-              helperText="Please enter a message to describe the changes"
+              helperText="Enter the record name"
               id="number"
               label="Record Name"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             ></TextField>
-            <RecordView md={md} />
+
+            <MarkedToCustom
+              element={md}
+              open={null}
+              setOpen={null}
+              order="middle"
+              state={state}
+              handleChange={handleChange}
+            ></MarkedToCustom>
+
+            {/* <RecordView md={md} /> */}
           </FormControl>
 
           <Typography sx={{ fontSize: "12px", color: "red" }}>

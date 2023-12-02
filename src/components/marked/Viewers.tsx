@@ -22,8 +22,12 @@ export default function Viewers({
   //       <MarkedToCustom element={child}></MarkedToCustom>
   //     ));
 
+  // if (!element?.tagName) {
+  //   console.log(element);
+  //   return <EndNode element={element?.textContent || element}></EndNode>;
+  // }
+
   if (!element?.tagName) {
-    //console.log(element);
     return <EndNode element={element?.textContent || element}></EndNode>;
   }
 
@@ -66,8 +70,7 @@ export default function Viewers({
         order={order}
       />
     );
-  }  
-  else if (element.tagName && element.tagName === "SLIDER") {
+  } else if (element.tagName && element.tagName === "SLIDER") {
     const id = element.getAttribute("id");
     return (
       <SliderTagView
@@ -78,9 +81,10 @@ export default function Viewers({
         order={order}
       />
     );
-  }  
-  else if (element.tagName && element.tagName === "BODY") {
+  } else if (element.tagName && element.tagName === "BODY") {
     return <div>{children}</div>;
+  } else if (element.tagName && element.tagName === "GROUPING") {
+    return <>{children}</>;
   } else if (element.tagName && element.tagName === "MD") {
     const id = element.getAttribute("id");
     return (
@@ -167,7 +171,6 @@ export default function Viewers({
         children
       );
     } else {
-      console.log(element);
       //return <EndNode element={element?.textContent || element}></EndNode>;
     }
 
