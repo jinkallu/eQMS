@@ -8,6 +8,7 @@ import ProcessFlowView from "./ReactCustomTags/ProcessFlowView/ProcessFlowView";
 import MDTagView from "./ReactCustomTags/MDTagView";
 import ChainedOptionTagView from "./ReactCustomTags/ChainedOptionTagView";
 import SliderTagView from "./ReactCustomTags/SliderTagView";
+import MatrixTagView from "./ReactCustomTags/matrix/MatrixTagView";
 
 export default function Viewers({
   element,
@@ -71,6 +72,18 @@ export default function Viewers({
     const id = element.getAttribute("id");
     return (
       <SliderTagView
+        state={state}
+        id={id}
+        handleChange={handleChange}
+        element={element}
+        order={order}
+      />
+    );
+  }  
+  else if (element.tagName && element.tagName === "MATRIX") {
+    const id = element.getAttribute("id");
+    return (
+      <MatrixTagView
         state={state}
         id={id}
         handleChange={handleChange}

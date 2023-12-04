@@ -54,7 +54,7 @@ export default function MDTagView({
             }}
           >
             <Editor
-              height="25vh"
+              height="75vh"
               defaultLanguage="html"
               defaultValue={element.innerHTML}
               value={state[id]}
@@ -92,7 +92,7 @@ export default function MDTagView({
           component = (
             <textarea
               readOnly={true}
-              rows={10}
+              rows={50}
               placeholder={"Editer for the future inherited documents"}
               style={{ width: "100%" }}
             ></textarea>
