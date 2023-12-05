@@ -1,6 +1,7 @@
 import { Paper, Box, Button, Modal, CircularProgress } from "@mui/material";
 import React from "react";
 import { useExtnStore } from "../zustand/store";
+import MarkedToCustom from "./marked/MarkedToCustom";
 
 export default function RecordViewModal({
   open,
@@ -14,13 +15,14 @@ export default function RecordViewModal({
   const [loading, setLoading] = React.useState(false);
   const { repository, getFileContent } = useExtnStore();
 
-  const [md, setMd] = React.useState("");
+  const [md, setMd] = React.useState<Document>("");
 
   async function getFileData(repositoryId, path, branchName) {
     setLoading(true);
 
     const data = await getFileContent(repositoryId, path, branchName);
-    setMd(data);
+    const html = new DOMParser()?.parseFromString(data, "text/html");
+    setMd(html);
     setLoading(false);
   }
 
@@ -68,7 +70,14 @@ export default function RecordViewModal({
           }}
         >
           {loading && <CircularProgress></CircularProgress>}
-          <h3>{md}</h3>
+          <MarkedToCustom
+            element={md?.body}
+            open={null}
+            setOpen={null}
+            order="last"
+            state={}
+            handleChange={null}
+          ></MarkedToCustom>
           <Box>
             <Button variant="outlined" onClick={handleCancel}>
               Cancel

@@ -16,7 +16,7 @@ export default function ProductSOP({ process, prodBranchId }) {
   const [processFlowTree, setProcessFlowTree] = useState(null);
   const { project, repository, setBranches, setAlertMessage } = useExtnStore();
   const { createBranch, loading, branchCreated } = useCreateBranch();
-  const { renameFile, loadingRenameFile } = useCommit();
+  const { renameFile, loadingRenameFile, commit } = useCommit();
   const [openCreateRecordModal, setOpenCreateRecordModal] = useState(false);
   const [refreshReqd, setRefreshReqd] = useState(false);
   const [currentTemplateId, setCurrentTemplateId] = useState("");
@@ -25,7 +25,7 @@ export default function ProductSOP({ process, prodBranchId }) {
 
   const [parentId, setParentId] = useState("0");
 
-  const {stepTree, createStepTree} = useProcessSteps();
+  const { stepTree, createStepTree } = useProcessSteps();
 
   /*/ Below code to be removed after tests //
 
@@ -63,11 +63,10 @@ export default function ProductSOP({ process, prodBranchId }) {
     createStepTree(nodes, edges);
   }, [])
   // /*/
-    
+
   useEffect(() => {
-    console.log(stepTree);
     setProcessFlowTree(stepTree);
-  }, [stepTree])
+  }, [stepTree]);
 
   function iterateSteps(idx, processflowElm, stepsCreated) {
     if (!stepsCreated[idx].created) {
@@ -150,20 +149,21 @@ export default function ProductSOP({ process, prodBranchId }) {
   }
 
   function createStepsTree(process) {
-    try{
-    console.log("parse", JSON.parse(process.processflowElement.dataset.nodes), JSON.parse(process.processflowElement.dataset.edges));
-    const nodes = JSON.parse(process.processflowElement.dataset.nodes);
-    const edges = JSON.parse(process.processflowElement.dataset.edges);
+    try {
+      console.log(
+        "parse",
+        JSON.parse(process.processflowElement.dataset.nodes),
+        JSON.parse(process.processflowElement.dataset.edges)
+      );
+      const nodes = JSON.parse(process.processflowElement.dataset.nodes);
+      const edges = JSON.parse(process.processflowElement.dataset.edges);
 
-    createStepTree(nodes, edges, process.sop.branchId);
-  }
-    catch{
-
-    }
+      createStepTree(nodes, edges, process.sop.branchId);
+    } catch {}
     //parseProcessFlow(process);
   }
 
-  async function handleCreate(title) {
+  async function handleCreate(title, content) {
     // check for duplicate name or number
 
     const newTitle = title.replace(/ /g, "_");
@@ -203,6 +203,15 @@ export default function ProductSOP({ process, prodBranchId }) {
     setOpenCreateRecordModal(false);
 
     if (renameRes) {
+      const res = await commit(
+        project.id,
+        repository.id,
+        branchName,
+        newPath,
+        content,
+        "Record initial creation"
+      );
+      console.log(res);
       setAlertMessage({ message: "Document Created...", severity: "success" });
       setRefreshReqd((prev) => !prev);
     } else {
@@ -236,15 +245,17 @@ export default function ProductSOP({ process, prodBranchId }) {
         height: "100%",
       }}
     >
-      <CreateRecordModal
-        open={openCreateRecordModal}
-        setOpen={setOpenCreateRecordModal}
-        stepName={processFlowTree?.steps[0]?.name}
-        handleCreate={handleCreate}
-        currentTemplateId={currentTemplateId}
-        stepSelector={stepSelector}
-        setCurrentTemplateId={setCurrentTemplateId}
-      ></CreateRecordModal>
+      {open && (
+        <CreateRecordModal
+          open={openCreateRecordModal}
+          setOpen={setOpenCreateRecordModal}
+          stepName={processFlowTree?.steps[0]?.name}
+          handleCreate={handleCreate}
+          currentTemplateId={currentTemplateId}
+          stepSelector={stepSelector}
+          setCurrentTemplateId={setCurrentTemplateId}
+        ></CreateRecordModal>
+      )}
 
       {process && process?.sop && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: "32px" }}>

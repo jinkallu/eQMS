@@ -64,7 +64,6 @@ const useProcessSteps = () => {
 
   const traverse = (id, nodes, edges, tree) => {
     const srcNodes = findStepsWithSrcNodeId(id, nodes, edges);
-    console.log(srcNodes);
     for (let i = 0; i < srcNodes.length; i++) {
       const childTree = createTree(srcNodes[i]);
       const populatedChildTree = traverse(

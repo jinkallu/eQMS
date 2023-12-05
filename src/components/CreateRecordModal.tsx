@@ -36,23 +36,25 @@ export default function CreateRecordModal({
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const { getFileContent, branchTypes, repository } = useExtnStore();
-  const [state, setState] = React.useState({
-    processFlow: { nodes: [], edges: [] },
-  });
+  const [state, setState] = React.useState({});
   const [approverList, setApproverList] =
     React.useState<{ uniqueName: string; url: string; selected: boolean }[]>();
 
   const [md, setMd] = React.useState<HTMLElement>(null);
+  // const [html, setHtml] = React.useState(null);
+  const [data, setData] = React.useState(null);
 
   const [selectedApprovers, setSeletedApprovers] = React.useState([]);
 
   // const rev
 
   async function getFileData(repositoryId, path, branchName) {
-    const data = await getFileContent(repositoryId, path, branchName);
-    console.log(data);
+    const dataRes = await getFileContent(repositoryId, path, branchName);
+    setData(dataRes);
+
     const parser = new DOMParser();
-    const html = parser.parseFromString(data, "text/html");
+    const htmlData = parser.parseFromString(dataRes, "text/html");
+    // setHtml(htmlData);
     const grouping = stepSelector?.find(
       (item) => item.templateId === currentTemplateId
     )?.data?.grouping;
@@ -66,12 +68,16 @@ export default function CreateRecordModal({
     const searchString = searchQueryArray.join(",");
 
     // const els = html.querySelectorAll('GROUPING[name][name="Customer Basic"]');
-    const els = html.querySelectorAll(searchString);
+    const els = htmlData.querySelectorAll(searchString);
+    if (!els) {
+      return;
+    }
+
     // const els = html.getElementsByTagName("SECTION");
 
     const newDiv = document.createElement("div");
 
-    Array.from(els)?.map((item) => {
+    Array.from(els)?.map((item: Node) => {
       newDiv.appendChild(item);
       return item;
     });
@@ -83,10 +89,7 @@ export default function CreateRecordModal({
   }
 
   React.useEffect(() => {
-    if (!currentTemplateId || !repository?.id) return;
-    console.log(
-      stepSelector?.find((item) => item.templateId === currentTemplateId)
-    );
+    if (!currentTemplateId || !repository?.id || !open) return;
 
     const branch = branchTypes["temp"]?.find(
       (item) => item.branchId === currentTemplateId
@@ -94,7 +97,7 @@ export default function CreateRecordModal({
     if (branch) {
       getFileData(repository.id, branch?.filePath, branch?.name);
     }
-  }, [currentTemplateId, repository, branchTypes]);
+  }, [currentTemplateId, repository, branchTypes, open]);
 
   React.useEffect(() => {
     if (stepSelector?.length > 0) {
@@ -116,6 +119,16 @@ export default function CreateRecordModal({
       (item) => item.templateId === e.target.value
     )?.templateId;
     setCurrentTemplateId(templateId);
+  }
+
+  function handleClick() {
+    const html = new DOMParser().parseFromString(data, "text/html");
+    Object.keys(state)?.map((key) => {
+      const ele = html.querySelector(`#${key}`);
+
+      if (ele) ele.setAttribute("value", state[key] || "");
+    });
+    handleCreate(title, html?.body?.innerHTML);
   }
   // const md = "# Hello give here proper md from the template! <input>";
   return (
@@ -221,7 +234,7 @@ export default function CreateRecordModal({
             <Button
               variant="contained"
               color="primary"
-              onClick={() => handleCreate(title)}
+              onClick={handleClick}
               disabled={loading}
             >
               Create record
