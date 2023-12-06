@@ -15,7 +15,7 @@ export default function RecordViewModal({
   const [loading, setLoading] = React.useState(false);
   const { repository, getFileContent } = useExtnStore();
 
-  const [md, setMd] = React.useState<Document>("");
+  const [md, setMd] = React.useState<Document>(null);
 
   async function getFileData(repositoryId, path, branchName) {
     setLoading(true);
@@ -75,7 +75,7 @@ export default function RecordViewModal({
             open={null}
             setOpen={null}
             order="last"
-            state={}
+            state={null}
             handleChange={null}
           ></MarkedToCustom>
           <Box>

@@ -144,17 +144,11 @@ export default function ProductSOP({ process, prodBranchId }) {
         processFlow.steps.push(step);
       }
     }
-    console.log(processFlow);
     setProcessFlowTree(processFlow);
   }
 
   function createStepsTree(process) {
     try {
-      console.log(
-        "parse",
-        JSON.parse(process.processflowElement.dataset.nodes),
-        JSON.parse(process.processflowElement.dataset.edges)
-      );
       const nodes = JSON.parse(process.processflowElement.dataset.nodes);
       const edges = JSON.parse(process.processflowElement.dataset.edges);
 

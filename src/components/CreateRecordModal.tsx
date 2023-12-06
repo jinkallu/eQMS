@@ -9,7 +9,12 @@ import {
   InputLabel,
   MenuItem,
   Chip,
+  Dialog,
   Modal,
+  DialogContent,
+  DialogTitle,
+  DialogContentText,
+  DialogActions,
   ListItemText,
   OutlinedInput,
   Checkbox,
@@ -68,24 +73,28 @@ export default function CreateRecordModal({
     const searchString = searchQueryArray.join(",");
 
     // const els = html.querySelectorAll('GROUPING[name][name="Customer Basic"]');
-    const els = htmlData.querySelectorAll(searchString);
-    if (!els) {
-      return;
+    if (searchString) {
+      const els = htmlData.querySelectorAll(searchString);
+      if (!els) {
+        return;
+      }
+
+      // const els = html.getElementsByTagName("SECTION");
+
+      const newDiv = document.createElement("div");
+
+      Array.from(els)?.map((item: Node) => {
+        newDiv.appendChild(item);
+        return item;
+      });
+      setMd(newDiv);
     }
-
-    // const els = html.getElementsByTagName("SECTION");
-
-    const newDiv = document.createElement("div");
-
-    Array.from(els)?.map((item: Node) => {
-      newDiv.appendChild(item);
-      return item;
-    });
     // const els = html.querySelectorAll(grouping);
 
     // console.log(els);
-
-    setMd(newDiv);
+    else {
+      setMd(htmlData?.body);
+    }
   }
 
   React.useEffect(() => {
@@ -101,7 +110,7 @@ export default function CreateRecordModal({
 
   React.useEffect(() => {
     if (stepSelector?.length > 0) {
-      setCurrentTemplateId(stepSelector[0]?.templateId);
+      setCurrentTemplateId(stepSelector[0]?.templateId || "");
     }
   }, [stepSelector]);
 
@@ -118,6 +127,7 @@ export default function CreateRecordModal({
     const templateId = stepSelector?.find(
       (item) => item.templateId === e.target.value
     )?.templateId;
+
     setCurrentTemplateId(templateId);
   }
 
@@ -132,116 +142,121 @@ export default function CreateRecordModal({
   }
   // const md = "# Hello give here proper md from the template! <input>";
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={handleCancel}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
+      sx={{
+        "& .MuiDialog-container": {
+          "& .MuiPaper-root": {
+            width: "100%",
+            maxWidth: "800px", // Set your width here
+          },
+        },
+      }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-          padding: "24px",
-        }}
-      >
-        <Paper
-          elevation={3}
+      <DialogTitle>
+        Create Record
+        <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+          <Chip label={stepName} color="primary"></Chip>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Box
           sx={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            padding: "36px",
             flexDirection: "column",
-            gap: "12px",
-            height: "100%",
+            padding: "24px",
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-            <Chip label={stepName} color="primary"></Chip>
-          </Box>
-          <Typography
-            variant="h6"
-            sx={{
-              alignSelf: "flex-start",
-              paddingBottom: "24px",
-              paddingTop: "12px",
-            }}
-          >
-            Create new
-          </Typography>
-          {stepSelector?.length > 0 && (
-            <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">
-                Select Template
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={currentTemplateId}
-                label="template"
-                onChange={handleSelectChange}
-              >
-                {stepSelector?.map((item) => (
-                  <MenuItem
-                    key={item.name + item.templateId}
-                    value={item.templateId}
-                  >
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-
-          <FormControl sx={{ m: 1, width: 300 }}>
-            <TextField
-              helperText="Enter the record name"
-              id="number"
-              label="Record Name"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            ></TextField>
-
-            <MarkedToCustom
-              element={md}
-              open={null}
-              setOpen={null}
-              order="middle"
-              state={state}
-              handleChange={handleChange}
-            ></MarkedToCustom>
-
-            {/* <RecordView md={md} /> */}
-          </FormControl>
-
-          <Typography sx={{ fontSize: "12px", color: "red" }}>
-            {error}
-          </Typography>
-          <Box
+          <Paper
+            elevation={3}
             sx={{
               display: "flex",
-              justifyContent: "flex-end",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: "36px",
+              flexDirection: "column",
               gap: "12px",
-              padding: "0px",
+              height: "100%",
             }}
           >
-            <Button variant="outlined" color="secondary" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleClick}
-              disabled={loading}
+            <Typography
+              variant="h6"
+              sx={{
+                alignSelf: "flex-start",
+                paddingBottom: "24px",
+                paddingTop: "12px",
+              }}
             >
-              Create record
-            </Button>
-          </Box>
-        </Paper>
-      </Box>
-    </Modal>
+              Create new
+            </Typography>
+            {stepSelector?.length > 0 && (
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">
+                  Select Template
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={currentTemplateId}
+                  label="template"
+                  onChange={handleSelectChange}
+                >
+                  {stepSelector?.map((item) => (
+                    <MenuItem
+                      key={item.name + item.templateId}
+                      value={item.templateId}
+                    >
+                      {item.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
+            <FormControl sx={{ m: 1, width: 300 }}>
+              <TextField
+                helperText="Enter the record name"
+                id="number"
+                label="Record Name"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              ></TextField>
+
+              <MarkedToCustom
+                element={md}
+                open={null}
+                setOpen={null}
+                order="middle"
+                state={state}
+                handleChange={handleChange}
+              ></MarkedToCustom>
+
+              {/* <RecordView md={md} /> */}
+            </FormControl>
+
+            <Typography sx={{ fontSize: "12px", color: "red" }}>
+              {error}
+            </Typography>
+          </Paper>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        {" "}
+        <Button variant="outlined" color="secondary" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleClick}
+          disabled={loading}
+        >
+          Create record
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
