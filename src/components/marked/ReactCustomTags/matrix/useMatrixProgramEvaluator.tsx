@@ -5,22 +5,24 @@ import useDataFromTableElement from "../useDataFromTableElement";
 import { useExtnStore } from "../../../../zustand/store";
 
 type DataDataType = {
-  rowdata: {
-    value: [],
-    label: [],
-  },
-  coldata:{
-    value: [],
-    label: [],
-  },
-  value:{
-    value: [],
-    label: [],
-  }
+    rowdata: {
+        value: [],
+        label: [],
+    },
+    coldata: {
+        value: [],
+        label: [],
+    },
+    value: {
+        value: [],
+        label: [],
+    },
+    row: 0,
+    column: 0
 };
 
 const useMatrixProgramEvaluator = (state) => {
-    const [matrixData, setMatrixData] = useState({rowdata: null, coldata:null, value:null})
+    const [matrixData, setMatrixData] = useState({ rowdata: null, coldata: null, value: null })
     //const [rowdata, setRowdata] = useState(null);
     //const [coldata, setColdata] = useState(null);
     //const [value, setValue] = useState(null);
@@ -72,14 +74,14 @@ const useMatrixProgramEvaluator = (state) => {
     };
 
     const visitNodes = async (nodes) => {
-        const data = {rowdata: null, coldata:null, value:null}
+        const data = { rowdata: null, coldata: null, value: null }
         // pass 
         for (const node of nodes.body) {
             const result = await traverse(node, data);
-            switch(result.leftNodeValue){
+            switch (result.leftNodeValue) {
                 case "rowdata":
                     //setRowdata(result.rightNodeValue);
-                    data.rowdata=result.rightNodeValue;
+                    data.rowdata = result.rightNodeValue;
                     break;
                 case "coldata":
                     //setColdata(result.rightNodeValue);
@@ -90,8 +92,9 @@ const useMatrixProgramEvaluator = (state) => {
                     data.value = result.rightNodeValue;
                     break;
             }
-            console.log(result);
         }
+        console.log(data);
+
         setMatrixData(data);
     };
 
@@ -99,7 +102,7 @@ const useMatrixProgramEvaluator = (state) => {
         console.log(node.type);
         switch (node.type) {
             case "ExpressionStatement":
-                return await traverse(node.expression, data);
+                return await visitExpressionStatement(node.expression, data);
             case "AssignmentExpression":
                 return await visitAssignmentExpression(node, data);
             case "LogicalExpression":
@@ -116,6 +119,59 @@ const useMatrixProgramEvaluator = (state) => {
                 return await visitObjectExpression(node, data);
         }
     };
+
+    function isObject(variable) {
+        return typeof variable === 'object' && variable !== null && !Array.isArray(variable);
+    }
+
+    const visitExpressionStatement = async (node, data) => {
+        const leftNode = await traverse(node.left, data);
+        if (leftNode === "value" && data.rowdata.value.length > 0) {
+            const rightNodeData = { value: new Array(data.rowdata.value.length), label: new Array(data.rowdata.value.length) };
+
+            for (let i = 0; i < data.rowdata.value.length; i++) {
+                rightNodeData.value[i] = new Array(data.coldata.value.length);
+                rightNodeData.label[i] = [];
+
+
+                for (let j = 0; j < data.coldata.value.length; j++) {
+                    data.row = i;
+                    data.column = j;
+
+                    const rightNode = await traverse(node.right, data);
+                    console.log(rightNode);
+                    if(!isObject(rightNode)){
+                        rightNodeData.value[i][j] = rightNode;
+                    }
+                    else{
+                        rightNodeData.value[i][j] = rightNode.value[0];
+                        rightNodeData.label[i].push(rightNode.label[0]);
+                    }
+
+                }
+            }
+
+            const operator = node.operator;
+            const type = node.type;
+            return {
+                type: type,
+                leftNodeValue: leftNode,
+                operator: operator,
+                rightNodeValue: rightNodeData,
+            };
+        }
+        else{
+            const rightNode = await traverse(node.right, data);
+            const operator = node.operator;
+            const type = node.type;
+            return {
+                type: type,
+                leftNodeValue: leftNode,
+                operator: operator,
+                rightNodeValue: rightNode,
+            };
+        }
+    }
 
     const visitObjectExpression = async (node, data) => {
         const object = {};
@@ -147,18 +203,11 @@ const useMatrixProgramEvaluator = (state) => {
         console.log(leftNode, rightNode, operator, data);
         switch (operator) {
             case "*":
-                if(leftNode==="rowdata" && rightNode === "coldata"){
-                    const vdata = [];
-                    for(let i=0; i<data.rowdata.value.length; i++){
-                        const row = [];
-                        for(let j=0; j<data.coldata.value.length; j++){
-                            row.push(data.rowdata.value[i] * data.coldata.value[j]);
-                        }
-                        vdata.push(row);
-                    }
+                if (leftNode === "rowdata" && rightNode === "coldata") {
+                    const vdata = data.rowdata.value[data.row] * data.coldata.value[data.column]
                     return vdata;
                 }
-                else{
+                else {
                     return parseFloat(leftNode) * parseFloat(rightNode);
                 }
             case "/":
@@ -192,32 +241,7 @@ const useMatrixProgramEvaluator = (state) => {
                 console.log(datasource);
 
                 return await getData(datasource);
-                //console.log(dataB);
-                //dataSource = dataB;
                 break;
-            // case "select":
-            //     const selectArgs = [];
-            //     for (const arg of node.arguments) {
-            //         const res = await traverse(arg);
-            //         selectArgs.push(res);
-            //     }
-            //     let sSource = {};
-            //     for (const arg of selectArgs) {
-            //         sSource[arg.leftNodeValue] = arg.rightNodeValue;
-            //     }
-            //     console.log(sSource);
-            //     selectSource = sSource;
-            //     break;
-            // case "where":
-            //     //let wSource = {};
-            //     const whereArgs = [];
-            //     for (const arg of node.arguments) {
-            //         const res = await traverse(arg);
-            //         whereArgs.push(res);
-            //     }
-            //     console.log(whereArgs);
-            //     whereSource = whereArgs;
-            //     break;
         }
     };
 

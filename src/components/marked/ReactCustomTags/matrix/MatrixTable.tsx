@@ -16,8 +16,12 @@ export default function MatrixTable({state, id, handleChange, rowdata, coldata, 
         }
     }
 
+    useEffect(() => {
+      console.log(value);
+    }, [value])
+
     return (
-        <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
+        <table style={{ border: '1'}}>
           <tbody>
             {/* First row with row data */}
             <tr>
@@ -31,8 +35,11 @@ export default function MatrixTable({state, id, handleChange, rowdata, coldata, 
             {coldata?.label.map((colValue, colIndex) => (
               <tr key={colIndex}>
                 <td>{colValue}</td> {/* Column data in the first cell of each row */}
-                {rowdata?.label.map((rowValue, rowIndex) => (
-                  <td key={`${colIndex}-${rowIndex}`}>{value?.[rowIndex][colIndex]}</td>
+                {value && value.label[colIndex].length > 0 && rowdata?.label.map((rowValue, rowIndex) => (
+                  <td key={`${colIndex}-${rowIndex}`}>{  value?.label?.[rowIndex][colIndex]}</td>
+                ))}
+                {value && value.label[colIndex].length === 0 && rowdata?.label.map((rowValue, rowIndex) => (
+                  <td key={`${colIndex}-${rowIndex}`}>{  value?.value?.[rowIndex][colIndex]}</td>
                 ))}
               </tr>
             ))}
