@@ -17,7 +17,7 @@ export default function MatrixTable({state, id, handleChange, rowdata, coldata, 
     }
 
     return (
-        <table>
+        <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
           <tbody>
             {/* First row with row data */}
             <tr>

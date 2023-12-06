@@ -4,14 +4,26 @@ import * as acorn from "acorn";
 import useDataFromTableElement from "../useDataFromTableElement";
 import { useExtnStore } from "../../../../zustand/store";
 
-//let dataSource = null;
-//let selectSource = null;
-//let whereSource = null;
+type DataDataType = {
+  rowdata: {
+    value: [],
+    label: [],
+  },
+  coldata:{
+    value: [],
+    label: [],
+  },
+  value:{
+    value: [],
+    label: [],
+  }
+};
 
 const useMatrixProgramEvaluator = (state) => {
-    const [rowdata, setRowdata] = useState(null);
-    const [coldata, setColdata] = useState(null);
-    const [value, setValue] = useState(null);
+    const [matrixData, setMatrixData] = useState({rowdata: null, coldata:null, value:null})
+    //const [rowdata, setRowdata] = useState(null);
+    //const [coldata, setColdata] = useState(null);
+    //const [value, setValue] = useState(null);
 
 
     const [dependStateIds, setDependStateIds] = useState([]);
@@ -60,58 +72,64 @@ const useMatrixProgramEvaluator = (state) => {
     };
 
     const visitNodes = async (nodes) => {
+        const data = {rowdata: null, coldata:null, value:null}
+        // pass 
         for (const node of nodes.body) {
-            const result = await traverse(node);
+            const result = await traverse(node, data);
             switch(result.leftNodeValue){
                 case "rowdata":
-                    setRowdata(result.rightNodeValue);
+                    //setRowdata(result.rightNodeValue);
+                    data.rowdata=result.rightNodeValue;
                     break;
                 case "coldata":
-                    setColdata(result.rightNodeValue);
+                    //setColdata(result.rightNodeValue);
+                    data.coldata = result.rightNodeValue;
                     break;
                 case "value":
-                    setValue(result.rightNodeValue);
+                    //setValue(result.rightNodeValue);
+                    data.value = result.rightNodeValue;
                     break;
             }
             console.log(result);
         }
+        setMatrixData(data);
     };
 
-    const traverse = async (node) => {
+    const traverse = async (node, data) => {
         console.log(node.type);
         switch (node.type) {
             case "ExpressionStatement":
-                return await traverse(node.expression);
+                return await traverse(node.expression, data);
             case "AssignmentExpression":
-                return await visitAssignmentExpression(node);
+                return await visitAssignmentExpression(node, data);
             case "LogicalExpression":
-                return await visitAssignmentExpression(node);
+                return await visitAssignmentExpression(node, data);
             case "BinaryExpression":
-                return await visitBinaryExpression(node);
+                return await visitBinaryExpression(node, data);
             case "Identifier":
                 return node.name;
             case "Literal":
                 return node.value;
             case "CallExpression":
-                return await visitCallExpression(node);
+                return await visitCallExpression(node, data);
             case "ObjectExpression":
-                return await visitObjectExpression(node);
+                return await visitObjectExpression(node, data);
         }
     };
 
-    const visitObjectExpression = async (node) => {
+    const visitObjectExpression = async (node, data) => {
         const object = {};
         for (const property of node.properties) {
-            const key = await traverse(property.key);
-            const value = await traverse(property.value);
+            const key = await traverse(property.key, data);
+            const value = await traverse(property.value, data);
             object[key] = value;
         }
         return object;
     }
 
-    const visitAssignmentExpression = async (node) => {
-        const leftNode = await traverse(node.left);
-        const rightNode = await traverse(node.right);
+    const visitAssignmentExpression = async (node, data) => {
+        const leftNode = await traverse(node.left, data);
+        const rightNode = await traverse(node.right, data);
         const operator = node.operator;
         const type = node.type;
         return {
@@ -122,23 +140,23 @@ const useMatrixProgramEvaluator = (state) => {
         };
     };
 
-    const visitBinaryExpression = async (node) => {
-        const leftNode = await traverse(node.left);
-        const rightNode = await traverse(node.right);
+    const visitBinaryExpression = async (node, data: DataDataType) => {
+        const leftNode = await traverse(node.left, data);
+        const rightNode = await traverse(node.right, data);
         const operator = node.operator;
-        console.log(leftNode, rightNode, operator, rowdata);
+        console.log(leftNode, rightNode, operator, data);
         switch (operator) {
             case "*":
                 if(leftNode==="rowdata" && rightNode === "coldata"){
-                    const data = [];
-                    for(let i=0; i<rowdata.value.length; i++){
+                    const vdata = [];
+                    for(let i=0; i<data.rowdata.value.length; i++){
                         const row = [];
-                        for(let j=0; j<coldata.value.length; j++){
-                            row.push(rowdata.value[i] * coldata.value[j]);
+                        for(let j=0; j<data.coldata.value.length; j++){
+                            row.push(data.rowdata.value[i] * data.coldata.value[j]);
                         }
-                        data.push(row);
+                        vdata.push(row);
                     }
-                    return data;
+                    return vdata;
                 }
                 else{
                     return parseFloat(leftNode) * parseFloat(rightNode);
@@ -156,14 +174,14 @@ const useMatrixProgramEvaluator = (state) => {
         }
     };
 
-    const visitCallExpression = async (node) => {
-        const callee = await traverse(node.callee);
+    const visitCallExpression = async (node, data) => {
+        const callee = await traverse(node.callee, data);
 
         switch (callee) {
             case "data":
                 const fromArgs = [];
                 for (const arg of node.arguments) {
-                    const res = await traverse(arg);
+                    const res = await traverse(arg, data);
                     fromArgs.push(res);
                 }
                 let datasource = {};
@@ -273,7 +291,7 @@ const useMatrixProgramEvaluator = (state) => {
         }
     };
 
-    return { dependStateIds, rowdata, coldata, value, evaluate };
+    return { dependStateIds, matrixData, evaluate };
 };
 
 export default useMatrixProgramEvaluator;

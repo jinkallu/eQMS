@@ -13,7 +13,7 @@ export default function MatrixTagView({
 
   //const [options, setOptions] = useState();
   const [dependStates, setDependStates] = useState({});
-  const { dependStateIds, rowdata, coldata, value, evaluate } = useMatrixProgramEvaluator(state);
+  const { dependStateIds, matrixData, evaluate } = useMatrixProgramEvaluator(state);
 
   function handleChangeFun(e) {
     if (handleChange) {
@@ -89,11 +89,11 @@ export default function MatrixTagView({
     case "middle":
       //let options = {};
       let fieldNames = null;
-      if (rowdata) {
-        fieldNames = Object.keys(rowdata);
+      if (matrixData.rowdata) {
+        fieldNames = Object.keys(matrixData.rowdata);
       }
-      console.log(rowdata);
-      component = <MatrixTable state = {state} id={id} handleChange={handleChange} rowdata={rowdata} coldata={coldata} value={value}/>
+      console.log(matrixData.rowdata);
+      component = <MatrixTable state = {state} id={id} handleChange={handleChange} rowdata={matrixData.rowdata} coldata={matrixData.coldata} value={matrixData.value}/>
       //component = <Radios state = {state} id={id} handleChange={handleChange} options={rowdata}/>
 
       // component = (
