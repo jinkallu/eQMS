@@ -204,7 +204,7 @@ const useMatrixProgramEvaluator = (state) => {
         switch (operator) {
             case "*":
                 if (leftNode === "rowdata" && rightNode === "coldata") {
-                    const vdata = data.rowdata.value[data.row] * data.coldata.value[data.column]
+                    const vdata = data.rowdata.value[data.row].textContent.trim() * data.coldata.value[data.column].textContent.trim()
                     return vdata;
                 }
                 else {

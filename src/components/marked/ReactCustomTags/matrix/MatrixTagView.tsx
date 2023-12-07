@@ -92,7 +92,7 @@ export default function MatrixTagView({
       if (matrixData.rowdata) {
         fieldNames = Object.keys(matrixData.rowdata);
       }
-      console.log(matrixData.rowdata);
+      console.log(matrixData.value);
       component = <MatrixTable state = {state} id={id} handleChange={handleChange} rowdata={matrixData.rowdata} coldata={matrixData.coldata} value={matrixData.value}/>
       //component = <Radios state = {state} id={id} handleChange={handleChange} options={rowdata}/>
 
