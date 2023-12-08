@@ -15,7 +15,10 @@ export default function Radios({state, id, handleChange, options}) {
     }
 
     if(options){
-        state[id] = options.value[0];
+        if(!options.value[0]){
+            return;
+        }
+        state[id] = options.value[0].textContent.trim();
     }
 
     return (
@@ -24,12 +27,12 @@ export default function Radios({state, id, handleChange, options}) {
                 <label key={option}>
                     <input
                         type="radio"
-                        value={option}
+                        value={option.textContent.trim()}
                         checked = {index===0}
                         onChange={handleChangeFun}
                         id={id}
                     />
-                    {options.label?.[index]}
+                    {options.label?.[index].textContent.trim()}
                 </label>
             ))}
         </>
