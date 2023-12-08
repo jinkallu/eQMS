@@ -86,7 +86,6 @@ export default function ProcessFlow({
       type: "group",
       position: { x: 0, y: 0 },
       style: {
-        backgroundColor: "green",
         height: "100%",
         width: "100%",
       },
@@ -101,6 +100,7 @@ export default function ProcessFlow({
     handleChange("processFlow", { nodes: initialNodes, edges: initialEdges });
     // setNodes(initialNodes);
     // setEdges(initialEdges);
+    console.log(editable, initialNodes);
   }, []);
 
   const ref = useRef(null);
@@ -133,19 +133,22 @@ export default function ProcessFlow({
 
       return;
     }
+    console.log(event);
     event.preventDefault();
 
-    if (node.type !== "step") {
+    if (!["step", "group"].includes(node.type)) {
       setMenu(null);
       return;
     }
 
     const pane = ref.current.getBoundingClientRect();
     const id = node.id;
-    // const top = event.clientY < pane.height - 200 && event.clientY;
     const top = event.clientY;
-    // const left = event.clientX < pane.width - 200 && event.clientX;
+
     const left = event.clientX;
+    // const top = event.clientY;
+    // const left = event.clientX < pane.width - 200 && event.clientX;
+    // const left = event.clientX;
     const right =
       event.clientX >= pane.width - 200 && pane.width - event.clientX;
     const bottom =
@@ -176,6 +179,7 @@ export default function ProcessFlow({
         height: viewportSize.height,
         justifyContent: "center",
         alignItems: "center",
+        position: "relative",
       }}
     >
       <CreateStepModal

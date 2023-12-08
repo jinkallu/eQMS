@@ -125,10 +125,13 @@ export default function CreateStepModal({
     // }
     //console.log(stepName, stepType);
 
-    const position = {
-      x: currentNode.node.position.x,
-      y: currentNode.node.position.y + 200,
-    };
+    const position =
+      currentNode?.node?.type === "group"
+        ? { x: 200, y: 100 }
+        : {
+            x: currentNode.node.position.x,
+            y: currentNode.node.position.y + 200,
+          };
 
     // let typ = stepType;
     // if(typ === "decision"){
@@ -231,6 +234,9 @@ export default function CreateStepModal({
     } else {
       // edges = [...state["processFlow"]?.edges, newEdge];
       edgesNew = [...state["processFlow"]?.edges, newEdge];
+    }
+    if (currentNode?.node?.type === "group") {
+      edgesNew = [];
     }
     // });
     handleChange("processFlow", { nodes: nodesNew, edges: edgesNew });
