@@ -144,24 +144,24 @@ export default function SliderTagView({
                     if (!range) {
                         switch (scale) {
                             case "log":
-                                marks.push({ value: Math.log10(options.value[i]), label: options.label?.[i] });
+                                marks.push({ value: Math.log10(options.value[i].textContent.trim()), label: options.label?.[i].textContent.trim() });
                                 break;
                             default:
-                                marks.push({ value: parseFloat(options.value[i]), label: options.label?.[i] });
+                                marks.push({ value: parseFloat(options.value[i].textContent.trim()), label: options.label?.[i].textContent.trim() });
                         }
                     }
                     else{ // range with upper value
                         switch (scale) {
                             case "log":
-                                const lower_range = Math.log10(options.value[i]);
-                                const upper_range = Math.log10(options.range[i]);
+                                const lower_range = Math.log10(options.value[i].textContent.trim());
+                                const upper_range = Math.log10(options.range[i].textContent.trim());
                                 const middle_range = lower_range + (upper_range - lower_range) / 2.0;
                                 marks.push({ value: lower_range, label: "" });
-                                marks.push({ value: middle_range, label: options.label?.[i] });
+                                marks.push({ value: middle_range, label: options.label?.[i].textContent.trim() });
                                 marks.push({ value: upper_range, label: "" });
                                 break;
                             default:
-                                marks.push({ value: options.value[i], label: options.label?.[i] });
+                                marks.push({ value: options.value[i].textContent.trim(), label: options.label?.[i].textContent.trim() });
                         }
                     }
                 }
