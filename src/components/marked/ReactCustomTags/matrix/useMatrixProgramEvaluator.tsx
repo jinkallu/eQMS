@@ -203,7 +203,7 @@ const useMatrixProgramEvaluator = (state) => {
         console.log(leftNode, rightNode, operator, data);
         switch (operator) {
             case "*":
-                if (leftNode === "rowdata" && rightNode === "coldata") {
+                if (leftNode === "rowdata" || rightNode === "coldata") {
                     const vdata = data.rowdata.value[data.row].textContent.trim() * data.coldata.value[data.column].textContent.trim()
                     return vdata;
                 }
