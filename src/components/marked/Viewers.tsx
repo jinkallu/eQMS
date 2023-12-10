@@ -9,6 +9,7 @@ import MDTagView from "./ReactCustomTags/MDTagView";
 import ChainedOptionTagView from "./ReactCustomTags/ChainedOptionTagView";
 import SliderTagView from "./ReactCustomTags/SliderTagView";
 import MatrixTagView from "./ReactCustomTags/matrix/MatrixTagView";
+import LinkRecordTagView from "./ReactCustomTags/LinkRecord/LinkRecordTagView";
 
 export default function Viewers({
   element,
@@ -68,6 +69,18 @@ export default function Viewers({
       />
     );
   }  
+  else if (element.tagName && element.tagName === "LINKRECORD") {
+    const id = element.getAttribute("id");
+    return (
+      <LinkRecordTagView
+        state={state}
+        id={id}
+        handleChange={handleChange}
+        element={element}
+        order={order}
+      />
+    );
+  } 
   else if (element.tagName && element.tagName === "SLIDER") {
     const id = element.getAttribute("id");
     return (
