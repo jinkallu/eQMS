@@ -39,16 +39,6 @@ export default function ProcessFlow({
   element,
   state,
 }) {
-  // const initialNodes = element?.dataset?.nodes
-  //   ? JSON.parse(element?.dataset?.nodes)
-  //   : [];
-  // const initialEdges = element?.dataset?.edges
-  //   ? JSON.parse(element?.dataset?.edges)
-  //   : [];
-  // // const reactFlowInstance = useReactFlow();
-  // const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  // const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
   const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
   const [openDeleteStepModal, setOpenDeleteStepModal] = React.useState(false);
   const [openCreateStepTemplateModal, setOpenCreateStepTemplateModal] =
@@ -98,14 +88,11 @@ export default function ProcessFlow({
       initialNodes = [...initialNodes, ...nodesData];
     }
     handleChange("processFlow", { nodes: initialNodes, edges: initialEdges });
-    // setNodes(initialNodes);
-    // setEdges(initialEdges);
   }, []);
 
   const ref = useRef(null);
 
   useEffect(() => {
-    //const newViewportSize =  {width: "100vw", height: "150vh" };
     if (state["processFlow"] && state["processFlow"]?.nodes?.length > 0) {
       const objectWithLargestY = state["processFlow"]?.nodes.reduce(
         (prev, current) => {
@@ -144,9 +131,6 @@ export default function ProcessFlow({
     const top = event.clientY;
 
     const left = event.clientX;
-    // const top = event.clientY;
-    // const left = event.clientX < pane.width - 200 && event.clientX;
-    // const left = event.clientX;
     const right =
       event.clientX >= pane.width - 200 && pane.width - event.clientX;
     const bottom =

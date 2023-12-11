@@ -28,7 +28,6 @@ export default function MonacoEditor({
   type,
   branchName,
   html,
-  setHtml,
   setOpenEditModal,
   state,
   handleChange,
@@ -38,7 +37,6 @@ export default function MonacoEditor({
   relativePath: string;
   branchName: string;
   html: Document;
-  setHtml: (val: Document) => void;
   setOpenEditModal: (val: boolean) => void;
   state: any;
   handleChange: any;
@@ -51,37 +49,37 @@ export default function MonacoEditor({
   const { getEditBranch, repository } = useExtnStore((state) => state);
   const project = useExtnStore((state) => state.project);
 
-  async function getData() {
-    if (!repository?.id || !project?.id || !branchName) {
-      return;
-    }
-    // let editBranchNameArr = branchName?.split("/");
-    // editBranchNameArr.splice(-1);
-    // editBranchNameArr.push("edit");
-    // const editBranchName = editBranchNameArr.join("/");
-    const data = await getEditBranch({
-      objectId,
-      branchName,
-      type,
-      relativePath,
-      repositoryId: repository.id,
-      projectId: project.id,
-    });
+  // async function getData() {
+  //   if (!repository?.id || !project?.id || !branchName) {
+  //     return;
+  //   }
+  //   // let editBranchNameArr = branchName?.split("/");
+  //   // editBranchNameArr.splice(-1);
+  //   // editBranchNameArr.push("edit");
+  //   // const editBranchName = editBranchNameArr.join("/");
+  //   const data = await getEditBranch({
+  //     objectId,
+  //     branchName,
+  //     type,
+  //     relativePath,
+  //     repositoryId: repository.id,
+  //     projectId: project.id,
+  //   });
 
-    // setMarkedData(data);
-    const parser = new DOMParser();
-    //const htmlString = marked(data);
-    const htmlData = parser.parseFromString(data, "text/html");
+  //   // setMarkedData(data);
+  //   const parser = new DOMParser();
+  //   //const htmlString = marked(data);
+  //   const htmlData = parser.parseFromString(data, "text/html");
 
-    setHtml(htmlData);
-  }
+  //   setHtml(htmlData);
+  // }
 
   function handleEditorViewChange(e) {
     setEditorView(e.target.value);
   }
-  useEffect(() => {
-    getData();
-  }, [objectId, type, branchName, relativePath, repository, project]);
+  // useEffect(() => {
+  //   getData();
+  // }, [objectId, type, branchName, relativePath, repository, project]);
 
   useEffect(() => {
     Object.keys(state)?.map((key) => {
