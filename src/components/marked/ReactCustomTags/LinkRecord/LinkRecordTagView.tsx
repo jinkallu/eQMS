@@ -93,7 +93,8 @@ export default function LinkRecordTagView({
         fieldNames = Object.keys(types);
       }
       console.log(types);
-      component = <Radios state = {state} id={id} handleChange={handleChange} options={types}/>
+      component = <button>LinkedRecords</button>
+      // component = <Radios state = {state} id={id} handleChange={handleChange} options={types}/>
 
       // component = (
       //   <>
