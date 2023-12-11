@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
-import useProgramEvaluator from "./useLinkRecordEvaluator";
+import useLinkRecordEvaluator from "./useLinkRecordEvaluator";
 import Radios from "../Radios";
 
 export default function LinkRecordTagView({
@@ -13,7 +13,7 @@ export default function LinkRecordTagView({
 
   //const [options, setOptions] = useState();
   const [dependStates, setDependStates] = useState({});
-  const { dependStateIds, types, evaluate } = useProgramEvaluator(state);
+  const { dependStateIds, types, evaluate } = useLinkRecordEvaluator(state);
 
   function handleChangeFun(e) {
     if (handleChange) {
