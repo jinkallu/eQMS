@@ -100,7 +100,6 @@ export default function ProcessFlow({
     handleChange("processFlow", { nodes: initialNodes, edges: initialEdges });
     // setNodes(initialNodes);
     // setEdges(initialEdges);
-    console.log(editable, initialNodes);
   }, []);
 
   const ref = useRef(null);
@@ -133,7 +132,6 @@ export default function ProcessFlow({
 
       return;
     }
-    console.log(event);
     event.preventDefault();
 
     if (!["step", "group"].includes(node.type)) {
@@ -159,7 +157,9 @@ export default function ProcessFlow({
     setMenu({
       id,
       top: pane.top + node.position.y,
-      left: pane.x + node.position.x + node.width,
+      // top: pane.top,
+      left: pane.x,
+      // left: pane.x + node.position.x + node.width,
       setMenu,
       right,
       bottom,

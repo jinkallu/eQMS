@@ -123,11 +123,10 @@ export default function CreateStepModal({
     //   });
     //   setNextStep(stepData);
     // }
-    //console.log(stepName, stepType);
 
     const position =
       currentNode?.node?.type === "group"
-        ? { x: 200, y: 100 }
+        ? { x: (currentNode.node.width - 200) / 2, y: 100 }
         : {
             x: currentNode.node.position.x,
             y: currentNode.node.position.y + 200,
@@ -156,16 +155,16 @@ export default function CreateStepModal({
     //const parentExtent = getNode("A").extent;
 
     const newNode = {
-      ...currentNode.node,
+      // ...currentNode.node,
       id: `${stepName}-step`,
       position: position,
       data: data,
       type: stepType,
       parentNode: "A",
       extent: "parent",
+      height: 50,
+      width: 150,
     };
-
-    console.log(state);
 
     // setMyNodes(myNewNodes);
 
@@ -236,7 +235,7 @@ export default function CreateStepModal({
       edgesNew = [...state["processFlow"]?.edges, newEdge];
     }
     if (currentNode?.node?.type === "group") {
-      edgesNew = [];
+      edgesNew = [...state["processFlow"]?.edges];
     }
     // });
     handleChange("processFlow", { nodes: nodesNew, edges: edgesNew });
