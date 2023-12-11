@@ -34,6 +34,7 @@ export default function HTMLViewer() {
 
   const [inputText, setInputText] = React.useState("");
   const [html, setHtml] = React.useState<Document>();
+  const [htmlEdit, setHtmlEdit] = React.useState<Document>();
 
   const [branch, setBranch] = React.useState<any>();
   const [editMode, setEditMode] = React.useState(false);
@@ -71,31 +72,15 @@ export default function HTMLViewer() {
       branchName
     );
 
-    setInputText(content);
-  }
+    if (content && content.trim() !== "") {
+      const parser = new DOMParser();
+      //const htmlString = marked(markedData);
+      const htmlData = parser.parseFromString(content, "text/html");
+      setHtml(htmlData);
+    }
 
-  // async function getEditContentData() {
-  //   const content = await getEditBranch({
-  //     branchName,
-  //     type,
-  //     relativePath,
-  //     repositoryId: repository.id,
-  //     projectId: project.id,
-  //   });
-  //   const processFlowdata = content.getElementById("processFlow");
-  //   if (processFlowdata) {
-  //     let nodes = [];
-  //     let edges = [];
-  //     try {
-  //       nodes = JSON.parse(processFlowdata.dataset.nodes);
-  //       edges = JSON.parse(processFlowdata.dataset.edges);
-  //       setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
-  //     } catch (e) {
-  //       setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
-  //     }
-  //   }
-  //   setInputText(content);
-  // }
+    // setInputText(content);
+  }
 
   async function getDatabaseContent(collectionName, repositoryId) {
     await readDatabase({ collectionName, repositoryId });
@@ -139,31 +124,27 @@ export default function HTMLViewer() {
       html?.body?.innerHTML,
       commitMessage
     );
-    // let createdProcessFlow;
-    // if (type === "sop") {
-    //   createdProcessFlow = await commit(
-    //     project.id,
-    //     repository.id,
-    //     editBranchName,
-    //     processFlowPath,
-    //     JSON.stringify(state["processFlow"]),
-    //     commitMessage
-    //   );
-    // }
 
     return createdData;
-    // if (created) {
-    //   setAlertMessage({
-    //     message: "Data saved successfully",
-    //     severity: "success",
-    //   });
-    // } else {
-    //   setAlertMessage({ message: "Unable to save data...", severity: "error" });
-    // }
-    // navigate(-1);
   }
   function toggleEditModeData() {
     setEditMode((prev) => !prev);
+  }
+
+  async function getEditBranchData() {
+    const data = await getEditBranch({
+      branchName,
+      type,
+      relativePath,
+      repositoryId: repository.id,
+      projectId: project.id,
+    });
+    if (data && data.trim() !== "") {
+      const parser = new DOMParser();
+      //const htmlString = marked(markedData);
+      const htmlData = parser.parseFromString(data, "text/html");
+      setHtmlEdit(htmlData);
+    }
   }
 
   const handleChange = (id, value) => {
@@ -171,19 +152,11 @@ export default function HTMLViewer() {
   };
 
   React.useEffect(() => {
-    if (!editMode) {
+    if (project && repository) {
       getFileContentData();
+      getEditBranchData();
     }
-  }, [editMode]);
-
-  React.useEffect(() => {
-    if (inputText && inputText.trim() !== "") {
-      const parser = new DOMParser();
-      //const htmlString = marked(markedData);
-      const htmlData = parser.parseFromString(inputText, "text/html");
-      setHtml(htmlData);
-    }
-  }, [inputText]);
+  }, [project, repository]);
 
   if (fileContentLoading) {
     return (
@@ -257,8 +230,7 @@ export default function HTMLViewer() {
             type={type}
             branchName={branchName}
             relativePath={relativePath}
-            html={html}
-            setHtml={setHtml}
+            html={htmlEdit}
             setOpenEditModal={setOpen}
             state={state}
             handleChange={handleChange}

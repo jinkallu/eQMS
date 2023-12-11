@@ -123,12 +123,14 @@ export default function CreateStepModal({
     //   });
     //   setNextStep(stepData);
     // }
-    //console.log(stepName, stepType);
 
-    const position = {
-      x: currentNode.node.position.x,
-      y: currentNode.node.position.y + 200,
-    };
+    const position =
+      currentNode?.node?.type === "group"
+        ? { x: (currentNode.node.width - 200) / 2, y: 100 }
+        : {
+            x: currentNode.node.position.x,
+            y: currentNode.node.position.y + 200,
+          };
 
     // let typ = stepType;
     // if(typ === "decision"){
@@ -153,16 +155,16 @@ export default function CreateStepModal({
     //const parentExtent = getNode("A").extent;
 
     const newNode = {
-      ...currentNode.node,
+      // ...currentNode.node,
       id: `${stepName}-step`,
       position: position,
       data: data,
       type: stepType,
       parentNode: "A",
       extent: "parent",
+      height: 50,
+      width: 150,
     };
-
-    console.log(state);
 
     // setMyNodes(myNewNodes);
 
@@ -231,6 +233,9 @@ export default function CreateStepModal({
     } else {
       // edges = [...state["processFlow"]?.edges, newEdge];
       edgesNew = [...state["processFlow"]?.edges, newEdge];
+    }
+    if (currentNode?.node?.type === "group") {
+      edgesNew = [...state["processFlow"]?.edges];
     }
     // });
     handleChange("processFlow", { nodes: nodesNew, edges: edgesNew });

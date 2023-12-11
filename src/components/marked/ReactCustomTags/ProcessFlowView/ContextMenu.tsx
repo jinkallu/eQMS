@@ -43,6 +43,7 @@ export default function ContextMenu({
 
   useEffect(() => {
     const node = getNode(id);
+    console.log(node);
     if (node && node?.data?.type === "step") {
       const edges = getEdges();
       const connectedChildren = edges.filter((edge) => edge.source == id);
@@ -67,6 +68,9 @@ export default function ContextMenu({
         <small>node: {id}</small>
       </p>
 
+      {getNode(id)?.type === "group" && getNodes()?.length === 1 && (
+        <button onClick={addNextStep}>First Step</button>
+      )}
       {nextStep.type === "step" && (
         <button onClick={addNextStep}>Next Step</button>
       )}
