@@ -12,14 +12,16 @@ export default function MDTagView({
   children,
 }) {
   const [markedData, setMarkedData] = React.useState<string>();
-
+  useEffect(() => {
+    if (id) {
+      if (!state || !state[id]) handleChange(id, "");
+    }
+  }, [id]);
   function handleChangeEditor(value, event) {
     if (handleChange) {
       handleChange(id, value);
     }
   }
-
-  useEffect(() => {}, [element]);
 
   let parentAttribute = element.getAttribute("level");
   if (parentAttribute === null) {
@@ -45,6 +47,7 @@ export default function MDTagView({
         };
         //const  value=state[id];
         //setMarkedData(value);
+
         component = (
           <Box
             sx={{
@@ -57,7 +60,7 @@ export default function MDTagView({
               height="75vh"
               defaultLanguage="html"
               defaultValue={element.innerHTML}
-              // value={state[id]}
+              value={state[id]}
               onChange={handleChangeEditor}
             />
           </Box>

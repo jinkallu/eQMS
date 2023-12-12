@@ -107,6 +107,8 @@ export default function HTMLViewer() {
       if (ele) {
         if (ele.tagName === "INPUT") {
           ele.setAttribute("value", value);
+        } else if (ele.tagName === "MD") {
+          ele.innerHTML = value;
         } else {
           ele.setAttribute("value", JSON.stringify(value));
         }
