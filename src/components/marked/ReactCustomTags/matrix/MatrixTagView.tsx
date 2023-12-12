@@ -24,6 +24,7 @@ export default function MatrixTagView({
   useEffect(() => {
     switch (order) {
       case "middle":
+      case "last":
         try {
           let programAttribute = element.getAttribute('program');
           evaluate(programAttribute);
@@ -88,48 +89,17 @@ export default function MatrixTagView({
       break;
     case "middle":
       //let options = {};
-      let fieldNames = null;
-      if (matrixData.rowdata) {
-        fieldNames = Object.keys(matrixData.rowdata);
-      }
+      //let fieldNames = null;
+      //if (matrixData.rowdata) {
+        //fieldNames = Object.keys(matrixData.rowdata);
+      //}
       console.log(matrixData.value);
       component = <MatrixTable state = {state} id={id} handleChange={handleChange} rowdata={matrixData.rowdata} coldata={matrixData.coldata} value={matrixData.value}/>
-      //component = <Radios state = {state} id={id} handleChange={handleChange} options={rowdata}/>
-
-      // component = (
-      //   <>
-      //     {/* {options && <p>Select {fieldNames[0]}:</p>} */}
-      //     {options && options.value?.map((option, index) => (
-      //       <label key={option}>
-      //         <input
-      //           type="radio"
-      //           value={option}
-      //           checked={state[id] === option}
-      //           onChange={handleChangeFun}
-      //           id={element.id}
-      //         />
-      //         {options.label?.[index]}
-      //       </label>
-      //     ))}
-      //   </>
-      // );
+      
       break;
     case "last":
-      console.log(state[id]);
-
-      if (state) {
-        if (state[id]) {
-          component = <span>{state[id]}</span>
-        }
-        // else {
-        //   component = <span>{val}</span>;
-        // }
-      }
-      // else {
-      //   component = <span>{val}</span>;
-      // }
-
-      //component = <input value={state[id]} onChange={handleChangeFun}></input>;
+      console.log(matrixData.value);
+      component = <MatrixTable state = {state} id={id} handleChange={handleChange} rowdata={matrixData.rowdata} coldata={matrixData.coldata} value={matrixData.value}/>
 
       break;
     default:
