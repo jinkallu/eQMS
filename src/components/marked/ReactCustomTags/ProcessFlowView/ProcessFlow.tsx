@@ -93,7 +93,7 @@ export default function ProcessFlow({
   const ref = useRef(null);
 
   useEffect(() => {
-    if (state["processFlow"] && state["processFlow"]?.nodes?.length > 0) {
+    if (state?.processFlow && state?.processFlow?.nodes?.length > 0) {
       const objectWithLargestY = state["processFlow"]?.nodes.reduce(
         (prev, current) => {
           return current.position.y > prev.position.y ? current : prev;
@@ -191,8 +191,10 @@ export default function ProcessFlow({
 
       <ReactFlow
         ref={ref}
-        nodes={state["processFlow"]?.nodes || []}
-        edges={state["processFlow"]?.edges || []}
+        // nodes={state["processFlow"]?.nodes || []}
+        nodes={state?.processFlow?.nodes || []}
+        edges={state?.processFlow?.edges || []}
+        // edges={state["processFlow"]?.edges || []}
         // onNodesChange={onNodesChange}
         // onEdgesChange={onEdgesChange}
         // onConnect={onConnect}

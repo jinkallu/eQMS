@@ -37,6 +37,7 @@ export default function DeleteStepModal({
   }
 
   const deleteStep = () => {
+    console.log(currentNode);
     // 1. delete current step
 
     // 2. Decrease position.y of all steps greater than current by 200

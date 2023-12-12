@@ -24,14 +24,26 @@ export default function Product() {
   const branchName = searchParams.get("branchName");
   const prodBranchId = searchParams.get("prodBranchId");
 
-  const { userSOPs } = useExtnStore((state) => state);
+  const { userSOPs, userProducts } = useExtnStore((state) => state);
 
   async function getSOPWithContents(userSOPs) {
     const data = await loadFileContent(userSOPs);
     sopsWithOrder(data);
   }
   React.useEffect(() => {
-    if (userSOPs?.length > 0) getSOPWithContents(userSOPs);
+    if (userSOPs?.length > 0) {
+      const product = userProducts?.find(
+        (item) => item.branchId === prodBranchId
+      );
+      if (product) {
+        const productSOPs = userSOPs?.filter((item) =>
+          product?.sops?.includes(item.branchId)
+        );
+        if (productSOPs) {
+          getSOPWithContents(productSOPs);
+        }
+      }
+    }
   }, [userSOPs]);
 
   React.useEffect(() => {

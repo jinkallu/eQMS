@@ -49,6 +49,8 @@ const Products = () => {
     }
   }
 
+  console.log(userProducts);
+
   React.useEffect(() => {
     if (project && project?.id && repository && repository.id) {
       refreshData(project.id, project.name, repository.id);

@@ -106,23 +106,7 @@ export default function CreateStepModal({
   }, [template]);
 
   const createStep = () => {
-    // const node = getNode(id);
-    // if (node.data.type === "template") {
-    //   setNextStep({ hasNextStep: true, hasTemplate: true });
-    // } else if (node.data.type === "step") {
-    //   const edges = getEdges();
-    //   const connectedChildren = edges.filter((edge) => edge.source == id);
-    //   const stepData = { hasNextStep: false, hasTemplate: false };
-    //   connectedChildren.forEach((child) => {
-    //     const targetNode = getNode(child.target);
-    //     if (targetNode.data.type === "step") {
-    //       stepData.hasNextStep = true;
-    //     } else if (targetNode.data.type === "template") {
-    //       stepData.hasTemplate = true;
-    //     }
-    //   });
-    //   setNextStep(stepData);
-    // }
+    console.log(currentNode);
 
     const position =
       currentNode?.node?.type === "group"

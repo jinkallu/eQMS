@@ -27,6 +27,7 @@ import { useExtnStore } from "../../../../zustand/store";
 import SOPCard from "../../../SOPCard";
 
 export default function CreateLinkRecordModal({
+  id,
   open,
   setOpen,
   state,
@@ -35,6 +36,7 @@ export default function CreateLinkRecordModal({
   productId,
   records,
 }: {
+  id: string;
   open: boolean;
   setOpen: (val: boolean) => void;
   state: any;
@@ -55,6 +57,7 @@ export default function CreateLinkRecordModal({
   const [selectedRecord, setSelectedRecord] = useState([]);
 
   async function handleCreate() {
+    handleChange(id, { records: selectedRecords });
     setOpen(false);
   }
 

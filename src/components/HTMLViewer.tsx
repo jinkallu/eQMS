@@ -42,9 +42,7 @@ export default function HTMLViewer() {
   const [commitMessage, setCommitMessage] = React.useState("");
   const { commit, loading: loadingCommit } = useCommit();
   const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
-  const [state, setState] = React.useState({
-    processFlow: { nodes: [], edges: [] },
-  });
+  const [state, setState] = React.useState<{ key: string; value: any }>(null);
   const [searchParams] = useSearchParams();
   // const objectId = searchParams.get("objectId");
   const relativePath = searchParams.get("relativePath");
@@ -104,6 +102,18 @@ export default function HTMLViewer() {
     editBranchNameArr.push("edit");
     const editBranchName = editBranchNameArr.join("/");
 
+    Object.entries(state)?.map(([key, value]) => {
+      const ele = html?.getElementById(key);
+      if (ele) {
+        if (ele.tagName === "INPUT") {
+          ele.setAttribute("value", value);
+        } else {
+          ele.setAttribute("value", JSON.stringify(value));
+        }
+      }
+    });
+
+    // Add node and edges data to html
     const processFlowEls = html?.getElementsByTagName("PROCESSFLOW");
     const edges = state["processFlow"]?.edges || [];
     const nodes = state["processFlow"]?.nodes || [];
@@ -114,6 +124,16 @@ export default function HTMLViewer() {
       return item;
     });
 
+    // add link record data to html
+    // const linkRecord = html?.getElementsByTagName("LINKRECORD");
+    // const records = state["linkRecords"];
+
+    // Array.from(linkRecord)?.map((item: HTMLElement) => {
+    //   item.setAttribute("records", JSON.stringify(records));
+    //   return item;
+    // });
+
+    console.log(html);
     // const md = EditorSave.findEditableMds(inputText, "Editor");
 
     const createdData = await commit(
@@ -131,6 +151,9 @@ export default function HTMLViewer() {
     setEditMode((prev) => !prev);
   }
 
+  React.useEffect(() => {
+    console.log(html);
+  }, [html]);
   async function getEditBranchData() {
     const data = await getEditBranch({
       branchName,
@@ -146,6 +169,34 @@ export default function HTMLViewer() {
       setHtmlEdit(htmlData);
     }
   }
+
+  // React.useEffect(() => {
+  //   setHtml((prevHtml) => {
+  //     const processFlowEls = prevHtml?.getElementsByTagName("PROCESSFLOW");
+  //     if (processFlowEls) {
+  //       const edges = state["processFlow"]?.edges || [];
+  //       const nodes = state["processFlow"]?.nodes || [];
+
+  //       Array.from(processFlowEls)?.map((item: HTMLElement) => {
+  //         item.dataset.nodes = JSON.stringify(nodes);
+  //         item.dataset.edges = JSON.stringify(edges);
+  //         return item;
+  //       });
+  //     }
+
+  //     // add link record data to html
+  //     const linkRecord = prevHtml?.getElementsByTagName("LINKRECORD");
+  //     if (linkRecord) {
+  //       const records = state["linkRecords"];
+
+  //       Array.from(linkRecord)?.map((item: HTMLElement) => {
+  //         item.setAttribute("records", JSON.stringify(records));
+  //         return item;
+  //       });
+  //     }
+  //     return prevHtml;
+  //   });
+  // }, [state]);
 
   const handleChange = (id, value) => {
     setState((values) => ({ ...values, [id]: value }));

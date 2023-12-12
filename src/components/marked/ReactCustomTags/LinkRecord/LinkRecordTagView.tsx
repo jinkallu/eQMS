@@ -75,18 +75,14 @@ export default function LinkRecordTagView({
   // }, [dependStateIds])
 
   //const options = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
-  const typesAttr = element.getAttribute("types");
-  const types = typesAttr ? JSON.parse(typesAttr) : [];
-
-  const recAttr = element.getAttribute("records");
-  const records = recAttr ? JSON.parse(recAttr) : [];
-
-  const type = [
-    {
-      sopId: "2c39dfe7-9be6-48c1-92b4-b5b7a733ed17",
-      templateId: "29ce92e4-954e-4dad-8bd8-564474994d27",
-    },
-  ];
+  let types = [];
+  let records = [];
+  try {
+    const typesAttr = element.getAttribute("types");
+    types = typesAttr ? JSON.parse(typesAttr) : [];
+    const recAttr = element.getAttribute("records");
+    records = recAttr ? JSON.parse(recAttr) : [];
+  } catch (e) {}
 
   let component;
   const val = element.getAttribute("value");
@@ -100,11 +96,10 @@ export default function LinkRecordTagView({
       break;
     case "middle":
       //let options = {};
-      let fieldNames = null;
-      if (types) {
-        fieldNames = Object.keys(types);
-      }
-      console.log(types);
+      // let fieldNames = null;
+      // if (types) {
+      //   fieldNames = Object.keys(types);
+      // }
       component = <button onClick={() => setOpen(true)}>LinkedRecords</button>;
       // component = <Radios state = {state} id={id} handleChange={handleChange} options={types}/>
 
@@ -127,15 +122,15 @@ export default function LinkRecordTagView({
       // );
       break;
     case "last":
-      console.log(state[id]);
-
       if (state) {
         if (state[id]) {
-          component = <span>{state[id]}</span>;
+          console.log(state[id]);
+          component = state[id]?.records?.map((item) => (
+            <span key={item.recordId}>{item.recordName}</span>
+          ));
+        } else {
+          component = <span>error</span>;
         }
-        // else {
-        //   component = <span>{val}</span>;
-        // }
       }
       // else {
       //   component = <span>{val}</span>;
@@ -148,9 +143,12 @@ export default function LinkRecordTagView({
       component = <span>"Error";</span>;
       break;
   }
+
+  console.log(order, component);
   return (
     <Box>
       <CreateLinkRecordModal
+        id={id}
         state={state}
         types={types}
         records={records}

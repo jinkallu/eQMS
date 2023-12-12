@@ -57,7 +57,7 @@ export default function MDTagView({
               height="75vh"
               defaultLanguage="html"
               defaultValue={element.innerHTML}
-              value={state[id]}
+              // value={state[id]}
               onChange={handleChangeEditor}
             />
           </Box>

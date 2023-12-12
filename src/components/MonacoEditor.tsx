@@ -82,9 +82,10 @@ export default function MonacoEditor({
   // }, [objectId, type, branchName, relativePath, repository, project]);
 
   useEffect(() => {
-    if (!html) {
+    if (!html || !state) {
       return;
     }
+
     Object.keys(state)?.map((key) => {
       const ele = html.getElementById(key);
       if (ele) ele.setAttribute("value", state[key]);

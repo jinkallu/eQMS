@@ -205,7 +205,6 @@ export default function ProductSOP({ process, prodBranchId }) {
         content,
         "Record initial creation"
       );
-      console.log(res);
       setAlertMessage({ message: "Document Created...", severity: "success" });
       setRefreshReqd((prev) => !prev);
     } else {
