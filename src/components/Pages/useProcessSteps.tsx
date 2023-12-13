@@ -79,7 +79,12 @@ const useProcessSteps = () => {
   };
 
   const createStepTree = (nodes, edges, sopId) => {
-    const initStepId = initialStep(edges);
+    let initStepId = initialStep(edges);
+    if(!initStepId){
+      if(nodes.length > 0){
+        initStepId = nodes[0].id;
+      }
+    }
     const step = findStepWithId(initStepId, nodes);
     const tree = createTree(step);
     const finalTree = traverse(tree.name, nodes, edges, tree);
