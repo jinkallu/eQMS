@@ -98,7 +98,7 @@ function Row({ sop, edit, expandAll }) {
             <Typography sx={{ fontSize: "12px" }}>{sop?.number}</Typography>
           </Avatar>
         </TableCell>
-        <TableCell align="left"> {sop?.relativePath}</TableCell>
+        <TableCell align="left"> {sop?.relativePath.split('_').slice(1).join(' ')}</TableCell>
 
         <TableCell>
           {sop?.templates?.length}
@@ -189,11 +189,11 @@ function Row({ sop, edit, expandAll }) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {sop?.templates?.map((template) => {
+                {sop?.templates?.slice().sort((a, b) => a?.relativePath.localeCompare(b?.relativePath)).map((template) => {
                     return (
                       <TableRow key={template?.branchId}>
                         <TableCell component="th" scope="row">
-                          {template?.relativePath}
+                          {template?.relativePath.replace(/_/g, ' ')}
                         </TableCell>
                         <TableCell>
                           <Tooltip title="View Template">
