@@ -196,7 +196,7 @@ const useMatrixProgramEvaluator = (state) => {
         };
     };
 
-    const visitBinaryExpression = async (node, data: DataDataType) => {
+    const visitBinaryExpression = async (node, data: any) => {
         const leftNode = await traverse(node.left, data);
         const rightNode = await traverse(node.right, data);
         const operator = node.operator;
