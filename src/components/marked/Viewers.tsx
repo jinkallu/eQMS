@@ -10,6 +10,7 @@ import ChainedOptionTagView from "./ReactCustomTags/ChainedOptionTagView";
 import SliderTagView from "./ReactCustomTags/SliderTagView";
 import MatrixTagView from "./ReactCustomTags/matrix/MatrixTagView";
 import LinkRecordTagView from "./ReactCustomTags/LinkRecord/LinkRecordTagView";
+import DisplayTableTagView from "./ReactCustomTags/DisplayTable/DisplayTableTagView";
 
 export default function Viewers({
   element,
@@ -77,6 +78,18 @@ export default function Viewers({
     const id = element.getAttribute("id");
     return (
       <LinkRecordTagView
+        state={state}
+        id={id}
+        handleChange={handleChange}
+        element={element}
+        order={order}
+      />
+    );
+  } 
+  else if (element.tagName && element.tagName === "DISPLAYTABLE") {
+    const id = element.getAttribute("id");
+    return (
+      <DisplayTableTagView
         state={state}
         id={id}
         handleChange={handleChange}
