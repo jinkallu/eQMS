@@ -19,6 +19,7 @@ const RecordEle = ({
   step,
   level,
   setParentId,
+  productId,
   setCurrentTemplateId,
   setStepSelector,
   setOpenCreateRecordModal,
@@ -89,6 +90,7 @@ const RecordEle = ({
         open={openViewRecordModal}
         setOpen={setOpenViewRecordModal}
         record={record}
+        productId={productId}
       ></RecordViewModal>
 
       <Grid
@@ -194,6 +196,7 @@ const RecordEle = ({
                   key={rec?.branchId}
                   step={stepChild}
                   record={rec}
+                  productId={productId}
                   level={level + 1}
                   setParentId={setParentId}
                   setCurrentTemplateId={setCurrentTemplateId}
@@ -374,6 +377,7 @@ export default function RecordList({
             key={record?.branchId}
             step={stepTree[0]}
             record={record}
+            productId={productId}
             level={0}
             setParentId={setParentId}
             setCurrentTemplateId={setCurrentTemplateId}

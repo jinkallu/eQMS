@@ -45,6 +45,7 @@ export default function CreateLinkRecordModal({
   records: any;
   productId?: string;
 }) {
+  console.log(records);
   const { userSOPs, setAlertMessage, repository, refreshProductRecords } =
     useExtnStore((state) => state);
   const [selectedSOP, setSelectedSOP] = useState(
@@ -55,9 +56,12 @@ export default function CreateLinkRecordModal({
 
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState([]);
+  useEffect(() => {
+    if (records && records?.length > 0) setSelectedRecords(records);
+  }, [records]);
 
   async function handleCreate() {
-    handleChange(id, { records: selectedRecords });
+    handleChange(id, selectedRecords);
     setOpen(false);
   }
 

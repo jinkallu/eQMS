@@ -31,6 +31,7 @@ export default function MonacoEditor({
   setOpenEditModal,
   state,
   handleChange,
+  productId,
 }: {
   objectId: string;
   type: string;
@@ -40,6 +41,7 @@ export default function MonacoEditor({
   setOpenEditModal: (val: boolean) => void;
   state: any;
   handleChange: any;
+  productId?: string;
 }) {
   // const [markedData, setMarkedData] = React.useState<string>();
   const [open, setOpen] = React.useState(false);
@@ -149,6 +151,7 @@ export default function MonacoEditor({
                   order={editorView === "editor" ? "first" : "middle"}
                   state={state}
                   handleChange={handleChange}
+                  productId={productId}
                 ></MarkedToCustom>
               </Paper>
             </Grid>
@@ -162,6 +165,7 @@ export default function MonacoEditor({
                   order="last"
                   state={state}
                   handleChange={handleChange}
+                  productId={productId}
                 ></MarkedToCustom>
               </Paper>
             </Grid>

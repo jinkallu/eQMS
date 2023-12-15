@@ -108,8 +108,19 @@ export default function HTMLViewer() {
         if (ele.tagName === "INPUT") {
           ele.setAttribute("value", value);
         } else if (ele.tagName === "MD") {
-          ele.innerHTML = value;
-        } else {
+          // ele.innerHTML = value;
+          console.log(ele, value);
+        } else if (ele.tagName === "LINKRECORD") {
+          ele.setAttribute("records", JSON.stringify(value));
+        }
+        // else if (ele.tagName === "PROCESSFLOW") {
+        //   const edges = state["processFlow"]?.edges || [];
+        //   const nodes = state["processFlow"]?.nodes || [];
+
+        //   ele.dataset.nodes = JSON.stringify(nodes);
+        //   ele.dataset.edges = JSON.stringify(edges);
+        // }
+        else {
           ele.setAttribute("value", JSON.stringify(value));
         }
       }
@@ -201,6 +212,43 @@ export default function HTMLViewer() {
   // }, [state]);
 
   const handleChange = (id, value) => {
+    const ele = html?.getElementById(id);
+    if (ele) {
+      if (ele.tagName === "INPUT") {
+        ele.setAttribute("value", value);
+      } else if (ele.tagName === "MD") {
+        const htmlData = new DOMParser().parseFromString(value, "text/html");
+        ele.innerHTML = htmlData?.body?.innerHTML;
+        console.log(ele, value);
+      } else if (ele.tagName === "LINKRECORD") {
+        console.log("on link record");
+        ele.setAttribute("records", JSON.stringify(value));
+        console.log(ele);
+      }
+      // else if (ele.tagName === "PROCESSFLOW") {
+      //   const edges = state["processFlow"]?.edges || [];
+      //   const nodes = state["processFlow"]?.nodes || [];
+
+      //   ele.dataset.nodes = JSON.stringify(nodes);
+      //   ele.dataset.edges = JSON.stringify(edges);
+      // }
+      else {
+        console.log("on else condition");
+        ele.setAttribute("value", JSON.stringify(value));
+      }
+    }
+
+    // Add node and edges data to html
+    const processFlowEls = html?.getElementsByTagName("PROCESSFLOW");
+    const edges = value?.edges || [];
+    const nodes = value?.nodes || [];
+
+    Array.from(processFlowEls)?.map((item: HTMLElement) => {
+      item.dataset.nodes = JSON.stringify(nodes);
+      item.dataset.edges = JSON.stringify(edges);
+      return item;
+    });
+
     setState((values) => ({ ...values, [id]: value }));
   };
 

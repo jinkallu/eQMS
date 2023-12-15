@@ -27,6 +27,7 @@ import { createPR } from "../utils/gitHelpers.js";
 //import useMarkdToHTML from "./marked/useMarkdToHTML";
 import RecordView from "./Pages/RecordView";
 import MarkedToCustom from "./marked/MarkedToCustom";
+import { ConstructionOutlined } from "@mui/icons-material";
 
 export default function CreateRecordModal({
   open,
@@ -36,17 +37,18 @@ export default function CreateRecordModal({
   currentTemplateId,
   stepSelector,
   setCurrentTemplateId,
+  productId,
 }) {
   const [title, setTitle] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const { getFileContent, branchTypes, repository } = useExtnStore();
-  const [state, setState] = React.useState({});
+  const [state, setState] = React.useState<{ key: string; value: any }>(null);
   const [approverList, setApproverList] =
     React.useState<{ uniqueName: string; url: string; selected: boolean }[]>();
 
   const [md, setMd] = React.useState<HTMLElement>(null);
-  // const [html, setHtml] = React.useState(null);
+  const [html, setHtml] = React.useState(null);
   const [data, setData] = React.useState(null);
 
   const [selectedApprovers, setSeletedApprovers] = React.useState([]);
@@ -59,7 +61,7 @@ export default function CreateRecordModal({
 
     const parser = new DOMParser();
     const htmlData = parser.parseFromString(dataRes, "text/html");
-    // setHtml(htmlData);
+    setHtml(htmlData);
     const grouping = stepSelector?.find(
       (item) => item.templateId === currentTemplateId
     )?.data?.grouping;
@@ -133,11 +135,40 @@ export default function CreateRecordModal({
 
   function handleClick() {
     const html = new DOMParser().parseFromString(data, "text/html");
-    Object.keys(state)?.map((key) => {
-      const ele = html.querySelector(`#${key}`);
+    const ele = html?.querySelector("#linkrec");
+    console.log(ele);
 
-      if (ele) ele.setAttribute("value", state[key] || "");
+    Object.entries(state)?.map(([key, value]) => {
+      const ele = html?.querySelector(`#${key}`);
+      console.log(ele, key);
+      if (ele) {
+        if (ele.tagName === "INPUT") {
+          ele.setAttribute("value", value);
+        } else if (ele.tagName === "MD") {
+          // ele.innerHTML = value;
+        } else if (ele.tagName === "LINKRECORD") {
+          console.log("link record found");
+          ele.setAttribute("records", JSON.stringify(value));
+        }
+        // else if (ele.tagName === "PROCESSFLOW") {
+        //   const edges = state["processFlow"]?.edges || [];
+        //   const nodes = state["processFlow"]?.nodes || [];
+
+        //   ele.dataset.nodes = JSON.stringify(nodes);
+        //   ele.dataset.edges = JSON.stringify(edges);
+        // }
+        else {
+          ele.setAttribute("value", JSON.stringify(value));
+        }
+      }
     });
+
+    // Object.keys(state)?.map((key) => {
+    //   const ele = html.querySelector(`#${key}`);
+
+    //   if (ele) ele.setAttribute("value", state[key] || "");
+    // });
+
     handleCreate(title, html?.body?.innerHTML);
   }
   // const md = "# Hello give here proper md from the template! <input>";
@@ -229,6 +260,7 @@ export default function CreateRecordModal({
                 element={md}
                 open={null}
                 setOpen={null}
+                productId={productId}
                 order="middle"
                 state={state}
                 handleChange={handleChange}
@@ -244,7 +276,6 @@ export default function CreateRecordModal({
         </Box>
       </DialogContent>
       <DialogActions>
-        {" "}
         <Button variant="outlined" color="secondary" onClick={handleCancel}>
           Cancel
         </Button>
@@ -252,7 +283,7 @@ export default function CreateRecordModal({
           variant="contained"
           color="primary"
           onClick={handleClick}
-          disabled={loading}
+          disabled={loading || !title}
         >
           Create record
         </Button>

@@ -9,6 +9,7 @@ export default function MarkedToCustom({
   order,
   state,
   handleChange,
+  productId,
 }) {
   function handleCancel() {
     setOpen(false);
@@ -20,6 +21,7 @@ export default function MarkedToCustom({
       handleChange={handleChange}
       element={element}
       order={order}
+      productId={productId}
     >
       {element?.childNodes?.length > 0 &&
         Array.from(element.childNodes).map((child, index) => (
@@ -30,6 +32,7 @@ export default function MarkedToCustom({
             setOpen={setOpen}
             order={order}
             state={state}
+            productId={productId}
             handleChange={handleChange}
           ></MarkedToCustom>
         ))}

@@ -7,10 +7,12 @@ export default function RecordViewModal({
   open,
   setOpen,
   record,
+  productId,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
   record: any;
+  productId?: string;
 }) {
   const [loading, setLoading] = React.useState(false);
   const { repository, getFileContent } = useExtnStore();
@@ -69,6 +71,7 @@ export default function RecordViewModal({
             height: "100%",
           }}
         >
+          <button onClick={() => setOpen(false)}>Close</button>
           {loading && <CircularProgress></CircularProgress>}
           <MarkedToCustom
             element={md?.body}
@@ -76,7 +79,8 @@ export default function RecordViewModal({
             setOpen={null}
             order="last"
             state={null}
-            handleChange={null}
+            handleChange={() => {}}
+            productId={productId}
           ></MarkedToCustom>
           <Box>
             <Button variant="outlined" onClick={handleCancel}>

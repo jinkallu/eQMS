@@ -17,7 +17,11 @@ export default function Viewers({
   state,
   handleChange,
   children,
+  productId,
 }) {
+  // if (!state && order !== "last") {
+  //   return <span>Loading...</span>;
+  // }
   //   const childNodes =
   //     element?.childNodes?.length > 0 &&
   //     Array.from(element.childNodes).map((child, index) => (
@@ -52,6 +56,10 @@ export default function Viewers({
 
   if (element.tagName && element.tagName === "INPUT") {
     const id = element.getAttribute("id");
+
+    const val = element.getAttribute("value");
+    // if (id && handleChange) handleChange(id, val || "");
+
     return (
       <InputTagViewer
         state={state}
@@ -59,6 +67,7 @@ export default function Viewers({
         handleChange={handleChange}
         element={element}
         order={order}
+        val={val}
       />
     );
   } else if (element.tagName && element.tagName === "CHAINEDOPTION") {
@@ -72,8 +81,7 @@ export default function Viewers({
         order={order}
       />
     );
-  }  
-  else if (element.tagName && element.tagName === "LINKRECORD") {
+  } else if (element.tagName && element.tagName === "LINKRECORD") {
     const id = element.getAttribute("id");
     return (
       <LinkRecordTagView
@@ -82,10 +90,10 @@ export default function Viewers({
         handleChange={handleChange}
         element={element}
         order={order}
+        productId={productId}
       />
     );
-  } 
-  else if (element.tagName && element.tagName === "SLIDER") {
+  } else if (element.tagName && element.tagName === "SLIDER") {
     const id = element.getAttribute("id");
     return (
       <SliderTagView
@@ -96,8 +104,7 @@ export default function Viewers({
         order={order}
       />
     );
-  }  
-  else if (element.tagName && element.tagName === "MATRIX") {
+  } else if (element.tagName && element.tagName === "MATRIX") {
     const id = element.getAttribute("id");
     return (
       <MatrixTagView
@@ -108,8 +115,7 @@ export default function Viewers({
         order={order}
       />
     );
-  }  
-  else if (element.tagName && element.tagName === "BODY") {
+  } else if (element.tagName && element.tagName === "BODY") {
     return <div>{children}</div>;
   } else if (element.tagName && element.tagName === "GROUPING") {
     return <>{children}</>;

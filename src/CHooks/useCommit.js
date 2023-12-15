@@ -93,6 +93,8 @@ const useCommit = () => {
       const currentBranch = refsResult.filter(
         (ref) => ref.name === `refs/heads/${branchName}`
       )[0];
+
+      console.log(currentBranch);
       const currentCommitId = currentBranch.objectId;
 
       const change = {

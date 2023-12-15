@@ -10,6 +10,7 @@ export default function LinkRecordTagView({
   state,
   id,
   handleChange,
+  productId,
 }) {
   //const [options, setOptions] = useState();
   const [open, setOpen] = useState(false);
@@ -122,15 +123,30 @@ export default function LinkRecordTagView({
       // );
       break;
     case "last":
-      if (state) {
-        if (state[id]) {
-          console.log(state[id]);
-          component = state[id]?.records?.map((item) => (
+      const recordsRaw = element.getAttribute("records");
+      if (recordsRaw) {
+        const records = JSON.parse(recordsRaw);
+        if (records && records?.length > 0) {
+          component = records?.map((item) => (
             <span key={item.recordId}>{item.recordName}</span>
           ));
         } else {
-          component = <span>error</span>;
+          component = <span>No Linked records</span>;
         }
+      }
+
+      // if (state) {
+      //   if (state[id]) {
+      //     console.log(state[id]);
+      //     component = state[id]?.records?.map((item) => (
+      //       <span key={item.recordId}>{item.recordName}</span>
+      //     ));
+      //   } else {
+      //     component = <span>error</span>;
+      //   }
+      // }
+      else {
+        component = <span>No Linked records</span>;
       }
       // else {
       //   component = <span>{val}</span>;
@@ -155,7 +171,8 @@ export default function LinkRecordTagView({
         handleChange={handleChange}
         open={open}
         setOpen={setOpen}
-        productId={"627e8956-c130-4921-be19-364abe5d5bba"}
+        // productId={"627e8956-c130-4921-be19-364abe5d5bba"}
+        productId={productId}
       ></CreateLinkRecordModal>
       {component}
     </Box>
