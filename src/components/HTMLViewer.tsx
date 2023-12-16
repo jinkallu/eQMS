@@ -42,7 +42,10 @@ export default function HTMLViewer() {
   const [commitMessage, setCommitMessage] = React.useState("");
   const { commit, loading: loadingCommit } = useCommit();
   const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
-  const [state, setState] = React.useState<{ key: string; value: any }>(null);
+  const [state, setState] = React.useState<{ key: string; value: any }>({
+    key: 'initialKey',
+    value: 'initialValue',
+  });
   const [searchParams] = useSearchParams();
   // const objectId = searchParams.get("objectId");
   const relativePath = searchParams.get("relativePath");

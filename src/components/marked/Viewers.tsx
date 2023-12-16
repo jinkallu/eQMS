@@ -10,6 +10,8 @@ import ChainedOptionTagView from "./ReactCustomTags/ChainedOptionTagView";
 import SliderTagView from "./ReactCustomTags/SliderTagView";
 import MatrixTagView from "./ReactCustomTags/matrix/MatrixTagView";
 import LinkRecordTagView from "./ReactCustomTags/LinkRecord/LinkRecordTagView";
+import DisplayTableTagView from "./ReactCustomTags/DisplayTable/DisplayTableTagView";
+import TextInputTagView from "./ReactCustomTags/TextInputTagView";
 
 export default function Viewers({
   element,
@@ -70,6 +72,17 @@ export default function Viewers({
         val={val}
       />
     );
+  } else if (element.tagName && element.tagName === "TEXTAREA") {
+    const id = element.getAttribute("id");
+    return (
+      <TextInputTagView
+        state={state}
+        id={id}
+        handleChange={handleChange}
+        element={element}
+        order={order}
+      />
+    );
   } else if (element.tagName && element.tagName === "CHAINEDOPTION") {
     const id = element.getAttribute("id");
     return (
@@ -93,7 +106,31 @@ export default function Viewers({
         productId={productId}
       />
     );
-  } else if (element.tagName && element.tagName === "SLIDER") {
+  } else if (element.tagName && element.tagName === "DISPLAYTABLE") {
+    const id = element.getAttribute("id");
+    return (
+      <DisplayTableTagView
+        state={state}
+        id={id}
+        handleChange={handleChange}
+        element={element}
+        order={order}
+      />
+    );
+  }
+  // else if (element.tagName && element.tagName === "DISPLAYTABLE") {
+  //   const id = element.getAttribute("id");
+  //   return (
+  //     <DisplayTableTagView
+  //       state={state}
+  //       id={id}
+  //       handleChange={handleChange}
+  //       element={element}
+  //       order={order}
+  //     />
+  //   );
+  // }
+  else if (element.tagName && element.tagName === "SLIDER") {
     const id = element.getAttribute("id");
     return (
       <SliderTagView
