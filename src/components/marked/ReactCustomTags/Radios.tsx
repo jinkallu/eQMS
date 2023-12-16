@@ -10,7 +10,7 @@ interface RadiosProps {
 export default function Radios({state, id, handleChange, options}) {
     function handleChangeFun(e) {
         if (handleChange) {
-            handleChange(id, e.target.value);
+            handleChange(id, {value: e.target.value, label: e.target.dataset.label});
         }
     }
 
@@ -18,7 +18,10 @@ export default function Radios({state, id, handleChange, options}) {
         if(!options.value[0]){
             return;
         }
-        state[id] = options.value[0].textContent.trim();
+        //document.getElementById(id).dispatchEvent()
+        state[id] = {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()};
+        //state[id]['label'] = options?.label[0]?.textContent.trim();
+        //handleChange(id, {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()});
     }
 
     return (
@@ -28,9 +31,12 @@ export default function Radios({state, id, handleChange, options}) {
                     <input
                         type="radio"
                         value={option.textContent.trim()}
-                        checked = {index===0}
+                        
                         onChange={handleChangeFun}
+                        onInput={handleChangeFun}
+                        checked = {index===0}
                         id={id}
+                        data-label = {options.label?.[index].textContent.trim()} 
                     />
                     {options.label?.[index].textContent.trim()}
                 </label>
