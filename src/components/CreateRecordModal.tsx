@@ -138,30 +138,31 @@ export default function CreateRecordModal({
     const ele = html?.querySelector("#linkrec");
     console.log(ele);
 
-    Object.entries(state)?.map(([key, value]) => {
-      const ele = html?.querySelector(`#${key}`);
-      console.log(ele, key);
-      if (ele) {
-        if (ele.tagName === "INPUT") {
-          ele.setAttribute("value", value);
-        } else if (ele.tagName === "MD") {
-          // ele.innerHTML = value;
-        } else if (ele.tagName === "LINKRECORD") {
-          console.log("link record found");
-          ele.setAttribute("records", JSON.stringify(value));
-        }
-        // else if (ele.tagName === "PROCESSFLOW") {
-        //   const edges = state["processFlow"]?.edges || [];
-        //   const nodes = state["processFlow"]?.nodes || [];
+    state &&
+      Object.entries(state)?.map(([key, value]) => {
+        const ele = html?.querySelector(`#${key}`);
+        console.log(ele, key);
+        if (ele) {
+          if (ele.tagName === "INPUT") {
+            ele.setAttribute("value", value);
+          } else if (ele.tagName === "MD") {
+            // ele.innerHTML = value;
+          } else if (ele.tagName === "LINKRECORD") {
+            console.log("link record found");
+            ele.setAttribute("records", JSON.stringify(value));
+          }
+          // else if (ele.tagName === "PROCESSFLOW") {
+          //   const edges = state["processFlow"]?.edges || [];
+          //   const nodes = state["processFlow"]?.nodes || [];
 
-        //   ele.dataset.nodes = JSON.stringify(nodes);
-        //   ele.dataset.edges = JSON.stringify(edges);
-        // }
-        else {
-          ele.setAttribute("value", JSON.stringify(value));
+          //   ele.dataset.nodes = JSON.stringify(nodes);
+          //   ele.dataset.edges = JSON.stringify(edges);
+          // }
+          else {
+            ele.setAttribute("value", JSON.stringify(value));
+          }
         }
-      }
-    });
+      });
 
     // Object.keys(state)?.map((key) => {
     //   const ele = html.querySelector(`#${key}`);
