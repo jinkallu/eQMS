@@ -49,8 +49,6 @@ const Products = () => {
     }
   }
 
-  console.log(userProducts);
-
   React.useEffect(() => {
     if (project && project?.id && repository && repository.id) {
       refreshData(project.id, project.name, repository.id);
@@ -89,7 +87,7 @@ const Products = () => {
       </Box>
       <Box sx={{ paddingX: "9px", paddingY: "32px" }}>
         <Typography variant="subtitle1">
-          Here is a listof products..Click any product to view the records
+          Here is a list of products..Click any product to view the records
         </Typography>
       </Box>
       {loading ? (

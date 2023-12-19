@@ -57,6 +57,7 @@ export default function RecordViewModal({
           alignItems: "center",
           flexDirection: "column",
           padding: "24px",
+          minHeight: "70vh",
         }}
       >
         <Paper
@@ -68,7 +69,7 @@ export default function RecordViewModal({
             padding: "36px",
             flexDirection: "column",
             gap: "12px",
-            height: "100%",
+            overflowY: "auto",
           }}
         >
           <button onClick={() => setOpen(false)}>Close</button>

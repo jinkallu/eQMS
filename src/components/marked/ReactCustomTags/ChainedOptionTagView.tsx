@@ -10,7 +10,6 @@ export default function ChainedOptionTagView({
   id,
   handleChange,
 }) {
-
   //const [options, setOptions] = useState();
   const [dependStates, setDependStates] = useState({});
   const { dependStateIds, options, evaluate } = useProgramEvaluator(state);
@@ -25,40 +24,37 @@ export default function ChainedOptionTagView({
     switch (order) {
       case "middle":
         try {
-          let programAttribute = element.getAttribute('program');
+          let programAttribute = element.getAttribute("program");
           evaluate(programAttribute);
-        }
-        catch (error) {
+        } catch (error) {
           console.log(error);
         }
         break;
     }
-  }, [])
+  }, []);
 
-  // The following code must be executed dynamically, 
+  // The following code must be executed dynamically,
   // especially to identify the independant elements.
 
   useEffect(() => {
     let trigger = false;
     for (let i = 0; i < dependStateIds.length; i++) {
       const key = dependStateIds[i];
-      const newValue = state[key]; 
+      const newValue = state[key];
       const oldValue = dependStates[key];
-      if( newValue !== oldValue){
+      if (newValue !== oldValue) {
         trigger = true;
-        setDependStates(prevState => ({
-          ...prevState, 
-          [key]: newValue, 
+        setDependStates((prevState) => ({
+          ...prevState,
+          [key]: newValue,
         }));
       }
-      
     }
-    if(trigger){
-      let programAttribute = element.getAttribute('program');
+    if (trigger) {
+      let programAttribute = element.getAttribute("program");
       evaluate(programAttribute);
     }
-    
-  }, [state])
+  }, [state]);
 
   useEffect(() => {
     if (!dependStateIds) {
@@ -71,10 +67,9 @@ export default function ChainedOptionTagView({
     }
     console.log(dependStateIds);
     setDependStates(newDpdStates);
-  }, [dependStateIds])
+  }, [dependStateIds]);
 
   //const options = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
-
 
   let component;
   const val = element.getAttribute("value");
@@ -82,7 +77,10 @@ export default function ChainedOptionTagView({
     case "first":
       //component = element.outerHTML;
       component = (
-        <input value={state[id].value || val} onChange={handleChangeFun}></input>
+        <input
+          value={state[id].value || val}
+          onChange={handleChangeFun}
+        ></input>
       );
 
       break;
@@ -93,7 +91,14 @@ export default function ChainedOptionTagView({
         fieldNames = Object.keys(options);
       }
       console.log(options);
-      component = <Radios state = {state} id={id} handleChange={handleChange} options={options}/>
+      component = (
+        <Radios
+          state={state}
+          id={id}
+          handleChange={handleChange}
+          options={options}
+        />
+      );
 
       // component = (
       //   <>
@@ -114,11 +119,9 @@ export default function ChainedOptionTagView({
       // );
       break;
     case "last":
-      console.log(state[id]);
-
       if (state) {
         if (state[id]) {
-          component = <span>{state[id].label}</span>
+          component = <span>{state[id].label}</span>;
         }
         // else {
         //   component = <span>{val}</span>;

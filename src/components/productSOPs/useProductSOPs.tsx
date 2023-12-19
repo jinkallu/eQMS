@@ -84,7 +84,6 @@ function useProductSOPs() {
       return { ...sop, content };
     });
     const data = await Promise.all(dataPromise);
-    console.log(data);
 
     return data;
   }
