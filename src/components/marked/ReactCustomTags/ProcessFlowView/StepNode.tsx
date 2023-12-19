@@ -106,16 +106,16 @@ export default function StepNode({ data }) {
         type="source"
         position={Position.Bottom}
         id="source_bottom"
-        style={{ bottom: 50, background: "#555" }}
+        style={{ bottom: 0, background: "#555" }}
         isConnectable={true}
       />
-      <Handle
+      {/* <Handle
         type="source"
         position={Position.Right}
         id="source_right"
         style={{ top: 25, background: "#555" }}
         isConnectable={true}
-      />
+      /> */}
     </Paper>
   );
 }
