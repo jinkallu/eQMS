@@ -20,6 +20,8 @@ import {
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
+import { MarkerType } from 'reactflow';
+
 
 interface IConditions {
   operator: string;
@@ -195,9 +197,17 @@ export default function CreateStepModal({
       id: currentNode.node.id + "_" + newNode.id,
       source: currentNode.node.id,
       target: newNode.id,
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 20,
+        height: 20,
+        color: '#FF0072',
+      },
       sourceHandle: "source_bottom",
       targetHandle: "target",
     };
+
+    console.log(conditions);
 
     // setEdges((edges) => {
     if (stepType === "multidec") {
@@ -206,6 +216,13 @@ export default function CreateStepModal({
           id: newNode.id + "_" + `${cond.stepName}-step`,
           source: newNode.id,
           target: `${cond.stepName}-step`,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: '#FF0072',
+          },
+          label: cond.value,
           sourceHandle: cond.value,
           targetHandle: "target",
         };
