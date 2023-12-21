@@ -32,7 +32,7 @@ export default function StepNode({ data }) {
     <Paper
       sx={{
         display: "flex",
-        width: "150px",
+        width: "200px",
         height: { height },
         overFlowY: "auto",
       }}

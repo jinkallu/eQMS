@@ -67,7 +67,7 @@ export default function ProcessFlow({
   dagreGraph.setDefaultEdgeLabel(() => ({}));
 
   const nodeWidth = 200;
-  const nodeHeight = 36;
+  const nodeHeight = 50;
 
   const getLayoutedElements = (nodes, edges, direction = 'TB') => {
     
