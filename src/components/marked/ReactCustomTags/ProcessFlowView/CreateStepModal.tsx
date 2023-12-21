@@ -133,7 +133,7 @@ export default function CreateStepModal({
       data = {
         label: stepName,
         type: stepType,
-        field: inputEl?.find((item) => item.selected)?.name, // TODO: get it from template field,
+        field: inputEl?.find((item) => item.selected)?.id, // TODO: get it from template field,
         conditions: conditions?.map((item) => item.value),
       };
     }

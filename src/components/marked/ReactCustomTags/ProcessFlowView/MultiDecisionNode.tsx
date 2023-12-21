@@ -14,7 +14,6 @@ export default function MultiDecisionNode({ data }) {
   const textStyle = {
     fill: "white", // Text color
   };
-  console.log(data);
 
   return (
     <>
@@ -59,10 +58,10 @@ export default function MultiDecisionNode({ data }) {
         height: "60px",
       }}>
       <div className="custom-node__header" >
-        <strong>Condition</strong>
+        <strong>{data.label} Condition</strong>
       </div>
       <div className="custom-node__body">
-        {data.label}
+      {data.field}
 
         <Handle
           type="target"
