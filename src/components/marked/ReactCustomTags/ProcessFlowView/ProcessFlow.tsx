@@ -18,8 +18,7 @@ import TemplatesNode from "./TemplatesNode";
 
 import "reactflow/dist/style.css";
 import "./style.css";
-import dagre from 'dagre';
-
+import dagre from "dagre";
 
 import CreateStepModal from "./CreateStepModal";
 import CreateStepTemplateModal from "./CreateStepTemplateModal";
@@ -54,7 +53,7 @@ export default function ProcessFlow({
   }>();
 
   const [menu, setMenu] = useState(null);
-  
+
   const [nodes, setNodes, onNodesChange] = useNodesState(null);
   const [edges, setEdges, onEdgesChange] = useEdgesState(null);
 
@@ -69,39 +68,37 @@ export default function ProcessFlow({
   const nodeWidth = 200;
   const nodeHeight = 50;
 
-  const getLayoutedElements = (nodes, edges, direction = 'TB') => {
-    
-    const isHorizontal = direction === 'LR';
+  const getLayoutedElements = (nodes, edges, direction = "TB") => {
+    const isHorizontal = direction === "LR";
     dagreGraph.setGraph({ rankdir: direction });
-  
+
     nodes.forEach((node) => {
       dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
     });
-  
+
     edges.forEach((edge) => {
       dagreGraph.setEdge(edge.source, edge.target);
     });
-  
+
     dagre.layout(dagreGraph);
-  
+
     nodes.forEach((node) => {
       const nodeWithPosition = dagreGraph.node(node.id);
-      node.targetPosition = isHorizontal ? 'left' : 'top';
-      node.sourcePosition = isHorizontal ? 'right' : 'bottom';
-  
+      node.targetPosition = isHorizontal ? "left" : "top";
+      node.sourcePosition = isHorizontal ? "right" : "bottom";
+
       // We are shifting the dagre node position (anchor=center center) to the top left
       // so it matches the React Flow node anchor point (top left).
       node.position = {
         x: nodeWithPosition.x - nodeWidth / 2,
         y: nodeWithPosition.y - nodeHeight / 2,
       };
-  
+
       return node;
     });
-  
+
     return { nodes, edges };
   };
-  
 
   useEffect(() => {
     // createProcessGraph(element);
@@ -141,7 +138,7 @@ export default function ProcessFlow({
     }
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
       initialNodes,
-      initialEdges,
+      initialEdges
     );
     handleChange("processFlow", { nodes: layoutedNodes, edges: layoutedEdges });
   }, []);
@@ -228,6 +225,7 @@ export default function ProcessFlow({
         currentNode={currentNode}
         state={state}
         handleChange={handleChange}
+        nodes={(state && state["processFlow"]?.nodes) || []}
       ></CreateStepModal>
       <DeleteStepModal
         setOpen={setOpenDeleteStepModal}
@@ -248,10 +246,14 @@ export default function ProcessFlow({
       <ReactFlow
         ref={ref}
         // nodes={state["processFlow"]?.nodes || []}
-        nodes={state?.processFlow?.nodes? getLayoutedElements(
-          state?.processFlow?.nodes,
-          state?.processFlow?.edges,
-        ).nodes: []}
+        nodes={
+          state?.processFlow?.nodes
+            ? getLayoutedElements(
+                state?.processFlow?.nodes,
+                state?.processFlow?.edges
+              ).nodes
+            : []
+        }
         edges={state?.processFlow?.edges || []}
         // edges={state["processFlow"]?.edges || []}
         // onNodesChange={onNodesChange}
@@ -271,7 +273,8 @@ export default function ProcessFlow({
         {/* <Controls /> */}
         {/* <MiniMap /> */}
         <Background gap={12} size={1} />
-        <Background />{menu && <ContextMenu {...menu}></ContextMenu>}
+        <Background />
+        {menu && <ContextMenu {...menu}></ContextMenu>}
       </ReactFlow>
     </div>
   );
