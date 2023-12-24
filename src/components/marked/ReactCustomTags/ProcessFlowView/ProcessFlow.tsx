@@ -15,6 +15,7 @@ import MultiDecisionNode from "./MultiDecisionNode";
 import StepNode from "./StepNode";
 import TemplateNode from "./TemplateNode";
 import TemplatesNode from "./TemplatesNode";
+import Box from "@mui/material/Box";
 
 import "reactflow/dist/style.css";
 import "./style.css";
@@ -209,14 +210,13 @@ export default function ProcessFlow({
 
   //if(editable) {
   return (
-    <div
-      style={{
+    <Box
+      sx={{
+        width: "100vw",
         display: "flex",
-        width: "100%",
-        height: viewportSize.height,
         justifyContent: "center",
-        alignItems: "center",
-        position: "relative",
+        height: viewportSize.height,
+        overflowX: "auto",
       }}
     >
       <CreateStepModal
@@ -276,7 +276,7 @@ export default function ProcessFlow({
         <Background />
         {menu && <ContextMenu {...menu}></ContextMenu>}
       </ReactFlow>
-    </div>
+    </Box>
   );
   //}
 }

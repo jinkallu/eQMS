@@ -190,7 +190,13 @@ export default function ProcessFlowView({
   // }, [handleChange]);
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box
+      sx={{
+        width: "100%",
+        overflowX: "auto",
+        display: "flex",
+      }}
+    >
       {order === "middle" && (
         <Grid container spacing={2}>
           <Grid item xs={12}>
