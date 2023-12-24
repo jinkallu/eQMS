@@ -12,6 +12,7 @@ import MatrixTagView from "./ReactCustomTags/matrix/MatrixTagView";
 import LinkRecordTagView from "./ReactCustomTags/LinkRecord/LinkRecordTagView";
 import DisplayTableTagView from "./ReactCustomTags/DisplayTable/DisplayTableTagView";
 import TextInputTagView from "./ReactCustomTags/TextInputTagView";
+import OutputTagView from "./ReactCustomTags/OutputTagView";
 
 export default function Viewers({
   element,
@@ -94,7 +95,20 @@ export default function Viewers({
         order={order}
       />
     );
-  } else if (element.tagName && element.tagName === "LINKRECORD") {
+  }
+  else if (element.tagName && element.tagName === "OUTPUT") {
+    const id = element.getAttribute("id");
+    return (
+      <OutputTagView
+        state={state}
+        id={id}
+        handleChange={handleChange}
+        element={element}
+        order={order}
+      />
+    );
+  }  
+  else if (element.tagName && element.tagName === "LINKRECORD") {
     const id = element.getAttribute("id");
     return (
       <LinkRecordTagView

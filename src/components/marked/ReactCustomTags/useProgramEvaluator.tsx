@@ -239,7 +239,18 @@ const useProgramEvaluator = (state) => {
                 return retrieveTableData(elements[0], datasource["select"], conditions);
             //break;
             case "SELECT":
+                console.log(elements[0].value);
                 return elements[0].value;
+            case "SPAN":
+                console.log(elements[0])
+
+                if(elements[0].dataset.type){
+                    if(elements[0].dataset.type==="output"){
+                        return elements[0].textContent;
+
+                    }
+                }
+                
             default:
                 return state[datasource["from"]["id"]];
         }
