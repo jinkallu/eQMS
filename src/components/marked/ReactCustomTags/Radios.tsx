@@ -9,30 +9,27 @@ interface RadiosProps {
 
 export default function Radios({state, id, handleChange, options}) {
     function handleChangeFun(e) {
+        console.log(e);
         if (handleChange) {
             handleChange(id, {value: e.target.value, label: e.target.dataset.label});
         }
     }
 
-    if(options){
-        if(!options.value[0]){
-            return;
-        }
-        //document.getElementById(id).dispatchEvent()
-        state[id] = {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()};
-        //state[id]['label'] = options?.label[0]?.textContent.trim();
-        //handleChange(id, {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()});
-    }
+    
 
     return (
         <>
-            {options && options.value?.map((option, index) => (
+            {options && options.value && Array.isArray(options.value) && options.value?.map((option, index) => (
                 <label key={option}>
                     <input
                         type="radio"
                         value={option.textContent.trim()}
                         
-                        onChange={handleChangeFun}
+                        onChange={(e) => {
+                            e.nativeEvent.stopImmediatePropagation();
+                            handleChangeFun(e);
+                            // Additional logic if needed
+                          }}
                         onInput={handleChangeFun}
                         checked = {index===0}
                         id={id}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import useProgramEvaluator from "./useProgramEvaluator";
 import Radios from "./Radios";
+import { use } from "cytoscape";
 
 export default function ChainedOptionTagView({
   element,
@@ -33,10 +34,39 @@ export default function ChainedOptionTagView({
     }
   }, []);
 
+  useEffect(() => {
+    if (options) {
+      if (!options.value) {
+        return;
+      }
+      if (options.value.length <= 0) {
+        return;
+      }
+
+      if (options.value[0] === null) {
+        return;
+      }
+      try{
+        handleChange(id, { value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim() });
+      }
+      catch{
+        handleChange(id, { value: options?.value, label: options?.label});
+      }
+      console.log(options)
+      //document.getElementById(id).dispatchEvent()
+      //state[id] = {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()};
+      //state[id]['label'] = options?.label[0]?.textContent.trim();
+    }
+  }, [options])
+
   // The following code must be executed dynamically,
   // especially to identify the independant elements.
 
   useEffect(() => {
+    if (!state) {
+      return;
+    }
+    console.log(state)
     let trigger = false;
     for (let i = 0; i < dependStateIds.length; i++) {
       const key = dependStateIds[i];
