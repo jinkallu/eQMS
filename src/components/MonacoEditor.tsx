@@ -102,6 +102,7 @@ export default function MonacoEditor({
         flexGrow: 1,
         width: "100%",
         position: "relative",
+        overflowX: "auto",
       }}
     >
       <Paper

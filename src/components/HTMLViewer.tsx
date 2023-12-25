@@ -37,14 +37,14 @@ export default function HTMLViewer() {
   const [htmlEdit, setHtmlEdit] = React.useState<Document>();
 
   const [branch, setBranch] = React.useState<any>();
-  const [editMode, setEditMode] = React.useState(false);
+  const [editMode, setEditMode] = React.useState(true);
   const [open, setOpen] = React.useState(false);
   const [commitMessage, setCommitMessage] = React.useState("");
   const { commit, loading: loadingCommit } = useCommit();
   const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
   const [state, setState] = React.useState<{ key: string; value: any }>({
-    key: 'initialKey',
-    value: 'initialValue',
+    key: "initialKey",
+    value: "initialValue",
   });
   const [searchParams] = useSearchParams();
   // const objectId = searchParams.get("objectId");
@@ -341,7 +341,7 @@ export default function HTMLViewer() {
           ></MonacoEditor>
         )}
         {!editMode && (
-          <Box sx={{ paddingY: "24px" }}>
+          <Box sx={{ paddingY: "24px", width: "100%" }}>
             <MarkedToCustom
               element={html?.body}
               open={null}
@@ -349,6 +349,7 @@ export default function HTMLViewer() {
               order="last"
               state={state}
               handleChange={handleChange}
+              productId={null}
             ></MarkedToCustom>
           </Box>
         )}
