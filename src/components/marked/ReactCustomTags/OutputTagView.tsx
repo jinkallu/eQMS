@@ -15,10 +15,22 @@ export default function OutputTagView({
   const { dependStateIds, options, evaluate } = useProgramEvaluator(state);
 
   function handleChangeFun(e) {
+    console.log(e);
     if (handleChange) {
       handleChange(id, e.target.value);
     }
   }
+
+  if(options){
+    if(options.value[0] === null){
+        return;
+    }
+    //handleChange(id, options?.value[0]?.textContent.trim());
+    //document.getElementById(id).dispatchEvent()
+    //state[id] = {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()};
+    //state[id]['label'] = options?.label[0]?.textContent.trim();
+    //handleChange(id, {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()});
+}
 
   useEffect(() => {
     switch (order) {
@@ -111,10 +123,23 @@ export default function OutputTagView({
       component = (
         <>
         {options && options.value?.length>0 &&
-        <span id={id} style={style? parseStyles(style): null} data-type="output">{options?.value[0].textContent.trim()}</span>
+        <output id={id} style={style? parseStyles(style): null} data-type="output" onChange={handleChangeFun}>{options?.value[0].textContent.trim()}</output>
         }
         </>
       );
+
+      if(options){
+        if(options.value){
+          if(options.value.length > 0){
+            //handleChange(id, options?.value[0].textContent.trim());
+
+          }
+
+        }
+      }
+
+      
+
 
       // component = (
       //   <>
