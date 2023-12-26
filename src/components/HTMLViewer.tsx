@@ -37,7 +37,7 @@ export default function HTMLViewer() {
   const [htmlEdit, setHtmlEdit] = React.useState<Document>();
 
   const [branch, setBranch] = React.useState<any>();
-  const [editMode, setEditMode] = React.useState(true);
+  const [editMode, setEditMode] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [commitMessage, setCommitMessage] = React.useState("");
   const { commit, loading: loadingCommit } = useCommit();
