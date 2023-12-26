@@ -209,7 +209,7 @@ export default function CreateStepModal({
       id: currentNode.node.id + "_" + newNode.id,
       source: currentNode.node.id,
       target: newNode.id,
-      type: "smoothstep",
+      type: "smart",
       markerEnd: {
         type: MarkerType.ArrowClosed,
         width: 20,
@@ -227,7 +227,7 @@ export default function CreateStepModal({
           id: newNode.id + "_" + `${cond.stepName}-step`,
           source: newNode.id,
           target: `${cond.stepName}-step`,
-          type: "smoothstep",
+          type: "smart",
           markerEnd: {
             type: MarkerType.ArrowClosed,
             width: 20,
