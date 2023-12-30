@@ -79,16 +79,21 @@ const useProcessSteps = () => {
   };
 
   const createStepTree = (nodes, edges, sopId) => {
-    let initStepId = initialStep(edges);
-    if(!initStepId){
-      if(nodes.length > 0){
-        initStepId = nodes[0].id;
+    try {
+      let initStepId = initialStep(edges);
+      if (!initStepId) {
+        if (nodes.length > 0) {
+          initStepId = nodes[0].id;
+        }
       }
+      const step = findStepWithId(initStepId, nodes);
+      const tree = createTree(step);
+      const finalTree = traverse(tree.name, nodes, edges, tree);
+      setStepTree({ sopId: sopId, steps: [finalTree] });
+    } catch (e) {
+      console.log(e);
+      setStepTree({ sopId, steps: [] });
     }
-    const step = findStepWithId(initStepId, nodes);
-    const tree = createTree(step);
-    const finalTree = traverse(tree.name, nodes, edges, tree);
-    setStepTree({ sopId: sopId, steps: [finalTree] });
   };
 
   return { stepTree, createStepTree };

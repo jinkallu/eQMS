@@ -21,6 +21,8 @@ export default function ProductSOP({ process, prodBranchId }) {
   const [refreshReqd, setRefreshReqd] = useState(false);
   const [currentTemplateId, setCurrentTemplateId] = useState("");
 
+  console.log(process);
+
   const [stepSelector, setStepSelector] = useState([]);
 
   const [parentId, setParentId] = useState("0");
@@ -153,7 +155,9 @@ export default function ProductSOP({ process, prodBranchId }) {
       const edges = JSON.parse(process.processflowElement.dataset.edges);
 
       createStepTree(nodes, edges, process.sop.branchId);
-    } catch {}
+    } catch (e) {
+      console.log("error", e);
+    }
     //parseProcessFlow(process);
   }
 
@@ -216,7 +220,8 @@ export default function ProductSOP({ process, prodBranchId }) {
   }
 
   function handleNewCreate() {
-    setStepSelector(processFlowTree?.steps);
+    // setStepSelector(processFlowTree?.steps);
+    // setStepSelector(stepTree?.steps);
 
     setOpenCreateRecordModal(true);
   }
@@ -245,7 +250,7 @@ export default function ProductSOP({ process, prodBranchId }) {
           stepName={processFlowTree?.steps[0]?.name}
           handleCreate={handleCreate}
           currentTemplateId={currentTemplateId}
-          stepSelector={stepSelector}
+          stepSelector={stepTree?.steps}
           setCurrentTemplateId={setCurrentTemplateId}
           productId={prodBranchId}
         ></CreateRecordModal>

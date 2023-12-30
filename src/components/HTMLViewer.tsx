@@ -1,7 +1,7 @@
 import MarkedHTMLViewer from "./marked/MarkedHTMLViewer";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useExtnStore } from "../zustand/store";
-import React from "react";
+import React, { useEffect } from "react";
 import { markedToHtml } from "../utils/markedHelper";
 import { Box, Chip, CircularProgress, Paper, Toolbar } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -104,15 +104,15 @@ export default function HTMLViewer() {
     editBranchNameArr.splice(-1);
     editBranchNameArr.push("edit");
     const editBranchName = editBranchNameArr.join("/");
+    const newHtml = htmlEdit;
 
     Object.entries(state)?.map(([key, value]) => {
-      const ele = html?.getElementById(key);
+      const ele = newHtml?.getElementById(key);
       if (ele) {
         if (ele.tagName === "INPUT") {
           ele.setAttribute("value", value);
         } else if (ele.tagName === "MD") {
           // ele.innerHTML = value;
-          console.log(ele, value);
         } else if (ele.tagName === "LINKRECORD") {
           ele.setAttribute("records", JSON.stringify(value));
         }
@@ -130,7 +130,7 @@ export default function HTMLViewer() {
     });
 
     // Add node and edges data to html
-    const processFlowEls = html?.getElementsByTagName("PROCESSFLOW");
+    const processFlowEls = newHtml?.querySelectorAll("PROCESSFLOW");
     const edges = state["processFlow"]?.edges || [];
     const nodes = state["processFlow"]?.nodes || [];
 
@@ -149,7 +149,6 @@ export default function HTMLViewer() {
     //   return item;
     // });
 
-    console.log(html);
     // const md = EditorSave.findEditableMds(inputText, "Editor");
 
     const createdData = await commit(
@@ -157,7 +156,7 @@ export default function HTMLViewer() {
       repository.id,
       editBranchName,
       filePath,
-      html?.body?.innerHTML,
+      newHtml?.body?.innerHTML,
       commitMessage
     );
 
@@ -167,9 +166,6 @@ export default function HTMLViewer() {
     setEditMode((prev) => !prev);
   }
 
-  React.useEffect(() => {
-    console.log(html);
-  }, [html]);
   async function getEditBranchData() {
     const data = await getEditBranch({
       branchName,
@@ -222,11 +218,8 @@ export default function HTMLViewer() {
       } else if (ele.tagName === "MD") {
         const htmlData = new DOMParser().parseFromString(value, "text/html");
         ele.innerHTML = htmlData?.body?.innerHTML;
-        console.log(ele, value);
       } else if (ele.tagName === "LINKRECORD") {
-        console.log("on link record");
         ele.setAttribute("records", JSON.stringify(value));
-        console.log(ele);
       }
       // else if (ele.tagName === "PROCESSFLOW") {
       //   const edges = state["processFlow"]?.edges || [];
@@ -236,7 +229,6 @@ export default function HTMLViewer() {
       //   ele.dataset.edges = JSON.stringify(edges);
       // }
       else {
-        console.log("on else condition");
         ele.setAttribute("value", JSON.stringify(value));
       }
     }
@@ -278,6 +270,7 @@ export default function HTMLViewer() {
         flexDirection: "column",
         position: "relative",
         width: "100%",
+        margin: "24px",
       }}
     >
       {!editMode && (
