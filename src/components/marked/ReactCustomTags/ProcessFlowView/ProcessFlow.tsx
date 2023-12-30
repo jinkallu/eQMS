@@ -175,7 +175,7 @@ export default function ProcessFlow({
     }
     event.preventDefault();
 
-    if (!["step", "group"].includes(node.type)) {
+    if (!["step", "group", "multidec"].includes(node.type)) {
       setMenu(null);
       return;
     }

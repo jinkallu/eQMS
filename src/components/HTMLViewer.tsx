@@ -278,6 +278,7 @@ export default function HTMLViewer() {
         flexDirection: "column",
         position: "relative",
         width: "100%",
+        margin: "24px",
       }}
     >
       {!editMode && (
