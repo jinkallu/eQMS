@@ -119,8 +119,8 @@ export default function CreateStepModal({
       currentNode?.node?.type === "group"
         ? { x: (currentNode.node.width - 200) / 2, y: 100 }
         : {
-            x: currentNode.node.position.x,
-            y: currentNode.node.position.y + 200,
+            x: currentNode?.node?.position?.x || 200,
+            y: currentNode?.node?.position?.y + 200 || 200,
           };
 
     // let typ = stepType;
@@ -151,7 +151,7 @@ export default function CreateStepModal({
       position: position,
       data: data,
       type: stepType,
-      parentNode: "A",
+      // parentNode: "A",
       extent: "parent",
       height: 50,
       width: 150,
@@ -204,21 +204,23 @@ export default function CreateStepModal({
       nodesNew = [...newPositionedNodes, newNode];
     }
     // });
-    let edgesNew = [];
-    const newEdge = {
-      id: currentNode.node.id + "_" + newNode.id,
-      source: currentNode.node.id,
-      target: newNode.id,
-      type: "smoothstep",
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 20,
-        height: 20,
-        color: "#FF0072",
-      },
-      sourceHandle: "source_bottom",
-      targetHandle: "target",
-    };
+    let edgesNew = state["processFlow"]?.edges || [];
+    const newEdge = currentNode
+      ? {
+          id: currentNode.node.id + "_" + newNode.id,
+          source: currentNode.node.id,
+          target: newNode.id,
+          type: "smoothstep",
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#FF0072",
+          },
+          sourceHandle: "source_bottom",
+          targetHandle: "target",
+        }
+      : {};
 
     // setEdges((edges) => {
     if (stepType === "multidec") {
@@ -242,14 +244,17 @@ export default function CreateStepModal({
       });
 
       // edges = [...state["processFlow"]?.edges, newEdge, ...newEdges];
-      edgesNew = [...state["processFlow"]?.edges, newEdge, ...newEdges];
+      edgesNew = [...edgesNew, newEdge, ...newEdges];
     } else {
       // edges = [...state["processFlow"]?.edges, newEdge];
-      edgesNew = [...state["processFlow"]?.edges, newEdge];
+      edgesNew = [...edgesNew, newEdge];
     }
-    if (currentNode?.node?.type === "group") {
-      edgesNew = [...state["processFlow"]?.edges];
-    }
+    // if (currentNode?.node?.type === "group") {
+    //   edgesNew = [...state["processFlow"]?.edges];
+    // }
+    // else{
+
+    // }
 
     // });
     handleChange("processFlow", { nodes: nodesNew, edges: edgesNew });

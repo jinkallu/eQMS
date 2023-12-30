@@ -25,6 +25,7 @@ import CreateStepModal from "./CreateStepModal";
 import CreateStepTemplateModal from "./CreateStepTemplateModal";
 import DeleteStepModal from "./DeleteStepModal";
 import ContextMenu from "./ContextMenu";
+import { Button } from "@mui/material";
 
 const nodeTypes = {
   decision: DecisionNode,
@@ -111,32 +112,34 @@ export default function ProcessFlow({
     const initialEdges = element?.dataset?.edges
       ? JSON.parse(element?.dataset?.edges)
       : [];
-    initialNodes.push({
-      id: "A", // TODO: change this id to a unique
-      data: {
-        label: "SOP Name",
-      },
-      type: "group",
-      position: { x: 0, y: 0 },
-      style: {
-        height: "100%",
-        width: "100%",
-      },
-      draggable: true,
-    });
+    // initialNodes.push({
+    //   id: "A", // TODO: change this id to a unique
+    //   data: {
+    //     label: "SOP Name",
+    //   },
+    //   type: "group",
+    //   position: { x: 0, y: 0 },
+    //   style: {
+    //     height: "100%",
+    //     width: "100%",
+    //   },
+    //   draggable: true,
+    // });
 
-    if (nodesData?.find((item) => item?.id === "A")) {
-      // const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-      //   nodes,
-      //   edges,
-      // );
+    // if (nodesData?.find((item) => item?.id === "A")) {
+    //   // const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+    //   //   nodes,
+    //   //   edges,
+    //   // );
 
-      //setNodes([...layoutedNodes]);
-      //setEdges([...layoutedEdges]);
-      initialNodes = [...nodesData];
-    } else {
-      initialNodes = [...initialNodes, ...nodesData];
-    }
+    //   //setNodes([...layoutedNodes]);
+    //   //setEdges([...layoutedEdges]);
+    //   initialNodes = [...nodesData];
+    // } else {
+    //   initialNodes = [...initialNodes, ...nodesData];
+    // }
+    initialNodes = [...nodesData];
+
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
       initialNodes,
       initialEdges
@@ -242,40 +245,43 @@ export default function ProcessFlow({
         state={state}
         handleChange={handleChange}
       ></CreateStepTemplateModal>
-
-      <ReactFlow
-        ref={ref}
-        // nodes={state["processFlow"]?.nodes || []}
-        nodes={
-          state?.processFlow?.nodes
-            ? getLayoutedElements(
-                state?.processFlow?.nodes,
-                state?.processFlow?.edges
-              ).nodes
-            : []
-        }
-        edges={state?.processFlow?.edges || []}
-        // edges={state["processFlow"]?.edges || []}
-        // onNodesChange={onNodesChange}
-        // onEdgesChange={onEdgesChange}
-        // onConnect={onConnect}
-        onNodeContextMenu={onNodeContextMenu}
-        zoomOnDoubleClick={false} // Disable zoom on double-click
-        zoomOnScroll={false} // Disable zoom on scroll
-        nodesDraggable={true}
-        panOnDrag={false}
-        zoomOnPinch={false}
-        nodeTypes={nodeTypes}
-        onNodeClick={onNodeClick}
-        preventScrolling={false}
-        elementsSelectable={true}
-      >
-        {/* <Controls /> */}
-        {/* <MiniMap /> */}
-        <Background gap={12} size={1} />
-        <Background />
-        {menu && <ContextMenu {...menu}></ContextMenu>}
-      </ReactFlow>
+      {state && state["processFlow"]?.nodes?.length > 0 ? (
+        <ReactFlow
+          ref={ref}
+          // nodes={state["processFlow"]?.nodes || []}
+          nodes={
+            state?.processFlow?.nodes
+              ? getLayoutedElements(
+                  state?.processFlow?.nodes,
+                  state?.processFlow?.edges
+                ).nodes
+              : []
+          }
+          edges={state?.processFlow?.edges || []}
+          // edges={state["processFlow"]?.edges || []}
+          // onNodesChange={onNodesChange}
+          // onEdgesChange={onEdgesChange}
+          // onConnect={onConnect}
+          onNodeContextMenu={onNodeContextMenu}
+          zoomOnDoubleClick={false} // Disable zoom on double-click
+          zoomOnScroll={false} // Disable zoom on scroll
+          nodesDraggable={true}
+          panOnDrag={false}
+          zoomOnPinch={false}
+          nodeTypes={nodeTypes}
+          onNodeClick={onNodeClick}
+          preventScrolling={false}
+          elementsSelectable={true}
+        >
+          {/* <Controls /> */}
+          {/* <MiniMap /> */}
+          <Background gap={12} size={1} />
+          <Background />
+          {menu && <ContextMenu {...menu}></ContextMenu>}
+        </ReactFlow>
+      ) : (
+        <Button onClick={() => setOpenCreateStepModal(true)}>Add Step</Button>
+      )}
     </Box>
   );
   //}
