@@ -280,7 +280,14 @@ export default function ProcessFlow({
           {menu && <ContextMenu {...menu}></ContextMenu>}
         </ReactFlow>
       ) : (
-        <Button onClick={() => setOpenCreateStepModal(true)}>Add Step</Button>
+        <Box sx={{ display: "flex", height: "100px" }}>
+          <Button
+            variant="contained"
+            onClick={() => setOpenCreateStepModal(true)}
+          >
+            Add Step
+          </Button>
+        </Box>
       )}
     </Box>
   );
