@@ -92,8 +92,6 @@ export default function CreateRecordModal({
       setMd(newDiv);
     }
     // const els = html.querySelectorAll(grouping);
-
-    // console.log(els);
     else {
       setMd(htmlData?.body);
     }
@@ -136,19 +134,16 @@ export default function CreateRecordModal({
   function handleClick() {
     const html = new DOMParser().parseFromString(data, "text/html");
     const ele = html?.querySelector("#linkrec");
-    console.log(ele);
 
     state &&
       Object.entries(state)?.map(([key, value]) => {
         const ele = html?.querySelector(`#${key}`);
-        console.log(ele, key);
         if (ele) {
           if (ele.tagName === "INPUT") {
             ele.setAttribute("value", value);
           } else if (ele.tagName === "MD") {
             // ele.innerHTML = value;
           } else if (ele.tagName === "LINKRECORD") {
-            console.log("link record found");
             ele.setAttribute("records", JSON.stringify(value));
           }
           // else if (ele.tagName === "PROCESSFLOW") {
@@ -171,6 +166,7 @@ export default function CreateRecordModal({
     // });
 
     handleCreate(title, html?.body?.innerHTML);
+    setTitle("");
   }
   // const md = "# Hello give here proper md from the template! <input>";
   return (

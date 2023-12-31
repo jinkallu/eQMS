@@ -29,7 +29,7 @@ export default function RecordViewModal({
   }
 
   React.useEffect(() => {
-    if (repository.id && record) {
+    if (repository.id && record && open) {
       const nameArray = record.name.split("/");
       const path = [nameArray[0], nameArray[1], "data.html"]?.join("/");
 

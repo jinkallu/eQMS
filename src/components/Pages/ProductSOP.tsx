@@ -220,7 +220,7 @@ export default function ProductSOP({ process, prodBranchId }) {
   }
 
   function handleNewCreate() {
-    // setStepSelector(processFlowTree?.steps);
+    setStepSelector(processFlowTree?.steps);
     // setStepSelector(stepTree?.steps);
 
     setOpenCreateRecordModal(true);
@@ -250,7 +250,7 @@ export default function ProductSOP({ process, prodBranchId }) {
           stepName={processFlowTree?.steps[0]?.name}
           handleCreate={handleCreate}
           currentTemplateId={currentTemplateId}
-          stepSelector={stepTree?.steps}
+          stepSelector={stepSelector}
           setCurrentTemplateId={setCurrentTemplateId}
           productId={prodBranchId}
         ></CreateRecordModal>
