@@ -33,6 +33,7 @@
     "@mui/icons-material": "^5.14.1",
     "@mui/material": "^5.11.13",
     "@mui/x-data-grid": "^6.16.1",
+    "@tisoap/react-flow-smart-edge": "^3.0.0",
     "@types/cytoscape": "^3.19.10",
     "@types/react": "^18.0.28",
     "acron": "^1.0.5",

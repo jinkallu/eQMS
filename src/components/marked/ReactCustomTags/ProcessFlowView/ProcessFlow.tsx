@@ -10,6 +10,7 @@ import ReactFlow, {
   useReactFlow,
   ReactFlowProvider,
 } from "reactflow";
+import { SmartStepEdge } from '@tisoap/react-flow-smart-edge'
 import DecisionNode from "./DecisionNode";
 import MultiDecisionNode from "./MultiDecisionNode";
 import StepNode from "./StepNode";
@@ -35,6 +36,9 @@ const nodeTypes = {
   templates: TemplatesNode,
   // Define other custom node types here if needed
 };
+const edgeTypes = {
+	smart: SmartStepEdge
+}
 
 export default function ProcessFlow({
   editable,
@@ -269,6 +273,7 @@ export default function ProcessFlow({
           panOnDrag={false}
           zoomOnPinch={false}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           onNodeClick={onNodeClick}
           preventScrolling={false}
           elementsSelectable={true}
