@@ -234,16 +234,17 @@ export default function HTMLViewer() {
     }
 
     // Add node and edges data to html
-    const processFlowEls = html?.getElementsByTagName("PROCESSFLOW");
-    const edges = value?.edges || [];
-    const nodes = value?.nodes || [];
+    // if (id === "processFlow") {
+    //   const processFlowEls = html?.querySelectorAll("PROCESSFLOW");
+    //   const edges = value?.edges || [];
+    //   const nodes = value?.nodes || [];
 
-    Array.from(processFlowEls)?.map((item: HTMLElement) => {
-      item.dataset.nodes = JSON.stringify(nodes);
-      item.dataset.edges = JSON.stringify(edges);
-      return item;
-    });
-
+    //   Array.from(processFlowEls)?.map((item: HTMLElement) => {
+    //     item.dataset.nodes = JSON.stringify(nodes);
+    //     item.dataset.edges = JSON.stringify(edges);
+    //     return item;
+    //   });
+    // }
     setState((values) => ({ ...values, [id]: value }));
   };
 
@@ -263,6 +264,7 @@ export default function HTMLViewer() {
       </Box>
     );
   }
+
   return (
     <Box
       sx={{

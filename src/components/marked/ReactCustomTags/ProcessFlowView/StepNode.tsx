@@ -41,7 +41,7 @@ export default function StepNode({ data }) {
         style={{
           display: "flex",
           flexDirection: "column",
-          border: "1px solid blue",
+          border: data?.productLevel ? "1px solid red" : "1px solid blue",
           backgroundColor: "lightblue",
           alignItems: "center",
           width: "100%",

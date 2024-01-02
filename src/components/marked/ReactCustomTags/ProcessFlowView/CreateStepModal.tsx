@@ -59,6 +59,8 @@ export default function CreateStepModal({
     useExtnStore((state) => state);
   const [stepName, setStepName] = React.useState("");
   const [stepType, setStepType] = React.useState("step");
+  const [isProductLevel, setIsProductLevel] = React.useState(false);
+
   const [inputNodes, setInputNodes] = React.useState(null);
   const [template, setTemplate] = React.useState<{
     branchId: string;
@@ -129,14 +131,17 @@ export default function CreateStepModal({
     // }
 
     let data;
+
     if (stepType === "step") {
       data = {
         label: stepName,
         type: stepType,
+        productLevel: isProductLevel,
       };
     } else if (stepType === "multidec") {
       data = {
         label: stepName,
+        productLevel: isProductLevel,
         type: stepType,
         field: inputEl?.find((item) => item.selected)?.id, // TODO: get it from template field,
         conditions: conditions?.map((item) => item.value),
@@ -270,6 +275,10 @@ export default function CreateStepModal({
   function handleChangeVal(e) {
     setTemplate(e.target.value);
   }
+
+  useEffect(() => {
+    setIsProductLevel(false);
+  }, [stepType]);
   return (
     <Dialog
       open={open}
@@ -307,6 +316,18 @@ export default function CreateStepModal({
               <option value="multidec"> Decision</option>
             </Select>
           </FormControl>
+
+          {stepType === "step" && (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isProductLevel}
+                  onChange={(e) => setIsProductLevel(e.target.checked)}
+                />
+              }
+              label="Product Level"
+            />
+          )}
 
           <FormControl
             sx={{

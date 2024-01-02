@@ -35,10 +35,12 @@ export default function Viewers({
   //   console.log(element);
   //   return <EndNode element={element?.textContent || element}></EndNode>;
   // }
-
   if (!element?.tagName) {
+    console.log("No tagname", element);
+
     return <EndNode element={element?.textContent || element}></EndNode>;
   }
+  console.log("tagname", element?.tagName);
 
   //   if (order === "middle") {
   //     console.log("order is middle");
@@ -95,8 +97,7 @@ export default function Viewers({
         order={order}
       />
     );
-  }
-  else if (element.tagName && element.tagName === "OUTPUT") {
+  } else if (element.tagName && element.tagName === "OUTPUT") {
     const id = element.getAttribute("id");
     return (
       <OutputTagView
@@ -107,8 +108,7 @@ export default function Viewers({
         order={order}
       />
     );
-  }  
-  else if (element.tagName && element.tagName === "LINKRECORD") {
+  } else if (element.tagName && element.tagName === "LINKRECORD") {
     const id = element.getAttribute("id");
     return (
       <LinkRecordTagView

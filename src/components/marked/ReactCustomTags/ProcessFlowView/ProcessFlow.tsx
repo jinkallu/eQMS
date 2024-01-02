@@ -10,7 +10,7 @@ import ReactFlow, {
   useReactFlow,
   ReactFlowProvider,
 } from "reactflow";
-import { SmartStepEdge } from '@tisoap/react-flow-smart-edge'
+import { SmartStepEdge } from "@tisoap/react-flow-smart-edge";
 import DecisionNode from "./DecisionNode";
 import MultiDecisionNode from "./MultiDecisionNode";
 import StepNode from "./StepNode";
@@ -37,8 +37,8 @@ const nodeTypes = {
   // Define other custom node types here if needed
 };
 const edgeTypes = {
-	smart: SmartStepEdge
-}
+  smart: SmartStepEdge,
+};
 
 export default function ProcessFlow({
   editable,
@@ -59,9 +59,6 @@ export default function ProcessFlow({
   }>();
 
   const [menu, setMenu] = useState(null);
-
-  const [nodes, setNodes, onNodesChange] = useNodesState(null);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(null);
 
   const [viewportSize, setViewportSize] = useState({
     width: "100vw",
@@ -116,6 +113,7 @@ export default function ProcessFlow({
     const initialEdges = element?.dataset?.edges
       ? JSON.parse(element?.dataset?.edges)
       : [];
+
     // initialNodes.push({
     //   id: "A", // TODO: change this id to a unique
     //   data: {
@@ -148,6 +146,8 @@ export default function ProcessFlow({
       initialNodes,
       initialEdges
     );
+
+    console.log("init nodes", layoutedNodes, layoutedEdges);
     handleChange("processFlow", { nodes: layoutedNodes, edges: layoutedEdges });
   }, []);
 
