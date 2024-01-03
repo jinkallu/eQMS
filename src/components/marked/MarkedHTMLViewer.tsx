@@ -49,8 +49,6 @@ export default function MarkedHTMLViewer({
         open={null}
         setOpen={null}
         order="last"
-        state={state}
-        handleChange={null}
         productId={null}
       ></MarkedToCustom>
     </Box>

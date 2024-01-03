@@ -27,6 +27,7 @@ import CreateStepTemplateModal from "./CreateStepTemplateModal";
 import DeleteStepModal from "./DeleteStepModal";
 import ContextMenu from "./ContextMenu";
 import { Button } from "@mui/material";
+import { useExtnStore } from "../../../../zustand/store";
 
 const nodeTypes = {
   decision: DecisionNode,
@@ -40,12 +41,8 @@ const edgeTypes = {
   smart: SmartStepEdge,
 };
 
-export default function ProcessFlow({
-  editable,
-  handleChange,
-  element,
-  state,
-}) {
+export default function ProcessFlow({ editable, element }) {
+  const { templateState, setTemplateState } = useExtnStore((state) => state);
   const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
   const [openDeleteStepModal, setOpenDeleteStepModal] = React.useState(false);
   const [openCreateStepTemplateModal, setOpenCreateStepTemplateModal] =
@@ -114,32 +111,6 @@ export default function ProcessFlow({
       ? JSON.parse(element?.dataset?.edges)
       : [];
 
-    // initialNodes.push({
-    //   id: "A", // TODO: change this id to a unique
-    //   data: {
-    //     label: "SOP Name",
-    //   },
-    //   type: "group",
-    //   position: { x: 0, y: 0 },
-    //   style: {
-    //     height: "100%",
-    //     width: "100%",
-    //   },
-    //   draggable: true,
-    // });
-
-    // if (nodesData?.find((item) => item?.id === "A")) {
-    //   // const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-    //   //   nodes,
-    //   //   edges,
-    //   // );
-
-    //   //setNodes([...layoutedNodes]);
-    //   //setEdges([...layoutedEdges]);
-    //   initialNodes = [...nodesData];
-    // } else {
-    //   initialNodes = [...initialNodes, ...nodesData];
-    // }
     initialNodes = [...nodesData];
 
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
@@ -147,15 +118,20 @@ export default function ProcessFlow({
       initialEdges
     );
 
-    console.log("init nodes", layoutedNodes, layoutedEdges);
-    handleChange("processFlow", { nodes: layoutedNodes, edges: layoutedEdges });
+    setTemplateState("processFlow", {
+      nodes: layoutedNodes,
+      edges: layoutedEdges,
+    });
   }, []);
 
   const ref = useRef(null);
 
   useEffect(() => {
-    if (state?.processFlow && state?.processFlow?.nodes?.length > 0) {
-      const objectWithLargestY = state["processFlow"]?.nodes.reduce(
+    if (
+      templateState?.processFlow &&
+      templateState?.processFlow?.nodes?.length > 0
+    ) {
+      const objectWithLargestY = templateState["processFlow"]?.nodes.reduce(
         (prev, current) => {
           return current.position.y > prev.position.y ? current : prev;
         }
@@ -168,7 +144,7 @@ export default function ProcessFlow({
 
       setViewportSize(newViewportSize);
     }
-  }, [state]);
+  }, [templateState]);
 
   function onNodeClick() {
     setMenu(null);
@@ -230,38 +206,32 @@ export default function ProcessFlow({
         setOpen={setOpenCreateStepModal}
         open={openCreateStepModal}
         currentNode={currentNode}
-        state={state}
-        handleChange={handleChange}
-        nodes={(state && state["processFlow"]?.nodes) || []}
+        nodes={(templateState && templateState["processFlow"]?.nodes) || []}
       ></CreateStepModal>
       <DeleteStepModal
         setOpen={setOpenDeleteStepModal}
         open={openDeleteStepModal}
         currentNode={currentNode}
-        state={{}}
-        handleChange={handleChange}
       ></DeleteStepModal>
 
       <CreateStepTemplateModal
         setOpen={setOpenCreateStepTemplateModal}
         open={openCreateStepTemplateModal}
         currentNode={currentNode}
-        state={state}
-        handleChange={handleChange}
       ></CreateStepTemplateModal>
-      {state && state["processFlow"]?.nodes?.length > 0 ? (
+      {templateState && templateState["processFlow"]?.nodes?.length > 0 ? (
         <ReactFlow
           ref={ref}
           // nodes={state["processFlow"]?.nodes || []}
           nodes={
-            state?.processFlow?.nodes
+            templateState?.processFlow?.nodes
               ? getLayoutedElements(
-                  state?.processFlow?.nodes,
-                  state?.processFlow?.edges
+                  templateState?.processFlow?.nodes,
+                  templateState?.processFlow?.edges
                 ).nodes
               : []
           }
-          edges={state?.processFlow?.edges || []}
+          edges={templateState?.processFlow?.edges || []}
           // edges={state["processFlow"]?.edges || []}
           // onNodesChange={onNodesChange}
           // onEdgesChange={onEdgesChange}

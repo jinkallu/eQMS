@@ -29,8 +29,6 @@ export default function MonacoEditor({
   branchName,
   html,
   setOpenEditModal,
-  state,
-  handleChange,
   productId,
 }: {
   objectId: string;
@@ -39,8 +37,6 @@ export default function MonacoEditor({
   branchName: string;
   html: Document;
   setOpenEditModal: (val: boolean) => void;
-  state: any;
-  handleChange: any;
   productId?: string;
 }) {
   // const [markedData, setMarkedData] = React.useState<string>();
@@ -48,7 +44,9 @@ export default function MonacoEditor({
 
   const [editorView, setEditorView] = React.useState("form");
 
-  const { getEditBranch, repository } = useExtnStore((state) => state);
+  const { getEditBranch, repository, templateState } = useExtnStore(
+    (state) => state
+  );
   const project = useExtnStore((state) => state.project);
 
   // async function getData() {
@@ -84,15 +82,15 @@ export default function MonacoEditor({
   // }, [objectId, type, branchName, relativePath, repository, project]);
 
   useEffect(() => {
-    if (!html || !state) {
+    if (!html || !templateState) {
       return;
     }
 
-    Object.keys(state)?.map((key) => {
+    Object.keys(templateState)?.map((key) => {
       const ele = html.getElementById(key);
-      if (ele) ele.setAttribute("value", state[key]);
+      if (ele) ele.setAttribute("value", templateState[key]);
     });
-  }, [state, html]);
+  }, [templateState, html]);
 
   return (
     <Box
@@ -150,8 +148,6 @@ export default function MonacoEditor({
                   open={open}
                   setOpen={setOpen}
                   order={editorView === "editor" ? "first" : "middle"}
-                  state={state}
-                  handleChange={handleChange}
                   productId={productId}
                 ></MarkedToCustom>
               </Paper>
@@ -164,8 +160,6 @@ export default function MonacoEditor({
                   open={open}
                   setOpen={setOpen}
                   order="last"
-                  state={state}
-                  handleChange={handleChange}
                   productId={productId}
                 ></MarkedToCustom>
               </Paper>

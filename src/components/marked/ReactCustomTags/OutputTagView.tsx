@@ -2,35 +2,29 @@ import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import useProgramEvaluator from "./useProgramEvaluator";
 import Radios from "./Radios";
+import { useExtnStore } from "../../../zustand/store";
 
-export default function OutputTagView({
-  element,
-  order,
-  state,
-  id,
-  handleChange,
-}) {
+export default function OutputTagView({ element, order, id }) {
+  const { templateState, setTemplateState } = useExtnStore((state) => state);
   //const [options, setOptions] = useState();
   const [dependStates, setDependStates] = useState({});
-  const { dependStateIds, options, evaluate } = useProgramEvaluator(state);
+  const { dependStateIds, options, evaluate } =
+    useProgramEvaluator(templateState);
 
   function handleChangeFun(e) {
-    console.log(e);
-    if (handleChange) {
-      handleChange(id, e.target.value);
-    }
+    setTemplateState(id, e.target.value);
   }
 
-  if(options){
-    if(options.value[0] === null){
-        return;
+  if (options) {
+    if (options.value[0] === null) {
+      return;
     }
     //handleChange(id, options?.value[0]?.textContent.trim());
     //document.getElementById(id).dispatchEvent()
     //state[id] = {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()};
     //state[id]['label'] = options?.label[0]?.textContent.trim();
     //handleChange(id, {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()});
-}
+  }
 
   useEffect(() => {
     switch (order) {
@@ -52,7 +46,7 @@ export default function OutputTagView({
     let trigger = false;
     for (let i = 0; i < dependStateIds.length; i++) {
       const key = dependStateIds[i];
-      const newValue = state[key];
+      const newValue = templateState[key];
       const oldValue = dependStates[key];
       if (newValue !== oldValue) {
         trigger = true;
@@ -66,7 +60,7 @@ export default function OutputTagView({
       let programAttribute = element.getAttribute("program");
       evaluate(programAttribute);
     }
-  }, [state]);
+  }, [templateState]);
 
   useEffect(() => {
     if (!dependStateIds) {
@@ -82,14 +76,14 @@ export default function OutputTagView({
   }, [dependStateIds]);
 
   function parseStyles(styleString) {
-    const stylesArray = styleString.split(';').filter(Boolean);
+    const stylesArray = styleString.split(";").filter(Boolean);
     const stylesObject = {};
-  
-    stylesArray.forEach(style => {
-      const [property, value] = style.split(':').map(s => s.trim());
+
+    stylesArray.forEach((style) => {
+      const [property, value] = style.split(":").map((s) => s.trim());
       stylesObject[property] = value;
     });
-  
+
     return stylesObject;
   }
 
@@ -102,7 +96,7 @@ export default function OutputTagView({
       //component = element.outerHTML;
       component = (
         <input
-          value={state[id].value || val}
+          value={templateState[id].value || val}
           onChange={handleChangeFun}
         ></input>
       );
@@ -116,30 +110,32 @@ export default function OutputTagView({
       }
       console.log(options);
       let style = null;
-      if(options?.value?.length > 0){
-        style = options?.value?.[0].getAttribute('style');
+      if (options?.value?.length > 0) {
+        style = options?.value?.[0].getAttribute("style");
       }
 
       component = (
         <>
-        {options && options.value?.length>0 &&
-        <output id={id} style={style? parseStyles(style): null} data-type="output" onChange={handleChangeFun}>{options?.value[0].textContent.trim()}</output>
-        }
+          {options && options.value?.length > 0 && (
+            <output
+              id={id}
+              style={style ? parseStyles(style) : null}
+              data-type="output"
+              onChange={handleChangeFun}
+            >
+              {options?.value[0].textContent.trim()}
+            </output>
+          )}
         </>
       );
 
-      if(options){
-        if(options.value){
-          if(options.value.length > 0){
+      if (options) {
+        if (options.value) {
+          if (options.value.length > 0) {
             //handleChange(id, options?.value[0].textContent.trim());
-
           }
-
         }
       }
-
-      
-
 
       // component = (
       //   <>
@@ -160,9 +156,9 @@ export default function OutputTagView({
       // );
       break;
     case "last":
-      if (state) {
-        if (state[id]) {
-          component = <span>{state[id].label}</span>;
+      if (templateState) {
+        if (templateState[id]) {
+          component = <span>{templateState[id].label}</span>;
         }
         // else {
         //   component = <span>{val}</span>;

@@ -2,23 +2,17 @@ import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import useMatrixProgramEvaluator from "./useMatrixProgramEvaluator";
 import MatrixTable from "./MatrixTable";
+import { useExtnStore } from "../../../../zustand/store";
 
-export default function MatrixTagView({
-  element,
-  order,
-  state,
-  id,
-  handleChange,
-}) {
-
+export default function MatrixTagView({ element, order, id }) {
   //const [options, setOptions] = useState();
   const [dependStates, setDependStates] = useState({});
-  const { dependStateIds, matrixData, evaluate } = useMatrixProgramEvaluator(state);
+  const { templateState, setTemplateState } = useExtnStore((state) => state);
+  const { dependStateIds, matrixData, evaluate } =
+    useMatrixProgramEvaluator(templateState);
 
   function handleChangeFun(e) {
-    if (handleChange) {
-      handleChange(id, e.target.value);
-    }
+    setTemplateState(id, e.target.value);
   }
 
   useEffect(() => {
@@ -26,40 +20,37 @@ export default function MatrixTagView({
       case "middle":
       case "last":
         try {
-          let programAttribute = element.getAttribute('program');
+          let programAttribute = element.getAttribute("program");
           evaluate(programAttribute);
-        }
-        catch (error) {
+        } catch (error) {
           console.log(error);
         }
         break;
     }
-  }, [])
+  }, []);
 
-  // The following code must be executed dynamically, 
+  // The following code must be executed dynamically,
   // especially to identify the independant elements.
 
   useEffect(() => {
     let trigger = false;
     for (let i = 0; i < dependStateIds.length; i++) {
       const key = dependStateIds[i];
-      const newValue = state[key]; 
+      const newValue = templateState[key];
       const oldValue = dependStates[key];
-      if( newValue !== oldValue){
+      if (newValue !== oldValue) {
         trigger = true;
-        setDependStates(prevState => ({
-          ...prevState, 
-          [key]: newValue, 
+        setDependStates((prevState) => ({
+          ...prevState,
+          [key]: newValue,
         }));
       }
-      
     }
-    if(trigger){
-      let programAttribute = element.getAttribute('program');
+    if (trigger) {
+      let programAttribute = element.getAttribute("program");
       evaluate(programAttribute);
     }
-    
-  }, [state])
+  }, [templateState]);
 
   useEffect(() => {
     if (!dependStateIds) {
@@ -72,10 +63,9 @@ export default function MatrixTagView({
     }
     console.log(dependStateIds);
     setDependStates(newDpdStates);
-  }, [dependStateIds])
+  }, [dependStateIds]);
 
   //const options = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
-
 
   let component;
   const val = element.getAttribute("value");
@@ -83,7 +73,10 @@ export default function MatrixTagView({
     case "first":
       //component = element.outerHTML;
       component = (
-        <input value={state[id] || val} onChange={handleChangeFun}></input>
+        <input
+          value={templateState[id] || val}
+          onChange={handleChangeFun}
+        ></input>
       );
 
       break;
@@ -91,15 +84,29 @@ export default function MatrixTagView({
       //let options = {};
       //let fieldNames = null;
       //if (matrixData.rowdata) {
-        //fieldNames = Object.keys(matrixData.rowdata);
+      //fieldNames = Object.keys(matrixData.rowdata);
       //}
       console.log(matrixData.value);
-      component = <MatrixTable state = {state} id={id} handleChange={handleChange} rowdata={matrixData.rowdata} coldata={matrixData.coldata} value={matrixData.value}/>
-      
+      component = (
+        <MatrixTable
+          id={id}
+          rowdata={matrixData.rowdata}
+          coldata={matrixData.coldata}
+          value={matrixData.value}
+        />
+      );
+
       break;
     case "last":
       console.log(matrixData.value);
-      component = <MatrixTable state = {state} id={id} handleChange={handleChange} rowdata={matrixData.rowdata} coldata={matrixData.coldata} value={matrixData.value}/>
+      component = (
+        <MatrixTable
+          id={id}
+          rowdata={matrixData.rowdata}
+          coldata={matrixData.coldata}
+          value={matrixData.value}
+        />
+      );
 
       break;
     default:

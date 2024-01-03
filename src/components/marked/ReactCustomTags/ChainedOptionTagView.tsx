@@ -2,23 +2,18 @@ import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import useProgramEvaluator from "./useProgramEvaluator";
 import Radios from "./Radios";
-import { use } from "cytoscape";
+import { useExtnStore } from "../../../zustand/store";
+import TemplatesNode from "./ProcessFlowView/TemplatesNode";
 
-export default function ChainedOptionTagView({
-  element,
-  order,
-  state,
-  id,
-  handleChange,
-}) {
+export default function ChainedOptionTagView({ element, order, id }) {
   //const [options, setOptions] = useState();
   const [dependStates, setDependStates] = useState({});
-  const { dependStateIds, options, evaluate } = useProgramEvaluator(state);
+  const { templateState, setTemplateState } = useExtnStore((store) => store);
+  const { dependStateIds, options, evaluate } =
+    useProgramEvaluator(templateState);
 
   function handleChangeFun(e) {
-    if (handleChange) {
-      handleChange(id, e.target.value);
-    }
+    setTemplateState(id, e.target.value);
   }
 
   useEffect(() => {
@@ -46,31 +41,32 @@ export default function ChainedOptionTagView({
       if (options.value[0] === null) {
         return;
       }
-      try{
-        handleChange(id, { value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim() });
+      try {
+        setTemplateState(id, {
+          value: options?.value[0]?.textContent.trim(),
+          label: options?.label[0]?.textContent.trim(),
+        });
+      } catch {
+        setTemplateState(id, { value: options?.value, label: options?.label });
       }
-      catch{
-        handleChange(id, { value: options?.value, label: options?.label});
-      }
-      console.log(options)
+      console.log(options);
       //document.getElementById(id).dispatchEvent()
       //state[id] = {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()};
       //state[id]['label'] = options?.label[0]?.textContent.trim();
     }
-  }, [options])
+  }, [options]);
 
   // The following code must be executed dynamically,
   // especially to identify the independant elements.
 
   useEffect(() => {
-    if (!state) {
+    if (!templateState) {
       return;
     }
-    console.log(state)
     let trigger = false;
     for (let i = 0; i < dependStateIds.length; i++) {
       const key = dependStateIds[i];
-      const newValue = state[key];
+      const newValue = templateState[key];
       const oldValue = dependStates[key];
       if (newValue !== oldValue) {
         trigger = true;
@@ -84,7 +80,7 @@ export default function ChainedOptionTagView({
       let programAttribute = element.getAttribute("program");
       evaluate(programAttribute);
     }
-  }, [state]);
+  }, [templateState]);
 
   useEffect(() => {
     if (!dependStateIds) {
@@ -108,7 +104,7 @@ export default function ChainedOptionTagView({
       //component = element.outerHTML;
       component = (
         <input
-          value={state[id].value || val}
+          value={templateState[id].value || val}
           onChange={handleChangeFun}
         ></input>
       );
@@ -121,14 +117,7 @@ export default function ChainedOptionTagView({
         fieldNames = Object.keys(options);
       }
       console.log(options);
-      component = (
-        <Radios
-          state={state}
-          id={id}
-          handleChange={handleChange}
-          options={options}
-        />
-      );
+      component = <Radios id={id} options={options} />;
 
       // component = (
       //   <>
@@ -149,9 +138,9 @@ export default function ChainedOptionTagView({
       // );
       break;
     case "last":
-      if (state) {
-        if (state[id]) {
-          component = <span>{state[id].label}</span>;
+      if (templateState) {
+        if (templateState[id]) {
+          component = <span>{templateState[id].label}</span>;
         }
         // else {
         //   component = <span>{val}</span>;

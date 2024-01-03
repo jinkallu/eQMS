@@ -30,8 +30,6 @@ export default function CreateLinkRecordModal({
   id,
   open,
   setOpen,
-  state,
-  handleChange,
   types,
   productId,
   records,
@@ -39,15 +37,19 @@ export default function CreateLinkRecordModal({
   id: string;
   open: boolean;
   setOpen: (val: boolean) => void;
-  state: any;
-  handleChange: any;
   types: any;
   records: any;
   productId?: string;
 }) {
   console.log(records);
-  const { userSOPs, setAlertMessage, repository, refreshProductRecords } =
-    useExtnStore((state) => state);
+  const {
+    userSOPs,
+    setAlertMessage,
+    repository,
+    refreshProductRecords,
+    templateState,
+    setTemplateState,
+  } = useExtnStore((state) => state);
   const [selectedSOP, setSelectedSOP] = useState(
     (types && types[0]?.sopId) || null
   );
@@ -61,7 +63,7 @@ export default function CreateLinkRecordModal({
   }, [records]);
 
   async function handleCreate() {
-    handleChange(id, selectedRecords);
+    setTemplateState(id, selectedRecords);
     setOpen(false);
   }
 

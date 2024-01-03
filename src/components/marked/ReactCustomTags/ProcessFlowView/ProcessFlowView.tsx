@@ -4,17 +4,9 @@ import Box from "@mui/material/Box";
 import ProcessFlow from "./ProcessFlow";
 import CScape from "../../customtags/cytoscapetags/cscape";
 import { Button } from "@mui/material";
-
 //import GraphAnalysis from "../../customtags/cytoscapetags/GraphAnalysis"; // TODO: for future graph analysis
 
-export default function ProcessFlowView({
-  order,
-  state,
-  id,
-  handleChange,
-  element,
-}) {
-  console.log("order", order);
+export default function ProcessFlowView({ order, id, element }) {
   return (
     <Box
       sx={{
@@ -23,27 +15,17 @@ export default function ProcessFlowView({
         display: "flex",
       }}
     >
-      {order === "middle" && handleChange && state && (
+      {order === "middle" && (
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <ProcessFlow
-              state={state}
-              handleChange={handleChange}
-              editable={true}
-              element={element}
-            />
+            <ProcessFlow editable={true} element={element} />
           </Grid>
         </Grid>
       )}
-      {order === "last" && handleChange && state && element && (
+      {order === "last" && (
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <ProcessFlow
-              state={state}
-              element={element}
-              editable={false}
-              handleChange={handleChange}
-            />
+            <ProcessFlow element={element} editable={false} />
           </Grid>
         </Grid>
       )}

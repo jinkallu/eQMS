@@ -259,8 +259,6 @@ export default function CreateRecordModal({
                 setOpen={null}
                 productId={productId}
                 order="middle"
-                state={state}
-                handleChange={handleChange}
               ></MarkedToCustom>
 
               {/* <RecordView md={md} /> */}

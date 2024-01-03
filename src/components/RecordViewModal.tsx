@@ -79,8 +79,6 @@ export default function RecordViewModal({
             open={null}
             setOpen={null}
             order="last"
-            state={null}
-            handleChange={() => {}}
             productId={productId}
           ></MarkedToCustom>
           <Box>

@@ -44,19 +44,21 @@ export default function CreateStepModal({
   open,
   setOpen,
   currentNode,
-  state,
-  handleChange,
   nodes,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
   currentNode: any;
-  state: any;
-  handleChange: any;
   nodes;
 }) {
-  const { userSOPs, setAlertMessage, getFileContent, repository } =
-    useExtnStore((state) => state);
+  const {
+    userSOPs,
+    setAlertMessage,
+    getFileContent,
+    repository,
+    templateState,
+    setTemplateState,
+  } = useExtnStore((state) => state);
   const [stepName, setStepName] = React.useState("");
   const [stepType, setStepType] = React.useState("step");
   const [isProductLevel, setIsProductLevel] = React.useState(false);
@@ -166,15 +168,17 @@ export default function CreateStepModal({
 
     // setNodes((nodes) => {
     let nodesNew = [];
-    const newPositionedNodes = state["processFlow"]?.nodes?.map((node) => {
-      if (node?.position?.y > currentNode.node.position.y) {
-        return {
-          ...node,
-          position: { ...node.position, y: node.position.y + 200 },
-        };
+    const newPositionedNodes = templateState["processFlow"]?.nodes?.map(
+      (node) => {
+        if (node?.position?.y > currentNode.node.position.y) {
+          return {
+            ...node,
+            position: { ...node.position, y: node.position.y + 200 },
+          };
+        }
+        return node;
       }
-      return node;
-    });
+    );
 
     if (stepType === "multidec") {
       const newNodes = conditions
@@ -209,7 +213,7 @@ export default function CreateStepModal({
       nodesNew = [...newPositionedNodes, newNode];
     }
     // });
-    let edgesNew = state["processFlow"]?.edges || [];
+    let edgesNew = templateState["processFlow"]?.edges || [];
     const newEdge = currentNode
       ? {
           id: currentNode.node.id + "_" + newNode.id,
@@ -262,7 +266,7 @@ export default function CreateStepModal({
     // }
 
     // });
-    handleChange("processFlow", { nodes: nodesNew, edges: edgesNew });
+    setTemplateState("processFlow", { nodes: nodesNew, edges: edgesNew });
   };
 
   function handleStepTypeChange(e) {

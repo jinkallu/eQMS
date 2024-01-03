@@ -3,24 +3,17 @@ import Box from "@mui/material/Box";
 import useLinkRecordEvaluator from "./useLinkRecordEvaluator";
 import Radios from "../Radios";
 import CreateLinkRecordModal from "../ProcessFlowView/createLinkRecordModal";
+import { useExtnStore } from "../../../../zustand/store";
 
-export default function LinkRecordTagView({
-  element,
-  order,
-  state,
-  id,
-  handleChange,
-  productId,
-}) {
+export default function LinkRecordTagView({ element, order, id, productId }) {
+  const { templateState, setTemplateState } = useExtnStore((state) => state);
   //const [options, setOptions] = useState();
   const [open, setOpen] = useState(false);
   // const [dependStates, setDependStates] = useState({});
   // const { dependStateIds, types, evaluate } = useLinkRecordEvaluator(state);
 
   function handleChangeFun(e) {
-    if (handleChange) {
-      handleChange(id, e.target.value);
-    }
+    setTemplateState(id, e.target.value);
   }
 
   // useEffect(() => {
@@ -91,7 +84,10 @@ export default function LinkRecordTagView({
     case "first":
       //component = element.outerHTML;
       component = (
-        <input value={state[id] || val} onChange={handleChangeFun}></input>
+        <input
+          value={templateState[id] || val}
+          onChange={handleChangeFun}
+        ></input>
       );
 
       break;
@@ -165,10 +161,8 @@ export default function LinkRecordTagView({
     <Box>
       <CreateLinkRecordModal
         id={id}
-        state={state}
         types={types}
         records={records}
-        handleChange={handleChange}
         open={open}
         setOpen={setOpen}
         // productId={"627e8956-c130-4921-be19-364abe5d5bba"}

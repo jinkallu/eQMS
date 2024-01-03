@@ -1,17 +1,11 @@
 import Grid from "@mui/material/Grid";
 import { useEffect } from "react";
-export default function InputTagViewer({
-  element,
-  order,
-  state,
-  id,
-  handleChange,
-  val,
-}) {
+import { useExtnStore } from "../../../zustand/store";
+
+export default function InputTagViewer({ element, order, id, val }) {
+  const { templateState, setTemplateState } = useExtnStore((state) => state);
   function handleChangeFun(e) {
-    if (handleChange) {
-      handleChange(id, e.target.value);
-    }
+    setTemplateState(id, e.target.value);
   }
   // useEffect(() => {
   //   const val = element.getAttribute("value");
@@ -29,23 +23,26 @@ export default function InputTagViewer({
       //component = element.outerHTML;
 
       component = (
-        <input value={state[id] || val} onChange={handleChangeFun}></input>
+        <input
+          value={templateState[id] || val}
+          onChange={handleChangeFun}
+        ></input>
       );
 
       break;
     case "middle":
       component = (
         <input
-          value={(state && state[id]) || val}
+          value={(templateState && templateState[id]) || val}
           id={element.id}
           onChange={handleChangeFun}
         ></input>
       );
       break;
     case "last":
-      if (state) {
-        if (state[id]) {
-          component = <span>{state[id]}</span>;
+      if (templateState) {
+        if (templateState[id]) {
+          component = <span>{templateState[id]}</span>;
         } else {
           component = <span>{val}</span>;
         }
@@ -53,7 +50,7 @@ export default function InputTagViewer({
         component = <span>{val}</span>;
       }
 
-      //component = <input value={state[id]} onChange={handleChangeFun}></input>;
+      //component = <input value={templateState[id]} onChange={handleChangeFun}></input>;
 
       break;
     default:

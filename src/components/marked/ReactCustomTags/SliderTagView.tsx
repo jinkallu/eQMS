@@ -1,98 +1,91 @@
 import { useEffect, useState } from "react";
-import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Slider from '@mui/material/Slider';
+import { styled } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Slider from "@mui/material/Slider";
 import useProgramEvaluator from "./useProgramEvaluator";
+import { useExtnStore } from "../../../zustand/store";
 
-export default function SliderTagView({
-    element,
-    order,
-    state,
-    id,
-    handleChange,
-}) {
+export default function SliderTagView({ element, order, id }) {
+  const { templateState, setTemplateState } = useExtnStore((state) => state);
 
-    const [dependStates, setDependStates] = useState({});
-    const { dependStateIds, options, evaluate } = useProgramEvaluator(state);
+  const [dependStates, setDependStates] = useState({});
+  const { dependStateIds, options, evaluate } =
+    useProgramEvaluator(templateState);
 
-    function handleChangeFun(e) {
-        console.log(e.target)
-        if (handleChange) {
-            const scale = element.getAttribute('scale');
-            if(scale){
-                switch(scale){
-                    case "log":
-                        handleChange(id, Math.pow(10, e.target.value));
-                        break;
-                    default:
-                        handleChange(id, e.target.value);
-                } 
-            }
-            else{
-                handleChange(id, e.target.value);
-            }
+  function handleChangeFun(e) {
+    console.log(e.target);
+    if (setTemplateState) {
+      const scale = element.getAttribute("scale");
+      if (scale) {
+        switch (scale) {
+          case "log":
+            setTemplateState(id, Math.pow(10, e.target.value));
+            break;
+          default:
+            setTemplateState(id, e.target.value);
         }
+      } else {
+        setTemplateState(id, e.target.value);
+      }
+    }
+  }
+
+  useEffect(() => {
+    switch (order) {
+      case "middle":
+        try {
+          let programAttribute = element.getAttribute("program");
+          evaluate(programAttribute);
+        } catch (error) {
+          console.log(error);
+        }
+        break;
+    }
+  }, []);
+
+  // The following code must be executed dynamically,
+  // especially to identify the independant elements.
+
+  useEffect(() => {
+    let trigger = false;
+    for (let i = 0; i < dependStateIds.length; i++) {
+      const key = dependStateIds[i];
+      const newValue = templateState[key];
+      const oldValue = dependStates[key];
+      if (newValue !== oldValue) {
+        trigger = true;
+        setDependStates((prevState) => ({
+          ...prevState,
+          [key]: newValue,
+        }));
+      }
+    }
+    if (trigger) {
+      let programAttribute = element.getAttribute("program");
+      evaluate(programAttribute);
+    }
+  }, [templateState]);
+
+  useEffect(() => {
+    if (!dependStateIds) {
+      return;
     }
 
-    useEffect(() => {
-        switch (order) {
-            case "middle":
-                try {
-                    let programAttribute = element.getAttribute('program');
-                    evaluate(programAttribute);
-                }
-                catch (error) {
-                    console.log(error);
-                }
-                break;
-        }
-    }, [])
+    const newDpdStates = {};
+    for (let i = 0; i < dependStateIds.length; i++) {
+      newDpdStates[dependStateIds[i]] = null;
+    }
+    console.log(dependStateIds);
+    setDependStates(newDpdStates);
+  }, [dependStateIds]);
 
-    // The following code must be executed dynamically, 
-    // especially to identify the independant elements.
-
-    useEffect(() => {
-        let trigger = false;
-        for (let i = 0; i < dependStateIds.length; i++) {
-            const key = dependStateIds[i];
-            const newValue = state[key];
-            const oldValue = dependStates[key];
-            if (newValue !== oldValue) {
-                trigger = true;
-                setDependStates(prevState => ({
-                    ...prevState,
-                    [key]: newValue,
-                }));
-            }
-
-        }
-        if (trigger) {
-            let programAttribute = element.getAttribute('program');
-            evaluate(programAttribute);
-        }
-
-    }, [state])
-
-    useEffect(() => {
-        if (!dependStateIds) {
-            return;
-        }
-
-        const newDpdStates = {};
-        for (let i = 0; i < dependStateIds.length; i++) {
-            newDpdStates[dependStateIds[i]] = null;
-        }
-        console.log(dependStateIds);
-        setDependStates(newDpdStates);
-    }, [dependStateIds])
-
-    const Separator = styled('div')(
-        ({ theme }) => `
+  const Separator = styled("div")(
+    ({ theme }) => `
     height: ${theme.spacing(3)};
-  `,
-    );
-    /*
+  `
+  );
+  /*
         const marks = [
             {
                 value: 0,
@@ -112,115 +105,137 @@ export default function SliderTagView({
             },
         ];*/
 
-    function valuetext(value: number) {
-        return `${value}°C`;
-    }
+  function valuetext(value: number) {
+    return `${value}°C`;
+  }
 
+  let component;
+  const val = element.getAttribute("value");
+  switch (order) {
+    case "first":
+      component = (
+        <input
+          value={templateState[id] || val}
+          onChange={handleChangeFun}
+        ></input>
+      );
 
+      break;
+    case "middle":
+      const marks = [];
+      let min;
+      let max;
+      let step;
 
-    let component;
-    const val = element.getAttribute("value");
-    switch (order) {
-        case "first":
-            component = (
-                <input value={state[id] || val} onChange={handleChangeFun}></input>
-            );
-
-            break;
-        case "middle":
-            const marks = [];
-            let min;
-            let max;
-            let step;
-
-
-            if (options) {
-                let range = null;
-                if (options.range) {
-                    range = true;
-                }
-                const scale = element.getAttribute('scale');
-                for (let i = 0; i < options.value?.length; i++) {
-                    if (!range) {
-                        switch (scale) {
-                            case "log":
-                                marks.push({ value: Math.log10(options.value[i].textContent.trim()), label: options.label?.[i].textContent.trim() });
-                                break;
-                            default:
-                                marks.push({ value: parseFloat(options.value[i].textContent.trim()), label: options.label?.[i].textContent.trim() });
-                        }
-                    }
-                    else{ // range with upper value
-                        switch (scale) {
-                            case "log":
-                                const lower_range = Math.log10(options.value[i].textContent.trim());
-                                const upper_range = Math.log10(options.range[i].textContent.trim());
-                                const middle_range = lower_range + (upper_range - lower_range) / 2.0;
-                                marks.push({ value: lower_range, label: "" });
-                                marks.push({ value: middle_range, label: options.label?.[i].textContent.trim() });
-                                marks.push({ value: upper_range, label: "" });
-                                break;
-                            default:
-                                marks.push({ value: options.value[i].textContent.trim(), label: options.label?.[i].textContent.trim() });
-                        }
-                    }
-                }
-                
-
-                min = marks.reduce((min, mark) => (mark.value < min ? mark.value : min), marks[0].value);
-
-                max = marks.reduce((max, mark) => (mark.value > max ? mark.value : max), marks[0].value);
-
-                step = Math.abs(max - min) / (marks.length * 10); // needs to be adjusted
-
-                console.log(marks, min, max, step);
-
-                //handleChange(id, min);
-                //state[id] = min;
-
+      if (options) {
+        let range = null;
+        if (options.range) {
+          range = true;
+        }
+        const scale = element.getAttribute("scale");
+        for (let i = 0; i < options.value?.length; i++) {
+          if (!range) {
+            switch (scale) {
+              case "log":
+                marks.push({
+                  value: Math.log10(options.value[i].textContent.trim()),
+                  label: options.label?.[i].textContent.trim(),
+                });
+                break;
+              default:
+                marks.push({
+                  value: parseFloat(options.value[i].textContent.trim()),
+                  label: options.label?.[i].textContent.trim(),
+                });
             }
-            component = (
-                <>
-                    {options && <Box sx={{ width: 400 }}>
-                        <Slider
-                            id={element.id}
-                            track={false}
-                            aria-labelledby="track-false-slider"
-                            getAriaValueText={valuetext}
-                            defaultValue={min}
-                            //value={state[id]}
-                            marks={marks}
-                            max={max}
-                            min={min}
-                            step={null}
-                            onChange={handleChangeFun}
-                        />
-                    </Box>}
-                </>
-            );
-            break;
-        case "last":
-            //console.log(state[id]);
-
-            if (state) {
-                if (state[id]) {
-                    component = <span>{state[id]}</span>
-                    
-                }
-                //else {
-                //    component = <span>{val}</span>;
-                //}
+          } else {
+            // range with upper value
+            switch (scale) {
+              case "log":
+                const lower_range = Math.log10(
+                  options.value[i].textContent.trim()
+                );
+                const upper_range = Math.log10(
+                  options.range[i].textContent.trim()
+                );
+                const middle_range =
+                  lower_range + (upper_range - lower_range) / 2.0;
+                marks.push({ value: lower_range, label: "" });
+                marks.push({
+                  value: middle_range,
+                  label: options.label?.[i].textContent.trim(),
+                });
+                marks.push({ value: upper_range, label: "" });
+                break;
+              default:
+                marks.push({
+                  value: options.value[i].textContent.trim(),
+                  label: options.label?.[i].textContent.trim(),
+                });
             }
-            /*else {
+          }
+        }
+
+        min = marks.reduce(
+          (min, mark) => (mark.value < min ? mark.value : min),
+          marks[0].value
+        );
+
+        max = marks.reduce(
+          (max, mark) => (mark.value > max ? mark.value : max),
+          marks[0].value
+        );
+
+        step = Math.abs(max - min) / (marks.length * 10); // needs to be adjusted
+
+        console.log(marks, min, max, step);
+
+        //handleChange(id, min);
+        //state[id] = min;
+      }
+      component = (
+        <>
+          {options && (
+            <Box sx={{ width: 400 }}>
+              <Slider
+                id={element.id}
+                track={false}
+                aria-labelledby="track-false-slider"
+                getAriaValueText={valuetext}
+                defaultValue={min}
+                //value={state[id]}
+                marks={marks}
+                max={max}
+                min={min}
+                step={null}
+                onChange={handleChangeFun}
+              />
+            </Box>
+          )}
+        </>
+      );
+      break;
+    case "last":
+      //console.log(state[id]);
+
+      if (templateState) {
+        if (templateState[id]) {
+          component = <span>{templateState[id]}</span>;
+        }
+        //else {
+        //    component = <span>{val}</span>;
+        //}
+      }
+      /*else {
                 component = <span>{val}</span>;
             }*/
 
-            //component = <input value={state[id]} onChange={handleChangeFun}></input>;
+      //component = <input value={state[id]} onChange={handleChangeFun}></input>;
 
-            break;
-        default:
-            component = <span>"Error";</span>;
-            break;
-    }
-    return component;
+      break;
+    default:
+      component = <span>"Error";</span>;
+      break;
+  }
+  return component;
 }

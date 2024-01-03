@@ -7,8 +7,6 @@ export default function MarkedToCustom({
   open,
   setOpen,
   order,
-  state,
-  handleChange,
   productId,
 }) {
   function handleCancel() {
@@ -16,13 +14,7 @@ export default function MarkedToCustom({
   }
 
   return (
-    <Viewers
-      state={state}
-      handleChange={handleChange}
-      element={element}
-      order={order}
-      productId={productId}
-    >
+    <Viewers element={element} order={order} productId={productId}>
       {element?.childNodes?.length > 0 &&
         Array.from(element.childNodes).map((child, index) => (
           <MarkedToCustom
@@ -31,9 +23,7 @@ export default function MarkedToCustom({
             open={open}
             setOpen={setOpen}
             order={order}
-            state={state}
             productId={productId}
-            handleChange={handleChange}
           ></MarkedToCustom>
         ))}
     </Viewers>

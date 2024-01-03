@@ -50,6 +50,11 @@ export const userSlice = (set) => ({
 export const projectSlice = (set) => ({
   project: {},
   setProject: (project) => set((state) => ({ project })),
+  templateState: {},
+  setTemplateState: (id, value) =>
+    set((state) => ({
+      templateState: { ...state.templateState, [id]: value },
+    })),
 });
 
 export const repositorySlice = (set, get) => ({

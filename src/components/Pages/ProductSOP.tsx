@@ -21,8 +21,6 @@ export default function ProductSOP({ process, prodBranchId }) {
   const [refreshReqd, setRefreshReqd] = useState(false);
   const [currentTemplateId, setCurrentTemplateId] = useState("");
 
-  console.log(process);
-
   const [stepSelector, setStepSelector] = useState([]);
 
   const [parentId, setParentId] = useState("0");

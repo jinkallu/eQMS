@@ -1,15 +1,9 @@
 import Grid from "@mui/material/Grid";
-export default function TextInputTagView({
-  element,
-  order,
-  state,
-  id,
-  handleChange,
-}) {
+import { useExtnStore } from "../../../zustand/store";
+export default function TextInputTagView({ element, order, id }) {
+  const { templateState, setTemplateState } = useExtnStore((store) => store);
   function handleChangeFun(e) {
-    if (handleChange) {
-      handleChange(id, e.target.value);
-    }
+    setTemplateState(id, e.target.value);
   }
   let component;
   const val = element.getAttribute("value");
@@ -18,7 +12,7 @@ export default function TextInputTagView({
       //component = element.outerHTML;
       component = (
         <input
-          value={(state && state[id]) || val}
+          value={(templateState && templateState[id]) || val}
           onChange={handleChangeFun}
         ></input>
       );
@@ -29,7 +23,7 @@ export default function TextInputTagView({
       const cols = element.getAttribute("cols");
       component = (
         <textarea
-          value={(state && state[id]) || val}
+          value={(templateState && templateState[id]) || val}
           id={element.id}
           cols={cols}
           rows={rows}
@@ -38,9 +32,9 @@ export default function TextInputTagView({
       );
       break;
     case "last":
-      if (state) {
-        if (state[id]) {
-          component = <span>{state[id]}</span>;
+      if (templateState) {
+        if (templateState[id]) {
+          component = <span>{templateState[id]}</span>;
         } else {
           component = <span>{val}</span>;
         }
@@ -48,7 +42,7 @@ export default function TextInputTagView({
         component = <span>{val}</span>;
       }
 
-      //component = <input value={state[id]} onChange={handleChangeFun}></input>;
+      //component = <input value={templateState[id]} onChange={handleChangeFun}></input>;
 
       break;
     default:

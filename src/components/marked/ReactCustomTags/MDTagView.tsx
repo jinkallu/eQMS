@@ -2,25 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import MarkedToCustom from "../MarkedToCustom";
 import Box from "@mui/material/Box";
+import { useExtnStore } from "../../../zustand/store";
 
-export default function MDTagView({
-  element,
-  order,
-  state,
-  id,
-  handleChange,
-  children,
-}) {
+export default function MDTagView({ element, order, id, children }) {
+  const { templateState, setTemplateState } = useExtnStore((state) => state);
   const [markedData, setMarkedData] = React.useState<string>();
-  useEffect(() => {
-    if (id) {
-      if (!state || !state[id]) handleChange(id, "");
-    }
-  }, [id]);
+
   function handleChangeEditor(value, event) {
-    if (handleChange) {
-      handleChange(id, value);
-    }
+    setTemplateState(id, value);
   }
 
   let parentAttribute = element.getAttribute("level");
@@ -60,7 +49,7 @@ export default function MDTagView({
               height="75vh"
               defaultLanguage="html"
               defaultValue={element.innerHTML}
-              value={state[id]}
+              value={templateState[id]}
               onChange={handleChangeEditor}
             />
           </Box>
@@ -102,9 +91,9 @@ export default function MDTagView({
           );
         } else if (parentAttribute === "1") {
           let htmlString;
-          if (state) {
-            if (state[id]) {
-              htmlString = state[id];
+          if (templateState) {
+            if (templateState[id]) {
+              htmlString = templateState[id];
             } else {
               htmlString = element.innerHTML;
             }
@@ -123,12 +112,11 @@ export default function MDTagView({
 
           component = (
             <MarkedToCustom
+              productId={null}
               element={doc.body}
               open={open}
               setOpen={null}
               order={order}
-              state={state}
-              handleChange={handleChange}
             ></MarkedToCustom>
           );
         } else {

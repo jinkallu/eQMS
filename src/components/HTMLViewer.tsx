@@ -28,6 +28,8 @@ export default function HTMLViewer() {
     getFileContent,
     getEditBranch,
     repository,
+    templateState,
+    setTemplateState,
   } = useExtnStore((state) => state);
 
   const project = useExtnStore((state) => state.project);
@@ -42,10 +44,10 @@ export default function HTMLViewer() {
   const [commitMessage, setCommitMessage] = React.useState("");
   const { commit, loading: loadingCommit } = useCommit();
   const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
-  const [state, setState] = React.useState<{ key: string; value: any }>({
-    key: "initialKey",
-    value: "initialValue",
-  });
+  // const [state, setState] = React.useState<{ key: string; value: any }>({
+  //   key: "initialKey",
+  //   value: "initialValue",
+  // });
   const [searchParams] = useSearchParams();
   // const objectId = searchParams.get("objectId");
   const relativePath = searchParams.get("relativePath");
@@ -106,7 +108,8 @@ export default function HTMLViewer() {
     const editBranchName = editBranchNameArr.join("/");
     const newHtml = htmlEdit;
 
-    Object.entries(state)?.map(([key, value]) => {
+    Object.keys(templateState)?.map((key) => {
+      const value = templateState[key];
       const ele = newHtml?.getElementById(key);
       if (ele) {
         if (ele.tagName === "INPUT") {
@@ -129,10 +132,33 @@ export default function HTMLViewer() {
       }
     });
 
+    // Object.entries(templateState)?.map(([key, value]) => {
+    //   const ele = newHtml?.getElementById(key);
+    //   if (ele) {
+    //     if (ele.tagName === "INPUT") {
+    //       ele.setAttribute("value", value);
+    //     } else if (ele.tagName === "MD") {
+    //       // ele.innerHTML = value;
+    //     } else if (ele.tagName === "LINKRECORD") {
+    //       ele.setAttribute("records", JSON.stringify(value));
+    //     }
+    //     // else if (ele.tagName === "PROCESSFLOW") {
+    //     //   const edges = state["processFlow"]?.edges || [];
+    //     //   const nodes = state["processFlow"]?.nodes || [];
+
+    //     //   ele.dataset.nodes = JSON.stringify(nodes);
+    //     //   ele.dataset.edges = JSON.stringify(edges);
+    //     // }
+    //     else {
+    //       ele.setAttribute("value", JSON.stringify(value));
+    //     }
+    //   }
+    // });
+
     // Add node and edges data to html
     const processFlowEls = newHtml?.querySelectorAll("PROCESSFLOW");
-    const edges = state["processFlow"]?.edges || [];
-    const nodes = state["processFlow"]?.nodes || [];
+    const edges = templateState["processFlow"]?.edges || [];
+    const nodes = templateState["processFlow"]?.nodes || [];
 
     Array.from(processFlowEls)?.map((item: HTMLElement) => {
       item.dataset.nodes = JSON.stringify(nodes);
@@ -245,7 +271,7 @@ export default function HTMLViewer() {
     //     return item;
     //   });
     // }
-    setState((values) => ({ ...values, [id]: value }));
+    setTemplateState(id, value);
   };
 
   React.useEffect(() => {
@@ -331,8 +357,6 @@ export default function HTMLViewer() {
             relativePath={relativePath}
             html={htmlEdit}
             setOpenEditModal={setOpen}
-            state={state}
-            handleChange={handleChange}
           ></MonacoEditor>
         )}
         {!editMode && (
@@ -342,8 +366,6 @@ export default function HTMLViewer() {
               open={null}
               setOpen={null}
               order="last"
-              state={state}
-              handleChange={handleChange}
               productId={null}
             ></MarkedToCustom>
           </Box>
