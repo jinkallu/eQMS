@@ -731,11 +731,12 @@ export const refreshDataSlice = (set, get) => ({
         const length = nameArray.length;
         return {
           ...record,
-          title: nameArray[length - 2],
+          title: nameArray[length - 2]?.replace(/_/g, " "),
           templateId: nameArray[length - 5],
           parentId: nameArray[length - 4],
           sopId: nameArray[length - 6],
           productId: nameArray[length - 7],
+          path: "/qms/rec/data.html",
         };
       });
     return productRecords || [];

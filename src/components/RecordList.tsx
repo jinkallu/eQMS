@@ -53,10 +53,23 @@ const RecordEle = ({
   }
 
   React.useEffect(() => {
-    setShowChildrenicon(
-      productRecords?.filter((rec) => rec.parentId === record.branchId)
-        ?.length > 0
+    const productLevelStep = step?.children?.find(
+      (item) => item?.data?.productLevel
     );
+    console.log("productLevelStep", productLevelStep);
+
+    if (productLevelStep) {
+      setShowChildrenicon(
+        productRecords?.filter(
+          (rec) => rec.templateId === productLevelStep?.templateId
+        )?.length > 0
+      );
+    } else {
+      setShowChildrenicon(
+        productRecords?.filter((rec) => rec.parentId === record.branchId)
+          ?.length > 0
+      );
+    }
   }, [record]);
   React.useEffect(() => {
     if (isIncrement) {
@@ -190,7 +203,11 @@ const RecordEle = ({
           (stepChild) =>
             stepChild?.records?.length > 0 &&
             stepChild?.records
-              ?.filter((rec) => rec.parentId === record.branchId)
+              ?.filter((rec) =>
+                stepChild?.data?.productLevel
+                  ? stepChild?.templateId === rec?.templateId
+                  : rec.parentId === record.branchId
+              )
               ?.map((rec) => (
                 <RecordEle
                   key={rec?.branchId}
@@ -235,6 +252,7 @@ export default function RecordList({
 
   async function getRecords(productId) {
     const data = await refreshProductRecords(repository.id, productId);
+    console.log(data);
     setProductRecords(data);
   }
   React.useEffect(() => {
@@ -242,7 +260,9 @@ export default function RecordList({
   }, [productId, refreshReqd]);
 
   React.useEffect(() => {
+    console.log(processFlowTree);
     const stepTreeData = getStepsTreeWithRecords(processFlowTree?.steps);
+    console.log(stepTreeData);
 
     setSetTree(stepTreeData);
   }, [productRecords, processFlowTree]);
@@ -258,14 +278,23 @@ export default function RecordList({
       return;
     }
     setActivelevel((prev) => prev - 1);
+
     setIsIncrement(false);
   }
 
   function getStepsTreeWithRecords(steps) {
     return steps?.map((step, index) => {
-      const records = productRecords?.filter(
-        (product) => product?.templateId === step?.templateId
-      );
+      let records;
+      if (step?.type === "multidec") {
+        records = productRecords?.filter(
+          (product) =>
+            product?.templateId === "1" && product?.title === step?.data?.label
+        );
+      } else {
+        records = productRecords?.filter(
+          (product) => product?.templateId === step?.templateId
+        );
+      }
 
       const canExpand = step?.children?.length > 0;
 

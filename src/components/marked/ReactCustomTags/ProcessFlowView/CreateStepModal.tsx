@@ -146,7 +146,9 @@ export default function CreateStepModal({
         productLevel: isProductLevel,
         type: stepType,
         field: inputEl?.find((item) => item.selected)?.id, // TODO: get it from template field,
-        conditions: conditions?.map((item) => item.value),
+        conditions,
+        refTemplateId: template,
+        inputEl: inputEl?.find((item) => item?.selected),
       };
     }
 

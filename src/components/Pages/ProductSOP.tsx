@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Fab from "@mui/material/Fab";
+import useCreateBranch from "../../CHooks/useCreateBranch";
 import { v4 as uuidv4 } from "uuid";
 import { useExtnStore } from "../../zustand/store";
-import useCreateBranch from "../../CHooks/useCreateBranch";
 import useCommit from "../../CHooks/useCommit";
 import CreateRecordModal from "../CreateRecordModal";
 import AddIcon from "@mui/icons-material/Add";
@@ -159,7 +159,7 @@ export default function ProductSOP({ process, prodBranchId }) {
     //parseProcessFlow(process);
   }
 
-  async function handleCreate(title, content) {
+  async function handleCreate(title, content, parentId) {
     // check for duplicate name or number
 
     const newTitle = title.replace(/ /g, "_");
@@ -243,9 +243,11 @@ export default function ProductSOP({ process, prodBranchId }) {
     >
       {open && (
         <CreateRecordModal
+          process={process}
           open={openCreateRecordModal}
           setOpen={setOpenCreateRecordModal}
-          stepName={processFlowTree?.steps[0]?.name}
+          parentId={parentId}
+          step={stepSelector && stepSelector[0]}
           handleCreate={handleCreate}
           currentTemplateId={currentTemplateId}
           stepSelector={stepSelector}
