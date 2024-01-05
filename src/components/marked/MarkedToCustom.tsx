@@ -13,10 +13,6 @@ export default function MarkedToCustom({
     setOpen(false);
   }
 
-  useEffect(() => {
-    console.log(element);
-  }, [element]);
-
   return (
     <Viewers element={element} order={order} productId={productId}>
       {element?.childNodes?.length > 0 &&

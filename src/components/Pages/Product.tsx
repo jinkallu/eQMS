@@ -47,6 +47,7 @@ export default function Product() {
   }, [userSOPs]);
 
   React.useEffect(() => {
+    console.log(processflows);
     const defaultProcess = processflows?.filter((item) => item.order >= 0)[0];
     if (defaultProcess) {
       setCurrentProcess(defaultProcess);

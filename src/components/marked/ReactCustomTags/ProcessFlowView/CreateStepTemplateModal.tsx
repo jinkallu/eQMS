@@ -113,7 +113,6 @@ export default function CreateStepTemplateModal({
     const tempGpArray = {};
 
     const newNodesData = nodes?.map((node) => {
-      console.log(node);
       if (!node?.groupingData || node?.groupingData?.length === 0) {
         if (tempGpArray[node?.data?.templateId]) {
           tempGpArray[node?.data?.templateId] =

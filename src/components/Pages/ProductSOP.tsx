@@ -233,6 +233,10 @@ export default function ProductSOP({ process, prodBranchId }) {
     }
   }, [process]);
 
+  useEffect(() => {
+    console.log(stepSelector);
+  }, [stepSelector]);
+
   return (
     <Box
       sx={{
