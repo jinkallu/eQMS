@@ -67,13 +67,28 @@ const useProcessSteps = () => {
     const srcNodes = findStepsWithSrcNodeId(id, nodes, edges);
     for (let i = 0; i < srcNodes.length; i++) {
       const childTree = createTree(srcNodes[i], tree);
-      const populatedChildTree = traverse(
-        childTree.name,
-        nodes,
-        edges,
-        childTree
-      );
-      tree.children.push(populatedChildTree);
+      // remove looping, in the case of conditional jump to a previous step
+      let parent = tree.parent;
+      let isLoop = false;
+      while (parent) {
+        if (childTree.name === parent.name) {
+          isLoop = true;
+          break;
+        }
+        parent = parent.parent;
+      }
+      if (!isLoop) {
+        const populatedChildTree = traverse(
+          childTree.name,
+          nodes,
+          edges,
+          childTree
+        );
+        tree.children.push(populatedChildTree);
+      }
+      else{
+        tree.children.push(childTree);
+      }
     }
 
     return tree;
