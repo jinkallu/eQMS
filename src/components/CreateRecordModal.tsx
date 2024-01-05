@@ -321,18 +321,21 @@ export default function CreateRecordModal({
     // });
 
     const uniqueId = uuidv4();
+    if (step?.type === "multidec") {
+      const res = await handleCreateMultiDecBranch({
+        title: step?.data?.label,
+        uniqueId,
 
-    const res = await handleCreateMultiDecBranch({
-      title: step?.data?.label,
-      uniqueId,
+        templateId: "1",
+        process,
+        productId,
+      });
 
-      templateId: "1",
-      process,
-      productId,
-    });
-
-    if (res) {
-      handleCreate(title, html?.body?.innerHTML, uniqueId);
+      if (res) {
+        handleCreate(title, html?.body?.innerHTML, uniqueId);
+      }
+    } else {
+      handleCreate(title, html?.body?.innerHTML, parentId);
     }
 
     setTitle("");
