@@ -44,6 +44,7 @@ export default function CreateRecordModal({
   setCurrentTemplateId,
   productId,
 }) {
+  console.log("currentTemplateId", currentTemplateId);
   const [title, setTitle] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -218,7 +219,6 @@ export default function CreateRecordModal({
   }
 
   React.useEffect(() => {
-    console.log(parentId, productId, repository?.id, step);
     if (parentId && productId && repository?.id && step?.type === "multidec") {
       getData(repository?.id, productId, parentId, step);
     }
@@ -321,6 +321,7 @@ export default function CreateRecordModal({
     // });
 
     const uniqueId = uuidv4();
+    // if step type is multidec create a dummy branch and the create the condition branch
     if (step?.type === "multidec") {
       const res = await handleCreateMultiDecBranch({
         title: step?.data?.label,

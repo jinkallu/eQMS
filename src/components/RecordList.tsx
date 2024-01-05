@@ -27,11 +27,13 @@ const RecordEle = ({
   activeLevel,
   isIncrement,
   setMaxLevel,
+  setOpenViewRecordModal,
 }) => {
   const [expand, setExpand] = React.useState(false);
   const [currentRecordId, setCurrentRecordId] = React.useState("");
-  const [openViewRecordModal, setOpenViewRecordModal] = React.useState(false);
+  // const [openViewRecordModal, setOpenViewRecordModal] = React.useState(false);
   const [showChildrenIcon, setShowChildrenicon] = React.useState(false);
+  const { setCurrentRecord } = useExtnStore();
 
   function handleExpandClick(recordId) {
     setCurrentRecordId(recordId);
@@ -50,6 +52,11 @@ const RecordEle = ({
     setStepSelector(steps);
 
     setOpenCreateRecordModal(true);
+  }
+
+  function handleRecordViewClick(record) {
+    setCurrentRecord(record);
+    setOpenViewRecordModal(true);
   }
 
   React.useEffect(() => {
@@ -99,12 +106,13 @@ const RecordEle = ({
         paddingBottom: "5px",
       }}
     >
-      <RecordViewModal
-        open={openViewRecordModal}
-        setOpen={setOpenViewRecordModal}
-        record={record}
-        productId={productId}
-      ></RecordViewModal>
+      {/* {openViewRecordModal && (
+        <RecordViewModal
+          open={openViewRecordModal}
+          setOpen={setOpenViewRecordModal}
+          productId={productId}
+        ></RecordViewModal>
+      )} */}
 
       <Grid
         container
@@ -175,7 +183,7 @@ const RecordEle = ({
                 gap: "10px",
                 cursor: "pointer",
               }}
-              onClick={() => setOpenViewRecordModal(true)}
+              onClick={() => handleRecordViewClick(record)}
             >
               <NoteAltIcon
                 height={24}
@@ -223,6 +231,7 @@ const RecordEle = ({
                   activeLevel={activeLevel}
                   isIncrement={isIncrement}
                   setMaxLevel={setMaxLevel}
+                  setOpenViewRecordModal={setOpenViewRecordModal}
                 ></RecordEle>
               ))
         )}
@@ -247,12 +256,12 @@ export default function RecordList({
   const [stepTree, setSetTree] = React.useState([]);
   const [activeLevel, setActivelevel] = React.useState(0);
   const [maxLevel, setMaxLevel] = React.useState(0);
+  const [openViewRecordModal, setOpenViewRecordModal] = React.useState(false);
 
   const [isIncrement, setIsIncrement] = React.useState(null);
 
   async function getRecords(productId) {
     const data = await refreshProductRecords(repository.id, productId);
-    console.log(data);
     setProductRecords(data);
   }
   React.useEffect(() => {
@@ -260,9 +269,7 @@ export default function RecordList({
   }, [productId, refreshReqd]);
 
   React.useEffect(() => {
-    console.log(processFlowTree);
     const stepTreeData = getStepsTreeWithRecords(processFlowTree?.steps);
-    console.log(stepTreeData);
 
     setSetTree(stepTreeData);
   }, [productRecords, processFlowTree]);
@@ -324,12 +331,21 @@ export default function RecordList({
         overflow: "auto",
       }}
     >
+      {openViewRecordModal && (
+        <RecordViewModal
+          open={openViewRecordModal}
+          setOpen={setOpenViewRecordModal}
+          productId={productId}
+        ></RecordViewModal>
+      )}
+
       {/* <Fab size="small" color="primary" onClick={handleNewCreate}>
         <AddIcon></AddIcon>
       </Fab> */}
       <Button size="small" color="primary" onClick={handleNewCreate}>
         Create New
       </Button>
+
       <div>
         <Grid container spacing={2} direction="row" alignItems="center">
           <Grid item xs={3}>
@@ -416,6 +432,7 @@ export default function RecordList({
             activeLevel={activeLevel}
             isIncrement={isIncrement}
             setMaxLevel={setMaxLevel}
+            setOpenViewRecordModal={setOpenViewRecordModal}
           />
         ))}
     </Paper>

@@ -197,6 +197,7 @@ export default function ProductSOP({ process, prodBranchId }) {
     }
 
     setOpenCreateRecordModal(false);
+    setCurrentTemplateId(null);
 
     if (renameRes) {
       const res = await commit(

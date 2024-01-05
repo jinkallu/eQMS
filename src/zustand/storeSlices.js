@@ -55,6 +55,9 @@ export const projectSlice = (set) => ({
     set((state) => ({
       templateState: { ...state.templateState, [id]: value },
     })),
+
+  currentRecord: {},
+  setCurrentRecord: (record) => set({ currentRecord: record }),
 });
 
 export const repositorySlice = (set, get) => ({

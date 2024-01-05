@@ -6,39 +6,42 @@ import MarkedToCustom from "./marked/MarkedToCustom";
 export default function RecordViewModal({
   open,
   setOpen,
-  record,
   productId,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
-  record: any;
   productId?: string;
 }) {
   const [loading, setLoading] = React.useState(false);
-  const { repository, getFileContent } = useExtnStore();
+  const { repository, getFileContent, currentRecord, setCurrentRecord } =
+    useExtnStore();
 
-  const [md, setMd] = React.useState<Document>(null);
+  const [md, setMd] = React.useState<HTMLElement>(null);
 
   async function getFileData(repositoryId, path, branchName) {
+    console.log(repositoryId, path, branchName);
     setLoading(true);
 
     const data = await getFileContent(repositoryId, path, branchName);
-    const html = new DOMParser()?.parseFromString(data, "text/html");
-    setMd(html);
+    const html = await new DOMParser()?.parseFromString(data, "text/html");
+    console.log(html);
+    setMd(html?.body);
     setLoading(false);
   }
 
   React.useEffect(() => {
-    if (repository.id && record && open) {
-      const nameArray = record.name.split("/");
+    console.log("current Record", currentRecord);
+    if (repository.id && currentRecord && open) {
+      const nameArray = currentRecord.name.split("/");
       const path = [nameArray[0], nameArray[1], "data.html"]?.join("/");
 
-      getFileData(repository.id, path, record?.name);
+      getFileData(repository.id, path, currentRecord?.name);
     }
-  }, [repository, record, open]);
+  }, [repository, currentRecord, open]);
 
   function handleCancel() {
     setOpen(false);
+    setCurrentRecord(null);
     setMd(null);
   }
 
@@ -74,13 +77,15 @@ export default function RecordViewModal({
         >
           <button onClick={() => setOpen(false)}>Close</button>
           {loading && <CircularProgress></CircularProgress>}
-          <MarkedToCustom
-            element={md?.body}
-            open={null}
-            setOpen={null}
-            order="last"
-            productId={productId}
-          ></MarkedToCustom>
+          {md && (
+            <MarkedToCustom
+              element={md}
+              open={null}
+              setOpen={null}
+              order="last"
+              productId={productId}
+            ></MarkedToCustom>
+          )}
           <Box>
             <Button variant="outlined" onClick={handleCancel}>
               Cancel
