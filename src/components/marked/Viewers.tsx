@@ -13,6 +13,7 @@ import LinkRecordTagView from "./ReactCustomTags/LinkRecord/LinkRecordTagView";
 import DisplayTableTagView from "./ReactCustomTags/DisplayTable/DisplayTableTagView";
 import TextInputTagView from "./ReactCustomTags/TextInputTagView";
 import OutputTagView from "./ReactCustomTags/OutputTagView";
+import ReviewTagView from "./ReactCustomTags/ReviewTagView";
 
 export default function Viewers({ element, order, children, productId }) {
   // if (!state && order !== "last") {
@@ -56,10 +57,16 @@ export default function Viewers({ element, order, children, productId }) {
     // if (id && handleChange) handleChange(id, val || "");
 
     return <InputTagViewer id={id} element={element} order={order} val={val} />;
-  } else if (element.tagName && element.tagName === "TEXTAREA") {
+  } 
+  else if (element.tagName && element.tagName === "TEXTAREA") {
     const id = element.getAttribute("id");
     return <TextInputTagView id={id} element={element} order={order} />;
-  } else if (element.tagName && element.tagName === "CHAINEDOPTION") {
+  } 
+  else if (element.tagName && element.tagName === "REVIEW") {
+    const id = element.getAttribute("id");
+    return <ReviewTagView id={id} element={element} order={order} />;
+  } 
+  else if (element.tagName && element.tagName === "CHAINEDOPTION") {
     const id = element.getAttribute("id");
     return <ChainedOptionTagView id={id} element={element} order={order} />;
   } else if (element.tagName && element.tagName === "OUTPUT") {
