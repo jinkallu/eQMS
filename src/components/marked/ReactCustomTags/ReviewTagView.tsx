@@ -3,12 +3,15 @@ import { useEffect } from "react";
 import { useExtnStore } from "../../../zustand/store";
 //import { fetchAuthorData } from "../../../utils/gitHelpers.js"
 import useUpdateReviewTable from "../../../CHooks/buffer/useUpdateReviewTable";
+import useReviewer from "../../../CHooks/buffer/useReviewer";
+
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function ReviewTagView({ element, order, id }) {
   const { userSOPs, repository, project } = useExtnStore((state) => state);
   const [searchParams] = useSearchParams();
   const { authorData, fetchAuthorData } = useUpdateReviewTable();
+  const { reviewerData, getReviewerData } = useReviewer();
 
   const { templateState, setTemplateState } = useExtnStore((state) => state);
   function handleChangeFun(e) {
@@ -29,7 +32,12 @@ export default function ReviewTagView({ element, order, id }) {
       branchName.substring(lastIndex + "/main".length);
 
     fetchAuthorData(project.id, repository.id, editBranchName);
+    getReviewerData(project.id, repository.id, branchName);
   }, [project, repository, searchParams]);
+
+  useEffect(() => {
+    console.log(authorData);
+  }, [authorData]);
 
   // useEffect(() => {
   //   const val = element.getAttribute("value");
@@ -53,58 +61,71 @@ export default function ReviewTagView({ element, order, id }) {
       break;
     case "middle":
       component = (
-        // <input
-        //   value={(templateState && templateState[id])}
-        //   id={element.id}
-        //   onChange={handleChangeFun}
-        // ></input>
-
         <table id={id} style={{ border: "1px solid black" }}>
           <thead style={{ backgroundColor: "grey" }}>
             <tr>
               <th>Review Role</th>
               <th>Name</th>
               <th>Role</th>
-              <th>Date</th>
-              <th>Signature</th>
+              <th>Signature Date</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Author</td>
               <td>{authorData?.name}</td>
-              <td>25</td>
-              <td>Yes</td>
+              <td></td>
+              <td>{authorData?.date.toString()}</td>
             </tr>
             <tr>
               <td>Reviewer</td>
-              <td>5</td>
-              <td>14</td>
-              <td>Yes</td>
+              <td>{reviewerData?.displayName}</td>
+              <td></td>
+              <td></td>
             </tr>
             <tr>
               <td>Approver</td>
-              <td>1</td>
-              <td>4</td>
-              <td>4</td>
+              <td></td>
+              <td></td>
+              <td></td>
             </tr>
           </tbody>
         </table>
       );
       break;
     case "last":
-      if (templateState) {
-        if (templateState[id]) {
-          component = <span>{templateState[id]}</span>;
-        } else {
-          component = <span></span>;
-        }
-      } else {
-        component = <span></span>;
-      }
-
-      //component = <input value={templateState[id]} onChange={handleChangeFun}></input>;
-
+        component = (
+            <table id={id} style={{ border: "1px solid black" }}>
+              <thead style={{ backgroundColor: "grey" }}>
+                <tr>
+                  <th>Review Role</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Signature Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Author</td>
+                  <td>{authorData?.name}</td>
+                  <td></td>
+                  <td>{authorData?.date.toString()}</td>
+                </tr>
+                <tr>
+                  <td>Reviewer</td>
+                  <td>{reviewerData?.displayName}</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>Approver</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          );
       break;
     default:
       component = <span>"Error";</span>;
