@@ -55,7 +55,36 @@ export default function ReviewTagView({ element, order, id }) {
       //component = element.outerHTML;
 
       component = (
-        <input value={templateState[id]} onChange={handleChangeFun}></input>
+        <table id={id} style={{ border: "1px solid black" }}>
+        <thead style={{ backgroundColor: "grey" }}>
+          <tr>
+            <th>Review Role</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Signature Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Author</td>
+            <td>{authorData?.name}</td>
+            <td></td>
+            <td>{authorData?.date.toString()}</td>
+          </tr>
+          <tr>
+            <td>Reviewer</td>
+            <td>{reviewerData?.displayName}</td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Approver</td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
       );
 
       break;

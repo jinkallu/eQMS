@@ -14,6 +14,7 @@ import DisplayTableTagView from "./ReactCustomTags/DisplayTable/DisplayTableTagV
 import TextInputTagView from "./ReactCustomTags/TextInputTagView";
 import OutputTagView from "./ReactCustomTags/OutputTagView";
 import ReviewTagView from "./ReactCustomTags/ReviewTagView";
+import VersionTagView from "./ReactCustomTags/VersionTagView";
 
 export default function Viewers({ element, order, children, productId }) {
   // if (!state && order !== "last") {
@@ -65,6 +66,10 @@ export default function Viewers({ element, order, children, productId }) {
   else if (element.tagName && element.tagName === "REVIEW") {
     const id = element.getAttribute("id");
     return <ReviewTagView id={id} element={element} order={order} />;
+  } 
+  else if (element.tagName && element.tagName === "VERSION") {
+    const id = element.getAttribute("id");
+    return <VersionTagView id={id} element={element} order={order} />;
   } 
   else if (element.tagName && element.tagName === "CHAINEDOPTION") {
     const id = element.getAttribute("id");

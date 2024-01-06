@@ -5,6 +5,7 @@ import { GitRestClient } from "azure-devops-extension-api/Git";
 
 const useReviewer = () => {
     const [reviewerData, setReviewerData] = useState(null);
+    const [versionData, setVersionData] = useState(null);
 
     const getLatestCommit = async (repositoryId, branchName, projectId) => {
         try {
@@ -26,8 +27,7 @@ const useReviewer = () => {
         console.log(commit);
     }
 
-    async function getReviewerData(projectId, repositoryId, branchName) {
-        console.log(projectId, repositoryId, branchName);
+    async function getPRs(projectId, repositoryId, branchName){
         try {
             // Get a list of pull requests merged into the target branch
             const gitClient = getClient(GitRestClient);
@@ -46,6 +46,27 @@ const useReviewer = () => {
                 return null;
             }
 
+            return pullRequests;
+
+            // if(pullRequests[0].reviewers.length <=0 ){
+            //     return null;
+            // }
+
+            //let reviewers = await gitClient.getPullRequestReviewers(repositoryId, pullRequests[0].pullRequestId, projectId);
+            //console.log(reviewers);
+            // TODO: check if the PR commit data matches with main branch commit id
+            //setReviewerData(pullRequests[0].reviewers[0]);
+            //console.log("Merged Pull Requests:", pullRequests[0]);
+        } catch (error) {
+            console.error("Error getting merged pull requests:", error.message);
+        }
+    }
+
+    async function getReviewerData(projectId, repositoryId, branchName) {
+        console.log(projectId, repositoryId, branchName);
+        try {
+            const pullRequests = await getPRs(projectId, repositoryId, branchName);
+
             if(pullRequests[0].reviewers.length <=0 ){
                 return null;
             }
@@ -60,7 +81,18 @@ const useReviewer = () => {
         }
     }
 
-    return { reviewerData, getReviewerData };
+    async function getVersionData(projectId, repositoryId, branchName){
+        try {
+            const pullRequests = await getPRs(projectId, repositoryId, branchName);
+            setVersionData(pullRequests.length);
+            console.log("Version", pullRequests.length)
+        }
+        catch{
+            setVersionData(null);
+        } 
+    }
+
+    return { reviewerData, getReviewerData, versionData, getVersionData };
 };
 
 export default useReviewer;
