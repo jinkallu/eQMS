@@ -44,7 +44,6 @@ export default function CreateRecordModal({
   setCurrentTemplateId,
   productId,
 }) {
-  console.log("currentTemplateId", currentTemplateId);
   const [title, setTitle] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -185,7 +184,6 @@ export default function CreateRecordModal({
     const parentRecord = productRecords?.find(
       (item) => item?.branchId === parentId && item?.productId === productId
     );
-    console.log(productRecords, parentRecord);
     if (parentRecord) {
       const dataRes = await getFileContent(
         repositoryId,
@@ -252,7 +250,6 @@ export default function CreateRecordModal({
   };
 
   function handleSelectChange(e) {
-    console.log(stepSelector);
     const templateId = stepSelector?.find(
       (item) => item.templateId === e.target.value
     )?.templateId;
@@ -262,7 +259,6 @@ export default function CreateRecordModal({
 
   async function handleClick() {
     const html = new DOMParser().parseFromString(data, "text/html");
-    console.log(templateState);
 
     templateState &&
       Object.keys(templateState)?.map((key) => {
@@ -358,7 +354,7 @@ export default function CreateRecordModal({
       <DialogTitle>
         Create Record
         <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-          <Chip label={step?.name} color="primary"></Chip>
+          <Chip label={step?.data?.label} color="primary"></Chip>
         </Box>
       </DialogTitle>
       <DialogContent>
@@ -410,7 +406,7 @@ export default function CreateRecordModal({
                       key={item.name + item.templateId}
                       value={item.templateId}
                     >
-                      {item.name}
+                      {item?.data?.templateName}
                     </MenuItem>
                   ))}
                 </Select>

@@ -28,6 +28,7 @@ import DeleteStepModal from "./DeleteStepModal";
 import ContextMenu from "./ContextMenu";
 import { Button } from "@mui/material";
 import { useExtnStore } from "../../../../zustand/store";
+import EditStepNameModal from "./EditStepNameModal";
 
 const nodeTypes = {
   decision: DecisionNode,
@@ -45,6 +46,7 @@ export default function ProcessFlow({ editable, element }) {
   const { templateState, setTemplateState } = useExtnStore((state) => state);
   const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
   const [openDeleteStepModal, setOpenDeleteStepModal] = React.useState(false);
+  const [openEditStepModal, setOpenEditStepModal] = React.useState(false);
   const [openCreateStepTemplateModal, setOpenCreateStepTemplateModal] =
     React.useState(false);
   const [currentNode, setCurrentNode] = React.useState<{
@@ -187,6 +189,7 @@ export default function ProcessFlow({ editable, element }) {
       setOpenCreateStepModal,
       setOpenCreateStepTemplateModal,
       setOpenDeleteStepModal,
+      setOpenEditStepModal,
       // toggleEdit,
     });
   };
@@ -208,6 +211,12 @@ export default function ProcessFlow({ editable, element }) {
         currentNode={currentNode}
         nodes={(templateState && templateState["processFlow"]?.nodes) || []}
       ></CreateStepModal>
+
+      <EditStepNameModal
+        setOpen={setOpenEditStepModal}
+        open={openEditStepModal}
+        currentNode={currentNode}
+      ></EditStepNameModal>
       <DeleteStepModal
         setOpen={setOpenDeleteStepModal}
         open={openDeleteStepModal}
