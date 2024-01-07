@@ -1,9 +1,9 @@
 import Grid from "@mui/material/Grid";
-import React, { useEffect } from "react";
+import React, { useEffect, version } from "react";
 import { useExtnStore } from "../../../zustand/store";
 //import { fetchAuthorData } from "../../../utils/gitHelpers.js"
 //import useUpdateReviewTable from "../../../CHooks/buffer/useUpdateReviewTable";
-import useReviewer from "../../../CHooks/buffer/useReviewer";
+import useVersion from "../../../CHooks/buffer/useVersion";
 
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
@@ -18,7 +18,7 @@ export default function VersionTagView({ element, order, id }) {
     const { userSOPs, repository, project } = useExtnStore((state) => state);
     const [searchParams] = useSearchParams();
     //const { authorData, fetchAuthorData } = useUpdateReviewTable();
-    const { versionData, getVersionData, versionHistory, getVersionHistory } = useReviewer();
+    const { versionData, getVersionData } = useVersion();
 
     const { templateState, setTemplateState } = useExtnStore((state) => state);
     function handleChangeFun(e) {
@@ -40,24 +40,27 @@ export default function VersionTagView({ element, order, id }) {
 
         // fetchAuthorData(project.id, repository.id, editBranchName);
         getVersionData(project.id, repository.id, branchName);
-        getVersionHistory(project.id, repository.id, branchName);
     }, [project, repository, searchParams]);
 
     const handleVersionChange = (event: SelectChangeEvent) => {
         const index_string = event.target.value as string;
+        console.log(index_string);
+        if (index_string.length === 0) {
+            return;
+        }
         setVersionIndex(index_string);
 
         const index = parseInt(index_string);
         
-        if(versionHistory){
-            if(versionHistory.length <=0){
+        if(versionData?.history){
+            if(versionData?.history?.length <=0){
                 return;
             }
         }
         else{
             return;
         }
-        console.log("version commit id: ", versionHistory[index]?.commitId)
+        console.log("version commit id: ", versionData?.history[index]?.commitId)
     };
 
     // useEffect(() => {
@@ -77,7 +80,7 @@ export default function VersionTagView({ element, order, id }) {
 
             component = (
                 <>
-                    Version: <strong>{versionData + 1}_draft  </strong>
+                    Version: <strong>{versionData?.current?.version + 1}_draft  </strong>
                     <hr></hr>
                 </>
             );
@@ -86,7 +89,7 @@ export default function VersionTagView({ element, order, id }) {
         case "middle":
             component = (
                 <>
-                    Version: <strong> {versionData + 1}_draft</strong>
+                    Version: <strong> {versionData?.current?.version + 1}_draft</strong>
                     <hr></hr>
                 </>
             );
@@ -95,7 +98,7 @@ export default function VersionTagView({ element, order, id }) {
             component = (
                 <>
                     <br></br> {/*TO be reomved*/}
-                    Version: <strong>{versionData} </strong> Version in Edit: <strong>TODO</strong>
+                    Version: <strong>{versionData?.current?.version} </strong> Version in Edit: <strong>TODO</strong>
                     {/* <Box sx={{ minWidth: 12 }}> */}
                     <FormControl style={{ width: '200px', height: '50px' }}>
                         <InputLabel id="demo-simple-select-label">Previous Versions:</InputLabel>
@@ -107,9 +110,9 @@ export default function VersionTagView({ element, order, id }) {
                             label="Previous "
                             onChange={handleVersionChange}
                         >
-                            {versionHistory?.map((version, index) => (
+                            {versionData && versionData.history && versionData?.history?.map((version, index) => (
                                 <MenuItem key={index} value={index}>
-                                    {versionHistory.length - index}
+                                    {versionData?.history?.length - index}
                                 </MenuItem>
                             ))}
                         </Select>

@@ -5,28 +5,7 @@ import { GitRestClient } from "azure-devops-extension-api/Git";
 
 const useReviewer = () => {
     const [reviewerData, setReviewerData] = useState(null);
-    const [versionData, setVersionData] = useState(null);
-    const [versionHistory, setVersionHistory] = useState(null);
-
-    const getLatestCommit = async (repositoryId, branchName, projectId) => {
-        try {
-            const gitClient = getClient(GitRestClient);
-            const branch = await gitClient.getBranch(repositoryId, branchName, projectId);
-            const latestCommitId = branch.commit.commitId;
-            const commit = await gitClient.getCommit(latestCommitId, repositoryId, projectId);
-            return commit;
-        }
-        catch {
-            return null;
-        }
-    }
-
-    const fetchAuthorData = async (projectId, repositoryId, branchName) => {
-
-        const commit = await getLatestCommit(repositoryId, branchName, projectId);
-        setAuthorData(commit.author);
-        console.log(commit);
-    }
+    
 
     async function getPRs(projectId, repositoryId, branchName){
         try {
@@ -82,35 +61,10 @@ const useReviewer = () => {
         }
     }
 
-    async function getVersionData(projectId, repositoryId, branchName){
-        try {
-            const pullRequests = await getPRs(projectId, repositoryId, branchName);
-            setVersionData(pullRequests.length);
-            console.log("PR", pullRequests)
-        }
-        catch{
-            setVersionData(null);
-        } 
-    }
+    
+    
 
-    async function getVersionHistory(projectId, repositoryId, branchName){
-        let searchCriteria = {
-            itemVersion: {
-                version: branchName, // replace 'branchName' with the name of your branch
-                versionType: 'branch'
-            }
-        };
-        
-        // Get the commits
-        const gitClient = getClient(GitRestClient);
-
-        let commits = await gitClient.getCommits(repositoryId, searchCriteria, projectId);
-        // TODO: Verify that the version commit id matches to that of PRs lastMergeCommit  
-        setVersionHistory(commits);
-        console.log(commits);
-    }
-
-    return { reviewerData, getReviewerData, versionData, getVersionData, versionHistory, getVersionHistory };
+    return { reviewerData, getReviewerData };
 };
 
 export default useReviewer;
