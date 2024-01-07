@@ -6,19 +6,23 @@ import { GitRestClient } from "azure-devops-extension-api/Git";
 const useVersion = () => {
     const [versionData, setVersionData] = useState(null);
     const [versionHistory, setVersionHistory] = useState(null);
+    const [currentEditBranch, setCurrentEditBranch] = useState(null);
 
-    const getLatestCommit = async (repositoryId, branchName, projectId) => {
+    const getCurrentEditBranch = async (repositoryId, branchName, projectId) => {
         try {
             const gitClient = getClient(GitRestClient);
             const branch = await gitClient.getBranch(repositoryId, branchName, projectId);
-            const latestCommitId = branch.commit.commitId;
-            const commit = await gitClient.getCommit(latestCommitId, repositoryId, projectId);
-            return commit;
+            //const latestCommitId = branch.commit.commitId;
+            //const commit = await gitClient.getCommit(latestCommitId, repositoryId, projectId);
+            //return branch;
+            setCurrentEditBranch(branch);
         }
         catch {
             return null;
         }
     }
+
+
 
     
 
@@ -100,7 +104,7 @@ const useVersion = () => {
         //console.log(commits);
     }
 
-    return { versionData, getVersionData };
+    return { versionData, getVersionData, currentEditBranch, getCurrentEditBranch };
 };
 
 export default useVersion;

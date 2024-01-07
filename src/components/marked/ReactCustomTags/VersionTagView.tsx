@@ -18,7 +18,7 @@ export default function VersionTagView({ element, order, id }) {
     const { userSOPs, repository, project } = useExtnStore((state) => state);
     const [searchParams] = useSearchParams();
     //const { authorData, fetchAuthorData } = useUpdateReviewTable();
-    const { versionData, getVersionData } = useVersion();
+    const { versionData, getVersionData, currentEditBranch, getCurrentEditBranch } = useVersion();
 
     const { templateState, setTemplateState } = useExtnStore((state) => state);
     function handleChangeFun(e) {
@@ -30,17 +30,22 @@ export default function VersionTagView({ element, order, id }) {
             return;
         }
         const branchName = searchParams.get("branchName");
-        //let lastIndex = branchName.lastIndexOf("/main");
+        let lastIndex = branchName.lastIndexOf("/main");
 
-        // Replace the last occurrence with "/edit"
-        // let editBranchName =
-        //   branchName.substring(0, lastIndex) +
-        //   "/edit" +
-        //   branchName.substring(lastIndex + "/main".length);
+        //Replace the last occurrence with "/edit"
+        let editBranchName =
+          branchName.substring(0, lastIndex) +
+          "/edit" +
+          branchName.substring(lastIndex + "/main".length);
 
         // fetchAuthorData(project.id, repository.id, editBranchName);
         getVersionData(project.id, repository.id, branchName);
+        getCurrentEditBranch(repository.id, editBranchName, project.id);
     }, [project, repository, searchParams]);
+
+    const handleButtonClick = (event) => {
+
+    }
 
     const handleVersionChange = (event: SelectChangeEvent) => {
         const index_string = event.target.value as string;
@@ -67,6 +72,10 @@ export default function VersionTagView({ element, order, id }) {
     //   const val = element.getAttribute("value");
     //   if (id && handleChange) handleChange(id, val || "");
     // }, [element, id, handleChange]);
+
+    useEffect(() => {
+        console.log(currentEditBranch)
+    }, [currentEditBranch])
 
     let component;
     // console.log(element);
@@ -98,7 +107,7 @@ export default function VersionTagView({ element, order, id }) {
             component = (
                 <>
                     <br></br> {/*TO be reomved*/}
-                    Version: <strong>{versionData?.current?.version} </strong> Version in Edit: <strong>TODO</strong>
+                    Version: <strong>{versionData?.current?.version} </strong> {currentEditBranch &&  <button onClick={handleButtonClick}>Version in Edit</button>}
                     {/* <Box sx={{ minWidth: 12 }}> */}
                     <FormControl style={{ width: '200px', height: '50px' }}>
                         <InputLabel id="demo-simple-select-label">Previous Versions:</InputLabel>
