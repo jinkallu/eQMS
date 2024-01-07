@@ -273,6 +273,18 @@ export const updateVote = async (
       reviewerId
     );
 
+    let status = {
+      context: {
+          name: "Reviewer",
+          genre: "Review"
+      },
+      state: "succeeded", // or "pending", "failed", "error", "notSet"
+      description: "Reviewed status"
+  };
+  
+  // Create the status
+  let newStatus = await gitClient.createPullRequestStatus(status, repositoryId, pullRequestId);
+
     const updateRequest = await gitClient.updatePullRequest(
       {
         completionOptions: {

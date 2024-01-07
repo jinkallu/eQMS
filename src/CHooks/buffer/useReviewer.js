@@ -26,7 +26,13 @@ const useReviewer = () => {
                 return null;
             }
 
-            return pullRequests;
+            const statuses = await gitClient.getPullRequestStatuses(repositoryId, pullRequests[0].pullRequestId, projectId);
+            console.log(statuses);
+
+            return {
+                //pullRequests: pullRequests,
+                statuses: statuses
+            };
 
             // if(pullRequests[0].reviewers.length <=0 ){
             //     return null;
@@ -42,20 +48,25 @@ const useReviewer = () => {
         }
     }
 
+
     async function getReviewerData(projectId, repositoryId, branchName) {
         console.log(projectId, repositoryId, branchName);
         try {
             const pullRequests = await getPRs(projectId, repositoryId, branchName);
 
-            if(pullRequests[0].reviewers.length <=0 ){
-                return null;
+            if(!pullRequests){
+                return;
             }
+
+            // if(pullRequests.pullRequests[0].reviewers.length <=0 ){
+            //     return null;
+            // }
 
             //let reviewers = await gitClient.getPullRequestReviewers(repositoryId, pullRequests[0].pullRequestId, projectId);
             //console.log(reviewers);
             // TODO: check if the PR commit data matches with main branch commit id
-            setReviewerData(pullRequests[0].reviewers[0]);
-            console.log("Merged Pull Requests:", pullRequests[0]);
+            setReviewerData(pullRequests.statuses[0]);
+            console.log("Merged Pull Requests:", pullRequests.statuses[0]);
         } catch (error) {
             console.error("Error getting merged pull requests:", error.message);
         }

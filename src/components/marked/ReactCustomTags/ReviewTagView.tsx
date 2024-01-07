@@ -31,13 +31,18 @@ export default function ReviewTagView({ element, order, id }) {
       "/edit" +
       branchName.substring(lastIndex + "/main".length);
 
-    fetchAuthorData(project.id, repository.id, editBranchName);
+    fetchAuthorData(project.id, repository.id, branchName);
     getReviewerData(project.id, repository.id, branchName);
   }, [project, repository, searchParams]);
 
   useEffect(() => {
     console.log(authorData);
   }, [authorData]);
+
+  useEffect(() => {
+    console.log(reviewerData);
+  }, [reviewerData]);
+
 
   // useEffect(() => {
   //   const val = element.getAttribute("value");
@@ -73,9 +78,9 @@ export default function ReviewTagView({ element, order, id }) {
           </tr>
           <tr>
             <td>Reviewer</td>
-            <td>{reviewerData?.displayName}</td>
+            <td>{reviewerData?.createdBy?.displayName}</td>
             <td></td>
-            <td></td>
+            <td>{reviewerData?.creationDate?.toString()}</td>
           </tr>
           <tr>
             <td>Approver</td>
@@ -108,9 +113,9 @@ export default function ReviewTagView({ element, order, id }) {
             </tr>
             <tr>
               <td>Reviewer</td>
-              <td>{reviewerData?.displayName}</td>
+              <td>{reviewerData?.createdBy?.displayName}</td>
               <td></td>
-              <td></td>
+              <td>{reviewerData?.creationDate?.toString()}</td>
             </tr>
             <tr>
               <td>Approver</td>
@@ -142,9 +147,9 @@ export default function ReviewTagView({ element, order, id }) {
                 </tr>
                 <tr>
                   <td>Reviewer</td>
-                  <td>{reviewerData?.displayName}</td>
+                  <td>{reviewerData?.createdBy?.displayName}</td>
                   <td></td>
-                  <td></td>
+                  <td>{reviewerData?.creationDate?.toString()}</td>
                 </tr>
                 <tr>
                   <td>Approver</td>
