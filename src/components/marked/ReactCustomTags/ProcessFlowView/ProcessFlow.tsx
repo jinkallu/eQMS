@@ -198,7 +198,7 @@ export default function ProcessFlow({ editable, element }) {
   return (
     <Box
       sx={{
-        width: "100vw",
+        width: "50vw",
         display: "flex",
         justifyContent: "center",
         height: viewportSize.height,

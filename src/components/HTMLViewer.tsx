@@ -292,13 +292,13 @@ export default function HTMLViewer() {
   }
 
   return (
-    <Box
+    <Paper
+      elevation={3}
       sx={{
         display: "flex",
         flexDirection: "column",
         position: "relative",
-        width: "100%",
-        margin: "24px",
+        padding: "24px",
       }}
     >
       {!editMode && (
@@ -309,6 +309,7 @@ export default function HTMLViewer() {
             paddingX: "24px",
             position: "fixed",
             width: "100%",
+
             opacity: 1,
             zIndex: 100,
           }}
@@ -346,7 +347,6 @@ export default function HTMLViewer() {
           justifyContent: "center",
           alignItems: "center",
           overflowY: "auto",
-          width: "100vw",
         }}
       >
         {editMode && (
@@ -360,7 +360,7 @@ export default function HTMLViewer() {
           ></MonacoEditor>
         )}
         {!editMode && (
-          <Box sx={{ paddingY: "24px", width: "100%" }}>
+          <Box sx={{ paddingY: "24px", width: "595px" }}>
             <MarkedToCustom
               element={html?.body}
               open={null}
@@ -371,6 +371,6 @@ export default function HTMLViewer() {
           </Box>
         )}
       </Box>
-    </Box>
+    </Paper>
   );
 }
