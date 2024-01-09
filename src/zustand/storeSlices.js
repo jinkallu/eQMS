@@ -1,11 +1,12 @@
 import { getClient } from "azure-devops-extension-api/Common";
 import { GitRestClient } from "azure-devops-extension-api/Git";
 import { CoreRestClient } from "azure-devops-extension-api/Core";
+import { pageWidths } from "../constants";
 
 import {
   commit,
   createBranch,
-  // getFileContent,
+  getFileContent,
   getProjectPullRequests,
 } from "../utils/gitHelpers";
 import * as SDK from "azure-devops-extension-sdk";
@@ -58,6 +59,8 @@ export const projectSlice = (set) => ({
 
   currentRecord: {},
   setCurrentRecord: (record) => set({ currentRecord: record }),
+  pageWidth: pageWidths[0],
+  setPageWidth: (option) => set({ pageWidth: option }),
 });
 
 export const repositorySlice = (set, get) => ({

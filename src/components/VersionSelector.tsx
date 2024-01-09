@@ -46,13 +46,13 @@ export default function VersionSelector({
 
   const handleVersionChange = (event: SelectChangeEvent) => {
     const index_string = event.target.value as string;
-    console.log(index_string);
     if (index_string.length === 0) {
       return;
     }
     setVersionIndex(index_string);
 
     const index = parseInt(index_string);
+
     setVersion(versionData?.history[index]);
 
     if (versionData?.history) {
@@ -105,7 +105,9 @@ export default function VersionSelector({
               versionData.history &&
               versionData?.history?.map((version, index) => (
                 <MenuItem key={index} value={index}>
-                  {versionData?.history?.length - index}
+                  {`${versionData?.history?.length - index}-${
+                    versionData?.history[index]?.committer?.date
+                  }`}
                 </MenuItem>
               ))}
           </Select>

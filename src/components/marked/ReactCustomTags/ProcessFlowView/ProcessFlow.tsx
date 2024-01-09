@@ -43,7 +43,9 @@ const edgeTypes = {
 };
 
 export default function ProcessFlow({ editable, element }) {
-  const { templateState, setTemplateState } = useExtnStore((state) => state);
+  const { templateState, setTemplateState, pageWidth } = useExtnStore(
+    (state) => state
+  );
   const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
   const [openDeleteStepModal, setOpenDeleteStepModal] = React.useState(false);
   const [openEditStepModal, setOpenEditStepModal] = React.useState(false);
@@ -119,7 +121,6 @@ export default function ProcessFlow({ editable, element }) {
       initialNodes,
       initialEdges
     );
-    console.log("useeffect called", layoutedEdges, layoutedNodes);
 
     setTemplateState("processFlow", {
       nodes: layoutedNodes,
@@ -199,11 +200,11 @@ export default function ProcessFlow({ editable, element }) {
   return (
     <Box
       sx={{
-        width: "50vw",
         display: "flex",
         justifyContent: "center",
         height: viewportSize.height,
         overflowX: "auto",
+        width: pageWidth.width,
       }}
     >
       <CreateStepModal

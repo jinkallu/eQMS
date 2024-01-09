@@ -7,8 +7,12 @@ import {
   Box,
   Chip,
   CircularProgress,
+  FormControl,
   Grid,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   Toolbar,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -24,6 +28,7 @@ import MonacoEditor from "./MonacoEditor";
 import MarkedToCustom from "./marked/MarkedToCustom";
 import VersionSelector from "./VersionSelector";
 import Viewers from "./marked/Viewers";
+import { pageWidths } from "../constants";
 
 export default function HTMLViewer() {
   //const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
@@ -39,6 +44,8 @@ export default function HTMLViewer() {
     repository,
     templateState,
     setTemplateState,
+    pageWidth,
+    setPageWidth,
   } = useExtnStore((state) => state);
 
   const project = useExtnStore((state) => state.project);
@@ -112,6 +119,12 @@ export default function HTMLViewer() {
     setOpen(false);
   }
 
+  function handleWidthChange(e) {
+    const option = pageWidths?.find((item) => item.type === e.target.value);
+    if (option) {
+      setPageWidth(option);
+    }
+  }
   async function saveContent(): Promise<boolean> {
     let path = [];
     let processFlowPathArr = [];
@@ -282,9 +295,6 @@ export default function HTMLViewer() {
     );
   }
 
-  React.useEffect(() => {
-    console.log(html, htmlEdit);
-  }, [html, htmlEdit]);
   return (
     <Paper
       elevation={3}
@@ -340,6 +350,25 @@ export default function HTMLViewer() {
           </Grid>
           <Grid item xs={4}>
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <FormControl style={{ width: "200px" }}>
+                <InputLabel id="demo-simple-select-label">
+                  Select a View Option
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={pageWidth.type}
+                  label="Previous "
+                  onChange={handleWidthChange}
+                >
+                  {pageWidths?.map((widthType) => (
+                    <MenuItem key={widthType.type} value={widthType.type}>
+                      {widthType.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
               {canEdit && editMode && (
                 <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
               )}
@@ -382,7 +411,7 @@ export default function HTMLViewer() {
             toggleEditModeData={toggleEditModeData}
           ></MonacoEditor>
         ) : (
-          <Box sx={{ width: "595px" }}>
+          <Box sx={{ width: pageWidth.width, paddingX: "24px" }}>
             <Toolbar />
 
             <MarkedToCustom
