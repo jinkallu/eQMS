@@ -119,12 +119,13 @@ export default function ProcessFlow({ editable, element }) {
       initialNodes,
       initialEdges
     );
+    console.log("useeffect called", layoutedEdges, layoutedNodes);
 
     setTemplateState("processFlow", {
       nodes: layoutedNodes,
       edges: layoutedEdges,
     });
-  }, []);
+  }, [element?.dataset?.nodes, element?.dataset?.edges]);
 
   const ref = useRef(null);
 

@@ -18,14 +18,14 @@ export default function ProcessFlowView({ order, id, element }) {
       {order === "middle" && (
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <ProcessFlow editable={true} element={element} />
+            <ProcessFlow key="middle" editable={true} element={element} />
           </Grid>
         </Grid>
       )}
       {order === "last" && (
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <ProcessFlow element={element} editable={false} />
+            <ProcessFlow key="last" element={element} editable={false} />
           </Grid>
         </Grid>
       )}

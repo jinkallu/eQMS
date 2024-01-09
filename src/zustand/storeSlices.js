@@ -5,7 +5,7 @@ import { CoreRestClient } from "azure-devops-extension-api/Core";
 import {
   commit,
   createBranch,
-  getFileContent,
+  // getFileContent,
   getProjectPullRequests,
 } from "../utils/gitHelpers";
 import * as SDK from "azure-devops-extension-sdk";
@@ -240,10 +240,10 @@ export const repositorySlice = (set, get) => ({
     }
   },
 
-  getFileContent: async (repositoryId, path, branchName) => {
+  getFileContent: async (repositoryId, path, branchName, commitId) => {
     const versionDescriptor = {
-      version: branchName,
-      versionType: 0,
+      version: commitId ? commitId : branchName,
+      versionType: commitId ? 2 : 0,
     };
     try {
       const gitClient = getClient(GitRestClient);

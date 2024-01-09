@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 // import useMarkdToHTML from "";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import SaveIcon from "@mui/icons-material/Save";
+import PreviewIcon from "@mui/icons-material/Preview";
 
 import { marked } from "marked";
 
@@ -16,6 +17,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Toolbar,
+  Tooltip,
 } from "@mui/material";
 
 import { useExtnStore } from "../zustand/store";
@@ -30,6 +32,7 @@ export default function MonacoEditor({
   html,
   setOpenEditModal,
   productId,
+  toggleEditModeData,
 }: {
   objectId: string;
   type: string;
@@ -38,6 +41,7 @@ export default function MonacoEditor({
   html: Document;
   setOpenEditModal: (val: boolean) => void;
   productId?: string;
+  toggleEditModeData: () => void;
 }) {
   // const [markedData, setMarkedData] = React.useState<string>();
   const [open, setOpen] = React.useState(false);
@@ -136,7 +140,14 @@ export default function MonacoEditor({
           </ToggleButtonGroup>
           <SaveIcon onClick={() => setOpenEditModal(true)}></SaveIcon>
         </Box>
+
         <Typography>Viewer</Typography>
+        <Tooltip title="Exit Edit Mode">
+          <PreviewIcon
+            onClick={toggleEditModeData}
+            sx={{ cursor: "pointer" }}
+          ></PreviewIcon>
+        </Tooltip>
       </Paper>
       {html && (
         <Box sx={{ marginTop: "40px", width: "100%" }}>

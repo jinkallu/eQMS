@@ -1,4 +1,11 @@
-import { Paper, Box, Button, Modal, CircularProgress } from "@mui/material";
+import {
+  Paper,
+  Box,
+  Button,
+  Modal,
+  CircularProgress,
+  Toolbar,
+} from "@mui/material";
 import React from "react";
 import { useExtnStore } from "../zustand/store";
 import MarkedToCustom from "./marked/MarkedToCustom";
@@ -19,7 +26,6 @@ export default function RecordViewModal({
   const [md, setMd] = React.useState<HTMLElement>(null);
 
   async function getFileData(repositoryId, path, branchName) {
-    console.log(repositoryId, path, branchName);
     setLoading(true);
 
     const data = await getFileContent(repositoryId, path, branchName);
@@ -59,10 +65,12 @@ export default function RecordViewModal({
           justifyContent: "center",
           alignItems: "center",
           flexDirection: "column",
-          padding: "24px",
-          minHeight: "70vh",
+          paddingX: "24px",
+          height: "100%",
         }}
       >
+        <Toolbar />
+        <button onClick={() => setOpen(false)}>Close</button>
         <Paper
           elevation={3}
           sx={{
@@ -75,7 +83,6 @@ export default function RecordViewModal({
             overflowY: "auto",
           }}
         >
-          <button onClick={() => setOpen(false)}>Close</button>
           {loading && <CircularProgress></CircularProgress>}
           {md && (
             <MarkedToCustom

@@ -58,20 +58,16 @@ export default function Viewers({ element, order, children, productId }) {
     // if (id && handleChange) handleChange(id, val || "");
 
     return <InputTagViewer id={id} element={element} order={order} val={val} />;
-  } 
-  else if (element.tagName && element.tagName === "TEXTAREA") {
+  } else if (element.tagName && element.tagName === "TEXTAREA") {
     const id = element.getAttribute("id");
     return <TextInputTagView id={id} element={element} order={order} />;
-  } 
-  else if (element.tagName && element.tagName === "REVIEW") {
+  } else if (element.tagName && element.tagName === "REVIEW") {
     const id = element.getAttribute("id");
     return <ReviewTagView id={id} element={element} order={order} />;
-  } 
-  else if (element.tagName && element.tagName === "VERSION") {
+  } else if (element.tagName && element.tagName === "VERSION") {
     const id = element.getAttribute("id");
     return <VersionTagView id={id} element={element} order={order} />;
-  } 
-  else if (element.tagName && element.tagName === "CHAINEDOPTION") {
+  } else if (element.tagName && element.tagName === "CHAINEDOPTION") {
     const id = element.getAttribute("id");
     return <ChainedOptionTagView id={id} element={element} order={order} />;
   } else if (element.tagName && element.tagName === "OUTPUT") {
@@ -140,18 +136,12 @@ export default function Viewers({ element, order, children, productId }) {
   } else if (element.tagName && element.tagName === "PROCESSFLOW") {
     const id = element.getAttribute("id");
 
-    // let nodes = [];
-    // let edges = [];
-    // try {
-    //   nodes = JSON.parse(element.dataset.nodes) || [];
-    //   edges = JSON.parse(element.dataset.edges) || [];
-    // } catch (e) {}
-    // console.log(nodes, edges);
     return (
       <ProcessFlowView
         element={element}
         order={order}
         id={id}
+        key={id}
       ></ProcessFlowView>
     );
   } else if (children.length === 0) {
