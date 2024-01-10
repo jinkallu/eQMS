@@ -69,7 +69,6 @@ export default function ApprovalModal({
       currentReviewer?.id,
       vote
     );
-    console.log(res);
     await refreshSOPDBData(project.id, project.name, repository.id);
     setLoading(false);
     handleCancel();
