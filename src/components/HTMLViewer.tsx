@@ -355,10 +355,10 @@ export default function HTMLViewer() {
                   Select a View Option
                 </InputLabel>
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
+                  labelId="pagewidth-select-label"
+                  id="pagewidth-select"
                   value={pageWidth.type}
-                  label="Previous "
+                  label="View Option "
                   onChange={handleWidthChange}
                 >
                   {pageWidths?.map((widthType) => (

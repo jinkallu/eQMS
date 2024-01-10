@@ -85,7 +85,7 @@ export default function VersionSelector({
               inputProps={{ "aria-label": "controlled" }}
             />
           }
-          label="View Edit Version"
+          label="Edit Version"
         />
       )}
 

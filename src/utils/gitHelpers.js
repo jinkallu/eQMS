@@ -265,6 +265,7 @@ export const updateVote = async (
   try {
     const gitClient = getClient(GitRestClient);
     const reviewer = { vote, isRequired: true };
+    console.log(reviewer);
 
     const pullRequest = await gitClient.createPullRequestReviewer(
       reviewer,
@@ -275,15 +276,19 @@ export const updateVote = async (
 
     let status = {
       context: {
-          name: "Reviewer",
-          genre: "Review"
+        name: "Reviewer",
+        genre: "Review",
       },
       state: "succeeded", // or "pending", "failed", "error", "notSet"
-      description: "Reviewed status"
-  };
-  
-  // Create the status
-  let newStatus = await gitClient.createPullRequestStatus(status, repositoryId, pullRequestId);
+      description: "Reviewed status",
+    };
+
+    // Create the status
+    let newStatus = await gitClient.createPullRequestStatus(
+      status,
+      repositoryId,
+      pullRequestId
+    );
 
     const updateRequest = await gitClient.updatePullRequest(
       {

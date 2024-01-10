@@ -62,6 +62,10 @@ export default function CreateStepModal({
   const [stepName, setStepName] = React.useState("");
   const [stepType, setStepType] = React.useState("step");
   const [isProductLevel, setIsProductLevel] = React.useState(false);
+  const [nameError, setNameError] = React.useState({
+    error: false,
+    message: "",
+  });
 
   const [inputNodes, setInputNodes] = React.useState(null);
   const [template, setTemplate] = React.useState<{
@@ -282,6 +286,18 @@ export default function CreateStepModal({
     setTemplate(e.target.value);
   }
 
+  function handleStepNameChange(e) {
+    setStepName(e.target.value);
+    const stepWithSameName = templateState["processFlow"]?.nodes?.find(
+      (item) => item?.data?.label === e.target.value
+    );
+    if (stepWithSameName) {
+      setNameError({ error: true, message: "Step with same name exists.." });
+    } else {
+      setNameError({ error: false, message: "" });
+    }
+  }
+
   useEffect(() => {
     setIsProductLevel(false);
   }, [stepType]);
@@ -314,7 +330,6 @@ export default function CreateStepModal({
             <Select
               id="select"
               native
-              defaultValue="step"
               value={stepType}
               onChange={handleStepTypeChange}
             >
@@ -386,14 +401,16 @@ export default function CreateStepModal({
           id="message"
           label="Step Name"
           fullWidth
+          error={nameError?.error}
+          helperText={nameError?.message}
           variant="standard"
           value={stepName}
-          onChange={(e) => setStepName(e.target.value)}
+          onChange={handleStepNameChange}
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button disabled={!stepName} onClick={handleCreate}>
+        <Button disabled={!stepName || nameError?.error} onClick={handleCreate}>
           Create
         </Button>
       </DialogActions>
