@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import SaveIcon from "@mui/icons-material/Save";
 import PreviewIcon from "@mui/icons-material/Preview";
-
+import UndoIcon from "@mui/icons-material/Undo";
+import RedoIcon from "@mui/icons-material/Redo";
 import { marked } from "marked";
 
 import {
@@ -48,9 +49,13 @@ export default function MonacoEditor({
 
   const [editorView, setEditorView] = React.useState("form");
 
-  const { getEditBranch, repository, templateState } = useExtnStore(
-    (state) => state
-  );
+  const {
+    getEditBranch,
+    repository,
+    templateState,
+    undoTemplateState,
+    redoTemplateState,
+  } = useExtnStore((state) => state);
   const project = useExtnStore((state) => state.project);
 
   // async function getData() {
@@ -138,6 +143,9 @@ export default function MonacoEditor({
             <ToggleButton value="editor">Editor</ToggleButton>
             <ToggleButton value="form">Form</ToggleButton>
           </ToggleButtonGroup>
+          <UndoIcon onClick={undoTemplateState}></UndoIcon>
+          <RedoIcon onClick={redoTemplateState}></RedoIcon>
+
           <SaveIcon onClick={() => setOpenEditModal(true)}></SaveIcon>
         </Box>
 

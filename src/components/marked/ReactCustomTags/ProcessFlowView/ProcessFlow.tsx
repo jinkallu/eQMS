@@ -43,9 +43,8 @@ const edgeTypes = {
 };
 
 export default function ProcessFlow({ editable, element }) {
-  const { templateState, setTemplateState, pageWidth } = useExtnStore(
-    (state) => state
-  );
+  const { templateState, setTemplateState, pageWidth, templateStateVersion } =
+    useExtnStore((state) => state);
   const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
   const [openDeleteStepModal, setOpenDeleteStepModal] = React.useState(false);
   const [openEditStepModal, setOpenEditStepModal] = React.useState(false);
@@ -129,6 +128,10 @@ export default function ProcessFlow({ editable, element }) {
   }, [element?.dataset?.nodes, element?.dataset?.edges]);
 
   const ref = useRef(null);
+
+  useEffect(() => {
+    console.log("templateStateVersion", templateStateVersion);
+  }, [templateStateVersion]);
 
   useEffect(() => {
     if (

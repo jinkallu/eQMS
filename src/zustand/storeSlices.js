@@ -48,14 +48,78 @@ export const userSlice = (set) => ({
   },
 });
 
-export const projectSlice = (set) => ({
+export const projectSlice = (set, get) => ({
   project: {},
   setProject: (project) => set((state) => ({ project })),
+  templateStateVersion: [],
   templateState: {},
-  setTemplateState: (id, value) =>
+  setTemplateState: (id, value) => {
     set((state) => ({
       templateState: { ...state.templateState, [id]: value },
-    })),
+    }));
+    set((state) => ({
+      templateStateVersion: [
+        ...state.templateStateVersion?.map((item) => ({
+          ...item,
+          current: false,
+        })),
+        { data: state.templateState, current: true },
+      ],
+    }));
+  },
+
+  undoTemplateState: () => {
+    console.log(get().templateStateVersion);
+    const prevStateIndex = get()?.templateStateVersion?.findIndex(
+      (item) => item?.current
+    );
+    console.log(prevStateIndex);
+    if (prevStateIndex === -1) {
+      return;
+    }
+    if (prevStateIndex - 1 >= 0) {
+      set((state) => ({
+        templateState: state.templateStateVersion[prevStateIndex - 1]?.data,
+      }));
+
+      set((state) => ({
+        templateStateVersion: state?.templateStateVersion?.map(
+          (item, index) => {
+            if (index === prevStateIndex - 1) {
+              return { ...item, current: true };
+            }
+            return { ...item, current: false };
+          }
+        ),
+      }));
+    }
+  },
+  redoTemplateState: () => {
+    console.log(get().templateStateVersion);
+    const prevStateIndex = get()?.templateStateVersion?.findIndex(
+      (item) => item?.current
+    );
+    console.log(prevStateIndex);
+    if (prevStateIndex === -1) {
+      return;
+    }
+    if (prevStateIndex + 1 < get()?.templateStateVersion?.length) {
+      set((state) => ({
+        templateState: state.templateStateVersion[prevStateIndex + 1]?.data,
+      }));
+
+      set((state) => ({
+        templateStateVersion: state?.templateStateVersion?.map(
+          (item, index) => {
+            if (index === prevStateIndex + 1) {
+              return { ...item, current: true };
+            }
+            return { ...item, current: false };
+          }
+        ),
+      }));
+    }
+  },
 
   currentRecord: {},
   setCurrentRecord: (record) => set({ currentRecord: record }),
