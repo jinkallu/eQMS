@@ -41,17 +41,27 @@ const useSOPActions = () => {
       )?.length > 0;
 
     const canReview = sop?.pullRequest?.reviewers?.find(
-      (item) => item.id === currentUser.id && item?.vote === 0
+      (item) => item.id === currentUser.id && item?.vote === 0 && isReviewer
+    );
+    console.log(pullRequestStatusData);
+    const isReviewPending = pullRequestStatusData?.some(
+      (item) =>
+        item?.context?.genre === "Reviewer" &&
+        sop?.pullRequest?.reviewers?.filter(
+          (rev) => rev?.id === item?.name && item?.vote === 0
+        )?.length > 0
     );
 
-    const isReviewPending =
-      pullRequestStatusData
-        ?.filter((item) => item?.context?.genre === "Reviewer")
-        ?.filter((item) =>
-          sop?.pullRequest?.reviewers?.filter(
-            (rev) => rev?.id === item?.name && item?.vote === 0
-          )
-        )?.length > 0;
+    // pullRequestStatusData
+    //   ?.filter((item) => item?.context?.genre === "Reviewer")
+    //   ?.filter(
+    //     (item) =>
+    //       sop?.pullRequest?.reviewers?.filter(
+    //         (rev) => rev?.id === item?.name && item?.vote === 0
+    //       )?.length > 0
+    //   )?.length > 0;
+
+    console.log(pullRequestStatusData, isReviewPending);
 
     if (canReview && isReviewer) {
       setMyReviewPending(true);
