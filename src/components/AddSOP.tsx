@@ -31,6 +31,7 @@ export default function AddSOP({
   const [number, setNumber] = React.useState("");
   const [error, setError] = React.useState("");
   const [approvers, setApprovers] = React.useState([]);
+  const [reviewers, setReviewers] = React.useState([]);
   const [authors, setAuthors] = React.useState([]);
 
   const {
@@ -59,11 +60,21 @@ export default function AddSOP({
     );
   };
 
-  const handleAutherChange = (event) => {
+  const handleAuthorChange = (event) => {
     const {
       target: { value },
     } = event;
     setAuthors(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+
+  const handleReviewerChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setReviewers(
       // On autofill we get a stringified value.
       typeof value === "string" ? value.split(",") : value
     );
@@ -105,6 +116,7 @@ export default function AddSOP({
       sortOrder: sops.length,
       author: authors,
       approver: approvers,
+      reviewer: reviewers,
     });
 
     const commitMessage = "initial commit";
@@ -228,13 +240,40 @@ export default function AddSOP({
           </FormControl>
 
           <FormControl sx={{ m: 1, width: 300 }}>
+            <InputLabel id="approverTeams">Reviewer Teams</InputLabel>
+            <Select
+              labelId="demo-multiple-checkbox-label"
+              id="demo-multiple-checkbox"
+              multiple
+              value={reviewers}
+              onChange={handleReviewerChange}
+              input={<OutlinedInput label="Approver Teams" />}
+              renderValue={(selected) =>
+                selected
+                  ?.map(
+                    (item) =>
+                      teamsWithMembers?.find((team) => team.id === item)?.name
+                  )
+                  .join(", ")
+              }
+            >
+              {teamsWithMembers.map((team) => (
+                <MenuItem key={team.id} value={team.id}>
+                  <Checkbox checked={reviewers.indexOf(team?.id) > -1} />
+                  <ListItemText primary={team?.name} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl sx={{ m: 1, width: 300 }}>
             <InputLabel id="authorTeams">Author Teams</InputLabel>
             <Select
               labelId="authorTeams"
               id="authorselect"
               multiple
               value={authors}
-              onChange={handleAutherChange}
+              onChange={handleAuthorChange}
               input={<OutlinedInput label="Author Teams" />}
               renderValue={(selected) =>
                 selected

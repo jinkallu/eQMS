@@ -58,7 +58,6 @@ export default function ApprovalModal({
 
   async function handleApproval(vote) {
     setLoading(true);
-    console.log(pullRequest);
     const currentReviewer = pullRequest?.reviewers?.find(
       (reviewer) => reviewer?.id === currentUser?.id
     );

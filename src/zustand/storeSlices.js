@@ -69,11 +69,9 @@ export const projectSlice = (set, get) => ({
   },
 
   undoTemplateState: () => {
-    console.log(get().templateStateVersion);
     const prevStateIndex = get()?.templateStateVersion?.findIndex(
       (item) => item?.current
     );
-    console.log(prevStateIndex);
     if (prevStateIndex === -1) {
       return;
     }
@@ -95,11 +93,9 @@ export const projectSlice = (set, get) => ({
     }
   },
   redoTemplateState: () => {
-    console.log(get().templateStateVersion);
     const prevStateIndex = get()?.templateStateVersion?.findIndex(
       (item) => item?.current
     );
-    console.log(prevStateIndex);
     if (prevStateIndex === -1) {
       return;
     }
@@ -628,6 +624,11 @@ export const refreshDataSlice = (set, get) => ({
 
         const approver = [...new Set(approverData, userTeams)];
 
+        const reviewerData =
+          sops?.find((item) => item.branchId === sop?.branchId)?.reviewer || [];
+
+        const reviewer = [...new Set(reviewerData, userTeams)];
+
         const templateBranches = branchTypes["temp"]
           ?.filter((branch) => {
             const path = branch?.name?.split("/");
@@ -662,6 +663,7 @@ export const refreshDataSlice = (set, get) => ({
           ...sop,
           author,
           approver,
+          reviewer,
           templates,
           number,
           title: nameArray?.join(" "),

@@ -124,6 +124,8 @@ export default function MonacoEditor({
           // height: "40px",
         }}
       >
+        <Toolbar />
+
         <Box
           sx={{
             display: "flex",
@@ -157,6 +159,8 @@ export default function MonacoEditor({
           ></PreviewIcon>
         </Tooltip>
       </Paper>
+      <Toolbar />
+
       {html && (
         <Box sx={{ marginTop: "40px", width: "100%" }}>
           <Grid container spacing={2}>

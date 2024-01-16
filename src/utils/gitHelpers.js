@@ -276,7 +276,7 @@ export const updateVote = async (
 
     let status = {
       context: {
-        name: "Reviewer",
+        name: reviewerId,
         genre: "Review",
       },
       state: "succeeded", // or "pending", "failed", "error", "notSet"
@@ -284,7 +284,7 @@ export const updateVote = async (
     };
 
     // Create the status
-    let newStatus = await gitClient.createPullRequestStatus(
+    const newStatus = await addPullRequestStatus(
       status,
       repositoryId,
       pullRequestId
@@ -310,6 +310,46 @@ export const updateVote = async (
   }
 };
 
+export const addPullRequestStatus = async (
+  status,
+  repositoryId,
+  pullRequestId
+) => {
+  const gitClient = getClient(GitRestClient);
+
+  try {
+    const newStatus = await gitClient.createPullRequestStatus(
+      status,
+      repositoryId,
+      pullRequestId
+    );
+    return newStatus;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+};
+
+export const getPullRequestStatus = async (
+  projectId,
+  repositoryId,
+  pullRequestId
+) => {
+  const gitClient = getClient(GitRestClient);
+
+  try {
+    const status = await gitClient.getPullRequestStatuses(
+      repositoryId,
+      pullRequestId,
+      projectId
+    );
+    return status;
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+};
+
 export const voteStatus = [
   {
     vote: 10,
@@ -318,6 +358,7 @@ export const voteStatus = [
   },
   { vote: 5, status: "Approved with suggestions", color: "success" },
   { vote: 0, status: "Pending", color: "info" },
-  { vote: -5, status: "Waiting for author", color: "warning" },
+  // { vote: -5, status: "Waiting for author", color: "warning" }, changing the default to include review option
+  { vote: -5, status: "Review Pending", color: "warning" },
   { vote: -10, status: "Rejected", color: "error" },
 ];

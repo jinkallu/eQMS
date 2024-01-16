@@ -33,6 +33,7 @@ import CreatePRModal from "./CreatePRModal";
 import ApprovalModal from "./ApprovalModal";
 import { useNavigate } from "react-router";
 import { createSearchParams } from "react-router-dom";
+import RateReviewIcon from "@mui/icons-material/RateReview";
 import { getClient } from "azure-devops-extension-api";
 import {
   FileDiffParams,
@@ -48,7 +49,8 @@ function Row({ sop, edit, expandAll }) {
   const [open, setOpen] = React.useState(false);
   const { branchTypes } = useExtnStore();
   const { currentUser, teamsWithMembers, project, repository } = useExtnStore();
-  const { getActions, canEdit, myApprovalPending } = useSOPActions();
+  const { getActions, canEdit, myApprovalPending, myReviewPending } =
+    useSOPActions();
   const [openAddTemplateModal, setOpenAddTemplateModal] = React.useState(false);
   const [openApprovalModal, setOpenApprovalModal] = React.useState(false);
   const [openCreatePRModal, setOpenCreatePRModal] = React.useState(false);
@@ -99,8 +101,16 @@ function Row({ sop, edit, expandAll }) {
   }, [edit, sop, project, repository]);
 
   React.useEffect(() => {
-    getActions({ sop, teamsWithMembers, currentUser });
-  }, [currentUser, teamsWithMembers, sop]);
+    if (currentUser && teamsWithMembers && sop && project && repository)
+      console.log("useeffect called");
+    getActions({
+      sop,
+      teamsWithMembers,
+      currentUser,
+      projectId: project?.id,
+      repositoryId: repository?.id,
+    });
+  }, [currentUser, teamsWithMembers, sop, project, repository]);
   React.useEffect(() => {
     setOpen(expandAll);
   }, [expandAll]);
@@ -185,7 +195,7 @@ function Row({ sop, edit, expandAll }) {
             </Tooltip>
           )}
         </TableCell>
-        <TableCell>
+        {/* <TableCell>
           {sop?.author?.length > 0 && (
             <Tooltip title="Edit SOP">
               <IconButton aria-label="share" onClick={() => {}}>
@@ -193,7 +203,7 @@ function Row({ sop, edit, expandAll }) {
               </IconButton>
             </Tooltip>
           )}
-        </TableCell>
+        </TableCell> */}
         <TableCell>
           {edit &&
             isEditContentDifferentFromMain &&
@@ -208,23 +218,27 @@ function Row({ sop, edit, expandAll }) {
         </TableCell>
 
         <TableCell>
-          {sop?.pullRequest && (
+          {sop?.pullRequest && myReviewPending && (
+            <Tooltip title="Review">
+              <IconButton
+                aria-label="review"
+                onClick={() => setOpenApprovalModal(true)}
+              >
+                <RateReviewIcon color="primary" sx={{ cursor: "pointer" }} />
+              </IconButton>
+            </Tooltip>
+          )}
+        </TableCell>
+
+        <TableCell>
+          {sop?.pullRequest && myApprovalPending && (
             <Tooltip title="Approve">
-              {myApprovalPending ? (
-                <IconButton
-                  aria-label="approva"
-                  onClick={() => setOpenApprovalModal(true)}
-                >
-                  <ApprovalIcon color="primary" sx={{ cursor: "pointer" }} />
-                </IconButton>
-              ) : (
-                <IconButton
-                  aria-label="approva"
-                  onClick={() => setOpenApprovalModal(true)}
-                >
-                  <HowToRegIcon color="primary"></HowToRegIcon>
-                </IconButton>
-              )}
+              <IconButton
+                aria-label="approva"
+                onClick={() => setOpenApprovalModal(true)}
+              >
+                <ApprovalIcon color="primary" sx={{ cursor: "pointer" }} />
+              </IconButton>
             </Tooltip>
           )}
         </TableCell>
@@ -320,8 +334,9 @@ export default function SOPTableView({ userSOPs }) {
               </TableCell>
               <TableCell>View SOP</TableCell>
               <TableCell>Add Template</TableCell>
-              <TableCell>Edit</TableCell>
+              {/* <TableCell>Edit</TableCell> */}
               <TableCell>Send for Approval</TableCell>
+              <TableCell>Review</TableCell>
               <TableCell>Approve</TableCell>
             </TableRow>
           </TableHead>

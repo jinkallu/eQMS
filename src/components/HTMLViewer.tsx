@@ -325,11 +325,13 @@ export default function HTMLViewer() {
                 sx={{ cursor: "pointer" }}
                 onClick={() => navigate(-1)}
               ></ArrowBackIcon>
-              <VersionSelector
-                setViewEditBranch={setViewEditBranch}
-                viewEditBranch={viewEditBranch}
-                setVersion={setVersion}
-              ></VersionSelector>
+              {!editMode && (
+                <VersionSelector
+                  setViewEditBranch={setViewEditBranch}
+                  viewEditBranch={viewEditBranch}
+                  setVersion={setVersion}
+                ></VersionSelector>
+              )}
             </Box>
           </Grid>
 
@@ -350,24 +352,26 @@ export default function HTMLViewer() {
           </Grid>
           <Grid item xs={4}>
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <FormControl style={{ width: "200px" }}>
-                <InputLabel id="demo-simple-select-label">
-                  Select a View Option
-                </InputLabel>
-                <Select
-                  labelId="pagewidth-select-label"
-                  id="pagewidth-select"
-                  value={pageWidth.type}
-                  label="View Option "
-                  onChange={handleWidthChange}
-                >
-                  {pageWidths?.map((widthType) => (
-                    <MenuItem key={widthType.type} value={widthType.type}>
-                      {widthType.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              {!editMode && (
+                <FormControl style={{ width: "200px" }}>
+                  <InputLabel id="demo-simple-select-label">
+                    Select a View Option
+                  </InputLabel>
+                  <Select
+                    labelId="pagewidth-select-label"
+                    id="pagewidth-select"
+                    value={pageWidth.type}
+                    label="View Option "
+                    onChange={handleWidthChange}
+                  >
+                    {pageWidths?.map((widthType) => (
+                      <MenuItem key={widthType.type} value={widthType.type}>
+                        {widthType.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
 
               {canEdit && editMode && (
                 <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
