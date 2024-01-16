@@ -37,6 +37,7 @@ export default function ApprovalModal({
   sopName,
   pullRequest,
   canVote,
+  pullRequestStatus,
 }) {
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
@@ -206,7 +207,7 @@ export default function ApprovalModal({
                     onChange={() => setShowApprovers((prev) => !prev)}
                   ></Switch>
                 }
-                label={`${showApprovers ? "Hide" : "Show"} Approval Data`}
+                label={`${showApprovers ? "Hide" : "Show"} Approval Chain`}
               ></FormControlLabel>
               {showApprovers && (
                 <List
@@ -217,7 +218,7 @@ export default function ApprovalModal({
                 >
                   {pullRequest?.reviewers?.map((item) => (
                     <>
-                      <ListItem alignItems="flex-start">
+                      <ListItem key={item.id} alignItems="flex-start">
                         <ListItemAvatar>
                           <Avatar alt={item.displayName} src={item.imageUrl} />
                         </ListItemAvatar>
@@ -230,8 +231,19 @@ export default function ApprovalModal({
                                   (votest) => votest?.vote === item?.vote
                                 )
                                 ?.map((val) => (
-                                  <Chip label={val.status} color={val?.color} />
+                                  <Chip
+                                    key={`${item.id}_${val.status}`}
+                                    label={val.status}
+                                    color={val?.color}
+                                  />
                                 ))}
+                              <Chip
+                                label={
+                                  pullRequestStatus?.find(
+                                    (stat) => stat?.context?.name === item?.id
+                                  )?.context?.genre
+                                }
+                              ></Chip>
                             </React.Fragment>
                           }
                         />

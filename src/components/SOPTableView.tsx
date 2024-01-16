@@ -49,8 +49,13 @@ function Row({ sop, edit, expandAll }) {
   const [open, setOpen] = React.useState(false);
   const { branchTypes } = useExtnStore();
   const { currentUser, teamsWithMembers, project, repository } = useExtnStore();
-  const { getActions, canEdit, myApprovalPending, myReviewPending } =
-    useSOPActions();
+  const {
+    getActions,
+    canEdit,
+    myApprovalPending,
+    myReviewPending,
+    pullRequestStatus,
+  } = useSOPActions();
   const [openAddTemplateModal, setOpenAddTemplateModal] = React.useState(false);
   const [openApprovalModal, setOpenApprovalModal] = React.useState(false);
   const [openCreatePRModal, setOpenCreatePRModal] = React.useState(false);
@@ -102,14 +107,13 @@ function Row({ sop, edit, expandAll }) {
 
   React.useEffect(() => {
     if (currentUser && teamsWithMembers && sop && project && repository)
-      console.log("useeffect called");
-    getActions({
-      sop,
-      teamsWithMembers,
-      currentUser,
-      projectId: project?.id,
-      repositoryId: repository?.id,
-    });
+      getActions({
+        sop,
+        teamsWithMembers,
+        currentUser,
+        projectId: project?.id,
+        repositoryId: repository?.id,
+      });
   }, [currentUser, teamsWithMembers, sop, project, repository]);
   React.useEffect(() => {
     setOpen(expandAll);
@@ -155,6 +159,7 @@ function Row({ sop, edit, expandAll }) {
         branchId={sop?.branchId}
         sopName={sop?.relativePath}
         canVote={myApprovalPending}
+        pullRequestStatus={pullRequestStatus}
       ></ApprovalModal>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell component="th" scope="row">
@@ -312,7 +317,6 @@ export default function SOPTableView({ userSOPs }) {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-  console.log(userSOPs);
   return (
     <Box sx={{ width: "100%", paddingX: "32px" }}>
       <TableContainer component={Paper}>

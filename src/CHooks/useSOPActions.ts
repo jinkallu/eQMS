@@ -5,6 +5,7 @@ const useSOPActions = () => {
   const [canEdit, setCanEdit] = useState(false);
   const [myApprovalPending, setMyApprovalPending] = useState(false);
   const [myReviewPending, setMyReviewPending] = useState(false);
+  const [pullRequestStatus, setPullRequestStatus] = useState([]);
   const getActions = async ({
     sop,
     teamsWithMembers,
@@ -21,17 +22,19 @@ const useSOPActions = () => {
       }
       return author;
     });
-    let pullRequestStatus;
+    let pullRequestStatusData = [];
     if (sop?.pullRequest) {
-      pullRequestStatus = await getPullRequestStatus(
+      pullRequestStatusData = await getPullRequestStatus(
         projectId,
         repositoryId,
         sop?.pullRequest?.pullRequestId
       );
     }
 
+    setPullRequestStatus(pullRequestStatusData);
+
     let isReviewer =
-      pullRequestStatus?.filter(
+      pullRequestStatusData?.filter(
         (item) =>
           item?.context?.name === currentUser?.id &&
           item?.context?.genre === "Reviewer"
@@ -42,7 +45,7 @@ const useSOPActions = () => {
     );
 
     const isReviewPending =
-      pullRequestStatus
+      pullRequestStatusData
         ?.filter((item) => item?.context?.genre === "Reviewer")
         ?.filter((item) =>
           sop?.pullRequest?.reviewers?.filter(
@@ -71,7 +74,13 @@ const useSOPActions = () => {
     }
   };
 
-  return { getActions, canEdit, myApprovalPending, myReviewPending };
+  return {
+    getActions,
+    canEdit,
+    myApprovalPending,
+    myReviewPending,
+    pullRequestStatus,
+  };
 };
 
 export default useSOPActions;

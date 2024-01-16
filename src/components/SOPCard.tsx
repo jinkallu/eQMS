@@ -136,6 +136,7 @@ export default function SOPCard({ sop, edit }) {
         branchId={sop?.branchId}
         sopName={sop?.relativePath}
         canVote={enableApproval}
+        pullRequestStatus={[]}
       ></ApprovalModal>
       <Card
         variant="outlined"
