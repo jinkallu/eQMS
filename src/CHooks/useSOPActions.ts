@@ -40,6 +40,13 @@ const useSOPActions = () => {
           item?.context?.genre === "Reviewer"
       )?.length > 0;
 
+    let isApprover =
+      pullRequestStatusData?.filter(
+        (item) =>
+          item?.context?.name === currentUser?.id &&
+          item?.context?.genre === "Approver"
+      )?.length > 0;
+
     const canReview = sop?.pullRequest?.reviewers?.find(
       (item) => item.id === currentUser.id && item?.vote === 0 && isReviewer
     );
@@ -48,7 +55,15 @@ const useSOPActions = () => {
       (item) =>
         item?.context?.genre === "Reviewer" &&
         sop?.pullRequest?.reviewers?.filter(
-          (rev) => rev?.id === item?.name && item?.vote === 0
+          (rev) => rev?.id === item?.context?.name && rev?.vote === 0
+        )?.length > 0
+    );
+
+    const isApprovePending = pullRequestStatusData?.some(
+      (item) =>
+        item?.context?.genre === "Approver" &&
+        sop?.pullRequest?.reviewers?.filter(
+          (rev) => rev?.id === item?.context?.name && rev?.vote === 0
         )?.length > 0
     );
 
@@ -61,7 +76,7 @@ const useSOPActions = () => {
     //       )?.length > 0
     //   )?.length > 0;
 
-    console.log(pullRequestStatusData, isReviewPending);
+    console.log(sop, pullRequestStatusData, isReviewPending, isApprovePending);
 
     if (canReview && isReviewer) {
       setMyReviewPending(true);
@@ -69,16 +84,8 @@ const useSOPActions = () => {
       setMyReviewPending(false);
     }
 
-    if (
-      sop?.pullRequest?.reviewers?.find(
-        (item) => item.id === currentUser.id && item?.vote === 0
-      )
-    ) {
-      if (!canReview && !isReviewPending) {
-        setMyApprovalPending(true);
-      } else {
-        setMyApprovalPending(false);
-      }
+    if (!isReviewPending && isApprovePending) {
+      setMyApprovalPending(true);
     } else {
       setMyApprovalPending(false);
     }
