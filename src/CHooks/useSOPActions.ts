@@ -63,18 +63,12 @@ const useSOPActions = () => {
       (item) =>
         item?.context?.genre === "Approver" &&
         sop?.pullRequest?.reviewers?.filter(
-          (rev) => rev?.id === item?.context?.name && rev?.vote === 0
+          (rev) =>
+            rev?.id === item?.context?.name &&
+            rev?.id === currentUser?.id &&
+            rev?.vote === 0
         )?.length > 0
     );
-
-    // pullRequestStatusData
-    //   ?.filter((item) => item?.context?.genre === "Reviewer")
-    //   ?.filter(
-    //     (item) =>
-    //       sop?.pullRequest?.reviewers?.filter(
-    //         (rev) => rev?.id === item?.name && item?.vote === 0
-    //       )?.length > 0
-    //   )?.length > 0;
 
     console.log(sop, pullRequestStatusData, isReviewPending, isApprovePending);
 
