@@ -15,6 +15,7 @@ import TextInputTagView from "./ReactCustomTags/TextInputTagView";
 import OutputTagView from "./ReactCustomTags/OutputTagView";
 import ReviewTagView from "./ReactCustomTags/ReviewTagView";
 import VersionTagView from "./ReactCustomTags/VersionTagView";
+import DocxTagViewer from "./ReactCustomTags/DocxTagView";
 
 export default function Viewers({ element, order, children, productId }) {
   // if (!state && order !== "last") {
@@ -58,7 +59,12 @@ export default function Viewers({ element, order, children, productId }) {
     // if (id && handleChange) handleChange(id, val || "");
 
     return <InputTagViewer id={id} element={element} order={order} val={val} />;
-  } else if (element.tagName && element.tagName === "TEXTAREA") {
+  } 
+  else if (element.tagName && element.tagName === "DOCX") {
+    const id = element.getAttribute("id");
+    return <DocxTagViewer id={id} element={element} order={order} />;
+  }
+  else if (element.tagName && element.tagName === "TEXTAREA") {
     const id = element.getAttribute("id");
     return <TextInputTagView id={id} element={element} order={order} />;
   } else if (element.tagName && element.tagName === "REVIEW") {
