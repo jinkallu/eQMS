@@ -10,8 +10,7 @@ import { exampleSetup } from 'prosemirror-example-setup';
 //import './ProseMirrorStyles.css'; // Import the CSS file here
 import { toggleMark } from 'prosemirror-commands'; // Import toggleMark here
 import { EditorView } from "prosemirror-view"; // Import EditorView from prosemirror-view
-import { MenuItem, Dropdown, menuBar } from 'prosemirror-menu';
-
+import ProseEditor from "./ProseEditor";
 
 
 
@@ -19,44 +18,6 @@ import { MenuItem, Dropdown, menuBar } from 'prosemirror-menu';
 
 
 export default function DocxTagViewer({ element, order, id }) {
-    const [mount, setMount] = useState<HTMLElement | null>(null);
-
-    const menuItems = [
-        new MenuItem({
-          title: 'Bold',
-          label: 'Bold',
-          run: (state, dispatch) => {
-            // Implement command to toggle bold formatting
-            toggleMark(schema.marks.strong)(state, dispatch);
-
-          }
-        }),
-        new MenuItem({
-          title: 'Italic',
-          label: 'Italic',
-          run: (state, dispatch) => {
-            // Implement command to toggle italic formatting
-            toggleMark(schema.marks.em)(state, dispatch);
-
-          }
-        })
-      ];
-      // Create a dropdown menu
-      const dropdown = new Dropdown(menuItems, { label: 'Format' });
-
-      // Create a menu bar
-// Create a menu bar
-const menu = menuBar({ floating: true, content: [[dropdown]] });
-    const [editorState, setEditorState] = useState(
-        EditorState.create({
-          schema,
-          plugins: [menu]
-        })
-      );
-
-
-      
-    
 
     const { templateState, setTemplateState } = useExtnStore((state) => state);
     function handleChangeFun(e) {
@@ -330,9 +291,9 @@ const menu = menuBar({ floating: true, content: [[dropdown]] });
         }
     }
 
-   
-    
-      
+
+
+
 
     let component;
 
@@ -372,16 +333,7 @@ const menu = menuBar({ floating: true, content: [[dropdown]] });
 
             component = (
                 <div>
-                    <ProseMirror
-                        mount={mount}
-                        defaultState={editorState}
-                        // defaultState={EditorState.create({ schema })}
-
-
-                    >
-                        <div ref={setMount} />
-
-                    </ProseMirror>
+                    <ProseEditor id={id} element={element} order={order}></ProseEditor>
                     <div dangerouslySetInnerHTML={{ __html: templateState[id] }}></div>
                 </div>
             );
