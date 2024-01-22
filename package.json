@@ -43,6 +43,7 @@
     "cytoscape": "^3.26.0",
     "cytoscape-dagre": "^2.5.0",
     "dagre": "^0.8.5",
+    "draft-js": "^0.11.7",
     "jszip": "^3.10.1",
     "marked": "^5.1.2",
     "marked-gfm-heading-id": "^3.0.4",

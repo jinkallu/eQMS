@@ -11,7 +11,7 @@ import { exampleSetup } from 'prosemirror-example-setup';
 import { toggleMark } from 'prosemirror-commands'; // Import toggleMark here
 import { EditorView } from "prosemirror-view"; // Import EditorView from prosemirror-view
 import ProseEditor from "./ProseEditor";
-
+import DraftEditor from "./DraftEditor";
 
 
 
@@ -333,6 +333,7 @@ export default function DocxTagViewer({ element, order, id }) {
 
             component = (
                 <div>
+                    {/* <DraftEditor id={id} element={element} order={order}></DraftEditor> */}
                     <ProseEditor id={id} element={element} order={order}></ProseEditor>
                     <div dangerouslySetInnerHTML={{ __html: templateState[id] }}></div>
                 </div>
