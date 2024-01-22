@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useExtnStore } from "../../../zustand/store";
 import { EditorState, Transaction } from "prosemirror-state";
 import { ProseMirror } from "@nytimes/react-prosemirror";
-import { schema } from "prosemirror-schema-basic"
+import { schema as basicSchema, nodes as basicNodes, marks } from 'prosemirror-schema-basic';
 import { exampleSetup } from 'prosemirror-example-setup';
 import { toggleMark } from 'prosemirror-commands'; // Import toggleMark here
 import { EditorView } from "prosemirror-view"; // Import EditorView from prosemirror-view
@@ -14,10 +14,9 @@ import "prosemirror-menu/style/menu.css";
 import { baseKeymap } from 'prosemirror-commands'
 import { keymap } from 'prosemirror-keymap'
 
-import { tableNodes,  } from "prosemirror-tables";
+import { tableNodes, } from "prosemirror-tables";
 import { Plugin } from "prosemirror-state";
 import InputView from './InputView'; // replace with your actual import
-import ReactDOM from 'react-dom';
 
 
 
@@ -25,6 +24,10 @@ import ReactDOM from 'react-dom';
 export default function ProseEditor({ element, order, id }) {
     const [mount, setMount] = useState<HTMLElement | null>(null);
 
+    const { templateState, setTemplateState } = useExtnStore((state) => state);
+    function handleChangeFun(e) {
+        setTemplateState(id, e.target.value);
+    }
 
     const testSchema = new Schema({
         nodes: {
@@ -58,13 +61,77 @@ export default function ProseEditor({ element, order, id }) {
                     const dom = document.createElement("input");
                     dom.setAttribute("id", node.attrs.id);
                     dom.setAttribute("value", node.attrs.value);
+                    dom.setAttribute("disabled", node.attrs.disabled);
+
                     return dom;
                 }
             }
         }
-     });
+    });
 
-
+    const customInputNode = {
+        input: {
+          inline: true,
+          group: 'inline',
+          attrs: {
+            type: { default: 'text' },
+            value: { default: '' },
+            id: { default: '' },
+            disabled: { default: false },
+          },
+          parseDOM: [{
+            tag: 'input',
+            getAttrs: (node) => ({
+              type: node.getAttribute('type'),
+              value: node.getAttribute('value'),
+              id: node.getAttribute('id'),
+              disabled: node.hasAttribute('disabled'),
+            }),
+          }],
+          toDOM: (node) => {
+            const dom = document.createElement('input');
+            dom.setAttribute('id', node.attrs.id);
+            dom.setAttribute('value', node.attrs.value);
+      
+            if (node.attrs.disabled) {
+              dom.setAttribute('disabled', '');
+            }
+      
+            return dom;
+          },
+        },
+      };
+      
+// Custom table node with header
+const customTableNode = {
+    table: {
+      content: 'table_row+',
+      tableRole: 'table',
+      isolating: true,
+      parseDOM: [{ tag: 'table' }],
+      toDOM: () => ['table', 0],
+    },
+    table_row: {
+      content: 'table_cell+',
+      tableRole: 'row',
+      parseDOM: [{ tag: 'tr' }],
+      toDOM: () => ['tr', 0],
+    },
+    table_cell: {
+      content: 'inline*',
+      tableRole: 'cell',
+      isolating: true,
+      parseDOM: [{ tag: 'td' }],
+      toDOM: () => ['td', 0],
+    },
+    table_header: {
+      content: 'inline*',
+      tableRole: 'header_cell',
+      isolating: true,
+      parseDOM: [{ tag: 'th' }],
+      toDOM: () => ['th', 0],
+    },
+  };
 
     const inputMenuItem = new MenuItem({
         title: 'Insert InputField',
@@ -76,7 +143,7 @@ export default function ProseEditor({ element, order, id }) {
     // Define the command
     function insertInputField(state, dispatch) {
         // Create a new 'input' node
-        const inputNode = testSchema.nodes.input.create();
+        const inputNode = testSchema.nodes.input.create({ id: "myInput", value: "someValue", disabled: true });
 
         // Insert the 'input' node at the current selection
         const tr = state.tr.replaceSelectionWith(inputNode);
@@ -94,7 +161,7 @@ export default function ProseEditor({ element, order, id }) {
             label: 'Bold',
             run: (state, dispatch) => {
                 // Implement command to toggle bold formatting
-                toggleMark(schema.marks.strong)(state, dispatch);
+                toggleMark(basicSchema.marks.strong)(state, dispatch);
 
             }
         }),
@@ -103,7 +170,7 @@ export default function ProseEditor({ element, order, id }) {
             label: 'Italic',
             run: (state, dispatch) => {
                 // Implement command to toggle italic formatting
-                toggleMark(schema.marks.em)(state, dispatch);
+                toggleMark(basicSchema.marks.em)(state, dispatch);
 
             }
         })
@@ -113,25 +180,78 @@ export default function ProseEditor({ element, order, id }) {
 
     const menu = menuBar({ floating: true, content: [[dropdown]] });
 
+    const domParser = new DOMParser();
+
+    //let htmlString = "<div>Nodata</div>";
+    //const [parsedContent, setParsedContent] = useState(null);
+
+    //if (templateState[id]) {
+    console.log("read DOCX")
+    
+    //setParsedContent(parser.parse(domElement));
+
+    //const extendedNodes = { ...nodes, ...customInputNode, ...customTableNode };
+    //const extendedMarks = { ...marks };
+    
+
+
+    const extendedSchema = new Schema({
+        nodes: { ...basicNodes, ...customInputNode, ...tableNodes({
+            tableGroup: "block",
+            cellContent: "block+",
+            cellAttributes: {
+                id: {
+                    default: null,
+                    getFromDOM(dom) {
+                      return dom.getAttribute('id') || null;
+                    },
+                    setDOMAttr(value, attrs) {
+                      if (value) attrs.id = value;
+                    },
+                  },
+                background: {
+                    default: null,
+                    getFromDOM(dom) {
+                        return (dom.style && dom.style.backgroundColor) || null;
+                    },
+                    setDOMAttr(value, attrs) {
+                        if (value)
+                            attrs.style = (attrs.style || "") + `background-color: ${value};`;
+                    }
+                },
+                
+            }
+        })   },
+        marks: { ...marks, ...{} },
+      });
+      
+
+      let htmlString = templateState[id];
+      //}
+      const domElement = domParser.parseFromString(
+          htmlString,
+          'text/html'
+      ).documentElement;
+      console.log(domElement);
+  
+      const parser = PDOMParser.fromSchema(extendedSchema);
+      let parsedContent = parser.parse(domElement);
+
     const [editorState, setEditorState] = useState(
 
         EditorState.create({
 
-            schema: testSchema,
-            //doc: defaultContent,
+            schema: extendedSchema,
+            doc: parsedContent,
             plugins: [
                 menu,
                 keymap(baseKeymap),
-             
-            ], 
+            ],
         })
     );
 
 
-    const { templateState, setTemplateState } = useExtnStore((state) => state);
-    function handleChangeFun(e) {
-        setTemplateState(id, e.target.value);
-    }
+
 
 
     let component;

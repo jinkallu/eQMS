@@ -334,8 +334,9 @@ export default function DocxTagViewer({ element, order, id }) {
             component = (
                 <div>
                     {/* <DraftEditor id={id} element={element} order={order}></DraftEditor> */}
-                    <ProseEditor id={id} element={element} order={order}></ProseEditor>
-                    <div dangerouslySetInnerHTML={{ __html: templateState[id] }}></div>
+                    {templateState[id] &&
+                    <ProseEditor id={id} element={element} order={order}></ProseEditor>}
+                    {/* <div dangerouslySetInnerHTML={{ __html: templateState[id] }}></div> */}
                 </div>
             );
             //component = <input value={templateState[id]} onChange={handleChangeFun}></input>;
