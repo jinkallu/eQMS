@@ -29,109 +29,106 @@ export default function ProseEditor({ element, order, id }) {
         setTemplateState(id, e.target.value);
     }
 
-    const testSchema = new Schema({
-        nodes: {
-            doc: { content: "block+" },
-            paragraph: {
-                content: "inline*",
-                group: "block",
-                parseDOM: [{ tag: "p" }],
-                toDOM() { return ["p", 0]; }
-            },
-            text: {
-                group: "inline"
-            },
-            input: {
-                inline: true,
-                group: "inline",
-                attrs: {
-                    type: { default: "text" },
-                    value: { default: "" },
-                    id: { default: "" } // Add 'id' attribute here
-                },
-                parseDOM: [{
-                    tag: "input",
-                    getAttrs: (node: HTMLElement) => ({
-                        type: node.getAttribute("type"),
-                        value: node.getAttribute("value"),
-                        id: node.getAttribute("id") // Get 'id' attribute from DOM
-                    })
-                }],
-                toDOM: (node) => {
-                    const dom = document.createElement("input");
-                    dom.setAttribute("id", node.attrs.id);
-                    dom.setAttribute("value", node.attrs.value);
-                    dom.setAttribute("disabled", node.attrs.disabled);
+    // const testSchema = new Schema({
+    //     nodes: {
+    //         doc: { content: "block+" },
+    //         paragraph: {
+    //             content: "inline*",
+    //             group: "block",
+    //             parseDOM: [{ tag: "p" }],
+    //             toDOM() { return ["p", 0]; }
+    //         },
+    //         text: {
+    //             group: "inline"
+    //         },
+    //         input: {
+    //             inline: true,
+    //             group: "inline",
+    //             attrs: {
+    //                 type: { default: "text" },
+    //                 value: { default: "" },
+    //                 id: { default: "" } // Add 'id' attribute here
+    //             },
+    //             parseDOM: [{
+    //                 tag: "input",
+    //                 getAttrs: (node: HTMLElement) => ({
+    //                     type: node.getAttribute("type"),
+    //                     value: node.getAttribute("value"),
+    //                     id: node.getAttribute("id") // Get 'id' attribute from DOM
+    //                 })
+    //             }],
+    //             toDOM: (node) => {
+    //                 const dom = document.createElement("input");
+    //                 dom.setAttribute("id", node.attrs.id);
+    //                 dom.setAttribute("value", node.attrs.value);
+    //                 dom.setAttribute("disabled", node.attrs.disabled);
 
-                    return dom;
-                }
-            }
-        }
-    });
+    //                 return dom;
+    //             }
+    //         }
+    //     }
+    // });
 
     const customInputNode = {
         input: {
-          inline: true,
-          group: 'inline',
-          attrs: {
-            type: { default: 'text' },
-            value: { default: '' },
-            id: { default: '' },
-            disabled: { default: false },
-          },
-          parseDOM: [{
-            tag: 'input',
-            getAttrs: (node) => ({
-              type: node.getAttribute('type'),
-              value: node.getAttribute('value'),
-              id: node.getAttribute('id'),
-              disabled: node.hasAttribute('disabled'),
-            }),
-          }],
-          toDOM: (node) => {
-            const dom = document.createElement('input');
-            dom.setAttribute('id', node.attrs.id);
-            dom.setAttribute('value', node.attrs.value);
-      
-            if (node.attrs.disabled) {
-              dom.setAttribute('disabled', '');
-            }
-      
-            return dom;
-          },
+            inline: true,
+            group: 'inline',
+            attrs: {
+                type: { default: 'text' },
+                value: { default: '' },
+                id: { default: '' },
+                disabled: { default: false },
+            },
+            parseDOM: [{
+                tag: 'input',
+                getAttrs: (node) => ({
+                    type: node.getAttribute('type'),
+                    value: node.getAttribute('value'),
+                    id: node.getAttribute('id'),
+                    disabled: node.hasAttribute('disabled'),
+                }),
+            }],
+            toDOM: (node) => {
+                const dom = document.createElement('input');
+                dom.setAttribute('id', node.attrs.id);
+                dom.setAttribute('value', node.attrs.value);
+
+                if (node.attrs.disabled) {
+                    dom.setAttribute('disabled', '');
+                }
+
+                return dom;
+            },
         },
-      };
-      
-// Custom table node with header
-const customTableNode = {
-    table: {
-      content: 'table_row+',
-      tableRole: 'table',
-      isolating: true,
-      parseDOM: [{ tag: 'table' }],
-      toDOM: () => ['table', 0],
-    },
-    table_row: {
-      content: 'table_cell+',
-      tableRole: 'row',
-      parseDOM: [{ tag: 'tr' }],
-      toDOM: () => ['tr', 0],
-    },
-    table_cell: {
-      content: 'inline*',
-      tableRole: 'cell',
-      isolating: true,
-      parseDOM: [{ tag: 'td' }],
-      toDOM: () => ['td', 0],
-    },
-    table_header: {
-      content: 'inline*',
-      tableRole: 'header_cell',
-      isolating: true,
-      parseDOM: [{ tag: 'th' }],
-      toDOM: () => ['th', 0],
-    },
-  };
+    };
+
+    // Custom table node with header
+    const customTableNode = tableNodes({
+        tableGroup: "block",
+        cellContent: "block+",
+        cellAttributes: {
+            id: {
+                default: null,
+                getFromDOM(dom) {
+                    return dom.getAttribute('id') || null;
+                },
+                setDOMAttr(value, attrs) {
+                    if (value) attrs.id = value;
+                },
+            },
+            background: {
+                default: null,
+                getFromDOM(dom) {
+                    return (dom.style && dom.style.backgroundColor) || null;
+                },
+                setDOMAttr(value, attrs) {
+                    if (value)
+                        attrs.style = (attrs.style || "") + `background-color: ${value};`;
+                }
+            },
+
+        }
+    });
 
     const inputMenuItem = new MenuItem({
         title: 'Insert InputField',
@@ -140,17 +137,7 @@ const customTableNode = {
         //icon: /* Your icon or label for the menu item */,
     });
 
-    // Define the command
-    function insertInputField(state, dispatch) {
-        // Create a new 'input' node
-        const inputNode = testSchema.nodes.input.create({ id: "myInput", value: "someValue", disabled: true });
 
-        // Insert the 'input' node at the current selection
-        const tr = state.tr.replaceSelectionWith(inputNode);
-
-        // Apply the transaction
-        if (dispatch) dispatch(tr);
-    }
 
 
     const menuItems = [
@@ -187,55 +174,42 @@ const customTableNode = {
 
     //if (templateState[id]) {
     console.log("read DOCX")
-    
+
     //setParsedContent(parser.parse(domElement));
 
     //const extendedNodes = { ...nodes, ...customInputNode, ...customTableNode };
     //const extendedMarks = { ...marks };
-    
+
 
 
     const extendedSchema = new Schema({
-        nodes: { ...basicNodes, ...customInputNode, ...tableNodes({
-            tableGroup: "block",
-            cellContent: "block+",
-            cellAttributes: {
-                id: {
-                    default: null,
-                    getFromDOM(dom) {
-                      return dom.getAttribute('id') || null;
-                    },
-                    setDOMAttr(value, attrs) {
-                      if (value) attrs.id = value;
-                    },
-                  },
-                background: {
-                    default: null,
-                    getFromDOM(dom) {
-                        return (dom.style && dom.style.backgroundColor) || null;
-                    },
-                    setDOMAttr(value, attrs) {
-                        if (value)
-                            attrs.style = (attrs.style || "") + `background-color: ${value};`;
-                    }
-                },
-                
-            }
-        })   },
+        nodes: { ...basicNodes, ...customInputNode, ...customTableNode },
         marks: { ...marks, ...{} },
-      });
-      
+    });
 
-      let htmlString = templateState[id];
-      //}
-      const domElement = domParser.parseFromString(
-          htmlString,
-          'text/html'
-      ).documentElement;
-      console.log(domElement);
-  
-      const parser = PDOMParser.fromSchema(extendedSchema);
-      let parsedContent = parser.parse(domElement);
+    // Define the command
+    function insertInputField(state, dispatch) {
+        // Create a new 'input' node
+        const inputNode = extendedSchema.nodes.input.create({ id: "myInput", value: "someValue", disabled: true });
+
+        // Insert the 'input' node at the current selection
+        const tr = state.tr.replaceSelectionWith(inputNode);
+
+        // Apply the transaction
+        if (dispatch) dispatch(tr);
+    }
+
+
+    let htmlString = templateState[id];
+    //}
+    const domElement = domParser.parseFromString(
+        htmlString,
+        'text/html'
+    ).documentElement;
+    console.log(domElement);
+
+    const parser = PDOMParser.fromSchema(extendedSchema);
+    let parsedContent = parser.parse(domElement);
 
     const [editorState, setEditorState] = useState(
 
