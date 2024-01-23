@@ -67,7 +67,6 @@ const useVersion = () => {
         repositoryId,
         branchName
       );
-      console.log(commits);
       if (!pullRequests || !commits) {
         return null;
       }
@@ -81,7 +80,6 @@ const useVersion = () => {
         },
         history: commits,
       });
-      console.log("PR", pullRequests);
     } catch {
       setVersionData(null);
     }

@@ -36,7 +36,8 @@ export default function ApprovalModal({
   branchId,
   sopName,
   pullRequest,
-  canVote,
+  myApprovalPending,
+  myReviewPending,
   pullRequestStatus,
 }) {
   const [message, setMessage] = React.useState("");
@@ -75,9 +76,13 @@ export default function ApprovalModal({
   }
   const enableApprove = () => {
     let result = false;
-    if (pullRequest?.reviewers?.find((item) => item.id === currentUser.id)) {
-      result = true;
-    }
+    // if (pullRequest?.reviewers?.find((item) => item.id === currentUser.id)) {
+    //   result = true;
+    // }
+
+    result =
+      (myApprovalPending?.hasPrivilege && myApprovalPending?.isPending) ||
+      (myReviewPending?.hasPrivilege && myReviewPending?.isPending);
 
     return result;
   };
@@ -217,8 +222,8 @@ export default function ApprovalModal({
                   }}
                 >
                   {pullRequest?.reviewers?.map((item) => (
-                    <>
-                      <ListItem key={item.id} alignItems="flex-start">
+                    <Box key={item?.id}>
+                      <ListItem alignItems="flex-start">
                         <ListItemAvatar>
                           <Avatar alt={item.displayName} src={item.imageUrl} />
                         </ListItemAvatar>
@@ -249,7 +254,7 @@ export default function ApprovalModal({
                         />
                       </ListItem>
                       <Divider></Divider>
-                    </>
+                    </Box>
                   ))}
                 </List>
               )}

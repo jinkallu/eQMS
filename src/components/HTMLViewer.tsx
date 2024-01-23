@@ -208,6 +208,7 @@ export default function HTMLViewer() {
     // });
 
     // const md = EditorSave.findEditableMds(inputText, "Editor");
+    console.log(editBranchName, filePath);
 
     const createdData = await commit(
       project.id,

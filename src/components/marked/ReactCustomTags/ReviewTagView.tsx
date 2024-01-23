@@ -43,7 +43,6 @@ export default function ReviewTagView({ element, order, id }) {
     console.log(reviewerData);
   }, [reviewerData]);
 
-
   // useEffect(() => {
   //   const val = element.getAttribute("value");
   //   if (id && handleChange) handleChange(id, val || "");
@@ -61,35 +60,35 @@ export default function ReviewTagView({ element, order, id }) {
 
       component = (
         <table id={id} style={{ border: "1px solid black" }}>
-        <thead style={{ backgroundColor: "grey" }}>
-          <tr>
-            <th>Review Role</th>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Signature Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Author</td>
-            <td>{authorData?.name}</td>
-            <td></td>
-            <td>{authorData?.date.toString()}</td>
-          </tr>
-          <tr>
-            <td>Reviewer</td>
-            <td>{reviewerData?.createdBy?.displayName}</td>
-            <td></td>
-            <td>{reviewerData?.creationDate?.toString()}</td>
-          </tr>
-          <tr>
-            <td>Approver</td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+          <thead style={{ backgroundColor: "grey" }}>
+            <tr>
+              <th>Review Role</th>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Signature Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Author</td>
+              <td>{authorData?.name}</td>
+              <td></td>
+              <td>{authorData?.date.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td>Reviewer</td>
+              <td>{reviewerData?.createdBy?.displayName}</td>
+              <td></td>
+              <td>{reviewerData?.creationDate?.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td>Approver</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
       );
 
       break;
@@ -109,13 +108,13 @@ export default function ReviewTagView({ element, order, id }) {
               <td>Author</td>
               <td>{authorData?.name}</td>
               <td></td>
-              <td>{authorData?.date.toString()}</td>
+              <td>{authorData?.date.toLocaleString()}</td>
             </tr>
             <tr>
               <td>Reviewer</td>
               <td>{reviewerData?.createdBy?.displayName}</td>
               <td></td>
-              <td>{reviewerData?.creationDate?.toString()}</td>
+              <td>{reviewerData?.creationDate?.toLocaleString()}</td>
             </tr>
             <tr>
               <td>Approver</td>
@@ -128,38 +127,38 @@ export default function ReviewTagView({ element, order, id }) {
       );
       break;
     case "last":
-        component = (
-            <table id={id} style={{ border: "1px solid black" }}>
-              <thead style={{ backgroundColor: "grey" }}>
-                <tr>
-                  <th>Review Role</th>
-                  <th>Name</th>
-                  <th>Role</th>
-                  <th>Signature Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Author</td>
-                  <td>{authorData?.name}</td>
-                  <td></td>
-                  <td>{authorData?.date.toString()}</td>
-                </tr>
-                <tr>
-                  <td>Reviewer</td>
-                  <td>{reviewerData?.createdBy?.displayName}</td>
-                  <td></td>
-                  <td>{reviewerData?.creationDate?.toString()}</td>
-                </tr>
-                <tr>
-                  <td>Approver</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-              </tbody>
-            </table>
-          );
+      component = (
+        <table id={id} style={{ border: "1px solid black" }}>
+          <thead style={{ backgroundColor: "grey" }}>
+            <tr>
+              <th>Review Role</th>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Signature Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Author</td>
+              <td>{authorData?.name}</td>
+              <td></td>
+              <td>{authorData?.date.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td>Reviewer</td>
+              <td>{reviewerData?.createdBy?.displayName}</td>
+              <td></td>
+              <td>{reviewerData?.creationDate?.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td>Approver</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      );
       break;
     default:
       component = <span>"Error";</span>;

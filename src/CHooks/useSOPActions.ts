@@ -3,8 +3,14 @@ import { getPullRequestStatus } from "../utils/gitHelpers";
 
 const useSOPActions = () => {
   const [canEdit, setCanEdit] = useState(false);
-  const [myApprovalPending, setMyApprovalPending] = useState(false);
-  const [myReviewPending, setMyReviewPending] = useState(false);
+  const [myApprovalPending, setMyApprovalPending] = useState<{
+    hasPrivilege: Boolean;
+    isPending: Boolean;
+  }>({ hasPrivilege: false, isPending: false });
+  const [myReviewPending, setMyReviewPending] = useState<{
+    hasPrivilege: Boolean;
+    isPending: Boolean;
+  }>({ hasPrivilege: false, isPending: false });
   const [pullRequestStatus, setPullRequestStatus] = useState([]);
   const getActions = async ({
     sop,
@@ -50,7 +56,6 @@ const useSOPActions = () => {
     const canReview = sop?.pullRequest?.reviewers?.find(
       (item) => item.id === currentUser.id && item?.vote === 0 && isReviewer
     );
-    console.log(pullRequestStatusData);
     const isReviewPending = pullRequestStatusData?.some(
       (item) =>
         item?.context?.genre === "Reviewer" &&
@@ -70,18 +75,16 @@ const useSOPActions = () => {
         )?.length > 0
     );
 
-    console.log(sop, pullRequestStatusData, isReviewPending, isApprovePending);
-
     if (canReview && isReviewer) {
-      setMyReviewPending(true);
+      setMyReviewPending({ hasPrivilege: isReviewer, isPending: true });
     } else {
-      setMyReviewPending(false);
+      setMyReviewPending({ hasPrivilege: isReviewer, isPending: false });
     }
 
     if (!isReviewPending && isApprovePending) {
-      setMyApprovalPending(true);
+      setMyApprovalPending({ hasPrivilege: isApprover, isPending: true });
     } else {
-      setMyApprovalPending(false);
+      setMyApprovalPending({ hasPrivilege: isApprover, isPending: false });
     }
   };
 

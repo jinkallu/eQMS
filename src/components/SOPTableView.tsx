@@ -105,15 +105,30 @@ function Row({ sop, edit, expandAll }) {
     }
   }, [edit, sop, project, repository]);
 
+  async function callGetActions(
+    sop,
+    teamsWithMembers,
+    currentUser,
+    projectId,
+    repositoryId
+  ) {
+    await getActions({
+      sop,
+      teamsWithMembers,
+      currentUser,
+      projectId,
+      repositoryId,
+    });
+  }
   React.useEffect(() => {
     if (currentUser && teamsWithMembers && sop && project && repository)
-      getActions({
+      callGetActions(
         sop,
         teamsWithMembers,
         currentUser,
-        projectId: project?.id,
-        repositoryId: repository?.id,
-      });
+        project?.id,
+        repository?.id
+      );
   }, [currentUser, teamsWithMembers, sop, project, repository]);
   React.useEffect(() => {
     setOpen(expandAll);
@@ -158,7 +173,8 @@ function Row({ sop, edit, expandAll }) {
         pullRequest={sop?.pullRequest}
         branchId={sop?.branchId}
         sopName={sop?.relativePath}
-        canVote={myApprovalPending}
+        myApprovalPending={myApprovalPending}
+        myReviewPending={myReviewPending}
         pullRequestStatus={pullRequestStatus}
       ></ApprovalModal>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
@@ -223,7 +239,7 @@ function Row({ sop, edit, expandAll }) {
         </TableCell>
 
         <TableCell>
-          {sop?.pullRequest && myReviewPending && (
+          {sop?.pullRequest && myReviewPending?.hasPrivilege && (
             <Tooltip title="Review">
               <IconButton
                 aria-label="review"
@@ -236,7 +252,7 @@ function Row({ sop, edit, expandAll }) {
         </TableCell>
 
         <TableCell>
-          {sop?.pullRequest && myApprovalPending && (
+          {sop?.pullRequest && myApprovalPending?.hasPrivilege && (
             <Tooltip title="Approve">
               <IconButton
                 aria-label="approva"
@@ -264,6 +280,9 @@ function Row({ sop, edit, expandAll }) {
                   <TableRow>
                     <TableCell>Name</TableCell>
                     <TableCell>View Template</TableCell>
+                    <TableCell>Send for Approval</TableCell>
+                    <TableCell>Review</TableCell>
+                    <TableCell>Approve</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

@@ -24,7 +24,7 @@ export default function InputTagViewer({ element, order, id, val }) {
 
       component = (
         <input
-          value={templateState[id] || val}
+          value={templateState[id] || val || ""}
           onChange={handleChangeFun}
         ></input>
       );
@@ -33,7 +33,7 @@ export default function InputTagViewer({ element, order, id, val }) {
     case "middle":
       component = (
         <input
-          value={(templateState && templateState[id]) || val}
+          value={(templateState && templateState[id]) || val || ""}
           id={element.id}
           onChange={handleChangeFun}
         ></input>
