@@ -181,7 +181,7 @@ export default function ProseEditor({ element, order, id }) {
     //const extendedMarks = { ...marks };
     // Add a new span node
 
-
+/*
     const customSpanNode = {
         span: {
             inline: true,
@@ -213,6 +213,30 @@ export default function ProseEditor({ element, order, id }) {
             },
         },
     };
+*/
+    const customSpanMark = {
+        span: {
+          attrs: {
+            id: { default: '' },
+            style: { default: '' },
+          },
+          parseDOM: [{
+            tag: 'span',
+            getAttrs: (node) => ({
+              id: node.getAttribute('id'),
+              style: node.getAttribute('style'),
+            }),
+          }],
+          toDOM: (mark) => {
+            const spanAttrs = { 
+              id: mark.attrs.id, 
+              style: mark.attrs.style,
+            };
+      
+            return ['span', spanAttrs, 0];
+          },
+        },
+      };
     //   const customSpanNode = {
     //     span: {
     //       inline: true,
@@ -226,15 +250,15 @@ export default function ProseEditor({ element, order, id }) {
 
 
     // Extend the basicNodes
-    const extendedNodes = {
-        ...basicNodes,
-        ...customSpanNode,
+    // const extendedNodes = {
+    //     ...basicNodes,
+    //     ...customSpanNode,
 
-    };
+    // };
 
     const extendedSchema = new Schema({
-        nodes: { ...basicNodes, ...customInputNode, ...customTableNode, ...customSpanNode },
-        marks: { ...marks, ...{} },
+        nodes: { ...basicNodes, ...customInputNode, ...customTableNode },
+        marks: { ...marks, ...customSpanMark, ...{} },
     });
 
     // Define the command
