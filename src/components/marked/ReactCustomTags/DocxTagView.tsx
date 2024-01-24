@@ -19,6 +19,9 @@ import DraftEditor from "./DraftEditor";
 
 export default function DocxTagViewer({ element, order, id }) {
 
+    const wNamespaceURI = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+
+
     const { templateState, setTemplateState } = useExtnStore((state) => state);
     function handleChangeFun(e) {
         setTemplateState(id, e.target.value);
@@ -39,6 +42,50 @@ export default function DocxTagViewer({ element, order, id }) {
         }
 
         return convertNodeToHTML(body);
+    }
+
+    function extractRPR(node){
+        if (!node) {
+            return '';
+        }
+
+        let style = '';
+
+        const rPr = node.getElementsByTagNameNS(wNamespaceURI, 'rPr')[0]; // Use correct namespace and local name
+        if(rPr){
+            const rPrColor = rPr.getElementsByTagNameNS(wNamespaceURI, 'color')[0]; // Use correct namespace and local name
+            if(rPrColor){
+                const colorVal = rPrColor.getAttribute('w:val');
+                if(colorVal){
+                    console.log(colorVal);
+                    style += `color: #${colorVal};`;
+                }
+            }
+        }
+
+        return ` style="${style}"`;
+
+
+
+    }
+
+    
+
+    function convertR(node){
+        if (!node) {
+            return '';
+        }
+        let htmlContent = '';
+
+        const rStyle = extractRPR(node);
+        // implement styling here
+        const t = node.getElementsByTagNameNS(wNamespaceURI, 't')[0]; // Use correct namespace and local name
+        if(t){
+            htmlContent += `<span ${rStyle}>${convertNodeToHTML(node)}</span>`;
+        }
+
+        console.log(htmlContent);
+        return htmlContent;
     }
 
     function convertNodeToHTML(node) {
@@ -72,10 +119,11 @@ export default function DocxTagViewer({ element, order, id }) {
                 htmlContent += `<p>${convertNodeToHTML(element)}</p>`;
                 break;
             case 'w:r':
-                htmlContent += convertNodeToHTML(element);
+                htmlContent += convertR(element);
                 break;
             case 'w:t':
-                htmlContent += `<span>${element.textContent}</span>`;
+                htmlContent += `${element.textContent}`;
+                //htmlContent += `<span>${element.textContent}</span>`;
                 break;
             case 'w:tbl':
                 htmlContent += convertTableToHTML(element);

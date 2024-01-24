@@ -179,11 +179,61 @@ export default function ProseEditor({ element, order, id }) {
 
     //const extendedNodes = { ...nodes, ...customInputNode, ...customTableNode };
     //const extendedMarks = { ...marks };
+    // Add a new span node
 
 
+    const customSpanNode = {
+        span: {
+            inline: true,
+            group: 'inline',
+            content: 'inline*',
+            attrs: {
+                type: { default: 'text' },
+                id: { default: '' },
+                style: { default: '' },
+
+            },
+            parseDOM: [{
+                tag: 'span',
+                getAttrs: (node) => ({
+                    type: node.getAttribute('type'),
+                    id: node.getAttribute('id'),
+                    style: node.getAttribute('style'), // Added this line
+                }),
+            }],
+            toDOM: (node) => {
+                
+                const spanAttrs = { 
+                    id: node.attrs.id,
+                    style: node.attrs.style, // Added this lin
+                };
+                const spanContent = node.textContent;
+
+                return ['span', spanAttrs, spanContent];
+            },
+        },
+    };
+    //   const customSpanNode = {
+    //     span: {
+    //       inline: true,
+    //       group: 'inline',
+    //       parseDOM: [{ tag: 'span' }],
+    //       toDOM() {
+    //         return ['span', 0];
+    //       },
+    //     },
+    //   };
+
+
+    // Extend the basicNodes
+    const extendedNodes = {
+        ...basicNodes,
+        ...customSpanNode,
+
+    };
 
     const extendedSchema = new Schema({
-        nodes: { ...basicNodes, ...customInputNode, ...customTableNode },
+        nodes: { ...basicNodes, ...customInputNode, ...customTableNode, ...customSpanNode },
         marks: { ...marks, ...{} },
     });
 
