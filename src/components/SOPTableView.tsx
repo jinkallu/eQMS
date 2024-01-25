@@ -64,6 +64,50 @@ function Row({ sop, edit, expandAll }) {
   const navigate = useNavigate();
   const gitClient = getClient(GitRestClient);
 
+  async function gitDiff() {
+    const baseVersionDescriptor: GitBaseVersionDescriptor = {
+      baseVersion: edit?.commit?.commitId,
+      baseVersionOptions: GitVersionOptions.None,
+      baseVersionType: GitVersionType.Commit,
+      version: edit?.commit?.commitId,
+      versionOptions: GitVersionOptions.None,
+      versionType: GitVersionType.Commit,
+    };
+    const targetVersionDescriptor: GitTargetVersionDescriptor = {
+      targetVersion: sop?.commit?.commitId,
+      targetVersionOptions: GitVersionOptions.None,
+      targetVersionType: GitVersionType.Commit,
+      version: sop?.commit?.commitId,
+      versionOptions: GitVersionOptions.None,
+      versionType: GitVersionType.Commit,
+    };
+
+    // const res1 = await gitClient.getCommitDiffs(
+    //   repository?.id,
+    //   null,
+    //   null,
+    //   null,
+    //   null,
+    //   baseVersionDescriptor,
+    //   targetVersionDescriptor
+    // );
+    const fileDiffsCriteria = {
+      baseVersionCommit: edit?.commit?.commitId,
+      targetVersionCommit: sop?.commit?.commitId,
+      fileDiffParams: [
+        {
+          originalPath: "qms/sop/data.html",
+          path: "qms/sop/data.html"
+        }
+      ]
+
+    }
+    const res1 = await gitClient.getFileDiffs(fileDiffsCriteria, project?.id, repository?.id)
+
+
+    console.log(res1);
+  }
+
   async function checkGitDiff() {
     const baseVersionDescriptor: GitBaseVersionDescriptor = {
       baseVersion: edit?.commit?.commitId,
@@ -101,6 +145,7 @@ function Row({ sop, edit, expandAll }) {
 
   React.useEffect(() => {
     if (sop && edit && project && repository) {
+      gitDiff();
       checkGitDiff();
     }
   }, [edit, sop, project, repository]);
