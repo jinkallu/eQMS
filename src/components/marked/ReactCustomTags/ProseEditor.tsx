@@ -439,12 +439,20 @@ export default function ProseEditor({ element, order, id }) {
 
         EditorState.create({
 
+            // without default menubar
+            // schema: extendedSchema,
+            // doc: parsedContent,
+            // plugins: [
+            //     menu,
+            //     keymap(baseKeymap),
+            // ]
+
             schema: extendedSchema,
             doc: parsedContent,
             plugins: [
                 menu,
                 keymap(baseKeymap),
-            ],
+            ].concat(exampleSetup({ schema:extendedSchema})),
         })
     );
 
