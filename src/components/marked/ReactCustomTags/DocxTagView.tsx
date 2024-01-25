@@ -50,6 +50,7 @@ export default function DocxTagViewer({ element, order, id }) {
         }
 
         let style = '';
+        let bold = false;
 
         const rPr = node.getElementsByTagNameNS(wNamespaceURI, 'rPr')[0]; // Use correct namespace and local name
         if(rPr){
@@ -61,9 +62,27 @@ export default function DocxTagViewer({ element, order, id }) {
                     style += `color: #${colorVal};`;
                 }
             }
+            // size
+            const rPrSize = rPr.getElementsByTagNameNS(wNamespaceURI, 'sz')[0]; // Use correct namespace and local name
+            if(rPrSize){
+                const sizeVal = rPrSize.getAttribute('w:val');
+                if(sizeVal){
+                    //console.log(sizeVal);
+                    style += `font-size: ${sizeVal}px;`;
+                }
+            }
+
+            // bold
+            const rPrBold = rPr.getElementsByTagNameNS(wNamespaceURI, 'b')[0];
+            if(rPrBold){
+                bold = true;
+            }
         }
 
-        return ` style="${style}"`;
+        return {
+            style: ` style="${style}"`,
+            bold: bold
+        };
 
 
 
@@ -81,7 +100,12 @@ export default function DocxTagViewer({ element, order, id }) {
         // implement styling here
         const t = node.getElementsByTagNameNS(wNamespaceURI, 't')[0]; // Use correct namespace and local name
         if(t){
-            htmlContent += `<span ${rStyle}>${convertNodeToHTML(node)}</span>`;
+            if(rStyle.bold){
+                htmlContent += `<span  ${rStyle.style}> <strong>${convertNodeToHTML(node)}</strong></span>`;
+            }
+            else{
+                htmlContent += `<span ${rStyle.style}>${convertNodeToHTML(node)}</span>`;
+            }
         }
 
         console.log(htmlContent);
@@ -157,20 +181,21 @@ export default function DocxTagViewer({ element, order, id }) {
                 const cellProperties = cellElements[j].getElementsByTagNameNS(wNamespaceURI, 'tcPr')[0];
                 const cellStyles = convertTableCellPropertiesToHTMLStyle(cellProperties);
                 let vhStyles = '';
-                if (flagFirstRow) {
-                    if (j !== cellElements.length - 1) {
-                        vhStyles = tableHVStyles.insideV;
-                    }
+                // if (flagFirstRow) {
+                //     if (j !== cellElements.length - 1) {
+                //         vhStyles = tableHVStyles.insideV;
+                //     }
 
-                }
-                else {
-                    if (j === cellElements.length - 1) {
-                        vhStyles = tableHVStyles.insideH;
-                    }
-                    else {
-                        vhStyles = tableHVStyles.insideV + ' ' + tableHVStyles.insideH;
-                    }
-                }
+                // }
+                // else {
+                //     if (j === cellElements.length - 1) {
+                //         vhStyles = tableHVStyles.insideH;
+                //     }
+                //     else {
+                //         vhStyles = tableHVStyles.insideV + ' ' + tableHVStyles.insideH;
+                //     }
+                // }
+                vhStyles = tableHVStyles.insideV + ' ' + tableHVStyles.insideH;
                 htmlContent += `<td style="${cellStyles} ${vhStyles}">${convertNodeToHTML(cellElements[j])}</td>`;
             }
             htmlContent += '</tr>';
@@ -211,10 +236,10 @@ export default function DocxTagViewer({ element, order, id }) {
                 console.log(val, sz, color);
                 if (val && sz && color) {
                     if (borderType === "insideH") {
-                        borderStyles.insideH = `border-top: ${val} ${sz}px #${color};`;
+                        borderStyles.insideH = `border-top: ${val} ${parseInt(sz) / 2}px #${color}; border-bottom: ${val} ${parseInt(sz) / 2}px #${color};`;
                     }
                     else if (borderType === "insideV") {
-                        borderStyles.insideV = `border-right: ${val} ${sz}px #${color};`;
+                        borderStyles.insideV = `border-right: ${val} ${parseInt(sz) / 2}px #${color}; border-left: ${val} ${parseInt(sz) / 2}px #${color};`;
                     }
                 }
             }
@@ -230,7 +255,7 @@ export default function DocxTagViewer({ element, order, id }) {
         const wNamespaceURI = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
         const borderStyles = extractBorderStyles(tableProperties.getElementsByTagNameNS(wNamespaceURI, 'tblBorders')[0]);
 
-        return ` style="${borderStyles}"`;
+        return ` style="border-collapse: collapse; ${borderStyles}"`;
     }
 
     // Example function to extract border styles from DOCX table

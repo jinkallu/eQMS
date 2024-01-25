@@ -102,6 +102,75 @@ export default function ProseEditor({ element, order, id }) {
         },
     };
 
+    const newCustomTableNode = {
+        table: {
+            content: "table_row+",
+            group: "block",
+            attrs: {
+                style: { default: null },
+            },
+            parseDOM: [{
+                tag: "table",
+                getAttrs(dom) {
+                    return {
+                        style: dom.getAttribute('style') || null,
+                    };
+                },
+            }],
+            toDOM(node) {
+                return ["table", {
+                    style: node.attrs.style || "",
+                }, 0];
+            },
+        },
+        table_row: {
+            content: "table_cell+",
+            group: "table_row",
+            attrs: {
+                style: { default: null },
+            },
+            parseDOM: [{ 
+                tag: "tr",
+                getAttrs(dom) {
+                    return {
+                        style: dom.getAttribute('style') || null,
+                    };
+                }, 
+            }],
+            toDOM(node) {
+                return ["tr",{
+                    style: node.attrs.style || "",
+                }, 0];  // Add this line
+            },
+        },
+        table_cell: {
+            content: "block",
+            // attrs: {
+            //     // Define any additional attributes for cells
+            //     class: { default: null },
+            // },
+            attrs: {
+                style: { default: null },
+            },
+            group: "table_cell",
+            parseDOM: [{ 
+                tag: "td",
+                getAttrs(dom) {
+                    return {
+                        style: dom.getAttribute('style') || null,
+                    };
+                },  
+            }],
+            toDOM(node) {
+                //const attrs = { class: node.attrs.class };
+                return ["td",{
+                    style: node.attrs.style || "",
+                }, 0];
+            },
+        },
+    };
+    
+
     // Custom table node with header
     const customTableNode = tableNodes({
         tableGroup: "block",
@@ -126,6 +195,87 @@ export default function ProseEditor({ element, order, id }) {
                         attrs.style = (attrs.style || "") + `background-color: ${value};`;
                 }
             },
+
+            border: {
+                default: null,
+                getFromDOM(dom) {
+                    return (dom.style && dom.style.border) || null;
+                },
+                setDOMAttr(value, attrs) {
+                    if (value)
+                        attrs.style = (attrs.style || "") + `border: ${value};`;
+                },
+            },
+            borderTop: {
+                default: null,
+                getFromDOM(dom) {
+                    return (dom.style && dom.style.borderTop) || null;
+                },
+                setDOMAttr(value, attrs) {
+                    if (value)
+                        attrs.style = (attrs.style || "") + `border-top: ${value};`;
+                },
+            },
+            borderRight: {
+                default: null,
+                getFromDOM(dom) {
+                    return (dom.style && dom.style.borderRight) || null;
+                },
+                setDOMAttr(value, attrs) {
+                    if (value)
+                        attrs.style = (attrs.style || "") + `border-right: ${value};`;
+                },
+            },
+            borderBottom: {
+                default: null,
+                getFromDOM(dom) {
+                    return (dom.style && dom.style.borderBottom) || null;
+                },
+                setDOMAttr(value, attrs) {
+                    if (value)
+                        attrs.style = (attrs.style || "") + `border-bottom: ${value};`;
+                },
+            },
+            borderLeft: {
+                default: null,
+                getFromDOM(dom) {
+                    return (dom.style && dom.style.borderLeft) || null;
+                },
+                setDOMAttr(value, attrs) {
+                    if (value)
+                        attrs.style = (attrs.style || "") + `border-left: ${value};`;
+                },
+            },
+            // borderStyle: {
+            //     default: null,
+            //     getFromDOM(dom) {
+            //       return (dom.style && dom.style.borderStyle) || null;
+            //     },
+            //     setDOMAttr(value, attrs) {
+            //       if (value)
+            //         attrs.style = (attrs.style || "") + `border-style: ${value};`;
+            //     }
+            //   },
+            //   borderWidth: {
+            //     default: null,
+            //     getFromDOM(dom) {
+            //       return (dom.style && dom.style.borderWidth) || null;
+            //     },
+            //     setDOMAttr(value, attrs) {
+            //       if (value)
+            //         attrs.style = (attrs.style || "") + `border-width: ${value};`;
+            //     }
+            //   },
+            //   borderColor: {
+            //     default: null,
+            //     getFromDOM(dom) {
+            //       return (dom.style && dom.style.borderColor) || null;
+            //     },
+            //     setDOMAttr(value, attrs) {
+            //       if (value)
+            //         attrs.style = (attrs.style || "") + `border-color: ${value};`;
+            //     }
+            //   },
 
         }
     });
@@ -181,62 +331,62 @@ export default function ProseEditor({ element, order, id }) {
     //const extendedMarks = { ...marks };
     // Add a new span node
 
-/*
-    const customSpanNode = {
+    /*
+        const customSpanNode = {
+            span: {
+                inline: true,
+                group: 'inline',
+                content: 'inline*',
+                attrs: {
+                    type: { default: 'text' },
+                    id: { default: '' },
+                    style: { default: '' },
+    
+                },
+                parseDOM: [{
+                    tag: 'span',
+                    getAttrs: (node) => ({
+                        type: node.getAttribute('type'),
+                        id: node.getAttribute('id'),
+                        style: node.getAttribute('style'), // Added this line
+                    }),
+                }],
+                toDOM: (node) => {
+                    
+                    const spanAttrs = { 
+                        id: node.attrs.id,
+                        style: node.attrs.style, // Added this lin
+                    };
+                    const spanContent = node.textContent;
+    
+                    return ['span', spanAttrs, spanContent];
+                },
+            },
+        };
+    */
+    const customSpanMark = {
         span: {
-            inline: true,
-            group: 'inline',
-            content: 'inline*',
             attrs: {
-                type: { default: 'text' },
                 id: { default: '' },
                 style: { default: '' },
-
             },
             parseDOM: [{
                 tag: 'span',
                 getAttrs: (node) => ({
-                    type: node.getAttribute('type'),
                     id: node.getAttribute('id'),
-                    style: node.getAttribute('style'), // Added this line
+                    style: node.getAttribute('style'),
                 }),
             }],
-            toDOM: (node) => {
-                
-                const spanAttrs = { 
-                    id: node.attrs.id,
-                    style: node.attrs.style, // Added this lin
+            toDOM: (mark) => {
+                const spanAttrs = {
+                    id: mark.attrs.id,
+                    style: mark.attrs.style,
                 };
-                const spanContent = node.textContent;
 
-                return ['span', spanAttrs, spanContent];
+                return ['span', spanAttrs, 0];
             },
         },
     };
-*/
-    const customSpanMark = {
-        span: {
-          attrs: {
-            id: { default: '' },
-            style: { default: '' },
-          },
-          parseDOM: [{
-            tag: 'span',
-            getAttrs: (node) => ({
-              id: node.getAttribute('id'),
-              style: node.getAttribute('style'),
-            }),
-          }],
-          toDOM: (mark) => {
-            const spanAttrs = { 
-              id: mark.attrs.id, 
-              style: mark.attrs.style,
-            };
-      
-            return ['span', spanAttrs, 0];
-          },
-        },
-      };
     //   const customSpanNode = {
     //     span: {
     //       inline: true,
@@ -257,7 +407,7 @@ export default function ProseEditor({ element, order, id }) {
     // };
 
     const extendedSchema = new Schema({
-        nodes: { ...basicNodes, ...customInputNode, ...customTableNode },
+        nodes: { ...basicNodes, ...customInputNode, ...newCustomTableNode },
         marks: { ...marks, ...customSpanMark, ...{} },
     });
 
