@@ -12,7 +12,7 @@ import { toggleMark } from 'prosemirror-commands'; // Import toggleMark here
 import { EditorView } from "prosemirror-view"; // Import EditorView from prosemirror-view
 import ProseEditor from "./ProseEditor";
 import DraftEditor from "./DraftEditor";
-
+import FieldChar from "./FieldChar";
 
 
 
@@ -20,6 +20,7 @@ import DraftEditor from "./DraftEditor";
 export default function DocxTagViewer({ element, order, id }) {
 
     const wNamespaceURI = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+    const fieldChar = new FieldChar();
 
 
     const { templateState, setTemplateState } = useExtnStore((state) => state);
@@ -27,7 +28,7 @@ export default function DocxTagViewer({ element, order, id }) {
         setTemplateState(id, e.target.value);
     }
 
-    function convertToHTML(xmlDoc) {
+    function convertToHTML(xmlDoc, xmlStyles) {
         if (!xmlDoc || !xmlDoc.documentElement) {
             console.log("Error! Not XML");
             return ''; // Handle cases where the XML structure is not as expected
@@ -41,7 +42,30 @@ export default function DocxTagViewer({ element, order, id }) {
             return '';
         }
 
-        return convertNodeToHTML(body);
+        // const stylesBody = xmlStyles.getElementsByTagNameNS(wNamespaceURI, 'body')[0]; // Use correct namespace and local name
+
+        // if (!stylesBody) {
+        //     console.log("Error! No Styles Body");
+        //     return '';
+        // }
+
+        const styles = extractStyles(xmlStyles);
+        console.log(styles);
+
+        return convertNodeToHTML(body, styles);
+    }
+
+    function extractStyles(node){
+        const styles = [];
+        const stylesBody = node.getElementsByTagNameNS(wNamespaceURI, 'style');
+        for (const child of stylesBody) {
+            const styleId = child.getAttribute('w:styleId');
+            if(styleId){
+                const style = {styleId: styleId, node: child};
+                styles.push(style);
+            }
+        }
+        return styles;
     }
 
     function extractRPR(node){
@@ -58,7 +82,7 @@ export default function DocxTagViewer({ element, order, id }) {
             if(rPrColor){
                 const colorVal = rPrColor.getAttribute('w:val');
                 if(colorVal){
-                    console.log(colorVal);
+                    //console.log(colorVal);
                     style += `color: #${colorVal};`;
                 }
             }
@@ -90,7 +114,7 @@ export default function DocxTagViewer({ element, order, id }) {
 
     
 
-    function convertR(node){
+    function convertR(node, styles){
         if (!node) {
             return '';
         }
@@ -101,18 +125,30 @@ export default function DocxTagViewer({ element, order, id }) {
         const t = node.getElementsByTagNameNS(wNamespaceURI, 't')[0]; // Use correct namespace and local name
         if(t){
             if(rStyle.bold){
-                htmlContent += `<span  ${rStyle.style}> <strong>${convertNodeToHTML(node)}</strong></span>`;
+                htmlContent += `<span  ${rStyle.style}> <strong>${convertNodeToHTML(node, styles)}</strong></span>`;
             }
             else{
-                htmlContent += `<span ${rStyle.style}>${convertNodeToHTML(node)}</span>`;
+                htmlContent += `<span ${rStyle.style}>${convertNodeToHTML(node, styles)}</span>`;
             }
         }
 
-        console.log(htmlContent);
+        const fieldCh = node.getElementsByTagNameNS(wNamespaceURI, 'fldChar')[0]; // Use correct namespace and local name
+        if(fieldCh){
+            convertElementToHTML(fieldCh, styles);
+        }
+
+        const instrText = node.getElementsByTagNameNS(wNamespaceURI, 'instrText')[0]; // Use correct namespace and local name
+        if(instrText){
+            convertElementToHTML(instrText, styles);
+        }
+
+        
+
+        //console.log(htmlContent);
         return htmlContent;
     }
 
-    function convertNodeToHTML(node) {
+    function convertNodeToHTML(node, styles) {
         if (!node) {
             return '';
         }
@@ -120,7 +156,10 @@ export default function DocxTagViewer({ element, order, id }) {
         let htmlContent = '';
         for (const child of node.childNodes) {
             if (child.nodeType === Node.ELEMENT_NODE) {
-                htmlContent += convertElementToHTML(child);
+                const htmlC = convertElementToHTML(child, styles);
+                if(htmlC){
+                    htmlContent += htmlC;
+                }
             } else if (child.nodeType === Node.TEXT_NODE) {
                 htmlContent += child.nodeValue;
             }
@@ -129,38 +168,77 @@ export default function DocxTagViewer({ element, order, id }) {
         return htmlContent;
     }
 
+    function recurseText(node){
+        if (node && node.textContent && node.textContent.trim() !== '') {
+            return true;
+        }
 
-    function convertElementToHTML(element) {
+        // Check children recursively
+        for (let i = 0; i < node.childNodes.length; i++) {
+            if (recurseText(node.childNodes[i])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function hasTextContent(nodeString) {
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(nodeString, "text/html");
+        const node = doc.body;
+        return recurseText(node);
+        
+    }
+
+
+    function convertElementToHTML(element, styles) {
         if (!element) {
             return '';
         }
 
         let htmlContent = '';
         const tagName = element.tagName.toLowerCase();
+        
 
         switch (tagName) {
             case 'w:p':
-                htmlContent += `<p>${convertNodeToHTML(element)}</p>`;
+                let htmlC = `<p>${convertNodeToHTML(element, styles)}</p>`;
+                if(hasTextContent(htmlC)){
+                    htmlContent += htmlC;
+                }
+                
+                
+                console.log(htmlContent);
                 break;
             case 'w:r':
-                htmlContent += convertR(element);
+                htmlContent += convertR(element, styles);
                 break;
             case 'w:t':
+                if(fieldChar.isProcessing()){
+                    return null;
+                }
                 htmlContent += `${element.textContent}`;
                 //htmlContent += `<span>${element.textContent}</span>`;
                 break;
             case 'w:tbl':
-                htmlContent += convertTableToHTML(element);
+                htmlContent += convertTableToHTML(element, styles);
+                break;
+            case 'w:fldchar':
+                fieldChar.processFieldChar(element);
+                break;
+            case 'w:instrtext':
+                fieldChar.processInstrText(element);
                 break;
             // Handle other XML elements as needed
             default:
-                htmlContent += convertNodeToHTML(element);
+                htmlContent += convertNodeToHTML(element, styles);
         }
 
         return htmlContent;
     }
 
-    function convertTableToHTML(tableElement) {
+    function convertTableToHTML(tableElement, styles) {
         if (!tableElement) {
             return '';
         }
@@ -196,7 +274,7 @@ export default function DocxTagViewer({ element, order, id }) {
                 //     }
                 // }
                 vhStyles = tableHVStyles.insideV + ' ' + tableHVStyles.insideH;
-                htmlContent += `<td style="${cellStyles} ${vhStyles}">${convertNodeToHTML(cellElements[j])}</td>`;
+                htmlContent += `<td style="${cellStyles} ${vhStyles}">${convertNodeToHTML(cellElements[j], styles)}</td>`;
             }
             htmlContent += '</tr>';
             flagFirstRow = false;
@@ -228,12 +306,12 @@ export default function DocxTagViewer({ element, order, id }) {
         const borderTypes = ['insideH', 'insideV'];
         for (const borderType of borderTypes) {
             const borderElement = bordersElement.getElementsByTagNameNS(wNamespaceURI, borderType)[0];
-            console.log(borderElement);
+            //console.log(borderElement);
             if (borderElement) {
                 const val = wValToHtmlVal(borderElement.getAttribute('w:val'));
                 const sz = borderElement.getAttribute('w:sz');
                 const color = wColorToHtmlVal(borderElement.getAttribute('w:color'));
-                console.log(val, sz, color);
+                //console.log(val, sz, color);
                 if (val && sz && color) {
                     if (borderType === "insideH") {
                         borderStyles.insideH = `border-top: ${val} ${parseInt(sz) / 2}px #${color}; border-bottom: ${val} ${parseInt(sz) / 2}px #${color};`;
@@ -271,12 +349,12 @@ export default function DocxTagViewer({ element, order, id }) {
         const borderTypes = ['top', 'left', 'bottom', 'right'];
         for (const borderType of borderTypes) {
             const borderElement = bordersElement.getElementsByTagNameNS(wNamespaceURI, borderType)[0];
-            console.log(borderElement);
+            //console.log(borderElement);
             if (borderElement) {
                 const val = wValToHtmlVal(borderElement.getAttribute('w:val'));
                 const sz = borderElement.getAttribute('w:sz');
                 const color = wColorToHtmlVal(borderElement.getAttribute('w:color'));
-                console.log(val, sz, color);
+                //console.log(val, sz, color);
                 if (val && sz && color) {
                     borderStyles.push(`border-${borderType}: ${val} ${sz}px #${color};`);
                 }
@@ -347,13 +425,17 @@ export default function DocxTagViewer({ element, order, id }) {
             try {
                 const zip = await JSZip.loadAsync(file);
                 const documentXml = await zip.file('word/document.xml').async('string');
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(documentXml, 'text/xml');
-                console.log('Parsed XML:', xmlDoc);
-                const htmlContent = convertToHTML(xmlDoc);
+                const documentParser = new DOMParser();
+                const documentDOM = documentParser.parseFromString(documentXml, 'text/xml');
+                console.log('Parsed DOCXML:', documentDOM);
+
+                const styletXml = await zip.file('word/styles.xml').async('string');
+                const stylesParser = new DOMParser();
+                const stylesDOM = stylesParser.parseFromString(styletXml, 'text/xml');
+                console.log('Parsed STYLESXML:', stylesDOM);
+
+                const htmlContent = convertToHTML(documentDOM, stylesDOM);
                 console.log('Generated HTML:', htmlContent);
-                const parserHTML = new DOMParser();
-                const html = parserHTML.parseFromString(documentXml, 'text/html');
                 setTemplateState(id, htmlContent);
 
                 // Now you have the content of document.xml
