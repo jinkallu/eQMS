@@ -28,7 +28,7 @@ export default function DocxTagViewer({ element, order, id }) {
         setTemplateState(id, e.target.value);
     }
 
-    function convertToHTML(xmlDoc, xmlStyles) {
+    function convertToHTML(xmlDoc, xmlStyles, numberingDOM) {
         if (!xmlDoc || !xmlDoc.documentElement) {
             console.log("Error! Not XML");
             return ''; // Handle cases where the XML structure is not as expected
@@ -52,23 +52,23 @@ export default function DocxTagViewer({ element, order, id }) {
         const styles = extractStyles(xmlStyles);
         console.log(styles);
 
-        return convertNodeToHTML(body, styles);
+        return convertNodeToHTML(body, styles, numberingDOM);
     }
 
-    function extractStyles(node){
+    function extractStyles(node) {
         const styles = [];
         const stylesBody = node.getElementsByTagNameNS(wNamespaceURI, 'style');
         for (const child of stylesBody) {
             const styleId = child.getAttribute('w:styleId');
-            if(styleId){
-                const style = {styleId: styleId, node: child};
+            if (styleId) {
+                const style = { styleId: styleId, node: child };
                 styles.push(style);
             }
         }
         return styles;
     }
 
-    function extractRPR(node){
+    function extractRPR(node) {
         if (!node) {
             return '';
         }
@@ -77,20 +77,20 @@ export default function DocxTagViewer({ element, order, id }) {
         let bold = false;
 
         const rPr = node.getElementsByTagNameNS(wNamespaceURI, 'rPr')[0]; // Use correct namespace and local name
-        if(rPr){
+        if (rPr) {
             const rPrColor = rPr.getElementsByTagNameNS(wNamespaceURI, 'color')[0]; // Use correct namespace and local name
-            if(rPrColor){
+            if (rPrColor) {
                 const colorVal = rPrColor.getAttribute('w:val');
-                if(colorVal){
+                if (colorVal) {
                     //console.log(colorVal);
                     style += `color: #${colorVal};`;
                 }
             }
             // size
             const rPrSize = rPr.getElementsByTagNameNS(wNamespaceURI, 'sz')[0]; // Use correct namespace and local name
-            if(rPrSize){
+            if (rPrSize) {
                 const sizeVal = rPrSize.getAttribute('w:val');
-                if(sizeVal){
+                if (sizeVal) {
                     //console.log(sizeVal);
                     style += `font-size: ${sizeVal}px;`;
                 }
@@ -98,7 +98,7 @@ export default function DocxTagViewer({ element, order, id }) {
 
             // bold
             const rPrBold = rPr.getElementsByTagNameNS(wNamespaceURI, 'b')[0];
-            if(rPrBold){
+            if (rPrBold) {
                 bold = true;
             }
         }
@@ -112,9 +112,9 @@ export default function DocxTagViewer({ element, order, id }) {
 
     }
 
-    
 
-    function convertR(node, styles){
+
+    function convertR(node, styles, numberingDOM) {
         if (!node) {
             return '';
         }
@@ -123,32 +123,32 @@ export default function DocxTagViewer({ element, order, id }) {
         const rStyle = extractRPR(node);
         // implement styling here
         const t = node.getElementsByTagNameNS(wNamespaceURI, 't')[0]; // Use correct namespace and local name
-        if(t){
-            if(rStyle.bold){
-                htmlContent += `<span  ${rStyle.style}> <strong>${convertNodeToHTML(node, styles)}</strong></span>`;
+        if (t) {
+            if (rStyle.bold) {
+                htmlContent += `<span  ${rStyle.style}> <strong>${convertNodeToHTML(node, styles, numberingDOM)}</strong></span>`;
             }
-            else{
-                htmlContent += `<span ${rStyle.style}>${convertNodeToHTML(node, styles)}</span>`;
+            else {
+                htmlContent += `<span ${rStyle.style}>${convertNodeToHTML(node, styles, numberingDOM)}</span>`;
             }
         }
 
         const fieldCh = node.getElementsByTagNameNS(wNamespaceURI, 'fldChar')[0]; // Use correct namespace and local name
-        if(fieldCh){
-            convertElementToHTML(fieldCh, styles);
+        if (fieldCh) {
+            convertElementToHTML(fieldCh, styles, numberingDOM);
         }
 
         const instrText = node.getElementsByTagNameNS(wNamespaceURI, 'instrText')[0]; // Use correct namespace and local name
-        if(instrText){
-            convertElementToHTML(instrText, styles);
+        if (instrText) {
+            convertElementToHTML(instrText, styles, numberingDOM);
         }
 
-        
+
 
         //console.log(htmlContent);
         return htmlContent;
     }
 
-    function convertNodeToHTML(node, styles) {
+    function convertNodeToHTML(node, styles, numberingDOM) {
         if (!node) {
             return '';
         }
@@ -156,8 +156,8 @@ export default function DocxTagViewer({ element, order, id }) {
         let htmlContent = '';
         for (const child of node.childNodes) {
             if (child.nodeType === Node.ELEMENT_NODE) {
-                const htmlC = convertElementToHTML(child, styles);
-                if(htmlC){
+                const htmlC = convertElementToHTML(child, styles, numberingDOM);
+                if (htmlC) {
                     htmlContent += htmlC;
                 }
             } else if (child.nodeType === Node.TEXT_NODE) {
@@ -168,7 +168,7 @@ export default function DocxTagViewer({ element, order, id }) {
         return htmlContent;
     }
 
-    function recurseText(node){
+    function recurseText(node) {
         if (node && node.textContent && node.textContent.trim() !== '') {
             return true;
         }
@@ -188,41 +188,79 @@ export default function DocxTagViewer({ element, order, id }) {
         const doc = parser.parseFromString(nodeString, "text/html");
         const node = doc.body;
         return recurseText(node);
-        
+
+    }
+
+    function getStyleFromStyleXML(element, styles, numberingDOM){
+        let styleVal = element.getAttribute('w:val');
+        const style = styles.find(item => item.styleId === styleVal);
+        const rStyle = extractRPR(style);
+        return rStyle;
+    }
+
+    function convertP(element, styles, numberingDOM){
+        let htmlContent = '<p';
+        const pPr = element.getElementsByTagNameNS(wNamespaceURI, 'pPr')[0]; 
+        let pStyle = null;
+        if(pPr){
+            pStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
+        }
+        else{
+            htmlContent += ` style="${pStyle.style}">`;
+        }
+
+        const r = element.getElementsByTagNameNS(wNamespaceURI, 'r'); 
+        if(r){
+            for (let i = 0; i < r.length; i++){
+                htmlContent += convertElementToHTML(r[i], styles, numberingDOM);
+            }
+        }
+
+        htmlContent += "</p>";
+        if (!hasTextContent(htmlContent)) {
+            htmlContent = "";
+        }
+        return htmlContent;
     }
 
 
-    function convertElementToHTML(element, styles) {
+    function convertElementToHTML(element, styles, numberingDOM) {
         if (!element) {
             return '';
         }
 
         let htmlContent = '';
         const tagName = element.tagName.toLowerCase();
-        
+
 
         switch (tagName) {
             case 'w:p':
-                let htmlC = `<p>${convertNodeToHTML(element, styles)}</p>`;
-                if(hasTextContent(htmlC)){
-                    htmlContent += htmlC;
-                }
-                
-                
+                htmlContent += convertP(element, styles, numberingDOM);
                 console.log(htmlContent);
                 break;
+
+            case 'w:pPr':
+                htmlContent += convertElementToHTML(element, styles, numberingDOM);
+                break;
+
+            case 'w:pStyle':
+                htmlContent += getStyleFromStyleXML(element, styles, numberingDOM);
+                
+
+                //htmlContent += convertElementToHTML(element, styles, numberingDOM);
+                break;
             case 'w:r':
-                htmlContent += convertR(element, styles);
+                htmlContent += convertR(element, styles, numberingDOM);
                 break;
             case 'w:t':
-                if(fieldChar.isProcessing()){
+                if (fieldChar.isProcessing()) {
                     return null;
                 }
                 htmlContent += `${element.textContent}`;
                 //htmlContent += `<span>${element.textContent}</span>`;
                 break;
             case 'w:tbl':
-                htmlContent += convertTableToHTML(element, styles);
+                htmlContent += convertTableToHTML(element, styles, numberingDOM);
                 break;
             case 'w:fldchar':
                 fieldChar.processFieldChar(element);
@@ -232,13 +270,13 @@ export default function DocxTagViewer({ element, order, id }) {
                 break;
             // Handle other XML elements as needed
             default:
-                htmlContent += convertNodeToHTML(element, styles);
+                htmlContent += convertNodeToHTML(element, styles, numberingDOM);
         }
 
         return htmlContent;
     }
 
-    function convertTableToHTML(tableElement, styles) {
+    function convertTableToHTML(tableElement, styles, numberingDOM) {
         if (!tableElement) {
             return '';
         }
@@ -274,7 +312,7 @@ export default function DocxTagViewer({ element, order, id }) {
                 //     }
                 // }
                 vhStyles = tableHVStyles.insideV + ' ' + tableHVStyles.insideH;
-                htmlContent += `<td style="${cellStyles} ${vhStyles}">${convertNodeToHTML(cellElements[j], styles)}</td>`;
+                htmlContent += `<td style="${cellStyles} ${vhStyles}">${convertNodeToHTML(cellElements[j], styles, numberingDOM)}</td>`;
             }
             htmlContent += '</tr>';
             flagFirstRow = false;
@@ -429,12 +467,17 @@ export default function DocxTagViewer({ element, order, id }) {
                 const documentDOM = documentParser.parseFromString(documentXml, 'text/xml');
                 console.log('Parsed DOCXML:', documentDOM);
 
-                const styletXml = await zip.file('word/styles.xml').async('string');
+                const stylesXml = await zip.file('word/styles.xml').async('string');
                 const stylesParser = new DOMParser();
-                const stylesDOM = stylesParser.parseFromString(styletXml, 'text/xml');
+                const stylesDOM = stylesParser.parseFromString(stylesXml, 'text/xml');
                 console.log('Parsed STYLESXML:', stylesDOM);
 
-                const htmlContent = convertToHTML(documentDOM, stylesDOM);
+                const numberingXml = await zip.file('word/numbering.xml').async('string');
+                const numberingParser = new DOMParser();
+                const numberingDOM = numberingParser.parseFromString(numberingXml, 'text/xml');
+                console.log('Parsed NumberingXML:', numberingDOM);
+
+                const htmlContent = convertToHTML(documentDOM, stylesDOM, numberingDOM);
                 console.log('Generated HTML:', htmlContent);
                 setTemplateState(id, htmlContent);
 
@@ -490,7 +533,7 @@ export default function DocxTagViewer({ element, order, id }) {
                 <div>
                     {/* <DraftEditor id={id} element={element} order={order}></DraftEditor> */}
                     {templateState[id] &&
-                    <ProseEditor id={id} element={element} order={order}></ProseEditor>}
+                        <ProseEditor id={id} element={element} order={order}></ProseEditor>}
                     {/* <div dangerouslySetInnerHTML={{ __html: templateState[id] }}></div> */}
                 </div>
             );
