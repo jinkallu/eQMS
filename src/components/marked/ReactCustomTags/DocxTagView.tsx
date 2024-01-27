@@ -22,6 +22,8 @@ export default function DocxTagViewer({ element, order, id }) {
     const wNamespaceURI = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
     const fieldChar = new FieldChar();
 
+    const docxNumbering = [];
+
 
     const { templateState, setTemplateState } = useExtnStore((state) => state);
     function handleChangeFun(e) {
@@ -92,7 +94,7 @@ export default function DocxTagViewer({ element, order, id }) {
                 const sizeVal = rPrSize.getAttribute('w:val');
                 if (sizeVal) {
                     //console.log(sizeVal);
-                    style += `font-size: ${sizeVal}px;`;
+                    style += `font-size: ${parseInt(sizeVal) / 2}px;`;
                 }
             }
 
@@ -191,56 +193,146 @@ export default function DocxTagViewer({ element, order, id }) {
 
     }
 
-    function getStyleFromStyleXML(element, styles, numberingDOM){
-        
-        const wPStyle = element.getElementsByTagNameNS(wNamespaceURI, 'pStyle')[0]; 
-        if(wPStyle){
+    function extractNumbering(numIdVal, ilvlVal, numberingDOM) {
+        const num = numberingDOM.getElementsByTagNameNS(wNamespaceURI, 'num');
+        //console.log(num);
+        if (num) {
+            for (let i = 0; i < num.length; i++) {
+                const numNumId = num[i].getAttribute('w:numId');
+                console.log(numNumId, numIdVal)
+                if (numIdVal === numNumId) {
+                    const abstractNumId = num[i].getElementsByTagNameNS(wNamespaceURI, 'abstractNumId')[0];
+                    console.log(abstractNumId);
+                    if (abstractNumId) {
+                        const abstractNumIdVal = abstractNumId.getAttribute('w:val');
+                        console.log(abstractNumIdVal)
+                        const abstractNums = numberingDOM.getElementsByTagNameNS(wNamespaceURI, 'abstractNum');
+                        console.log(abstractNums)
+                        if (abstractNums) {
+                            for (let j = 0; j < abstractNums.length; j++) {
+                                const abstractNumIdId = abstractNums[j].getAttribute('w:abstractNumId');
+                                console.log(abstractNumIdId);
+                                if(abstractNumIdId === abstractNumIdVal){
+                                    console.log(abstractNumIdId, abstractNumIdVal);
+                                    const lvls = abstractNums[j].getElementsByTagNameNS(wNamespaceURI, 'lvl');
+                                    for(let k = 0; k < lvls.length; k++){
+                                        const ilvl = lvls[k].getAttribute('w:ilvl');
+                                        console.log(ilvl, ilvlVal);
+                                        if(ilvl === ilvlVal){
+                                            // manage numbering +
+                                            const result = docxNumbering.find(item => item.abstractNumIdId === abstractNumIdId && item.ilvlVal === ilvl);{
+                                                if(result){
+                                                    result.num += 1;
+                                                    return result.num;
+                                                }
+                                                else{
+                                                    docxNumbering.push({abstractNumIdId: abstractNumIdId, ilvlVal: ilvlVal, num: 1});
+                                                    return 1;
+                                                }
+                                            }
+                                            //console.log(docxNumbering);
+                                            //break;
+                                        }
+                                        
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    function extractPPR(node, numberingDOM) {
+        const wPPR = node.getElementsByTagNameNS(wNamespaceURI, 'pPr')[0];
+        if (wPPR) {
+            const numPr = wPPR.getElementsByTagNameNS(wNamespaceURI, 'numPr')[0];
+            if (numPr) {
+                const ilvl = numPr.getElementsByTagNameNS(wNamespaceURI, 'ilvl')[0];
+                const numId = numPr.getElementsByTagNameNS(wNamespaceURI, 'numId')[0];
+                if (numId) {
+                    const numIdVal = numId.getAttribute('w:val');
+                    let ilvlVal = '0';
+                    if(ilvl){
+                        ilvlVal = ilvl.getAttribute('w:val');
+                    }
+                    return extractNumbering(numIdVal, ilvlVal, numberingDOM);
+                }
+            }
+        }
+    }
+
+    function getStyleFromStyleXML(element, styles, numberingDOM) {
+
+        const wPStyle = element.getElementsByTagNameNS(wNamespaceURI, 'pStyle')[0];
+        if (wPStyle) {
             console.log(wPStyle);
             let styleVal = wPStyle.getAttribute('w:val');
             console.log(styleVal);
             const style = styles.find(item => item.styleId === styleVal);
             console.log(style);
             const rStyle = extractRPR(style.node);
+            const numbering = extractPPR(style.node, numberingDOM);
+            rStyle["numbering"] = numbering; 
             console.log(rStyle);
             return rStyle;
         }
     }
 
-    function convertP(element, styles, numberingDOM){
+    function convertP(element, styles, numberingDOM) {
         let htmlContent = '<p';
-        const pPr = element.getElementsByTagNameNS(wNamespaceURI, 'pPr')[0]; 
+        const pPr = element.getElementsByTagNameNS(wNamespaceURI, 'pPr')[0];
         let pStyle = null;
-        if(pPr){
+        if (pPr) {
             //const wPStyle = pPr.getElementsByTagNameNS(wNamespaceURI, 'pStyle')[0]; 
             //if(wPStyle){
-                pStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
-                if(pStyle){
+            pStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
+            if (pStyle) {
+                if (pStyle.bold) {
+                    htmlContent += `${pStyle.style}><strong>${pStyle.numbering?pStyle.numbering: ''}`;
+                }
+                else {
                     htmlContent += `${pStyle.style}>`;
                 }
-                else{
-                    htmlContent += ">"
-                }
-                
+
+            }
+            else {
+                htmlContent += ">"
+            }
+
             //}
             //else{
-                //htmlContent += ">"
+            //htmlContent += ">"
             //}
-           
+
         }
-        else{
+        else {
             htmlContent += ">"
         }
         console.log(htmlContent);
 
-        const r = element.getElementsByTagNameNS(wNamespaceURI, 'r'); 
-        if(r){
-            for (let i = 0; i < r.length; i++){
-                
+        const r = element.getElementsByTagNameNS(wNamespaceURI, 'r');
+        if (r) {
+            for (let i = 0; i < r.length; i++) {
+
                 htmlContent += convertElementToHTML(r[i], styles, numberingDOM);
             }
         }
+        if (pStyle) {
+            if (pStyle.bold) {
+                htmlContent += "</strong></p>";
+            }
+            else {
+                htmlContent += "</p>";
+            }
+        }
+        else {
+            htmlContent += "</p>";
+        }
 
-        htmlContent += "</p>";
         if (!hasTextContent(htmlContent)) {
             htmlContent = "";
         }
@@ -270,7 +362,7 @@ export default function DocxTagViewer({ element, order, id }) {
 
             case 'w:pStyle':
                 htmlContent += getStyleFromStyleXML(element, styles, numberingDOM);
-                
+
 
                 //htmlContent += convertElementToHTML(element, styles, numberingDOM);
                 break;
