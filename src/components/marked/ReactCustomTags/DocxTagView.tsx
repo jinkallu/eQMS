@@ -212,39 +212,63 @@ export default function DocxTagViewer({ element, order, id }) {
                             for (let j = 0; j < abstractNums.length; j++) {
                                 const abstractNumIdId = abstractNums[j].getAttribute('w:abstractNumId');
                                 console.log(abstractNumIdId);
-                                if(abstractNumIdId === abstractNumIdVal){
+                                if (abstractNumIdId === abstractNumIdVal) {
                                     console.log(abstractNumIdId, abstractNumIdVal);
                                     const lvls = abstractNums[j].getElementsByTagNameNS(wNamespaceURI, 'lvl');
-                                    for(let k = 0; k < lvls.length; k++){
+                                    for (let k = 0; k < lvls.length; k++) {
                                         const ilvl = lvls[k].getAttribute('w:ilvl');
                                         console.log(ilvl, ilvlVal);
-                                        if(ilvl === ilvlVal){
+                                        if (ilvl === ilvlVal) {
                                             // manage numbering +
-                                            const result = docxNumbering.find(item => item.abstractNumIdId === abstractNumIdId && item.ilvlVal === ilvl);{
-                                                if(result){
-                                                    result.num += 1;
-                                                    return result.num;
-                                                }
-                                                else{
-                                                    docxNumbering.push({abstractNumIdId: abstractNumIdId, ilvlVal: ilvlVal, num: 1});
-                                                    return 1;
-                                                }
+                                            const result = docxNumbering.find(item => item.abstractNumIdId === parseInt(abstractNumIdId) && item.ilvlVal === parseInt(ilvl));
+                                            if (result) {
+                                                //if (parseInt(ilvl) === 0) {
+                                                    for (let l = parseInt(ilvl) + 1; l < 10; l++) { // magic number, must aligh with heading levels
+                                                        const resetResult = docxNumbering.find(item => item.abstractNumIdId === parseInt(abstractNumIdId) && item.ilvlVal === l);
+                                                        if(resetResult){
+                                                            resetResult.num = 0;
+                                                        }
+                                                    }
+                                                //}
+                                                
+                                                result.num += 1;
+
+                                                
                                             }
-                                            //console.log(docxNumbering);
-                                            //break;
+                                            else {
+                                                docxNumbering.push({ abstractNumIdId: parseInt(abstractNumIdId), ilvlVal: parseInt(ilvlVal), num: 1 });
+                                                //return "1 ";
+                                            }
+
+                                            let strNum = "";
+                                                for(let m = 0; m <= parseInt(ilvlVal); m++){
+                                                    const mResult = docxNumbering.find(item => item.abstractNumIdId === parseInt(abstractNumIdId) && item.ilvlVal === m);
+                                                    if(m ===0 ){
+                                                        strNum += mResult.num.toString();
+                                                    }
+                                                    else{
+                                                        strNum += "." + mResult.num.toString();
+                                                    }
+                                                    
+                                                }
+
+                                                return strNum + " ";
                                         }
-                                        
+                                        //console.log(docxNumbering);
+                                        //break;
                                     }
-                                    break;
+
                                 }
+                                break;
                             }
                         }
                     }
-                    break;
                 }
+                break;
             }
         }
     }
+
 
     function extractPPR(node, numberingDOM) {
         const wPPR = node.getElementsByTagNameNS(wNamespaceURI, 'pPr')[0];
@@ -256,7 +280,7 @@ export default function DocxTagViewer({ element, order, id }) {
                 if (numId) {
                     const numIdVal = numId.getAttribute('w:val');
                     let ilvlVal = '0';
-                    if(ilvl){
+                    if (ilvl) {
                         ilvlVal = ilvl.getAttribute('w:val');
                     }
                     return extractNumbering(numIdVal, ilvlVal, numberingDOM);
@@ -276,7 +300,7 @@ export default function DocxTagViewer({ element, order, id }) {
             console.log(style);
             const rStyle = extractRPR(style.node);
             const numbering = extractPPR(style.node, numberingDOM);
-            rStyle["numbering"] = numbering; 
+            rStyle["numbering"] = numbering;
             console.log(rStyle);
             return rStyle;
         }
@@ -292,7 +316,7 @@ export default function DocxTagViewer({ element, order, id }) {
             pStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
             if (pStyle) {
                 if (pStyle.bold) {
-                    htmlContent += `${pStyle.style}><strong>${pStyle.numbering?pStyle.numbering: ''}`;
+                    htmlContent += `${pStyle.style}><strong>${pStyle.numbering ? pStyle.numbering : ''}`;
                 }
                 else {
                     htmlContent += `${pStyle.style}>`;
