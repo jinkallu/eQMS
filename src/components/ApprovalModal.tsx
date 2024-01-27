@@ -23,6 +23,7 @@ import {
   Divider,
   FormControlLabel,
   Switch,
+  Grid,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
@@ -30,6 +31,8 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import React from "react";
 import { useExtnStore } from "../zustand/store";
 import { updateVote, voteStatus } from "../utils/gitHelpers.js";
+import MarkedToCustom from "./marked/MarkedToCustom";
+
 export default function ApprovalModal({
   open,
   setOpen,
@@ -39,8 +42,14 @@ export default function ApprovalModal({
   myApprovalPending,
   myReviewPending,
   pullRequestStatus,
+  branchName,
+  type,
+  diffInfo,
 }) {
   const [message, setMessage] = React.useState("");
+  const [htmlTextMain, setTextHtmlMain] = React.useState("");
+  const [htmlTextEdit, setHtmlTextEdit] = React.useState("");
+  const [diffText, setDiffText] = React.useState([]);
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [showApprovers, setShowApprovers] = React.useState(false);
@@ -56,7 +65,42 @@ export default function ApprovalModal({
     setAlertMessage,
     teamsWithMembers,
     project,
+    getFileContent,
   } = useExtnStore((state) => state);
+
+  async function getFileContentData(edit) {
+    let newBranchName = branchName;
+
+    let lastIndex = branchName.lastIndexOf("/main");
+
+    if (edit) {
+      //Replace the last occurrence with "/edit"
+      newBranchName =
+        branchName.substring(0, lastIndex) +
+        "/edit" +
+        branchName.substring(lastIndex + "/main".length);
+    }
+
+    const content = await getFileContent(
+      repository.id,
+      `/qms/${type}/data.html`,
+      newBranchName
+    );
+
+    if (content && content.trim() !== "") {
+      // const parser = new DOMParser();
+      // const htmlData = parser.parseFromString(content, "text/html");
+
+      if (edit) {
+        setHtmlTextEdit(content);
+      } else {
+        setTextHtmlMain(content);
+      }
+      // setHtml(htmlData);
+    }
+
+    // setInputText(content);
+  }
 
   async function handleApproval(vote) {
     setLoading(true);
@@ -92,6 +136,28 @@ export default function ApprovalModal({
     setOpen(false);
     // navigate("/qmshub.html/");
   }
+
+  function getTextColor(val, isMain) {
+    if (val === 1) {
+      return "red";
+    }
+    if (val === 3) {
+      if (isMain) return "red";
+      return "green";
+    }
+    return "black";
+  }
+
+  React.useEffect(() => {
+    if (open && branchName && repository) {
+      getFileContentData(false);
+      getFileContentData(true);
+    }
+  }, [repository, branchName, open]);
+
+  const editLines = htmlTextEdit?.split("\n");
+  const mainLines = htmlTextMain?.split("\n");
+
   return (
     <Modal
       open={open}
@@ -132,6 +198,68 @@ export default function ApprovalModal({
             <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
               <Chip label={sopName} color="primary"></Chip>
             </Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                width: "90vw",
+                maxHeight: "50vh",
+                overflow: "auto",
+              }}
+            >
+              {diffInfo?.map((diff) => {
+                return (
+                  <Box sx={{ pading: "0px" }}>
+                    {Array.from(Array(diff?.originalLinesCount).keys())?.map(
+                      (cnt) => (
+                        <h4
+                          style={{
+                            paddingTop: "0px",
+                            paddingBottom: "0px",
+                            color: getTextColor(diff?.changeType, true),
+                          }}
+                        >
+                          {mainLines[diff.originalLineNumberStart - 1 + +cnt]}
+                        </h4>
+                      )
+                    )}
+                    {Array.from(Array(diff?.modifiedLinesCount).keys())?.map(
+                      (cnt) =>
+                        diff?.changeType !== 0 && (
+                          <h4
+                            style={{
+                              paddingTop: "0px",
+                              paddingBottom: "0px",
+                              color: getTextColor(diff?.changeType, false),
+                            }}
+                          >
+                            {editLines[diff.modifiedLineNumberStart - 1 + +cnt]}
+                          </h4>
+                        )
+                    )}
+                  </Box>
+                );
+              })}
+
+              {/* 
+              <p>
+                {diffText &&
+                  diffText?.map((item, index) => (
+                    <span key={index} style={{ color: getTextColor(item[0]) }}>
+                      {item[1]}
+                    </span>
+                  ))}
+              </p> */}
+            </Box>
+
+            <MarkedToCustom
+              key={"base"}
+              element={""}
+              open={null}
+              setOpen={null}
+              order="last"
+              productId={null}
+            ></MarkedToCustom>
 
             {enableApprove() && (
               <Box>

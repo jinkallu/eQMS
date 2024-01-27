@@ -57,6 +57,7 @@ function Row({ sop, edit, expandAll }) {
     pullRequestStatus,
   } = useSOPActions();
   const [openAddTemplateModal, setOpenAddTemplateModal] = React.useState(false);
+  const [diffInfo, setDiffInfo] = React.useState([]);
   const [openApprovalModal, setOpenApprovalModal] = React.useState(false);
   const [openCreatePRModal, setOpenCreatePRModal] = React.useState(false);
   const [isEditContentDifferentFromMain, setIsEditContentDifferentFromMain] =
@@ -92,20 +93,23 @@ function Row({ sop, edit, expandAll }) {
     //   targetVersionDescriptor
     // );
     const fileDiffsCriteria = {
-      baseVersionCommit: edit?.commit?.commitId,
-      targetVersionCommit: sop?.commit?.commitId,
+      baseVersionCommit: sop?.commit?.commitId,
+      targetVersionCommit: edit?.commit?.commitId,
       fileDiffParams: [
         {
           originalPath: "qms/sop/data.html",
-          path: "qms/sop/data.html"
-        }
-      ]
-
+          path: "qms/sop/data.html",
+        },
+      ],
+    };
+    const res1 = await gitClient.getFileDiffs(
+      fileDiffsCriteria,
+      project?.id,
+      repository?.id
+    );
+    if (res1 && res1?.length > 0) {
+      setDiffInfo(res1[0]?.lineDiffBlocks);
     }
-    const res1 = await gitClient.getFileDiffs(fileDiffsCriteria, project?.id, repository?.id)
-
-
-    console.log(res1);
   }
 
   async function checkGitDiff() {
@@ -217,10 +221,13 @@ function Row({ sop, edit, expandAll }) {
         setOpen={setOpenApprovalModal}
         pullRequest={sop?.pullRequest}
         branchId={sop?.branchId}
+        branchName={sop?.name}
+        type={sop?.type}
         sopName={sop?.relativePath}
         myApprovalPending={myApprovalPending}
         myReviewPending={myReviewPending}
         pullRequestStatus={pullRequestStatus}
+        diffInfo={diffInfo}
       ></ApprovalModal>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell component="th" scope="row">
