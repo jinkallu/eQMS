@@ -192,10 +192,18 @@ export default function DocxTagViewer({ element, order, id }) {
     }
 
     function getStyleFromStyleXML(element, styles, numberingDOM){
-        let styleVal = element.getAttribute('w:val');
-        const style = styles.find(item => item.styleId === styleVal);
-        const rStyle = extractRPR(style);
-        return rStyle;
+        
+        const wPStyle = element.getElementsByTagNameNS(wNamespaceURI, 'pStyle')[0]; 
+        if(wPStyle){
+            console.log(wPStyle);
+            let styleVal = wPStyle.getAttribute('w:val');
+            console.log(styleVal);
+            const style = styles.find(item => item.styleId === styleVal);
+            console.log(style);
+            const rStyle = extractRPR(style.node);
+            console.log(rStyle);
+            return rStyle;
+        }
     }
 
     function convertP(element, styles, numberingDOM){
@@ -203,15 +211,31 @@ export default function DocxTagViewer({ element, order, id }) {
         const pPr = element.getElementsByTagNameNS(wNamespaceURI, 'pPr')[0]; 
         let pStyle = null;
         if(pPr){
-            pStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
+            //const wPStyle = pPr.getElementsByTagNameNS(wNamespaceURI, 'pStyle')[0]; 
+            //if(wPStyle){
+                pStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
+                if(pStyle){
+                    htmlContent += `${pStyle.style}>`;
+                }
+                else{
+                    htmlContent += ">"
+                }
+                
+            //}
+            //else{
+                //htmlContent += ">"
+            //}
+           
         }
         else{
-            htmlContent += ` style="${pStyle.style}">`;
+            htmlContent += ">"
         }
+        console.log(htmlContent);
 
         const r = element.getElementsByTagNameNS(wNamespaceURI, 'r'); 
         if(r){
             for (let i = 0; i < r.length; i++){
+                
                 htmlContent += convertElementToHTML(r[i], styles, numberingDOM);
             }
         }
@@ -220,6 +244,7 @@ export default function DocxTagViewer({ element, order, id }) {
         if (!hasTextContent(htmlContent)) {
             htmlContent = "";
         }
+        console.log(htmlContent);
         return htmlContent;
     }
 

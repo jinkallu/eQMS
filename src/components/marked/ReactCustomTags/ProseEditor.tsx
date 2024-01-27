@@ -29,46 +29,6 @@ export default function ProseEditor({ element, order, id }) {
         setTemplateState(id, e.target.value);
     }
 
-    // const testSchema = new Schema({
-    //     nodes: {
-    //         doc: { content: "block+" },
-    //         paragraph: {
-    //             content: "inline*",
-    //             group: "block",
-    //             parseDOM: [{ tag: "p" }],
-    //             toDOM() { return ["p", 0]; }
-    //         },
-    //         text: {
-    //             group: "inline"
-    //         },
-    //         input: {
-    //             inline: true,
-    //             group: "inline",
-    //             attrs: {
-    //                 type: { default: "text" },
-    //                 value: { default: "" },
-    //                 id: { default: "" } // Add 'id' attribute here
-    //             },
-    //             parseDOM: [{
-    //                 tag: "input",
-    //                 getAttrs: (node: HTMLElement) => ({
-    //                     type: node.getAttribute("type"),
-    //                     value: node.getAttribute("value"),
-    //                     id: node.getAttribute("id") // Get 'id' attribute from DOM
-    //                 })
-    //             }],
-    //             toDOM: (node) => {
-    //                 const dom = document.createElement("input");
-    //                 dom.setAttribute("id", node.attrs.id);
-    //                 dom.setAttribute("value", node.attrs.value);
-    //                 dom.setAttribute("disabled", node.attrs.disabled);
-
-    //                 return dom;
-    //             }
-    //         }
-    //     }
-    // });
-
     const customInputNode = {
         input: {
             inline: true,
@@ -102,6 +62,7 @@ export default function ProseEditor({ element, order, id }) {
         },
     };
 
+
     const newCustomTableNode = {
         table: {
             content: "table_row+",
@@ -129,16 +90,16 @@ export default function ProseEditor({ element, order, id }) {
             attrs: {
                 style: { default: null },
             },
-            parseDOM: [{ 
+            parseDOM: [{
                 tag: "tr",
                 getAttrs(dom) {
                     return {
                         style: dom.getAttribute('style') || null,
                     };
-                }, 
+                },
             }],
             toDOM(node) {
-                return ["tr",{
+                return ["tr", {
                     style: node.attrs.style || "",
                 }, 0];  // Add this line
             },
@@ -153,132 +114,23 @@ export default function ProseEditor({ element, order, id }) {
                 style: { default: null },
             },
             group: "table_cell",
-            parseDOM: [{ 
+            parseDOM: [{
                 tag: "td",
                 getAttrs(dom) {
                     return {
                         style: dom.getAttribute('style') || null,
                     };
-                },  
+                },
             }],
             toDOM(node) {
                 //const attrs = { class: node.attrs.class };
-                return ["td",{
+                return ["td", {
                     style: node.attrs.style || "",
                 }, 0];
             },
         },
     };
-    
 
-    // Custom table node with header
-    const customTableNode = tableNodes({
-        tableGroup: "block",
-        cellContent: "block+",
-        cellAttributes: {
-            id: {
-                default: null,
-                getFromDOM(dom) {
-                    return dom.getAttribute('id') || null;
-                },
-                setDOMAttr(value, attrs) {
-                    if (value) attrs.id = value;
-                },
-            },
-            background: {
-                default: null,
-                getFromDOM(dom) {
-                    return (dom.style && dom.style.backgroundColor) || null;
-                },
-                setDOMAttr(value, attrs) {
-                    if (value)
-                        attrs.style = (attrs.style || "") + `background-color: ${value};`;
-                }
-            },
-
-            border: {
-                default: null,
-                getFromDOM(dom) {
-                    return (dom.style && dom.style.border) || null;
-                },
-                setDOMAttr(value, attrs) {
-                    if (value)
-                        attrs.style = (attrs.style || "") + `border: ${value};`;
-                },
-            },
-            borderTop: {
-                default: null,
-                getFromDOM(dom) {
-                    return (dom.style && dom.style.borderTop) || null;
-                },
-                setDOMAttr(value, attrs) {
-                    if (value)
-                        attrs.style = (attrs.style || "") + `border-top: ${value};`;
-                },
-            },
-            borderRight: {
-                default: null,
-                getFromDOM(dom) {
-                    return (dom.style && dom.style.borderRight) || null;
-                },
-                setDOMAttr(value, attrs) {
-                    if (value)
-                        attrs.style = (attrs.style || "") + `border-right: ${value};`;
-                },
-            },
-            borderBottom: {
-                default: null,
-                getFromDOM(dom) {
-                    return (dom.style && dom.style.borderBottom) || null;
-                },
-                setDOMAttr(value, attrs) {
-                    if (value)
-                        attrs.style = (attrs.style || "") + `border-bottom: ${value};`;
-                },
-            },
-            borderLeft: {
-                default: null,
-                getFromDOM(dom) {
-                    return (dom.style && dom.style.borderLeft) || null;
-                },
-                setDOMAttr(value, attrs) {
-                    if (value)
-                        attrs.style = (attrs.style || "") + `border-left: ${value};`;
-                },
-            },
-            // borderStyle: {
-            //     default: null,
-            //     getFromDOM(dom) {
-            //       return (dom.style && dom.style.borderStyle) || null;
-            //     },
-            //     setDOMAttr(value, attrs) {
-            //       if (value)
-            //         attrs.style = (attrs.style || "") + `border-style: ${value};`;
-            //     }
-            //   },
-            //   borderWidth: {
-            //     default: null,
-            //     getFromDOM(dom) {
-            //       return (dom.style && dom.style.borderWidth) || null;
-            //     },
-            //     setDOMAttr(value, attrs) {
-            //       if (value)
-            //         attrs.style = (attrs.style || "") + `border-width: ${value};`;
-            //     }
-            //   },
-            //   borderColor: {
-            //     default: null,
-            //     getFromDOM(dom) {
-            //       return (dom.style && dom.style.borderColor) || null;
-            //     },
-            //     setDOMAttr(value, attrs) {
-            //       if (value)
-            //         attrs.style = (attrs.style || "") + `border-color: ${value};`;
-            //     }
-            //   },
-
-        }
-    });
 
     const inputMenuItem = new MenuItem({
         title: 'Insert InputField',
@@ -319,51 +171,9 @@ export default function ProseEditor({ element, order, id }) {
 
     const domParser = new DOMParser();
 
-    //let htmlString = "<div>Nodata</div>";
-    //const [parsedContent, setParsedContent] = useState(null);
+   
 
-    //if (templateState[id]) {
-    console.log("read DOCX")
-
-    //setParsedContent(parser.parse(domElement));
-
-    //const extendedNodes = { ...nodes, ...customInputNode, ...customTableNode };
-    //const extendedMarks = { ...marks };
-    // Add a new span node
-
-    /*
-        const customSpanNode = {
-            span: {
-                inline: true,
-                group: 'inline',
-                content: 'inline*',
-                attrs: {
-                    type: { default: 'text' },
-                    id: { default: '' },
-                    style: { default: '' },
     
-                },
-                parseDOM: [{
-                    tag: 'span',
-                    getAttrs: (node) => ({
-                        type: node.getAttribute('type'),
-                        id: node.getAttribute('id'),
-                        style: node.getAttribute('style'), // Added this line
-                    }),
-                }],
-                toDOM: (node) => {
-                    
-                    const spanAttrs = { 
-                        id: node.attrs.id,
-                        style: node.attrs.style, // Added this lin
-                    };
-                    const spanContent = node.textContent;
-    
-                    return ['span', spanAttrs, spanContent];
-                },
-            },
-        };
-    */
     const customSpanMark = {
         span: {
             attrs: {
@@ -387,27 +197,32 @@ export default function ProseEditor({ element, order, id }) {
             },
         },
     };
-    //   const customSpanNode = {
-    //     span: {
-    //       inline: true,
-    //       group: 'inline',
-    //       parseDOM: [{ tag: 'span' }],
-    //       toDOM() {
-    //         return ['span', 0];
-    //       },
-    //     },
-    //   };
 
+    const customParagraphNode = {
+        ...basicNodes.paragraph,
+        attrs: {
+            ...basicNodes.paragraph.attrs,
+            style: { default: '' },
+        },
+        parseDOM: [{
+            tag: 'p',
+            getAttrs: (node) => {
+                let style = node.getAttribute('style');
+                return {
+                    ...basicNodes.paragraph.attrs,
+                    style: style ? style : '',
+                };
+            },
+        }],
+        toDOM: (node) => {
 
-    // Extend the basicNodes
-    // const extendedNodes = {
-    //     ...basicNodes,
-    //     ...customSpanNode,
-
-    // };
+            return ['p', { ...node.attrs, style: node.attrs.style }, 0];
+        },
+    };
+    
 
     const extendedSchema = new Schema({
-        nodes: { ...basicNodes, ...customInputNode, ...newCustomTableNode },
+        nodes: { ...basicNodes, ...customInputNode, ...newCustomTableNode, paragraph:customParagraphNode },
         marks: { ...marks, ...customSpanMark, ...{} },
     });
 
@@ -425,6 +240,7 @@ export default function ProseEditor({ element, order, id }) {
 
 
     let htmlString = templateState[id];
+    console.log(htmlString);
     //}
     const domElement = domParser.parseFromString(
         htmlString,
@@ -452,7 +268,7 @@ export default function ProseEditor({ element, order, id }) {
             plugins: [
                 menu,
                 keymap(baseKeymap),
-            ].concat(exampleSetup({ schema:extendedSchema})),
+            ].concat(exampleSetup({ schema: extendedSchema })),
         })
     );
 
