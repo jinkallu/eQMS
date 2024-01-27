@@ -223,17 +223,17 @@ export default function DocxTagViewer({ element, order, id }) {
                                             const result = docxNumbering.find(item => item.abstractNumIdId === parseInt(abstractNumIdId) && item.ilvlVal === parseInt(ilvl));
                                             if (result) {
                                                 //if (parseInt(ilvl) === 0) {
-                                                    for (let l = parseInt(ilvl) + 1; l < 10; l++) { // magic number, must aligh with heading levels
-                                                        const resetResult = docxNumbering.find(item => item.abstractNumIdId === parseInt(abstractNumIdId) && item.ilvlVal === l);
-                                                        if(resetResult){
-                                                            resetResult.num = 0;
-                                                        }
+                                                for (let l = parseInt(ilvl) + 1; l < 10; l++) { // magic number, must aligh with heading levels
+                                                    const resetResult = docxNumbering.find(item => item.abstractNumIdId === parseInt(abstractNumIdId) && item.ilvlVal === l);
+                                                    if (resetResult) {
+                                                        resetResult.num = 0;
                                                     }
+                                                }
                                                 //}
-                                                
+
                                                 result.num += 1;
 
-                                                
+
                                             }
                                             else {
                                                 docxNumbering.push({ abstractNumIdId: parseInt(abstractNumIdId), ilvlVal: parseInt(ilvlVal), num: 1 });
@@ -241,18 +241,18 @@ export default function DocxTagViewer({ element, order, id }) {
                                             }
 
                                             let strNum = "";
-                                                for(let m = 0; m <= parseInt(ilvlVal); m++){
-                                                    const mResult = docxNumbering.find(item => item.abstractNumIdId === parseInt(abstractNumIdId) && item.ilvlVal === m);
-                                                    if(m ===0 ){
-                                                        strNum += mResult.num.toString();
-                                                    }
-                                                    else{
-                                                        strNum += "." + mResult.num.toString();
-                                                    }
-                                                    
+                                            for (let m = 0; m <= parseInt(ilvlVal); m++) {
+                                                const mResult = docxNumbering.find(item => item.abstractNumIdId === parseInt(abstractNumIdId) && item.ilvlVal === m);
+                                                if (m === 0) {
+                                                    strNum += mResult.num.toString();
+                                                }
+                                                else {
+                                                    strNum += "." + mResult.num.toString();
                                                 }
 
-                                                return strNum + " ";
+                                            }
+
+                                            return { result: strNum + " ", ilvl: parseInt(ilvlVal) };
                                         }
                                         //console.log(docxNumbering);
                                         //break;
@@ -315,8 +315,8 @@ export default function DocxTagViewer({ element, order, id }) {
             //if(wPStyle){
             pStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
             if (pStyle) {
-                if (pStyle.bold) {
-                    htmlContent += `${pStyle.style}><strong>${pStyle.numbering ? pStyle.numbering : ''}`;
+                if (pStyle.numbering) {
+                    htmlContent += `${pStyle.style}><h${pStyle.numbering.ilvl + 1}>${pStyle.numbering.result ? pStyle.numbering.result : ''}`;
                 }
                 else {
                     htmlContent += `${pStyle.style}>`;
@@ -346,8 +346,13 @@ export default function DocxTagViewer({ element, order, id }) {
             }
         }
         if (pStyle) {
-            if (pStyle.bold) {
-                htmlContent += "</strong></p>";
+            if (pStyle.numbering) {
+                if(pStyle.numbering.ilvl === 0){
+                    htmlContent += `</h${pStyle.numbering.ilvl + 1}> <hr></p>`;
+                }
+                else{
+                    htmlContent += `</h${pStyle.numbering.ilvl + 1}></p>`;
+                }
             }
             else {
                 htmlContent += "</p>";
@@ -535,7 +540,7 @@ export default function DocxTagViewer({ element, order, id }) {
                 const color = wColorToHtmlVal(borderElement.getAttribute('w:color'));
                 //console.log(val, sz, color);
                 if (val && sz && color) {
-                    borderStyles.push(`border-${borderType}: ${val} ${sz}px #${color};`);
+                    borderStyles.push(`border-${borderType}: ${val} ${parseInt(sz) / 2}px #${color};`);
                 }
             }
         }

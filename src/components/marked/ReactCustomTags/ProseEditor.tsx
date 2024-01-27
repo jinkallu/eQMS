@@ -62,6 +62,72 @@ export default function ProseEditor({ element, order, id }) {
         },
     };
 
+    const customTextInlineNode = {
+        inlinetext: {
+            inline: true,
+            group: 'inline',
+            attrs: {
+                type: { default: 'text' },
+                value: { default: '' },
+                id: { default: '' },
+                disabled: { default: false },
+            },
+            parseDOM: [{
+                tag: 'textarea',
+                getAttrs: (node) => ({
+                    type: node.getAttribute('type'),
+                    value: node.getAttribute('value'),
+                    id: node.getAttribute('id'),
+                    disabled: node.hasAttribute('disabled'),
+                }),
+            }],
+            toDOM: (node) => {
+                const dom = document.createElement('textarea');
+                dom.setAttribute('id', node.attrs.id);
+                dom.setAttribute('value', node.attrs.value);
+
+                if (node.attrs.disabled) {
+                    dom.setAttribute('disabled', '');
+                }
+
+                return dom;
+            },
+        },
+    };
+
+    const customTextBlockeNode = {
+        blocktext: {
+            //inline: true,
+            group: 'block',
+            attrs: {
+                type: { default: 'text' },
+                value: { default: '' },
+                id: { default: '' },
+                disabled: { default: false },
+            },
+            parseDOM: [{
+                tag: 'textarea',
+                getAttrs: (node) => ({
+                    type: node.getAttribute('type'),
+                    value: node.getAttribute('value'),
+                    id: node.getAttribute('id'),
+                    disabled: node.hasAttribute('disabled'),
+                }),
+            }],
+            toDOM: (node) => {
+                const dom = document.createElement('textarea');
+                dom.setAttribute('id', node.attrs.id);
+                dom.setAttribute('value', node.attrs.value);
+
+                if (node.attrs.disabled) {
+                    dom.setAttribute('disabled', '');
+                }
+
+                return dom;
+            },
+        },
+    };
+
 
     const newCustomTableNode = {
         table: {
@@ -139,11 +205,28 @@ export default function ProseEditor({ element, order, id }) {
         //icon: /* Your icon or label for the menu item */,
     });
 
+    const inlineTextMenuItem = new MenuItem({
+        title: 'Insert Inline Text Area',
+        label: 'Inline Text Area',
+        run: insertInlineText,
+        //icon: /* Your icon or label for the menu item */,
+    });
+
+    const blockTextMenuItem = new MenuItem({
+        title: 'Insert Block Text Area',
+        label: 'Block  Text Area',
+        run: insertBlockText,
+        //icon: /* Your icon or label for the menu item */,
+    });
+
 
 
 
     const menuItems = [
         inputMenuItem,
+        inputMenuItem,
+        inlineTextMenuItem,
+        blockTextMenuItem,
 
         new MenuItem({
             title: 'Bold',
@@ -222,7 +305,7 @@ export default function ProseEditor({ element, order, id }) {
     
 
     const extendedSchema = new Schema({
-        nodes: { ...basicNodes, ...customInputNode, ...newCustomTableNode, paragraph:customParagraphNode },
+        nodes: { ...basicNodes, ...customInputNode, ...customTextInlineNode, ...customTextBlockeNode, ...newCustomTableNode, paragraph:customParagraphNode },
         marks: { ...marks, ...customSpanMark, ...{} },
     });
 
@@ -237,6 +320,31 @@ export default function ProseEditor({ element, order, id }) {
         // Apply the transaction
         if (dispatch) dispatch(tr);
     }
+
+     // Define the command
+     function insertInlineText(state, dispatch) {
+        // Create a new 'input' node
+        const inputNode = extendedSchema.nodes.inlinetext.create({ id: "inlineText", value: "Inline Text Area", disabled: true });
+
+        // Insert the 'input' node at the current selection
+        const tr = state.tr.replaceSelectionWith(inputNode);
+
+        // Apply the transaction
+        if (dispatch) dispatch(tr);
+    }
+
+     // Define the command
+     function insertBlockText(state, dispatch) {
+        // Create a new 'input' node
+        const inputNode = extendedSchema.nodes.blocktext.create({ id: "blockText", value: "Block Text Area", disabled: true });
+
+        // Insert the 'input' node at the current selection
+        const tr = state.tr.replaceSelectionWith(inputNode);
+
+        // Apply the transaction
+        if (dispatch) dispatch(tr);
+    }
+
 
 
     let htmlString = templateState[id];
