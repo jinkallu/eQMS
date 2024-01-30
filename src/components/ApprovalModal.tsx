@@ -32,6 +32,7 @@ import React from "react";
 import { useExtnStore } from "../zustand/store";
 import { updateVote, voteStatus } from "../utils/gitHelpers.js";
 import MarkedToCustom from "./marked/MarkedToCustom";
+import DiffEditor from "./DiffEditor";
 
 export default function ApprovalModal({
   open,
@@ -198,7 +199,12 @@ export default function ApprovalModal({
             <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
               <Chip label={sopName} color="primary"></Chip>
             </Box>
-            <Box
+            <DiffEditor
+              diffInfo={diffInfo}
+              mainLines={mainLines}
+              editLines={editLines}
+            ></DiffEditor>
+            {/* <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -241,16 +247,8 @@ export default function ApprovalModal({
                 );
               })}
 
-              {/* 
-              <p>
-                {diffText &&
-                  diffText?.map((item, index) => (
-                    <span key={index} style={{ color: getTextColor(item[0]) }}>
-                      {item[1]}
-                    </span>
-                  ))}
-              </p> */}
-            </Box>
+              
+            </Box> */}
 
             <MarkedToCustom
               key={"base"}
