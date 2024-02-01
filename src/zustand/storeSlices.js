@@ -33,17 +33,6 @@ export const alertSnackbarSlice = (set) => ({
     set((state) => ({ openAlertSnackbar: false, message: "" })),
 });
 
-export const proseMirrorSlice = (set) => ({
-  proseState: null,
-  proseDispatch: "",
-
-  setProseState: ({ proseState }) =>
-    set((state) => ({ proseState: proseState })),
-
-  setProseDispatch: ({ proseDispatch }) =>
-    set((state) => ({ proseDispatch: proseDispatch })),
-});
-
 export const userSlice = (set) => ({
   currentUser: {},
   isQualityMgrSelected: false,

@@ -10,7 +10,6 @@ import {
   userSlice,
   pullRequestSlice,
   refreshDataSlice,
-  proseMirrorSlice,
 } from "./storeSlices";
 
 export const useExtnStore = create((...a) => ({
@@ -23,5 +22,4 @@ export const useExtnStore = create((...a) => ({
   ...userSlice(...a),
   ...pullRequestSlice(...a),
   ...refreshDataSlice(...a),
-  ...proseMirrorSlice(...a),
 }));
