@@ -1,16 +1,27 @@
-import { mergeAttributes, Node } from '@tiptap/core';
+import { Node } from '@tiptap/core';
 
 const CustomInputNode = Node.create({
     name: 'custom_input',
-    group: 'block',
-    //inline: true,
-    //content: 'text*', // Allow inline text content
+    group: 'inline',
+    inline: true,
+    content: 'text*', // Allow inline text content
+
+    addAttributes() {
+        return {
+            // Define any custom attributes here
+            id: { default: null },
+        }
+    },
     parseHTML() {
-      return [{ tag: 'input' }];
+        return [
+            {
+                tag: 'input',
+            }
+        ];
     },
-    renderHTML({ HTMLAttributes }) {
-      return ['input', HTMLAttributes, 0];
+    renderHTML({ node, HTMLAttributes }) {
+        return ['input', HTMLAttributes, 0];
     },
-  });
-  
-  export default CustomInputNode;
+});
+
+export default CustomInputNode;

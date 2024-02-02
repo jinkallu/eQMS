@@ -1,4 +1,4 @@
-import { EditorProvider, FloatingMenu, BubbleMenu, useEditor } from "@tiptap/react";
+import { EditorProvider, FloatingMenu, BubbleMenu, useCurrentEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useExtnStore } from "../../../zustand/store";
 import { customTableNode } from "./CustomTableNode";
@@ -9,7 +9,7 @@ import CustomInputNode from "./CustomInputNode";
 // define your extension array
 const extensions = [
   StarterKit,
-  //CustomInputNode,
+  CustomInputNode,
   customTableNode.table,
   customTableNode.table_row,
   customTableNode.table_cell,
@@ -19,12 +19,13 @@ const extensions = [
 
 const TiptapEditor = ({ id }) => {
   const { templateState } = useExtnStore((state) => state);
+  
 
   
   return (
-    <EditorProvider extensions={extensions} content={templateState[id] || " "}>
+    <EditorProvider extensions={extensions} content={templateState[id] || " "} slotBefore={<InsertCustomInputButton />}>
       <FloatingMenu>
-      <InsertCustomInputButton />
+      
 
       </FloatingMenu>
       <BubbleMenu>This is the bubble menu</BubbleMenu>
@@ -33,10 +34,14 @@ const TiptapEditor = ({ id }) => {
 };
 
 const InsertCustomInputButton = () => {
-  //const editor = useEditor();
+  const {editor} = useCurrentEditor();
 
   const insertCustomInput = () => {
-    //editor.chain().focus().insertContent('<custom_input>Default text</custom_input>').run();
+    editor.chain().focus().insertContent({type: "custom_input", attrs: { id: "testInput"}}).run();
+    //const node = editor.schema.nodes.custom_input.create({ id: 'testInput' });
+    //console.log(node);
+    //editor.chain().focus().insertContent(node).run();
+
   };
 
   return <button onClick={insertCustomInput}>Insert Custom Input</button>;

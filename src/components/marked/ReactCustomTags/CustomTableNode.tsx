@@ -4,18 +4,15 @@ const CustomTableNode = Node.create({
     name: 'table',
     group: 'block',
     content: 'table_row+',
-    attrs: {
-        style: { default: null }, // Add a style attribute
+    addAttributes() {
+        return {
+            style: { default: null }, // Add a style attribute
+        }
     },
     parseHTML() {
         return [
             {
                 tag: 'table',
-                getAttrs(dom) {
-                    return {
-                        style: dom.style.cssText || null,
-                    };
-                },
             }
         ];
     },
@@ -28,12 +25,14 @@ const CustomTableRowNode = Node.create({
     name: 'table_row',
     group: 'table_row',
     content: 'table_cell+',
-    attrs: {
-        style: { default: null }, // Add a style attribute
+    addAttributes() {
+        return {
+            style: { default: null }, // Add a style attribute
+        }
     },
     parseHTML() {
         return [
-            { tag: 'tr', getAttrs: (dom) => ({ style: dom.getAttribute('style') || null }) },
+            { tag: 'tr' },
         ];
     },
     renderHTML({ node, HTMLAttributes }) {
@@ -45,22 +44,22 @@ const CustomTableCellNode = Node.create({
     name: 'table_cell',
     group: 'table_cell',
     content: 'block',
-    attrs: {
-        style: { default: 'border: 1px solid black;' }, // Add a style attribute
+    addAttributes() {
+        return {
+            style: { default: null }, // Add a style attribute
+        }
     },
-    parseHTML(element) {
-        console.log('Parsing HTML:', element);
+    parseHTML() {
 
         return [
             {
-              tag: 'td',
-              getAttrs: (dom) => ({ style: dom.getAttribute('style') }),
+                tag: 'td',
             },
-          ];
+        ];
     },
-    
+
     renderHTML({ HTMLAttributes }) {
-        return ['td',  {...HTMLAttributes, style: HTMLAttributes.style}, 0];
+        return ['td', { ...HTMLAttributes, style: HTMLAttributes.style }, 0];
     },
 });
 
