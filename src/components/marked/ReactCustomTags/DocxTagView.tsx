@@ -731,10 +731,10 @@ export default function DocxTagViewer({ element, order, id }) {
       component = (
         <div>
           {/* <DraftEditor id={id} element={element} order={order}></DraftEditor> */}
-          {templateState[id] && (
+          {/* {templateState[id] && (
             // <ProseEditor id={id} element={element} order={order}></ProseEditor>}
             <TiptapEditor id={id}></TiptapEditor>
-          )}
+          )} */}
           {/* <div dangerouslySetInnerHTML={{ __html: templateState[id] }}></div> */}
         </div>
       );

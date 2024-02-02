@@ -29,6 +29,7 @@ import MarkedToCustom from "./marked/MarkedToCustom";
 import VersionSelector from "./VersionSelector";
 import Viewers from "./marked/Viewers";
 import { pageWidths } from "../constants";
+import TiptapEditor from "./marked/ReactCustomTags/TiptapEditor";
 
 export default function HTMLViewer() {
   //const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
@@ -52,7 +53,7 @@ export default function HTMLViewer() {
 
   const [inputText, setInputText] = React.useState("");
   const [html, setHtml] = React.useState<Document>();
-  const [htmlEdit, setHtmlEdit] = React.useState<Document>();
+  const [htmlEdit, setHtmlEdit] = React.useState("");
 
   const [branch, setBranch] = React.useState<any>();
   const [editMode, setEditMode] = React.useState(false);
@@ -236,8 +237,8 @@ export default function HTMLViewer() {
     if (data && data.trim() !== "") {
       const parser = new DOMParser();
       //const htmlString = marked(markedData);
-      const htmlData = parser.parseFromString(data, "text/html");
-      setHtmlEdit(htmlData);
+      // const htmlData = parser.parseFromString(data, "text/html");
+      setHtmlEdit(data);
     }
   }
 
@@ -400,22 +401,25 @@ export default function HTMLViewer() {
       <Box
         sx={{
           display: "flex",
+          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           overflowY: "auto",
+          width: "100%",
         }}
       >
         {editMode ? (
-          <MonacoEditor
-            objectId={""}
-            type={type}
-            branchName={branchName}
-            relativePath={relativePath}
-            html={htmlEdit}
-            setOpenEditModal={setOpen}
-            toggleEditModeData={toggleEditModeData}
-          ></MonacoEditor>
+          <TiptapEditor content={htmlEdit}></TiptapEditor>
         ) : (
+          // <MonacoEditor
+          //   objectId={""}
+          //   type={type}
+          //   branchName={branchName}
+          //   relativePath={relativePath}
+          //   html={htmlEdit}
+          //   setOpenEditModal={setOpen}
+          //   toggleEditModeData={toggleEditModeData}
+          // ></MonacoEditor>
           <Box sx={{ width: pageWidth.width, paddingX: "24px" }}>
             <Toolbar />
 

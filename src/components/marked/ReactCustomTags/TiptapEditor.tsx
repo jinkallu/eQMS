@@ -23,13 +23,14 @@ const extensions = [
 
 // const content = "<p>Hello World!</p>";
 
-const TiptapEditor = ({ id }) => {
+const TiptapEditor = ({ content }) => {
   const { templateState } = useExtnStore((state) => state);
 
   return (
     <EditorProvider
       extensions={extensions}
-      content={templateState[id] || " "}
+      // content={templateState[id] || " "}
+      content={content || " "}
       slotBefore={<TiptapMenuBar />}
     >
       {""}
