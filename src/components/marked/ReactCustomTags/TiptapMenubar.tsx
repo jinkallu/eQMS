@@ -13,6 +13,14 @@ export function TiptapMenuBar() {
     setInputOpen(true);
   }
 
+  function handleExtendClick(){
+    editor
+      .chain()
+      .focus()
+      .insertContent({ type: "extend", attrs: { class: "toextend" } })
+      .run();
+  }
+
   function addInput(id) {
     console.log("id", id);
     editor
@@ -197,6 +205,16 @@ export function TiptapMenuBar() {
           }
         >
           Input
+        </button>
+        <button
+          onClick={handleExtendClick}
+          className={
+            editor.isActive("textStyle", { color: "#958DF1" })
+              ? "is-active"
+              : ""
+          }
+        >
+          Extend
         </button>
 
         {/* <button

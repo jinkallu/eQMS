@@ -10,6 +10,7 @@ import { customTableNode } from "./CustomTableNode";
 import CustomInputNode from "./CustomInputNode";
 import { TiptapMenuBar } from "./TiptapMenubar";
 import CustomInputReact from "./CustomInputReactExtension";
+import CustomExtend from "./CustomExtend";
 
 // define your extension array
 const extensions = [
@@ -19,6 +20,7 @@ const extensions = [
   customTableNode.table_row,
   customTableNode.table_cell,
   CustomInputReact,
+  CustomExtend
 ];
 
 // const content = "<p>Hello World!</p>";

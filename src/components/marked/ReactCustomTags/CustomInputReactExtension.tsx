@@ -14,6 +14,7 @@ const Component = (props) => {
   }
   return (
     <NodeViewWrapper className="react-component-with-content">
+      <span>Purpose</span>
       <TiptapInputDialog
         addInput={addInput}
         open={open}
