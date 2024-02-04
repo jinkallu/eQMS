@@ -13,14 +13,25 @@ export function TiptapMenuBar() {
     setInputOpen(true);
   }
 
-  function handleExtendClick(){
+  // function handleExtendClick(){
+  //   editor
+  //     .chain()
+  //     .focus()
+  //     .insertContent({ type: "extend", attrs: { class: "extend" } })
+  //     .run();
+  // }
+  function handleExtendClick() {
+    const textToAdd = "Your text goes here"; // Specify the text you want to add
+  
     editor
       .chain()
       .focus()
-      .insertContent({ type: "extend", attrs: { class: "toextend" } })
+      .insertContent({ type: "extend", attrs: { class: "extend" } })
+      .selectParentNode() // Select the recently inserted "extend" element
+      .insertContent({ type: "paragraph", attrs: { class: "paragraph" }, content: [{ type: "text", text: textToAdd }] })
       .run();
   }
-
+  
   function addInput(id) {
     console.log("id", id);
     editor

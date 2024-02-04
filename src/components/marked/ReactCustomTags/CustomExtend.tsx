@@ -13,8 +13,8 @@ const ExtendComponent = (props) => {
   }
   return (
     <NodeViewWrapper className="react-component-with-content">
-      <div className={props?.node?.attrs?.class} >
-        <textarea disabled value={"Extend Template. You will be able to extend this area, when you create a new document from this template."}/>
+      <div className={props?.node?.attrs?.class} contentEditable={props?.node?.attrs?.contenteditable}>
+        <h1>Extendable Area</h1>
       </div>
 
       <NodeViewContent className="content" />
@@ -32,7 +32,10 @@ export default Node.create({
   addAttributes() {
     return {
       class: {
-        default: "toextend",
+        default: "extend",
+      },
+      contenteditable: {
+        default: true,
       },
     };
   },
@@ -40,16 +43,16 @@ export default Node.create({
   parseHTML() {
     return [
       {
-        tag: "div.toextend",
+        tag: "divextend",
       },
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["div", mergeAttributes(HTMLAttributes), 0];
+    return ["divextend", mergeAttributes(HTMLAttributes), 0];
   },
 
-  addNodeView() {
-    return ReactNodeViewRenderer(ExtendComponent);
-  },
+  // addNodeView() {
+  //   return ReactNodeViewRenderer(ExtendComponent);
+  // },
 });
