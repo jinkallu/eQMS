@@ -13,6 +13,25 @@ export function TiptapMenuBar() {
     setInputOpen(true);
   }
 
+  function handleIncreaseVersion() {
+    const htmlString = editor.getHTML();
+    const html = new DOMParser().parseFromString(htmlString, "text/html");
+    const extendNodes = html.querySelectorAll("div.extend");
+    Array.from(extendNodes)?.map((node) => {
+      const version = node.getAttribute("version");
+      if (version) {
+        node.setAttribute("version", (+version + 1).toString());
+      }
+    });
+    console.log(html);
+
+    // const nodes = editor.$nodes("extend");
+    // console.log(nodes);
+    // nodes?.map((node) => {
+    //   node.setAttribute({ version: +node.attributes.version + 1 });
+    // });
+  }
+
   // function handleExtendClick(){
   //   editor
   //     .chain()
@@ -22,16 +41,26 @@ export function TiptapMenuBar() {
   // }
   function handleExtendClick() {
     const textToAdd = "Your text goes here"; // Specify the text you want to add
-  
+
     editor
       .chain()
       .focus()
-      .insertContent({ type: "extend", attrs: { class: "extend" } })
-      .selectParentNode() // Select the recently inserted "extend" element
-      .insertContent({ type: "paragraph", attrs: { class: "paragraph" }, content: [{ type: "text", text: textToAdd }] })
+      .insertContent({
+        type: "extend",
+        attrs: { class: "extend" },
+        content: [
+          { type: "paragraph", content: [{ type: "text", text: textToAdd }] },
+        ],
+      })
+      // .selectParentNode() // Select the recently inserted "extend" element
+      // .insertContent({
+      //   type: "paragraph",
+      //   attrs: { class: "paragraph" },
+      //   content: [{ type: "text", text: textToAdd }],
+      // })
       .run();
   }
-  
+
   function addInput(id) {
     console.log("id", id);
     editor
@@ -226,6 +255,18 @@ export function TiptapMenuBar() {
           }
         >
           Extend
+        </button>
+        <button onClick={handleIncreaseVersion}>Increase Version</button>
+        <button
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+              .run()
+          }
+        >
+          insertTable
         </button>
 
         {/* <button
