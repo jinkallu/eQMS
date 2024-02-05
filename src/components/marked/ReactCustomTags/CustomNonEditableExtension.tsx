@@ -105,7 +105,8 @@ const nonEditablePlugin = new Plugin({
     for (let i = 0; i < transaction.steps.length; i++) {
       const step = transaction.steps[i];
       // Get the position and the node before the step
-      let pos = step.from;
+      //let pos = step.from;
+      let pos = step.to;
       //let resolvedPos = state.doc.resolve(pos);
       let pNode = state.doc.resolve(pos).node();
       while (pNode) {
