@@ -53,6 +53,9 @@ const Extend = Node.create({
       contenteditable: {
         default: true,
       },
+      style: {
+        default: "border: 1px solid green",
+      }
     };
   },
 
@@ -69,11 +72,20 @@ const Extend = Node.create({
 
   renderHTML({ node, HTMLAttributes }) {
     let attrs = mergeAttributes(HTMLAttributes);
-    // if (node.attrs.class === 'non-extend') {
-    //   attrs = { ...attrs, contenteditable: 'true' };
-    // }
+    if (node.attrs.class === 'extend') {
+      attrs = {
+        ...attrs,
+        style: "border: 1px solid green; margin-bottom: 3px" ,
+      };
+    } else if (node.attrs.class === 'non-extend') {
+      attrs = {
+        ...attrs,
+        style: "border: 1px solid red; margin-bottom: 3px" ,
+      };
+    }
     return ['div', attrs, 0];
   },
+  
 });
 
 const key = new PluginKey('nonEditable');
@@ -181,7 +193,7 @@ const nonEditablePlugin = new Plugin({
       const step = transaction.steps[i];
       // Get the position and the node before the step
       let pos = step.from;
-      let resolvedPos = state.doc.resolve(pos);
+      //let resolvedPos = state.doc.resolve(pos);
       let pNode = state.doc.resolve(pos).node();
       while(pNode){
         if (pNode.type.name === 'extend' && (pNode.attrs.class === 'non-extend' || pNode.attrs.class === 'extend')) {
