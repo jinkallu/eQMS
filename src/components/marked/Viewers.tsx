@@ -59,12 +59,10 @@ export default function Viewers({ element, order, children, productId }) {
     // if (id && handleChange) handleChange(id, val || "");
 
     return <InputTagViewer id={id} element={element} order={order} val={val} />;
-  } 
-  else if (element.tagName && element.tagName === "DOCX") {
+  } else if (element.tagName && element.tagName === "DOCX") {
     const id = element.getAttribute("id");
     return <DocxTagViewer id={id} element={element} order={order} />;
-  }
-  else if (element.tagName && element.tagName === "TEXTAREA") {
+  } else if (element.tagName && element.tagName === "TEXTAREA") {
     const id = element.getAttribute("id");
     return <TextInputTagView id={id} element={element} order={order} />;
   } else if (element.tagName && element.tagName === "REVIEW") {
@@ -139,7 +137,7 @@ export default function Viewers({ element, order, children, productId }) {
     return <p>{children}</p>;
   } else if (element.tagName && element.tagName === "PARSERERROR") {
     return <div>Error</div>;
-  } else if (element.tagName && element.tagName === "PROCESSFLOW") {
+  } else if (element.tagName && element.tagName === "PROCESS-FLOW") {
     const id = element.getAttribute("id");
 
     return (

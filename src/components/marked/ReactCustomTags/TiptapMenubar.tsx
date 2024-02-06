@@ -84,6 +84,7 @@ export function TiptapMenuBar() {
           alignItems: "center",
           justifyContent: "center",
           flexWrap: "wrap",
+          maxWidth: "500px",
         }}
       >
         <TiptapInputDialog

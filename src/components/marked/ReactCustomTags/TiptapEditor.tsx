@@ -24,6 +24,8 @@ import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
+import ProcessFlowExtension from "./CustomProcessflowExtension";
+import "./TiptapEditor.css";
 
 const CustomH1 = Heading.extend({
   addAttributes() {
@@ -60,6 +62,7 @@ const extensions = [
   //CustomH1,
   ExtendExtension,
   NonEditableExtension,
+  ProcessFlowExtension,
 ];
 
 // const content = "<p>Hello World!</p>";
@@ -79,23 +82,6 @@ const TiptapEditor = ({ content }) => {
       {""}
     </EditorProvider>
   );
-};
-
-const InsertCustomInputButton = () => {
-  const { editor } = useCurrentEditor();
-
-  const insertCustomInput = () => {
-    editor
-      .chain()
-      .focus()
-      .insertContent({ type: "custom_input", attrs: { id: "testInput" } })
-      .run();
-    //const node = editor.schema.nodes.custom_input.create({ id: 'testInput' });
-    //console.log(node);
-    //editor.chain().focus().insertContent(node).run();
-  };
-
-  return <button onClick={insertCustomInput}>Insert Custom Input</button>;
 };
 
 export default TiptapEditor;

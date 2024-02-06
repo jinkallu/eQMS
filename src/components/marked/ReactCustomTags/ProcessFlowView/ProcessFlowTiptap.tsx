@@ -42,8 +42,16 @@ const nodeTypes = {
 const edgeTypes = {
   smart: SmartStepEdge,
 };
+const flowStyles = {
+  background: "#192a43",
+  height: "30em",
+  width: "30em",
+  padding: "10px",
+  overflowX: "auto",
+  boxShadow: "0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)",
+};
 
-export default function ProcessFlow({ editable, element }) {
+export default function ProcessFlowTiptap(props) {
   const { templateState, setTemplateState, pageWidth, templateStateVersion } =
     useExtnStore((state) => state);
   const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
@@ -108,11 +116,11 @@ export default function ProcessFlow({ editable, element }) {
     // createProcessGraph(element);
     let initialNodes = [];
 
-    const nodesData = element?.dataset?.nodes
-      ? JSON.parse(element?.dataset?.nodes)
+    const nodesData = props?.node?.attrs?.nodes
+      ? JSON.parse(props?.node?.attrs?.nodes)
       : [];
-    const initialEdges = element?.dataset?.edges
-      ? JSON.parse(element?.dataset?.edges)
+    const initialEdges = props?.node?.attrs?.edges
+      ? JSON.parse(props?.node?.attrs?.edges)
       : [];
 
     initialNodes = [...nodesData];
@@ -126,7 +134,7 @@ export default function ProcessFlow({ editable, element }) {
       nodes: layoutedNodes,
       edges: layoutedEdges,
     });
-  }, [element?.dataset?.nodes, element?.dataset?.edges]);
+  }, [props?.node?.attrs?.nodes, props?.node?.attrs?.edges]);
 
   const ref = useRef(null);
 
@@ -159,7 +167,7 @@ export default function ProcessFlow({ editable, element }) {
   }
 
   const onNodeContextMenu = (event, node) => {
-    if (!editable) {
+    if (!props?.editable) {
       setMenu(null);
 
       return;
@@ -202,84 +210,87 @@ export default function ProcessFlow({ editable, element }) {
 
   //if(editable) {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        height: viewportSize.height,
-        overflowX: "auto",
-        width: pageWidth.width,
-      }}
-    >
-      <CreateStepModal
-        setOpen={setOpenCreateStepModal}
-        open={openCreateStepModal}
-        currentNode={currentNode}
-        nodes={(templateState && templateState["processFlow"]?.nodes) || []}
-      ></CreateStepModal>
+    <NodeViewWrapper>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          height: viewportSize.height,
+          overflow: "auto",
+          width: "100%",
+        }}
+      >
+        <CreateStepModal
+          setOpen={setOpenCreateStepModal}
+          open={openCreateStepModal}
+          currentNode={currentNode}
+          nodes={(templateState && templateState["processFlow"]?.nodes) || []}
+        ></CreateStepModal>
 
-      <EditStepNameModal
-        setOpen={setOpenEditStepModal}
-        open={openEditStepModal}
-        currentNode={currentNode}
-      ></EditStepNameModal>
-      <DeleteStepModal
-        setOpen={setOpenDeleteStepModal}
-        open={openDeleteStepModal}
-        currentNode={currentNode}
-      ></DeleteStepModal>
+        <EditStepNameModal
+          setOpen={setOpenEditStepModal}
+          open={openEditStepModal}
+          currentNode={currentNode}
+        ></EditStepNameModal>
+        <DeleteStepModal
+          setOpen={setOpenDeleteStepModal}
+          open={openDeleteStepModal}
+          currentNode={currentNode}
+        ></DeleteStepModal>
 
-      <CreateStepTemplateModal
-        setOpen={setOpenCreateStepTemplateModal}
-        open={openCreateStepTemplateModal}
-        currentNode={currentNode}
-      ></CreateStepTemplateModal>
-      {templateState && templateState["processFlow"]?.nodes?.length > 0 ? (
-        <ReactFlow
-          ref={ref}
-          // nodes={state["processFlow"]?.nodes || []}
-          nodes={
-            templateState?.processFlow?.nodes
-              ? getLayoutedElements(
-                  templateState?.processFlow?.nodes,
-                  templateState?.processFlow?.edges
-                ).nodes
-              : []
-          }
-          edges={templateState?.processFlow?.edges || []}
-          // edges={state["processFlow"]?.edges || []}
-          // onNodesChange={onNodesChange}
-          // onEdgesChange={onEdgesChange}
-          // onConnect={onConnect}
-          onNodeContextMenu={onNodeContextMenu}
-          zoomOnDoubleClick={false} // Disable zoom on double-click
-          zoomOnScroll={false} // Disable zoom on scroll
-          nodesDraggable={true}
-          panOnDrag={false}
-          zoomOnPinch={false}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          onNodeClick={onNodeClick}
-          preventScrolling={false}
-          elementsSelectable={true}
-        >
-          {/* <Controls /> */}
-          {/* <MiniMap /> */}
-          <Background gap={12} size={1} />
-          <Background />
-          {menu && <ContextMenu {...menu}></ContextMenu>}
-        </ReactFlow>
-      ) : (
-        <Box sx={{ display: "flex", height: "100px" }}>
-          <Button
-            variant="contained"
-            onClick={() => setOpenCreateStepModal(true)}
+        <CreateStepTemplateModal
+          setOpen={setOpenCreateStepTemplateModal}
+          open={openCreateStepTemplateModal}
+          currentNode={currentNode}
+        ></CreateStepTemplateModal>
+        {templateState && templateState["processFlow"]?.nodes?.length > 0 ? (
+          <ReactFlow
+            ref={ref}
+            // nodes={state["processFlow"]?.nodes || []}
+            nodes={
+              templateState?.processFlow?.nodes
+                ? getLayoutedElements(
+                    templateState?.processFlow?.nodes,
+                    templateState?.processFlow?.edges
+                  ).nodes
+                : []
+            }
+            edges={templateState?.processFlow?.edges || []}
+            // edges={state["processFlow"]?.edges || []}
+            // onNodesChange={onNodesChange}
+            // onEdgesChange={onEdgesChange}
+            // onConnect={onConnect}
+            onNodeContextMenu={onNodeContextMenu}
+            zoomOnDoubleClick={false} // Disable zoom on double-click
+            zoomOnScroll={false} // Disable zoom on scroll
+            nodesDraggable={true}
+            panOnDrag={false}
+            zoomOnPinch={false}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            onNodeClick={onNodeClick}
+            preventScrolling={false}
+            elementsSelectable={true}
+            style={flowStyles}
           >
-            Add Step
-          </Button>
-        </Box>
-      )}
-    </Box>
+            {/* <Controls /> */}
+            {/* <MiniMap /> */}
+            <Background gap={12} size={1} />
+            <Background />
+            {menu && <ContextMenu {...menu}></ContextMenu>}
+          </ReactFlow>
+        ) : (
+          <Box sx={{ display: "flex", height: "100px" }}>
+            <Button
+              variant="contained"
+              onClick={() => setOpenCreateStepModal(true)}
+            >
+              Add Step
+            </Button>
+          </Box>
+        )}
+      </Box>
+    </NodeViewWrapper>
   );
   //}
 }
