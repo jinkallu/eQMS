@@ -1,20 +1,19 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 
-import ProcessFlowTiptap from "./ProcessFlowView/ProcessFlowTiptap";
+import ProcessFlowTiptap from "../TipttapComponents/ProcessFlowTiptap";
 
 export default Node.create({
-  name: "Processflow",
+  name: "ProcessFlow",
 
   group: "block",
-
-  content: "block*",
 
   addAttributes() {
     return {
       id: {
         default: "ss",
       },
+      test: { default: [] },
       nodes: {
         default: [],
 
@@ -38,7 +37,7 @@ export default Node.create({
         },
       },
       editable: {
-        default: false,
+        default: true,
       },
     };
   },
@@ -46,7 +45,7 @@ export default Node.create({
   parseHTML() {
     return [
       {
-        tag: "process-flow",
+        tag: "processflow",
       },
     ];
   },
@@ -66,18 +65,10 @@ export default Node.create({
   // },
 
   renderHTML({ HTMLAttributes }) {
-    return ["process-flow", mergeAttributes(HTMLAttributes), 0];
+    return ["processflow", mergeAttributes(HTMLAttributes)];
   },
 
   addNodeView() {
     return ReactNodeViewRenderer(ProcessFlowTiptap);
   },
 });
-
-const Component = () => {
-  return (
-    <div>
-      <h1>Test processflow</h1>
-    </div>
-  );
-};

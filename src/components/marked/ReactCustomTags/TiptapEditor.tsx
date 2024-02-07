@@ -11,20 +11,21 @@ import { useExtnStore } from "../../../zustand/store";
 import { customTableNode } from "./CustomTableNode";
 import CustomInputNode from "./CustomInputNode";
 import { TiptapMenuBar } from "./TiptapMenubar";
-import CustomInputReact from "./CustomInputReactExtension";
+import CustomInputReact from "./TiptapExtensions/CustomInputReactExtension";
 import CustomExtend from "./CustomExtend";
 import Heading from "@tiptap/extension-heading";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Extension } from "@tiptap/core";
 import { NodePos } from "@tiptap/react"; // Make sure to import NodePosition
-import ExtendExtension from "./CustomExtendExtension";
-import NonEditableExtension from "./CustomNonEditableExtension";
+import ExtendExtension from "./TiptapExtensions/CustomExtendExtension";
+import NonEditableExtension from "./TiptapExtensions/CustomNonEditableExtension";
 import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import ProcessFlowExtension from "./CustomProcessflowExtension";
+import ProcessFlowExtension from "./TiptapExtensions/CustomProcessflowExtension";
+import ReviewTagViewExtension from "./TiptapExtensions/CustomReviewTagExtension";
 import "./TiptapEditor.css";
 
 const CustomH1 = Heading.extend({
@@ -63,6 +64,7 @@ const extensions = [
   ExtendExtension,
   NonEditableExtension,
   ProcessFlowExtension,
+  ReviewTagViewExtension,
 ];
 
 // const content = "<p>Hello World!</p>";

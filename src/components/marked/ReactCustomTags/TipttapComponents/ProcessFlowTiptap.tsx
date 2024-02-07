@@ -11,24 +11,24 @@ import ReactFlow, {
   ReactFlowProvider,
 } from "reactflow";
 import { SmartStepEdge } from "@tisoap/react-flow-smart-edge";
-import DecisionNode from "./DecisionNode";
-import MultiDecisionNode from "./MultiDecisionNode";
-import StepNode from "./StepNode";
-import TemplateNode from "./TemplateNode";
-import TemplatesNode from "./TemplatesNode";
+import DecisionNode from "../ProcessFlowView/DecisionNode";
+import MultiDecisionNode from "../ProcessFlowView/MultiDecisionNode";
+import StepNode from "../ProcessFlowView/StepNode";
+import TemplateNode from "../ProcessFlowView/TemplateNode";
+import TemplatesNode from "../ProcessFlowView/TemplatesNode";
 import Box from "@mui/material/Box";
 
 import "reactflow/dist/style.css";
-import "./style.css";
+import "./ProcessFlowTiptap.css";
 import dagre from "dagre";
 
-import CreateStepModal from "./CreateStepModal";
-import CreateStepTemplateModal from "./CreateStepTemplateModal";
-import DeleteStepModal from "./DeleteStepModal";
-import ContextMenu from "./ContextMenu";
+import CreateStepModal from "../ProcessFlowView/CreateStepModal";
+import CreateStepTemplateModal from "../ProcessFlowView/CreateStepTemplateModal";
+import DeleteStepModal from "../ProcessFlowView/DeleteStepModal";
+import ContextMenu from "../ProcessFlowView/ContextMenu";
 import { Button } from "@mui/material";
 import { useExtnStore } from "../../../../zustand/store";
-import EditStepNameModal from "./EditStepNameModal";
+import EditStepNameModal from "../ProcessFlowView/EditStepNameModal";
 import { NodeViewWrapper } from "@tiptap/react";
 
 const nodeTypes = {
@@ -44,10 +44,8 @@ const edgeTypes = {
 };
 const flowStyles = {
   background: "#192a43",
-  height: "30em",
-  width: "30em",
+  height: "20em",
   padding: "10px",
-  overflowX: "auto",
   boxShadow: "0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)",
 };
 
@@ -134,7 +132,7 @@ export default function ProcessFlowTiptap(props) {
       nodes: layoutedNodes,
       edges: layoutedEdges,
     });
-  }, [props?.node?.attrs?.nodes, props?.node?.attrs?.edges]);
+  }, []);
 
   const ref = useRef(null);
 
@@ -162,12 +160,36 @@ export default function ProcessFlowTiptap(props) {
     }
   }, [templateState]);
 
+  // useEffect(() => {
+  //   console.log(props);
+
+  //   console.log(templateState.processFlow);
+  //   props.updateAttributes({
+  //     nodes: templateState?.processFlow?.nodes || [],
+  //     edges: templateState?.processFlow?.edges || [],
+  //     test: [111111],
+  //   });
+  //   console.log(props.node.attrs);
+
+  //   // props.editor.commands.updateAttributes("ProcessFlow", {
+  //   //   test: 1000,
+  //   // });
+  //   console.log(props.node.attrs);
+  // }, [templateState?.processFlow]);
+
+  useEffect(() => {
+    console.log("props", props.node.attrs);
+  }, [props.node.attrs]);
+
   function onNodeClick() {
     setMenu(null);
   }
 
   const onNodeContextMenu = (event, node) => {
-    if (!props?.editable) {
+    props.updateAttributes({ test: [...props.node.attrs.test, 1455555] });
+    console.log("clicked");
+    console.log(props);
+    if (!props?.node?.attrs?.editable) {
       setMenu(null);
 
       return;
@@ -217,7 +239,7 @@ export default function ProcessFlowTiptap(props) {
           justifyContent: "center",
           height: viewportSize.height,
           overflow: "auto",
-          width: "100%",
+          width: "600px",
         }}
       >
         <CreateStepModal
@@ -272,6 +294,7 @@ export default function ProcessFlowTiptap(props) {
             preventScrolling={false}
             elementsSelectable={true}
             style={flowStyles}
+            fitView
           >
             {/* <Controls /> */}
             {/* <MiniMap /> */}

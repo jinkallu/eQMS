@@ -3,7 +3,7 @@ import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import React, { useState } from "react";
-import TiptapInputDialog from "./TiptapInputDialog";
+import TiptapInputDialog from "../TiptapInputDialog";
 
 const Component = (props) => {
   const [open, setOpen] = useState(false);

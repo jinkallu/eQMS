@@ -137,7 +137,7 @@ export default function Viewers({ element, order, children, productId }) {
     return <p>{children}</p>;
   } else if (element.tagName && element.tagName === "PARSERERROR") {
     return <div>Error</div>;
-  } else if (element.tagName && element.tagName === "PROCESS-FLOW") {
+  } else if (element.tagName && element.tagName === "PROCESSFLOW") {
     const id = element.getAttribute("id");
 
     return (
