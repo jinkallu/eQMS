@@ -137,10 +137,6 @@ export default function ProcessFlowTiptap(props) {
   const ref = useRef(null);
 
   useEffect(() => {
-    console.log("templateStateVersion", templateStateVersion);
-  }, [templateStateVersion]);
-
-  useEffect(() => {
     if (
       templateState?.processFlow &&
       templateState?.processFlow?.nodes?.length > 0
@@ -161,34 +157,35 @@ export default function ProcessFlowTiptap(props) {
   }, [templateState]);
 
   // useEffect(() => {
-  //   console.log(props);
-
-  //   console.log(templateState.processFlow);
-  //   props.updateAttributes({
-  //     nodes: templateState?.processFlow?.nodes || [],
-  //     edges: templateState?.processFlow?.edges || [],
-  //     test: [111111],
-  //   });
-  //   console.log(props.node.attrs);
-
-  //   // props.editor.commands.updateAttributes("ProcessFlow", {
-  //   //   test: 1000,
-  //   // });
-  //   console.log(props.node.attrs);
+  //   if (
+  //     templateState &&
+  //     templateState?.processFlow &&
+  //     props &&
+  //     props?.updateAttributes
+  //   )
+  //     props.updateAttributes({
+  //       nodes: templateState?.processFlow?.nodes || [],
+  //       edges: templateState?.processFlow?.edges || [],
+  //     });
   // }, [templateState?.processFlow]);
-
-  useEffect(() => {
-    console.log("props", props.node.attrs);
-  }, [props.node.attrs]);
 
   function onNodeClick() {
     setMenu(null);
   }
 
+  function updateProps(nodes, edges) {
+    props.updateAttributes({
+      nodes: JSON.stringify(nodes),
+      edges: JSON.stringify(edges),
+      //
+    });
+  }
+
   const onNodeContextMenu = (event, node) => {
-    props.updateAttributes({ test: [...props.node.attrs.test, 1455555] });
-    console.log("clicked");
-    console.log(props);
+    props.updateAttributes({
+      nodes: [],
+      edges: [],
+    });
     if (!props?.node?.attrs?.editable) {
       setMenu(null);
 
@@ -226,6 +223,7 @@ export default function ProcessFlowTiptap(props) {
       setOpenCreateStepTemplateModal,
       setOpenDeleteStepModal,
       setOpenEditStepModal,
+      props,
       // toggleEdit,
     });
   };
@@ -247,6 +245,7 @@ export default function ProcessFlowTiptap(props) {
           open={openCreateStepModal}
           currentNode={currentNode}
           nodes={(templateState && templateState["processFlow"]?.nodes) || []}
+          updateProps={updateProps}
         ></CreateStepModal>
 
         <EditStepNameModal

@@ -4,16 +4,16 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 import ProcessFlowTiptap from "../TipttapComponents/ProcessFlowTiptap";
 
 export default Node.create({
-  name: "ProcessFlow",
+  name: "processFlow",
 
   group: "block",
+  atom: true,
 
   addAttributes() {
     return {
       id: {
-        default: "ss",
+        default: "processflowId",
       },
-      test: { default: [] },
       nodes: {
         default: [],
 

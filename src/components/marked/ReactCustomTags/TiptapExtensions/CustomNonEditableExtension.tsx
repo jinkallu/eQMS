@@ -170,6 +170,7 @@ const nonEditablePlugin = new Plugin({
 
 const NonEditableExtension = Extension.create({
   name: "nonEditable",
+
   addProseMirrorPlugins() {
     return [nonEditablePlugin];
   },

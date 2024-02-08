@@ -45,11 +45,13 @@ export default function CreateStepModal({
   setOpen,
   currentNode,
   nodes,
+  updateProps,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
   currentNode: any;
   nodes;
+  updateProps: any;
 }) {
   const {
     userSOPs,
@@ -273,6 +275,12 @@ export default function CreateStepModal({
 
     // });
     setTemplateState("processFlow", { nodes: nodesNew, edges: edgesNew });
+
+    console.log("updating nodes and edes");
+
+    updateProps(nodesNew, edgesNew);
+
+    // updateAttributes({ nodes: nodesNew, edges: edgesNew });
   };
 
   function handleStepTypeChange(e) {
