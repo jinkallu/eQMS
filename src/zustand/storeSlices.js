@@ -53,6 +53,10 @@ export const projectSlice = (set, get) => ({
   setProject: (project) => set((state) => ({ project })),
   templateStateVersion: [],
   templateState: {},
+  editorState: "",
+  setEditorState: (val) => {
+    set({ editorState: val });
+  },
   setTemplateState: (id, value) => {
     set((state) => ({
       templateState: { ...state.templateState, [id]: value },

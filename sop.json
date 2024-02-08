@@ -186,9 +186,9 @@
     "errors": false
   },
   {
-    "id": "kkkk-step",
+    "id": "newStep-step",
     "position": { "x": 250, "y": 600 },
-    "data": { "label": "kkkk", "type": "step", "productLevel": false },
+    "data": { "label": "newStep", "type": "step", "productLevel": false },
     "type": "step",
     "extent": "parent",
     "height": 50,

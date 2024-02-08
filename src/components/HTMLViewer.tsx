@@ -47,6 +47,7 @@ export default function HTMLViewer() {
     setTemplateState,
     pageWidth,
     setPageWidth,
+    editorState,
   } = useExtnStore((state) => state);
 
   const project = useExtnStore((state) => state.project);
@@ -139,33 +140,10 @@ export default function HTMLViewer() {
     editBranchNameArr.splice(-1);
     editBranchNameArr.push("edit");
     const editBranchName = editBranchNameArr.join("/");
-    const newHtml = htmlEdit;
+    // const newHtml = htmlEdit;
 
-    Object.keys(templateState)?.map((key) => {
-      const value = templateState[key];
-      const ele = newHtml?.getElementById(key);
-      if (ele) {
-        if (ele.tagName === "INPUT") {
-          ele.setAttribute("value", value);
-        } else if (ele.tagName === "MD") {
-          // ele.innerHTML = value;
-        } else if (ele.tagName === "LINKRECORD") {
-          ele.setAttribute("records", JSON.stringify(value));
-        }
-        // else if (ele.tagName === "PROCESSFLOW") {
-        //   const edges = state["processFlow"]?.edges || [];
-        //   const nodes = state["processFlow"]?.nodes || [];
-
-        //   ele.dataset.nodes = JSON.stringify(nodes);
-        //   ele.dataset.edges = JSON.stringify(edges);
-        // }
-        else {
-          ele.setAttribute("value", JSON.stringify(value));
-        }
-      }
-    });
-
-    // Object.entries(templateState)?.map(([key, value]) => {
+    // Object.keys(templateState)?.map((key) => {
+    //   const value = templateState[key];
     //   const ele = newHtml?.getElementById(key);
     //   if (ele) {
     //     if (ele.tagName === "INPUT") {
@@ -188,35 +166,59 @@ export default function HTMLViewer() {
     //   }
     // });
 
-    // Add node and edges data to html
-    const processFlowEls = newHtml?.querySelectorAll("PROCESSFLOW");
-    const edges = templateState["processFlow"]?.edges || [];
-    const nodes = templateState["processFlow"]?.nodes || [];
+    // // Object.entries(templateState)?.map(([key, value]) => {
+    // //   const ele = newHtml?.getElementById(key);
+    // //   if (ele) {
+    // //     if (ele.tagName === "INPUT") {
+    // //       ele.setAttribute("value", value);
+    // //     } else if (ele.tagName === "MD") {
+    // //       // ele.innerHTML = value;
+    // //     } else if (ele.tagName === "LINKRECORD") {
+    // //       ele.setAttribute("records", JSON.stringify(value));
+    // //     }
+    // //     // else if (ele.tagName === "PROCESSFLOW") {
+    // //     //   const edges = state["processFlow"]?.edges || [];
+    // //     //   const nodes = state["processFlow"]?.nodes || [];
 
-    Array.from(processFlowEls)?.map((item: HTMLElement) => {
-      item.dataset.nodes = JSON.stringify(nodes);
-      item.dataset.edges = JSON.stringify(edges);
-      return item;
-    });
+    // //     //   ele.dataset.nodes = JSON.stringify(nodes);
+    // //     //   ele.dataset.edges = JSON.stringify(edges);
+    // //     // }
+    // //     else {
+    // //       ele.setAttribute("value", JSON.stringify(value));
+    // //     }
+    // //   }
+    // // });
 
-    // add link record data to html
-    // const linkRecord = html?.getElementsByTagName("LINKRECORD");
-    // const records = state["linkRecords"];
+    // // Add node and edges data to html
+    // const processFlowEls = newHtml?.querySelectorAll("PROCESSFLOW");
+    // const edges = templateState["processFlow"]?.edges || [];
+    // const nodes = templateState["processFlow"]?.nodes || [];
 
-    // Array.from(linkRecord)?.map((item: HTMLElement) => {
-    //   item.setAttribute("records", JSON.stringify(records));
+    // Array.from(processFlowEls)?.map((item: HTMLElement) => {
+    //   item.dataset.nodes = JSON.stringify(nodes);
+    //   item.dataset.edges = JSON.stringify(edges);
     //   return item;
     // });
 
-    // const md = EditorSave.findEditableMds(inputText, "Editor");
-    console.log(editBranchName, filePath);
+    // // add link record data to html
+    // // const linkRecord = html?.getElementsByTagName("LINKRECORD");
+    // // const records = state["linkRecords"];
+
+    // // Array.from(linkRecord)?.map((item: HTMLElement) => {
+    // //   item.setAttribute("records", JSON.stringify(records));
+    // //   return item;
+    // // });
+
+    // // const md = EditorSave.findEditableMds(inputText, "Editor");
+    // console.log(editBranchName, filePath);
 
     const createdData = await commit(
       project.id,
       repository.id,
       editBranchName,
       filePath,
-      newHtml?.body?.innerHTML,
+      // newHtml?.body?.innerHTML,
+      editorState,
       commitMessage
     );
 
