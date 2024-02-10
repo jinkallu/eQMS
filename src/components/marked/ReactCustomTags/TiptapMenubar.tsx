@@ -2,13 +2,21 @@ import { useCurrentEditor } from "@tiptap/react";
 import TiptapInputDialog from "./TiptapInputDialog";
 import { useState } from "react";
 import { Box, Toolbar } from "@mui/material";
+import { useExtnStore } from "../../../zustand/store";
 export function TiptapMenuBar() {
   const { editor } = useCurrentEditor();
   const [inputOpen, setInputOpen] = useState(false);
+  const { setEditorState } = useExtnStore((state) => state);
 
   if (!editor) {
     return null;
   }
+
+  editor.on("update", ({ editor }) => {
+    const html = editor.getHTML();
+    setEditorState(html);
+  });
+
   function handleCreateInputClick() {
     setInputOpen(true);
   }

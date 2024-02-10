@@ -97,15 +97,15 @@ function Row({ sop, edit, expandAll }) {
       fileDiffParams: [
         {
           originalPath: "qms/sop/data.html",
-          path: "qms/sop/data.html"
-        }
-      ]
-
-    }
-    const res1 = await gitClient.getFileDiffs(fileDiffsCriteria, project?.id, repository?.id)
-
-
-    console.log(res1);
+          path: "qms/sop/data.html",
+        },
+      ],
+    };
+    const res1 = await gitClient.getFileDiffs(
+      fileDiffsCriteria,
+      project?.id,
+      repository?.id
+    );
   }
 
   async function checkGitDiff() {
