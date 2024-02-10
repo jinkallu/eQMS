@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "D2Ops",
     "publisher": "D2Ops",
-    "version": "1.0.85",
+    "version": "1.0.103",
     "name": "D2Ops",
     "description": "A sample Visual Studio Services extension",
     "public": false,
@@ -10,7 +10,7 @@
     "categories": ["Azure Repos"],
     "targets": [
         {
-            "id": "Microsoft.VisualStudio.Services"
+            "id": "Microsoft.VisualStudio.Services.Cloud"
         }
     ],
     "icons": {
@@ -77,9 +77,13 @@
     ],
     
     "scopes":[ 
-        "vso.work", 
-        "vso.code_full",
+        "vso.work_full",
+        "vso.code_full", 
         "vso.wiki_write",
-        "vso.project_manage"
+        "vso.project_manage",
+        "vso.profile_write",
+        "vso.profile",
+        "vso.serviceendpoint_manage",
+        "vso.features_write"
     ]  
 }
