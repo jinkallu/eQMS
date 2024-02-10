@@ -85,6 +85,7 @@ export default function HTMLViewer() {
 
   async function getFileContentData() {
     let newBranchName = branchName;
+    console.log(branchName);
 
     let lastIndex = branchName.lastIndexOf("/main");
 
