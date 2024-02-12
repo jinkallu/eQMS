@@ -69,6 +69,37 @@ export function TiptapMenuBar() {
       .run();
   }
 
+  function handleHeaderClick(){
+    editor
+  .chain()
+  .focus()
+  .insertContent(`
+    <div class="header">
+      <table style="border-collapse: collapse; border: 1px solid black;">
+          <tr>
+            <td style="border: 1px solid black;">Document Version: </td>
+            <td style="border: 1px solid black;"><strong>SOP-100</strong></td>
+            <td style="border: 1px solid black;">Data 9</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid black;">Template Version</td>
+            <td style="border: 1px solid black;"><h1>Risk Management</h1></td>
+            <td style="border: 1px solid black;">Data 9</td>
+          </tr>
+      </table>
+    </div>
+  `)
+  .run()
+
+      // .insertContent({
+      //   type: "header",
+      //   attrs: { class: "header" },
+      //   content: [
+      //     { type: "paragraph", content: [{ type: "text", text: "Insert Header data here: " }] },
+      //   ],
+      // })
+  }
+
   function addInput(id) {
     console.log("id", id);
     editor
@@ -276,6 +307,16 @@ export function TiptapMenuBar() {
           }
         >
           insertTable
+        </button>
+        <button
+          onClick={handleHeaderClick}
+          className={
+            editor.isActive("textStyle", { color: "#958DF1" })
+              ? "is-active"
+              : ""
+          }
+        >
+          Header
         </button>
 
         {/* <button

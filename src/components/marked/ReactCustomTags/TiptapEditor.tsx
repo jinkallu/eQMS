@@ -26,6 +26,8 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import ProcessFlowExtension from "./TiptapExtensions/CustomProcessflowExtension";
 import ReviewTagViewExtension from "./TiptapExtensions/CustomReviewTagExtension";
+import HeaderExtension from "./TiptapExtensions/CustomHeaderExtension";
+import {CustomTableNode, tableRow, tableCell} from "./TiptapExtensions/CustomTableExtension";
 import "./TiptapEditor.css";
 
 const CustomH1 = Heading.extend({
@@ -65,6 +67,10 @@ const extensions = [
   NonEditableExtension,
   ProcessFlowExtension,
   ReviewTagViewExtension,
+  HeaderExtension,
+  //customTableNode,
+  //tableRow,
+  //tableCell
 ];
 
 // const content = "<p>Hello World!</p>";
