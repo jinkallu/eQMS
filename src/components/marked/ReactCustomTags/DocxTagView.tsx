@@ -1,4 +1,5 @@
 import Grid from "@mui/material/Grid";
+import React from 'react';
 import { useEffect, useState } from "react";
 import { useExtnStore } from "../../../zustand/store";
 //import * as cheerio from 'cheerio';
@@ -20,7 +21,14 @@ export default function DocxTagViewer({ element, order, id }) {
     "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
   const fieldChar = new FieldChar();
 
-  const docxNumbering = [];
+  interface Item {
+    abstractNumIdId: number;
+    ilvlVal: number;
+    num: Number;
+    // Add other properties as needed
+  }
+
+  const docxNumbering: Item[] = [];
 
   const { templateState, setTemplateState } = useExtnStore((state) => state);
   function handleChangeFun(e) {
@@ -55,8 +63,14 @@ export default function DocxTagViewer({ element, order, id }) {
     return convertNodeToHTML(body, styles, numberingDOM);
   }
 
+  interface StyleInfo {
+    styleId: string;
+    node: Element; // Adjust the type if "node" refers to a specific DOM element type
+  }
+
   function extractStyles(node) {
-    const styles = [];
+    const styles: StyleInfo[] = [];
+
     const stylesBody = node.getElementsByTagNameNS(wNamespaceURI, "style");
     for (const child of stylesBody) {
       const styleId = child.getAttribute("w:styleId");
@@ -120,11 +134,13 @@ export default function DocxTagViewer({ element, order, id }) {
     const t = node.getElementsByTagNameNS(wNamespaceURI, "t")[0]; // Use correct namespace and local name
     if (t) {
       if (rStyle.bold) {
-        htmlContent += `<span  ${rStyle.style}> <strong>${convertNodeToHTML(
-          node,
-          styles,
-          numberingDOM
-        )}</strong></span>`;
+        if (typeof rStyle === 'object' && rStyle.style) {
+          htmlContent += `<span  ${rStyle.style}> <strong>${convertNodeToHTML(
+            node,
+            styles,
+            numberingDOM
+          )}</strong></span>`;
+        }
       } else {
         htmlContent += `<span ${rStyle.style}>${convertNodeToHTML(
           node,
@@ -242,7 +258,7 @@ export default function DocxTagViewer({ element, order, id }) {
                           const resetResult = docxNumbering.find(
                             (item) =>
                               item.abstractNumIdId ===
-                                parseInt(abstractNumIdId) && item.ilvlVal === l
+                              parseInt(abstractNumIdId) && item.ilvlVal === l
                           );
                           if (resetResult) {
                             resetResult.num = 0;
@@ -250,7 +266,7 @@ export default function DocxTagViewer({ element, order, id }) {
                         }
                         //}
 
-                        result.num += 1;
+                        result.num = result.num.valueOf() + 1;
                       } else {
                         docxNumbering.push({
                           abstractNumIdId: parseInt(abstractNumIdId),
@@ -265,12 +281,14 @@ export default function DocxTagViewer({ element, order, id }) {
                         const mResult = docxNumbering.find(
                           (item) =>
                             item.abstractNumIdId ===
-                              parseInt(abstractNumIdId) && item.ilvlVal === m
+                            parseInt(abstractNumIdId) && item.ilvlVal === m
                         );
-                        if (m === 0) {
-                          strNum += mResult.num.toString();
-                        } else {
-                          strNum += "." + mResult.num.toString();
+                        if (mResult) {
+                          if (m === 0) {
+                            strNum += mResult.num.toString();
+                          } else {
+                            strNum += "." + mResult.num.toString();
+                          }
                         }
                       }
 
@@ -328,21 +346,27 @@ export default function DocxTagViewer({ element, order, id }) {
   function convertP(element, styles, numberingDOM) {
     let htmlContent = "<p";
     const pPr = element.getElementsByTagNameNS(wNamespaceURI, "pPr")[0];
-    let pStyle = null;
+    let pStyle: { style: string; bold: boolean } | null | undefined = null;
+
     if (pPr) {
       //const wPStyle = pPr.getElementsByTagNameNS(wNamespaceURI, 'pStyle')[0];
       //if(wPStyle){
-      pStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
-      if (pStyle) {
-        if (pStyle.numbering) {
-          htmlContent += `${pStyle.style}><h${pStyle.numbering.ilvl + 1}>${
-            pStyle.numbering.result ? pStyle.numbering.result : ""
-          }`;
+      //pStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
+      const tempPStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
+
+      if (typeof tempPStyle === 'object' && tempPStyle !== null) {
+        pStyle = tempPStyle;
+        if (pStyle) {
+          if ('numbering' in pStyle && pStyle.numbering) {
+            const numbering = pStyle.numbering as { ilvl: number; result: string | undefined }; // Adjust the type as needed
+            htmlContent += `${pStyle.style}><h${numbering.ilvl + 1}>${numbering.result ? numbering.result : ""
+              }`;
+          } else {
+            htmlContent += `${pStyle.style}>`;
+          }
         } else {
-          htmlContent += `${pStyle.style}>`;
+          htmlContent += ">";
         }
-      } else {
-        htmlContent += ">";
       }
 
       //}
@@ -361,11 +385,12 @@ export default function DocxTagViewer({ element, order, id }) {
       }
     }
     if (pStyle) {
-      if (pStyle.numbering) {
-        if (pStyle.numbering.ilvl === 0) {
-          htmlContent += `</h${pStyle.numbering.ilvl + 1}> <hr></p>`;
+      if ('numbering' in pStyle && pStyle.numbering) {
+        const numbering = pStyle.numbering as { ilvl: number; result: string | undefined }; // Adjust the type as needed
+        if (numbering.ilvl === 0) {
+          htmlContent += `</h${numbering.ilvl + 1}> <hr></p>`;
         } else {
-          htmlContent += `</h${pStyle.numbering.ilvl + 1}></p>`;
+          htmlContent += `</h${numbering.ilvl + 1}></p>`;
         }
       } else {
         htmlContent += "</p>";
@@ -465,7 +490,7 @@ export default function DocxTagViewer({ element, order, id }) {
         )[0];
         const cellStyles =
           convertTableCellPropertiesToHTMLStyle(cellProperties);
-        let vhStyles = "";
+        //let vhStyles = "";
         // if (flagFirstRow) {
         //     if (j !== cellElements.length - 1) {
         //         vhStyles = tableHVStyles.insideV;
@@ -480,7 +505,11 @@ export default function DocxTagViewer({ element, order, id }) {
         //         vhStyles = tableHVStyles.insideV + ' ' + tableHVStyles.insideH;
         //     }
         // }
-        vhStyles = tableHVStyles.insideV + " " + tableHVStyles.insideH;
+        let vhStyles: string = "";
+        if (typeof tableHVStyles === 'object' && tableHVStyles !== null) {
+          vhStyles = tableHVStyles.insideV + " " + tableHVStyles.insideH;
+      }
+        //const vhStyles = tableHVStyles.insideV + " " + tableHVStyles.insideH;
         htmlContent += `<td style="${cellStyles} ${vhStyles}">${convertNodeToHTML(
           cellElements[j],
           styles,
@@ -513,7 +542,7 @@ export default function DocxTagViewer({ element, order, id }) {
       return "";
     }
 
-    const borderStyles = { insideH: null, insideV: null };
+    const borderStyles = { insideH: "", insideV: "" };
     const wNamespaceURI =
       "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
@@ -532,17 +561,13 @@ export default function DocxTagViewer({ element, order, id }) {
         //console.log(val, sz, color);
         if (val && sz && color) {
           if (borderType === "insideH") {
-            borderStyles.insideH = `border-top: ${val} ${
-              parseInt(sz) / 2
-            }px #${color}; border-bottom: ${val} ${
-              parseInt(sz) / 2
-            }px #${color};`;
+            borderStyles.insideH = `border-top: ${val} ${parseInt(sz) / 2
+              }px #${color}; border-bottom: ${val} ${parseInt(sz) / 2
+              }px #${color};`;
           } else if (borderType === "insideV") {
-            borderStyles.insideV = `border-right: ${val} ${
-              parseInt(sz) / 2
-            }px #${color}; border-left: ${val} ${
-              parseInt(sz) / 2
-            }px #${color};`;
+            borderStyles.insideV = `border-right: ${val} ${parseInt(sz) / 2
+              }px #${color}; border-left: ${val} ${parseInt(sz) / 2
+              }px #${color};`;
           }
         }
       }
@@ -570,7 +595,7 @@ export default function DocxTagViewer({ element, order, id }) {
       return "";
     }
 
-    const borderStyles = [];
+    let borderStyles: string[] = [];
     const wNamespaceURI =
       "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
@@ -605,7 +630,8 @@ export default function DocxTagViewer({ element, order, id }) {
     const wNamespaceURI =
       "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
-    const styles = [];
+    let styles: string[] = [];
+
 
     // Extract cell width
     const tcWElement = tcPrElement.getElementsByTagNameNS(
@@ -664,32 +690,48 @@ export default function DocxTagViewer({ element, order, id }) {
     if (file) {
       try {
         const zip = await JSZip.loadAsync(file);
-        const documentXml = await zip.file("word/document.xml").async("string");
-        const documentParser = new DOMParser();
-        const documentDOM = documentParser.parseFromString(
-          documentXml,
-          "text/xml"
-        );
-        console.log("Parsed DOCXML:", documentDOM);
+        if (zip !== null) {
+          let documentDOM: Document|undefined = undefined;
+          let stylesDOM: Document|undefined = undefined;
+          let numberingDOM: Document|undefined = undefined;
 
-        const stylesXml = await zip.file("word/styles.xml").async("string");
-        const stylesParser = new DOMParser();
-        const stylesDOM = stylesParser.parseFromString(stylesXml, "text/xml");
-        console.log("Parsed STYLESXML:", stylesDOM);
+          const documentXml = await zip.file("word/document.xml")?.async("string");
+          if (documentXml !== undefined) {
 
-        const numberingXml = await zip
-          .file("word/numbering.xml")
-          .async("string");
-        const numberingParser = new DOMParser();
-        const numberingDOM = numberingParser.parseFromString(
-          numberingXml,
-          "text/xml"
-        );
-        console.log("Parsed NumberingXML:", numberingDOM);
+            const documentParser = new DOMParser();
+            documentDOM = documentParser?.parseFromString(
+              documentXml,
+              "text/xml"
+            );
 
-        const htmlContent = convertToHTML(documentDOM, stylesDOM, numberingDOM);
-        console.log("Generated HTML:", htmlContent);
-        setTemplateState(id, htmlContent);
+            console.log("Parsed DOCXML:", documentDOM);
+          }
+
+          const stylesXml = await zip.file("word/styles.xml")?.async("string");
+          if (stylesXml !== undefined) {
+
+            const stylesParser = new DOMParser();
+            stylesDOM = stylesParser.parseFromString(stylesXml, "text/xml");
+            console.log("Parsed STYLESXML:", stylesDOM);
+          }
+
+          const numberingXml = await zip
+            .file("word/numbering.xml")
+            ?.async("string");
+          if (numberingXml !== undefined) {
+            const numberingParser = new DOMParser();
+            numberingDOM = numberingParser.parseFromString(
+              numberingXml,
+              "text/xml"
+            );
+            console.log("Parsed NumberingXML:", numberingDOM);
+          }
+
+          
+          const htmlContent = convertToHTML(documentDOM, stylesDOM, numberingDOM);
+          console.log("Generated HTML:", htmlContent);
+          setTemplateState(id, htmlContent);
+        }
 
         // Now you have the content of document.xml
         //console.log('Content of document.xml:', documentXml);

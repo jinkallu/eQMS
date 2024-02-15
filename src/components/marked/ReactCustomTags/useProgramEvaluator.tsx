@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import * as acorn from "acorn";
+//import * as acorn from "acorn";
 
 import useDataFromTableElement from "./useDataFromTableElement";
 import { useExtnStore } from "../../../zustand/store";
@@ -43,7 +43,7 @@ const useProgramEvaluator = (state) => {
 
   const evaluate = async (programString: string) => {
     initNull();
-    const program = acorn.parse(programString, { ecmaVersion: 2020 });
+    const program = "";//acorn.parse(programString, { ecmaVersion: 2020 });
     const result = await visitNodes(program);
     //console.log(dataSource, selectSource, whereSource);
     //const data = getData(dataSource, selectSource, whereSource);

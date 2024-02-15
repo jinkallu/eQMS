@@ -2,15 +2,14 @@
     "manifestVersion": 1,
     "id": "D2Ops",
     "publisher": "D2Ops",
-    "version": "1.0.103",
+    "version": "1.0.128",
     "name": "D2Ops",
     "description": "A sample Visual Studio Services extension",
     "public": false,
-    "baseUri": "https://localhost:3000",
     "categories": ["Azure Repos"],
     "targets": [
         {
-            "id": "Microsoft.VisualStudio.Services.Cloud"
+            "id": "Microsoft.VisualStudio.Services"
         }
     ],
     "icons": {
@@ -23,6 +22,7 @@
             "targets": [
                 "ms.vss-web.project-hub-groups-collection"
             ],
+            "restrictedTo": ["member", "public", "anonymous"],
             "properties": {
                 "name": "D2Ops",
                 "order": 100
@@ -35,6 +35,7 @@
             "targets": [
                 ".d2ops-hub-group"
             ],
+            "restrictedTo": ["member", "public", "anonymous"],
             "properties": {
                 "name": "d2ops",
                 "order": 99,

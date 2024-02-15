@@ -254,9 +254,9 @@ export default function ProseEditor({ element, order, id }) {
 
     const domParser = new DOMParser();
 
-   
 
-    
+
+
     const customSpanMark = {
         span: {
             attrs: {
@@ -281,7 +281,7 @@ export default function ProseEditor({ element, order, id }) {
         },
     };
 
-    const customParagraphNode = {
+    const customParagraphNode: NodeSpec = {
         ...basicNodes.paragraph,
         attrs: {
             ...basicNodes.paragraph.attrs,
@@ -290,7 +290,10 @@ export default function ProseEditor({ element, order, id }) {
         parseDOM: [{
             tag: 'p',
             getAttrs: (node) => {
-                let style = node.getAttribute('style');
+                let style: string | null = null;
+                if (typeof node !== 'string' && node instanceof HTMLElement) {
+                    style = node.getAttribute('style');
+                }
                 return {
                     ...basicNodes.paragraph.attrs,
                     style: style ? style : '',
@@ -302,10 +305,10 @@ export default function ProseEditor({ element, order, id }) {
             return ['p', { ...node.attrs, style: node.attrs.style }, 0];
         },
     };
-    
+
 
     const extendedSchema = new Schema({
-        nodes: { ...basicNodes, ...customInputNode, ...customTextInlineNode, ...customTextBlockeNode, ...newCustomTableNode, paragraph:customParagraphNode },
+        nodes: { ...basicNodes, ...customInputNode, ...customTextInlineNode, ...customTextBlockeNode, ...newCustomTableNode, paragraph: customParagraphNode },
         marks: { ...marks, ...customSpanMark, ...{} },
     });
 
@@ -321,8 +324,8 @@ export default function ProseEditor({ element, order, id }) {
         if (dispatch) dispatch(tr);
     }
 
-     // Define the command
-     function insertInlineText(state, dispatch) {
+    // Define the command
+    function insertInlineText(state, dispatch) {
         // Create a new 'input' node
         const inputNode = extendedSchema.nodes.inlinetext.create({ id: "inlineText", value: "Inline Text Area", disabled: true });
 
@@ -333,8 +336,8 @@ export default function ProseEditor({ element, order, id }) {
         if (dispatch) dispatch(tr);
     }
 
-     // Define the command
-     function insertBlockText(state, dispatch) {
+    // Define the command
+    function insertBlockText(state, dispatch) {
         // Create a new 'input' node
         const inputNode = extendedSchema.nodes.blocktext.create({ id: "blockText", value: "Block Text Area", disabled: true });
 
