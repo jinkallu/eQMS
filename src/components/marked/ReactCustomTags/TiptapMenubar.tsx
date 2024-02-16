@@ -130,10 +130,10 @@ export function TiptapMenuBar() {
         marginBottom: "100px",
         justifyContent: "center",
         width: "100%",
+        opacity: 1,
       }}
     >
-      <Paper
-        elevation={3}
+      <Box
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -199,14 +199,14 @@ export function TiptapMenuBar() {
                 </IconButton>
               </Tooltip>
 
-              <button
+              {/* <button
                 onClick={() => editor.chain().focus().unsetAllMarks().run()}
               >
                 clear marks
               </button>
               <button onClick={() => editor.chain().focus().clearNodes().run()}>
                 clear nodes
-              </button>
+              </button> */}
               <button
                 onClick={() => editor.chain().focus().setParagraph().run()}
                 className={editor.isActive("paragraph") ? "is-active" : ""}
@@ -304,7 +304,7 @@ export function TiptapMenuBar() {
                 </IconButton>
               </Tooltip>
 
-              <button
+              {/* <button
                 onClick={() => editor.chain().focus().toggleCodeBlock().run()}
                 className={editor.isActive("codeBlock") ? "is-active" : ""}
               >
@@ -315,17 +315,17 @@ export function TiptapMenuBar() {
                 className={editor.isActive("blockquote") ? "is-active" : ""}
               >
                 blockquote
-              </button>
+              </button> */}
               <button
                 onClick={() => editor.chain().focus().setHorizontalRule().run()}
               >
                 horizontal rule
               </button>
-              <button
+              {/* <button
                 onClick={() => editor.chain().focus().setHardBreak().run()}
               >
                 hard break
-              </button>
+              </button> */}
               <button
                 onClick={() => editor.chain().focus().undo().run()}
                 disabled={!editor.can().chain().focus().undo().run()}
@@ -359,7 +359,7 @@ export function TiptapMenuBar() {
               >
                 Extend
               </button>
-              <button onClick={handleIncreaseVersion}>Increase Version</button>
+              {/* <button onClick={handleIncreaseVersion}>Increase Version</button> */}
               <button
                 onClick={() =>
                   editor
@@ -369,7 +369,7 @@ export function TiptapMenuBar() {
                     .run()
                 }
               >
-                insertTable
+                Table
               </button>
               <button
                 onClick={handleHeaderClick}
@@ -454,7 +454,7 @@ export function TiptapMenuBar() {
             </Box>
           </Grid>
         </Grid>
-      </Paper>
+      </Box>
     </Box>
   );
 }

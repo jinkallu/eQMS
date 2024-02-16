@@ -27,8 +27,13 @@ import TableRow from "@tiptap/extension-table-row";
 import ProcessFlowExtension from "./TiptapExtensions/CustomProcessflowExtension";
 import ReviewTagViewExtension from "./TiptapExtensions/CustomReviewTagExtension";
 import HeaderExtension from "./TiptapExtensions/CustomHeaderExtension";
-import {CustomTableNode, tableRow, tableCell} from "./TiptapExtensions/CustomTableExtension";
+import {
+  CustomTableNode,
+  tableRow,
+  tableCell,
+} from "./TiptapExtensions/CustomTableExtension";
 import "./TiptapEditor.css";
+import { Box } from "@mui/material";
 
 const CustomH1 = Heading.extend({
   addAttributes() {
@@ -75,7 +80,7 @@ const extensions = [
 
 // const content = "<p>Hello World!</p>";
 
-const TiptapEditor = ({ content }) => {
+const TiptapEditor = ({ content, editMode }) => {
   const { templateState } = useExtnStore((state) => state);
 
   return (
@@ -84,8 +89,8 @@ const TiptapEditor = ({ content }) => {
       //content={templateState[id] || " "}
       content={content || " "}
       //content={editor?.getHTML()}
-      slotBefore={<TiptapMenuBar />}
-      //editable={false}
+      slotBefore={editMode && <TiptapMenuBar />}
+      editable={editMode}
     >
       {""}
     </EditorProvider>

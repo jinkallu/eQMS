@@ -53,7 +53,7 @@ export default function HTMLViewer() {
   const project = useExtnStore((state) => state.project);
 
   const [inputText, setInputText] = React.useState("");
-  const [html, setHtml] = React.useState<Document>();
+  const [html, setHtml] = React.useState("");
   const [htmlEdit, setHtmlEdit] = React.useState("");
 
   const [branch, setBranch] = React.useState<any>();
@@ -64,6 +64,7 @@ export default function HTMLViewer() {
   const [viewEditBranch, setViewEditBranch] = React.useState(false);
   const [version, setVersion] = React.useState(null);
   const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
+  const [loading, setLoading] = React.useState(false);
   // const [state, setState] = React.useState<{ key: string; value: any }>({
   //   key: "initialKey",
   //   value: "initialValue",
@@ -84,8 +85,8 @@ export default function HTMLViewer() {
   const { readDatabase } = useExtnStore();
 
   async function getFileContentData() {
+    setLoading(true);
     let newBranchName = branchName;
-    console.log(branchName);
 
     let lastIndex = branchName.lastIndexOf("/main");
 
@@ -105,12 +106,12 @@ export default function HTMLViewer() {
     );
 
     if (content && content.trim() !== "") {
-      const parser = new DOMParser();
+      // const parser = new DOMParser();
       //const htmlString = marked(markedData);
-      const htmlData = parser.parseFromString(content, "text/html");
-      setHtml(htmlData);
+      // const htmlData = parser.parseFromString(content, "text/html");
+      setHtml(content);
     }
-
+    setLoading(false);
     // setInputText(content);
   }
 
@@ -141,77 +142,6 @@ export default function HTMLViewer() {
     editBranchNameArr.splice(-1);
     editBranchNameArr.push("edit");
     const editBranchName = editBranchNameArr.join("/");
-    // const newHtml = htmlEdit;
-
-    // Object.keys(templateState)?.map((key) => {
-    //   const value = templateState[key];
-    //   const ele = newHtml?.getElementById(key);
-    //   if (ele) {
-    //     if (ele.tagName === "INPUT") {
-    //       ele.setAttribute("value", value);
-    //     } else if (ele.tagName === "MD") {
-    //       // ele.innerHTML = value;
-    //     } else if (ele.tagName === "LINKRECORD") {
-    //       ele.setAttribute("records", JSON.stringify(value));
-    //     }
-    //     // else if (ele.tagName === "PROCESSFLOW") {
-    //     //   const edges = state["processFlow"]?.edges || [];
-    //     //   const nodes = state["processFlow"]?.nodes || [];
-
-    //     //   ele.dataset.nodes = JSON.stringify(nodes);
-    //     //   ele.dataset.edges = JSON.stringify(edges);
-    //     // }
-    //     else {
-    //       ele.setAttribute("value", JSON.stringify(value));
-    //     }
-    //   }
-    // });
-
-    // // Object.entries(templateState)?.map(([key, value]) => {
-    // //   const ele = newHtml?.getElementById(key);
-    // //   if (ele) {
-    // //     if (ele.tagName === "INPUT") {
-    // //       ele.setAttribute("value", value);
-    // //     } else if (ele.tagName === "MD") {
-    // //       // ele.innerHTML = value;
-    // //     } else if (ele.tagName === "LINKRECORD") {
-    // //       ele.setAttribute("records", JSON.stringify(value));
-    // //     }
-    // //     // else if (ele.tagName === "PROCESSFLOW") {
-    // //     //   const edges = state["processFlow"]?.edges || [];
-    // //     //   const nodes = state["processFlow"]?.nodes || [];
-
-    // //     //   ele.dataset.nodes = JSON.stringify(nodes);
-    // //     //   ele.dataset.edges = JSON.stringify(edges);
-    // //     // }
-    // //     else {
-    // //       ele.setAttribute("value", JSON.stringify(value));
-    // //     }
-    // //   }
-    // // });
-
-    // // Add node and edges data to html
-    // const processFlowEls = newHtml?.querySelectorAll("PROCESSFLOW");
-    // const edges = templateState["processFlow"]?.edges || [];
-    // const nodes = templateState["processFlow"]?.nodes || [];
-
-    // Array.from(processFlowEls)?.map((item: HTMLElement) => {
-    //   item.dataset.nodes = JSON.stringify(nodes);
-    //   item.dataset.edges = JSON.stringify(edges);
-    //   return item;
-    // });
-
-    // // add link record data to html
-    // // const linkRecord = html?.getElementsByTagName("LINKRECORD");
-    // // const records = state["linkRecords"];
-
-    // // Array.from(linkRecord)?.map((item: HTMLElement) => {
-    // //   item.setAttribute("records", JSON.stringify(records));
-    // //   return item;
-    // // });
-
-    // // const md = EditorSave.findEditableMds(inputText, "Editor");
-    // console.log(editBranchName, filePath);
 
     const createdData = await commit(
       project.id,
@@ -230,6 +160,7 @@ export default function HTMLViewer() {
   }
 
   async function getEditBranchData() {
+    setLoading(true);
     const data = await getEditBranch({
       branchName,
       type,
@@ -241,54 +172,16 @@ export default function HTMLViewer() {
       const parser = new DOMParser();
       //const htmlString = marked(markedData);
       // const htmlData = parser.parseFromString(data, "text/html");
-      setHtmlEdit(data);
+      setHtml(data);
     }
+    setLoading(false);
   }
-
-  const handleChange = (id, value) => {
-    const ele = html?.getElementById(id);
-    if (ele) {
-      if (ele.tagName === "INPUT") {
-        ele.setAttribute("value", value);
-      } else if (ele.tagName === "MD") {
-        const htmlData = new DOMParser().parseFromString(value, "text/html");
-        ele.innerHTML = htmlData?.body?.innerHTML;
-      } else if (ele.tagName === "LINKRECORD") {
-        ele.setAttribute("records", JSON.stringify(value));
-      }
-      // else if (ele.tagName === "PROCESSFLOW") {
-      //   const edges = state["processFlow"]?.edges || [];
-      //   const nodes = state["processFlow"]?.nodes || [];
-
-      //   ele.dataset.nodes = JSON.stringify(nodes);
-      //   ele.dataset.edges = JSON.stringify(edges);
-      // }
-      else {
-        ele.setAttribute("value", JSON.stringify(value));
-      }
-    }
-
-    // Add node and edges data to html
-    // if (id === "processFlow") {
-    //   const processFlowEls = html?.querySelectorAll("PROCESSFLOW");
-    //   const edges = value?.edges || [];
-    //   const nodes = value?.nodes || [];
-
-    //   Array.from(processFlowEls)?.map((item: HTMLElement) => {
-    //     item.dataset.nodes = JSON.stringify(nodes);
-    //     item.dataset.edges = JSON.stringify(edges);
-    //     return item;
-    //   });
-    // }
-    setTemplateState(id, value);
-  };
 
   React.useEffect(() => {
     if (project && repository && branchName) {
-      getFileContentData();
-      getEditBranchData();
+      editMode ? getEditBranchData() : getFileContentData();
     }
-  }, [project, repository, viewEditBranch, branchName, version]);
+  }, [project, repository, viewEditBranch, branchName, version, editMode]);
 
   if (fileContentLoading) {
     return (
@@ -411,30 +304,19 @@ export default function HTMLViewer() {
           width: "100%",
         }}
       >
-        {editMode ? (
-          <TiptapEditor content={htmlEdit}></TiptapEditor>
-        ) : (
-          // <MonacoEditor
-          //   objectId={""}
-          //   type={type}
-          //   branchName={branchName}
-          //   relativePath={relativePath}
-          //   html={htmlEdit}
-          //   setOpenEditModal={setOpen}
-          //   toggleEditModeData={toggleEditModeData}
-          // ></MonacoEditor>
-          <Box sx={{ width: pageWidth.width, paddingX: "24px" }}>
-            <Toolbar />
-
-            <MarkedToCustom
-              key={"base"}
-              element={html?.body}
-              open={null}
-              setOpen={null}
-              order="last"
-              productId={null}
-            ></MarkedToCustom>
+        {!editMode && <Toolbar />}
+        {loading ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CircularProgress></CircularProgress>;
           </Box>
+        ) : (
+          <TiptapEditor editMode={editMode} content={html}></TiptapEditor>
         )}
       </Box>
     </Paper>

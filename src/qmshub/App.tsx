@@ -88,15 +88,8 @@ const router = createBrowserRouter([
   },
 ]);
 
-const newRouter = createBrowserRouter([
-  {
-    path: "/qmshub.html",
-    element: <h1>Hellow world</h1>,
-  },
-]);
-
 function App() {
-  return <RouterProvider router={newRouter}></RouterProvider>;
+  return <RouterProvider router={router}></RouterProvider>;
 }
 
 export default App;
