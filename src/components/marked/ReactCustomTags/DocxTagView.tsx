@@ -1,5 +1,5 @@
 import Grid from "@mui/material/Grid";
-import React from 'react';
+import React from "react";
 import { useEffect, useState } from "react";
 import { useExtnStore } from "../../../zustand/store";
 //import * as cheerio from 'cheerio';
@@ -11,8 +11,9 @@ import { exampleSetup } from "prosemirror-example-setup";
 //import './ProseMirrorStyles.css'; // Import the CSS file here
 import { toggleMark } from "prosemirror-commands"; // Import toggleMark here
 import { EditorView } from "prosemirror-view"; // Import EditorView from prosemirror-view
-import ProseEditor from "./ProseEditor";
+// import ProseEditor from "./ProseEditor";
 import DraftEditor from "./DraftEditor";
+
 import FieldChar from "./FieldChar";
 import TiptapEditor from "./TiptapEditor";
 
@@ -134,7 +135,7 @@ export default function DocxTagViewer({ element, order, id }) {
     const t = node.getElementsByTagNameNS(wNamespaceURI, "t")[0]; // Use correct namespace and local name
     if (t) {
       if (rStyle.bold) {
-        if (typeof rStyle === 'object' && rStyle.style) {
+        if (typeof rStyle === "object" && rStyle.style) {
           htmlContent += `<span  ${rStyle.style}> <strong>${convertNodeToHTML(
             node,
             styles,
@@ -142,7 +143,8 @@ export default function DocxTagViewer({ element, order, id }) {
           )}</strong></span>`;
         }
       } else {
-        htmlContent += `<span ${rStyle.style}>${convertNodeToHTML(
+        // htmlContent += `<span ${rStyle.style}>${convertNodeToHTML(
+        htmlContent += `<span>${convertNodeToHTML(
           node,
           styles,
           numberingDOM
@@ -258,7 +260,7 @@ export default function DocxTagViewer({ element, order, id }) {
                           const resetResult = docxNumbering.find(
                             (item) =>
                               item.abstractNumIdId ===
-                              parseInt(abstractNumIdId) && item.ilvlVal === l
+                                parseInt(abstractNumIdId) && item.ilvlVal === l
                           );
                           if (resetResult) {
                             resetResult.num = 0;
@@ -281,7 +283,7 @@ export default function DocxTagViewer({ element, order, id }) {
                         const mResult = docxNumbering.find(
                           (item) =>
                             item.abstractNumIdId ===
-                            parseInt(abstractNumIdId) && item.ilvlVal === m
+                              parseInt(abstractNumIdId) && item.ilvlVal === m
                         );
                         if (mResult) {
                           if (m === 0) {
@@ -354,13 +356,17 @@ export default function DocxTagViewer({ element, order, id }) {
       //pStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
       const tempPStyle = getStyleFromStyleXML(pPr, styles, numberingDOM);
 
-      if (typeof tempPStyle === 'object' && tempPStyle !== null) {
+      if (typeof tempPStyle === "object" && tempPStyle !== null) {
         pStyle = tempPStyle;
         if (pStyle) {
-          if ('numbering' in pStyle && pStyle.numbering) {
-            const numbering = pStyle.numbering as { ilvl: number; result: string | undefined }; // Adjust the type as needed
-            htmlContent += `${pStyle.style}><h${numbering.ilvl + 1}>${numbering.result ? numbering.result : ""
-              }`;
+          if ("numbering" in pStyle && pStyle.numbering) {
+            const numbering = pStyle.numbering as {
+              ilvl: number;
+              result: string | undefined;
+            }; // Adjust the type as needed
+            htmlContent += `${pStyle.style}><h${numbering.ilvl + 1}>${
+              numbering.result ? numbering.result : ""
+            }`;
           } else {
             htmlContent += `${pStyle.style}>`;
           }
@@ -385,8 +391,11 @@ export default function DocxTagViewer({ element, order, id }) {
       }
     }
     if (pStyle) {
-      if ('numbering' in pStyle && pStyle.numbering) {
-        const numbering = pStyle.numbering as { ilvl: number; result: string | undefined }; // Adjust the type as needed
+      if ("numbering" in pStyle && pStyle.numbering) {
+        const numbering = pStyle.numbering as {
+          ilvl: number;
+          result: string | undefined;
+        }; // Adjust the type as needed
         if (numbering.ilvl === 0) {
           htmlContent += `</h${numbering.ilvl + 1}> <hr></p>`;
         } else {
@@ -506,9 +515,9 @@ export default function DocxTagViewer({ element, order, id }) {
         //     }
         // }
         let vhStyles: string = "";
-        if (typeof tableHVStyles === 'object' && tableHVStyles !== null) {
+        if (typeof tableHVStyles === "object" && tableHVStyles !== null) {
           vhStyles = tableHVStyles.insideV + " " + tableHVStyles.insideH;
-      }
+        }
         //const vhStyles = tableHVStyles.insideV + " " + tableHVStyles.insideH;
         htmlContent += `<td style="${cellStyles} ${vhStyles}">${convertNodeToHTML(
           cellElements[j],
@@ -561,13 +570,17 @@ export default function DocxTagViewer({ element, order, id }) {
         //console.log(val, sz, color);
         if (val && sz && color) {
           if (borderType === "insideH") {
-            borderStyles.insideH = `border-top: ${val} ${parseInt(sz) / 2
-              }px #${color}; border-bottom: ${val} ${parseInt(sz) / 2
-              }px #${color};`;
+            borderStyles.insideH = `border-top: ${val} ${
+              parseInt(sz) / 2
+            }px #${color}; border-bottom: ${val} ${
+              parseInt(sz) / 2
+            }px #${color};`;
           } else if (borderType === "insideV") {
-            borderStyles.insideV = `border-right: ${val} ${parseInt(sz) / 2
-              }px #${color}; border-left: ${val} ${parseInt(sz) / 2
-              }px #${color};`;
+            borderStyles.insideV = `border-right: ${val} ${
+              parseInt(sz) / 2
+            }px #${color}; border-left: ${val} ${
+              parseInt(sz) / 2
+            }px #${color};`;
           }
         }
       }
@@ -632,7 +645,6 @@ export default function DocxTagViewer({ element, order, id }) {
 
     let styles: string[] = [];
 
-
     // Extract cell width
     const tcWElement = tcPrElement.getElementsByTagNameNS(
       wNamespaceURI,
@@ -691,13 +703,14 @@ export default function DocxTagViewer({ element, order, id }) {
       try {
         const zip = await JSZip.loadAsync(file);
         if (zip !== null) {
-          let documentDOM: Document|undefined = undefined;
-          let stylesDOM: Document|undefined = undefined;
-          let numberingDOM: Document|undefined = undefined;
+          let documentDOM: Document | undefined = undefined;
+          let stylesDOM: Document | undefined = undefined;
+          let numberingDOM: Document | undefined = undefined;
 
-          const documentXml = await zip.file("word/document.xml")?.async("string");
+          const documentXml = await zip
+            .file("word/document.xml")
+            ?.async("string");
           if (documentXml !== undefined) {
-
             const documentParser = new DOMParser();
             documentDOM = documentParser?.parseFromString(
               documentXml,
@@ -709,7 +722,6 @@ export default function DocxTagViewer({ element, order, id }) {
 
           const stylesXml = await zip.file("word/styles.xml")?.async("string");
           if (stylesXml !== undefined) {
-
             const stylesParser = new DOMParser();
             stylesDOM = stylesParser.parseFromString(stylesXml, "text/xml");
             console.log("Parsed STYLESXML:", stylesDOM);
@@ -727,8 +739,11 @@ export default function DocxTagViewer({ element, order, id }) {
             console.log("Parsed NumberingXML:", numberingDOM);
           }
 
-          
-          const htmlContent = convertToHTML(documentDOM, stylesDOM, numberingDOM);
+          const htmlContent = convertToHTML(
+            documentDOM,
+            stylesDOM,
+            numberingDOM
+          );
           console.log("Generated HTML:", htmlContent);
           setTemplateState(id, htmlContent);
         }

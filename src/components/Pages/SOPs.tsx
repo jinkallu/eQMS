@@ -19,7 +19,6 @@ import AddSOP from "../AddSOP";
 
 import useFeatureManage from "../../CHooks/buffer/useFeatureManage";
 
-
 const SOPs = () => {
   const {
     branchFileNames,
@@ -33,7 +32,7 @@ const SOPs = () => {
   } = useExtnStore((state) => state);
 
   const { disableFeatures } = useFeatureManage();
-  disableFeatures(project?.id);
+  // disableFeatures(project?.id);
 
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);

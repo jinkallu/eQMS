@@ -20,7 +20,8 @@ import ProcessFlow from "../components/ProcessFlow";
 
 const router = createBrowserRouter([
   {
-    path: "/qmshub.html",
+    path: "/",
+    // path: "/qmshub.html",
     element: <Layout></Layout>,
     errorElement: <Notfound></Notfound>,
     children: [
@@ -46,27 +47,27 @@ const router = createBrowserRouter([
         path: "/qmshub.html/product",
         element: <Product />,
       },
-      {
-        path: "/qmshub.html/marked",
-        element: (
-          <MarkedEditView
-            inputText={""}
-            setInputText={() => {}}
-            objectId=""
-            relativePath=""
-            type=""
-            branchName=" "
-          ></MarkedEditView>
-        ),
-      },
+      // {
+      //   path: "/qmshub.html/marked",
+      //   element: (
+      //     <MarkedEditView
+      //       inputText={""}
+      //       setInputText={() => {}}
+      //       objectId=""
+      //       relativePath=""
+      //       type=""
+      //       branchName=" "
+      //     ></MarkedEditView>
+      //   ),
+      // },
       // {
       //   path: "/qmshub.html/addsop",
       //   element: <AddSOP></AddSOP>,
       // },
-      {
-        path: "/qmshub.html/addqm",
-        element: <QmCRUD></QmCRUD>,
-      },
+      // {
+      //   path: "/qmshub.html/addqm",
+      //   element: <QmCRUD></QmCRUD>,
+      // },
       // {
       //   path: "/qmshub.html/addprod",
       //   element: <ProdCRUD />,
@@ -87,8 +88,15 @@ const router = createBrowserRouter([
   },
 ]);
 
+const newRouter = createBrowserRouter([
+  {
+    path: "/qmshub.html",
+    element: <h1>Hellow world</h1>,
+  },
+]);
+
 function App() {
-  return <RouterProvider router={router}></RouterProvider>;
+  return <RouterProvider router={newRouter}></RouterProvider>;
 }
 
 export default App;

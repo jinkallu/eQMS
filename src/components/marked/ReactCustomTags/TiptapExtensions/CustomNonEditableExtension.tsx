@@ -102,68 +102,68 @@ const nonEditablePlugin = new Plugin({
       return state.doc.nodeAt(pos);
     }
     // Loop through the steps in the transaction
-    for (let i = 0; i < transaction.steps.length; i++) {
-      const step = transaction.steps[i];
-      // Get the position and the node before the step
-      //let pos = step.from;
-      let pos = step.to;
-      //let resolvedPos = state.doc.resolve(pos);
-      let pNode = state.doc.resolve(pos).node();
-      while (pNode) {
-        if (
-          pNode.type.name === "extend"
-          //  &&
-          // (pNode.attrs.class === "non-extend" || pNode.attrs.class === "extend")
-        ) {
-          break;
-        }
-        try {
-          pos = state.doc.resolve(pos).before();
-        } catch {
-          //no nodes before
-          pNode = null;
-          break;
-        }
+    // for (let i = 0; i < transaction.steps.length; i++) {
+    //   const step = transaction.steps[i];
+    //   // Get the position and the node before the step
+    //   //let pos = step.from;
+    //   let pos = step.to;
+    //   //let resolvedPos = state.doc.resolve(pos);
+    //   let pNode = state.doc.resolve(pos).node();
+    //   while (pNode) {
+    //     if (
+    //       pNode.type.name === "extend"
+    //       //  &&
+    //       // (pNode.attrs.class === "non-extend" || pNode.attrs.class === "extend")
+    //     ) {
+    //       break;
+    //     }
+    //     try {
+    //       pos = state.doc.resolve(pos).before();
+    //     } catch {
+    //       //no nodes before
+    //       pNode = null;
+    //       break;
+    //     }
 
-        pNode = findParentNode(pos, state);
-        console.log(pNode);
-      }
+    //     pNode = findParentNode(pos, state);
+    //     console.log(pNode);
+    //   }
 
-      if (pNode && pNode.attrs.version !== 0) {
-        return false;
-      }
-      //     console.log(pNode);
-      //     const grandparentNodePos = resolvedPos.before(); // Position before the parent node
-      // const grandparentNode = state.doc.nodeAt(grandparentNodePos);
-      // console.log(grandparentNode)
-      // const grandGrandparentNodePos = state.doc.resolve(grandparentNodePos).before(); // Position before the grandparent node
-      // const grandGrandparentNode = state.doc.nodeAt(grandGrandparentNodePos);
-      // console.log(grandGrandparentNode)
+    //   if (pNode && pNode.attrs.version !== 0) {
+    //     return false;
+    //   }
+    //   //     console.log(pNode);
+    //   //     const grandparentNodePos = resolvedPos.before(); // Position before the parent node
+    //   // const grandparentNode = state.doc.nodeAt(grandparentNodePos);
+    //   // console.log(grandparentNode)
+    //   // const grandGrandparentNodePos = state.doc.resolve(grandparentNodePos).before(); // Position before the grandparent node
+    //   // const grandGrandparentNode = state.doc.nodeAt(grandGrandparentNodePos);
+    //   // console.log(grandGrandparentNode)
 
-      // let parentNode = null;//findParentNode(pos, state);
-      // while (parentNode === null && pos > 1) { // Change condition to pos > 1 to stop at the root
-      //   pos--;
-      //   parentNode = findParentNode(pos, state);
-      //   console.log(parentNode);
-      // }
-      // //const resolvedPos = state.doc.resolve(pos);
-      // //const grandParentNode = resolvedPos.node(resolvedPos.depth - 1);
-      //let parentNode = null;
+    //   // let parentNode = null;//findParentNode(pos, state);
+    //   // while (parentNode === null && pos > 1) { // Change condition to pos > 1 to stop at the root
+    //   //   pos--;
+    //   //   parentNode = findParentNode(pos, state);
+    //   //   console.log(parentNode);
+    //   // }
+    //   // //const resolvedPos = state.doc.resolve(pos);
+    //   // //const grandParentNode = resolvedPos.node(resolvedPos.depth - 1);
+    //   //let parentNode = null;
 
-      // Use NodePosition to find the first ancestor with the schema 'extend'
+    //   // Use NodePosition to find the first ancestor with the schema 'extend'
 
-      //const nodePos = new NodePos(pos, editor);
-      //parentNode = nodePos.closest('extend');
+    //   //const nodePos = new NodePos(pos, editor);
+    //   //parentNode = nodePos.closest('extend');
 
-      //console.log(parentNode);
-      //console.log(parentNode)
+    //   //console.log(parentNode);
+    //   //console.log(parentNode)
 
-      // If the grandparent node has the 'non-extend' class, cancel the transaction
-      // if (parentNode && parentNode.attrs.class === 'non-extend') {
-      //   return false;
-      // }
-    }
-    // If no 'non-extend' nodes are being changed, allow the transaction
+    //   // If the grandparent node has the 'non-extend' class, cancel the transaction
+    //   // if (parentNode && parentNode.attrs.class === 'non-extend') {
+    //   //   return false;
+    //   // }
+    // }
+    // // If no 'non-extend' nodes are being changed, allow the transaction
     return true;
   },
 });

@@ -60,7 +60,7 @@ export default function ProcessFlow({ editable, element }) {
   }>();
 
   const [menu, setMenu] = useState(null);
-
+  function updateProps(nodes, edges) {}
   const [viewportSize, setViewportSize] = useState({
     width: "100vw",
     height: "50vh",
@@ -216,6 +216,7 @@ export default function ProcessFlow({ editable, element }) {
         open={openCreateStepModal}
         currentNode={currentNode}
         nodes={(templateState && templateState["processFlow"]?.nodes) || []}
+        updateProps={updateProps}
       ></CreateStepModal>
 
       <EditStepNameModal
