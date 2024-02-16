@@ -23,7 +23,13 @@ import NonEditableExtension from "./TiptapExtensions/CustomNonEditableExtension"
 import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
-import TableRow from "@tiptap/extension-table-row";
+// import TableRow from "@tiptap/extension-table-row";
+import {
+  CustomTableRow,
+  CustomTableCell,
+  CustomTableHeader,
+  CustomTable,
+} from "./TiptapExtensions/CustomTiptapTableExtension";
 import ProcessFlowExtension from "./TiptapExtensions/CustomProcessflowExtension";
 import ReviewTagViewExtension from "./TiptapExtensions/CustomReviewTagExtension";
 import HeaderExtension from "./TiptapExtensions/CustomHeaderExtension";
@@ -33,7 +39,6 @@ import {
   tableCell,
 } from "./TiptapExtensions/CustomTableExtension";
 import "./TiptapEditor.css";
-import { Box } from "@mui/material";
 
 const CustomH1 = Heading.extend({
   addAttributes() {
@@ -55,13 +60,13 @@ const CustomH1 = Heading.extend({
 // define your extension array
 const extensions = [
   StarterKit,
-  Table.configure({
+  CustomTable.configure({
     resizable: true,
   }),
-  TableRow,
-  TableHeader,
-  TableCell,
+  CustomTableRow,
+  CustomTableCell,
   CustomInputNode,
+  CustomTableHeader,
   // customTableNode.table,
   // customTableNode.table_row,
   // customTableNode.table_cell,
