@@ -1,187 +1,46 @@
 [
   {
-    "name": "Order Request",
-    "stepElm": {},
-    "templateName": "Order Request Template",
-    "templateId": "29ce92e4-954e-4dad-8bd8-564474994d27",
-    "children": [
-      {
-        "name": "Order Confirmation",
-        "stepElm": {},
-        "templateName": "Order Confirmation Template",
-        "templateId": "375c4fd3-9196-4ef3-b002-451741ef7e05",
-        "children": [
-          {
-            "name": "Invoice",
-            "stepElm": {},
-            "templateName": "Invoice Template",
-            "templateId": "557a29d2-aa15-4ce6-aa2d-53bce0202026",
-            "children": []
-          }
-        ],
-        "parentTemplateId": "29ce92e4-954e-4dad-8bd8-564474994d27",
-        "records": [
-          {
-            "commit": {
-              "commitId": "a7295427cf449fcb8c8e1477738a23107c94177f",
-              "author": {
-                "name": "KS Vijeesh",
-                "email": "vijeesh.ks@gmail.com",
-                "date": "2023-10-10T02:05:47.000Z"
-              },
-              "committer": {
-                "name": "KS Vijeesh",
-                "email": "vijeesh.ks@gmail.com",
-                "date": "2023-10-10T02:05:47.000Z"
-              },
-              "comment": "rename default README.md file",
-              "url": "https://dev.azure.com/BusinessQMS/62af5872-086f-4d64-a828-f574e62380bc/_apis/git/repositories/9ef48971-f625-415d-86d0-433eea3b5212/commits/a7295427cf449fcb8c8e1477738a23107c94177f"
-            },
-            "name": "qms/rec/d2c24c01-dcae-487d-ba80-c569c47ba0c5/2c39dfe7-9be6-48c1-92b4-b5b7a733ed17/375c4fd3-9196-4ef3-b002-451741ef7e05/a34d39df-d484-4042-9219-35f364364013/44861967-4396-4889-b1a7-e977adcb51ac/Confirmation_1Order1/main",
-            "aheadCount": 1,
-            "behindCount": 0,
-            "isBaseVersion": false,
-            "filePath": "qms/rec/data.md",
-            "relativePath": "Confirmation_1Order1",
-            "branchId": "44861967-4396-4889-b1a7-e977adcb51ac",
-            "title": "Confirmation_1Order1",
-            "templateId": "375c4fd3-9196-4ef3-b002-451741ef7e05",
-            "parentId": "a34d39df-d484-4042-9219-35f364364013",
-            "sopId": "2c39dfe7-9be6-48c1-92b4-b5b7a733ed17",
-            "productId": "d2c24c01-dcae-487d-ba80-c569c47ba0c5"
-          }
-        ]
-      },
-      {
-        "name": "Invoice",
-        "stepElm": {},
-        "templateName": "Invoice Template",
-        "templateId": "557a29d2-aa15-4ce6-aa2d-53bce0202026",
-        "children": [],
-        "parentTemplateId": "375c4fd3-9196-4ef3-b002-451741ef7e05",
-        "records": [
-          {
-            "commit": {
-              "commitId": "f0f7656546c6a9e1b6504dd76ebd19a0c14d2683",
-              "author": {
-                "name": "KS Vijeesh",
-                "email": "vijeesh.ks@gmail.com",
-                "date": "2023-10-10T14:44:21.000Z"
-              },
-              "committer": {
-                "name": "KS Vijeesh",
-                "email": "vijeesh.ks@gmail.com",
-                "date": "2023-10-10T14:44:21.000Z"
-              },
-              "comment": "rename default README.md file",
-              "url": "https://dev.azure.com/BusinessQMS/62af5872-086f-4d64-a828-f574e62380bc/_apis/git/repositories/9ef48971-f625-415d-86d0-433eea3b5212/commits/f0f7656546c6a9e1b6504dd76ebd19a0c14d2683"
-            },
-            "name": "qms/rec/d2c24c01-dcae-487d-ba80-c569c47ba0c5/2c39dfe7-9be6-48c1-92b4-b5b7a733ed17/557a29d2-aa15-4ce6-aa2d-53bce0202026/44861967-4396-4889-b1a7-e977adcb51ac/777038e7-b538-4f9d-b3a7-7a14f15b4424/Invoice2_Order1/main",
-            "aheadCount": 1,
-            "behindCount": 0,
-            "isBaseVersion": false,
-            "filePath": "qms/rec/data.md",
-            "relativePath": "Invoice2_Order1",
-            "branchId": "777038e7-b538-4f9d-b3a7-7a14f15b4424",
-            "title": "Invoice2_Order1",
-            "templateId": "557a29d2-aa15-4ce6-aa2d-53bce0202026",
-            "parentId": "44861967-4396-4889-b1a7-e977adcb51ac",
-            "sopId": "2c39dfe7-9be6-48c1-92b4-b5b7a733ed17",
-            "productId": "d2c24c01-dcae-487d-ba80-c569c47ba0c5"
-          },
-          {
-            "commit": {
-              "commitId": "4863372aff6b871d86c062b0044b27298d9d1288",
-              "author": {
-                "name": "KS Vijeesh",
-                "email": "vijeesh.ks@gmail.com",
-                "date": "2023-10-10T02:38:07.000Z"
-              },
-              "committer": {
-                "name": "KS Vijeesh",
-                "email": "vijeesh.ks@gmail.com",
-                "date": "2023-10-10T02:38:07.000Z"
-              },
-              "comment": "rename default README.md file",
-              "url": "https://dev.azure.com/BusinessQMS/62af5872-086f-4d64-a828-f574e62380bc/_apis/git/repositories/9ef48971-f625-415d-86d0-433eea3b5212/commits/4863372aff6b871d86c062b0044b27298d9d1288"
-            },
-            "name": "qms/rec/d2c24c01-dcae-487d-ba80-c569c47ba0c5/2c39dfe7-9be6-48c1-92b4-b5b7a733ed17/557a29d2-aa15-4ce6-aa2d-53bce0202026/44861967-4396-4889-b1a7-e977adcb51ac/d26543f3-325e-4ae8-a414-e0dd574aecb5/Invoice_order_1/main",
-            "aheadCount": 1,
-            "behindCount": 0,
-            "isBaseVersion": false,
-            "filePath": "qms/rec/data.md",
-            "relativePath": "Invoice_order_1",
-            "branchId": "d26543f3-325e-4ae8-a414-e0dd574aecb5",
-            "title": "Invoice_order_1",
-            "templateId": "557a29d2-aa15-4ce6-aa2d-53bce0202026",
-            "parentId": "44861967-4396-4889-b1a7-e977adcb51ac",
-            "sopId": "2c39dfe7-9be6-48c1-92b4-b5b7a733ed17",
-            "productId": "d2c24c01-dcae-487d-ba80-c569c47ba0c5"
-          }
-        ]
-      }
+    "branchId": "2c39dfe7-9be6-48c1-92b4-b5b7a733ed17",
+    "sortOrder": 0,
+    "author": ["02d9585b-467b-41bd-b925-16d5e525eecf"],
+    "approver": ["71e0c1c6-914a-4fd8-a17b-117b9ccae4b0"]
+  },
+  {
+    "branchId": "5bd82c28-2aaf-4bb9-9666-bb15ee829e90",
+    "sortOrder": 1,
+    "author": ["02d9585b-467b-41bd-b925-16d5e525eecf"],
+    "approver": ["71e0c1c6-914a-4fd8-a17b-117b9ccae4b0"]
+  },
+  {
+    "branchId": "59b61741-abe4-464c-b3c9-00d58d0a37be",
+    "sortOrder": 2,
+    "author": [
+      "1df022af-579e-4b7a-a1f4-d7fa7e2a2219",
+      "2963750a-e240-44a9-a7ed-dafa1f854c6b"
     ],
-    "records": [
-      {
-        "commit": {
-          "commitId": "bdf60f8ddf82d3da7c869daf6d608a7cc77635ab",
-          "author": {
-            "name": "KS Vijeesh",
-            "email": "vijeesh.ks@gmail.com",
-            "date": "2023-10-10T02:01:23.000Z"
-          },
-          "committer": {
-            "name": "KS Vijeesh",
-            "email": "vijeesh.ks@gmail.com",
-            "date": "2023-10-10T02:01:23.000Z"
-          },
-          "comment": "rename default README.md file",
-          "url": "https://dev.azure.com/BusinessQMS/62af5872-086f-4d64-a828-f574e62380bc/_apis/git/repositories/9ef48971-f625-415d-86d0-433eea3b5212/commits/bdf60f8ddf82d3da7c869daf6d608a7cc77635ab"
-        },
-        "name": "qms/rec/d2c24c01-dcae-487d-ba80-c569c47ba0c5/2c39dfe7-9be6-48c1-92b4-b5b7a733ed17/29ce92e4-954e-4dad-8bd8-564474994d27/0/37f86393-2e74-400f-beab-ddc0366459b2/Order1/main",
-        "aheadCount": 1,
-        "behindCount": 0,
-        "isBaseVersion": false,
-        "filePath": "qms/rec/data.md",
-        "relativePath": "Order1",
-        "branchId": "37f86393-2e74-400f-beab-ddc0366459b2",
-        "title": "Order1",
-        "templateId": "29ce92e4-954e-4dad-8bd8-564474994d27",
-        "parentId": "0",
-        "sopId": "2c39dfe7-9be6-48c1-92b4-b5b7a733ed17",
-        "productId": "d2c24c01-dcae-487d-ba80-c569c47ba0c5"
-      },
-      {
-        "commit": {
-          "commitId": "de0e991179a8d26adad541e6c2af236d2c712c02",
-          "author": {
-            "name": "KS Vijeesh",
-            "email": "vijeesh.ks@gmail.com",
-            "date": "2023-10-10T02:05:28.000Z"
-          },
-          "committer": {
-            "name": "KS Vijeesh",
-            "email": "vijeesh.ks@gmail.com",
-            "date": "2023-10-10T02:05:28.000Z"
-          },
-          "comment": "rename default README.md file",
-          "url": "https://dev.azure.com/BusinessQMS/62af5872-086f-4d64-a828-f574e62380bc/_apis/git/repositories/9ef48971-f625-415d-86d0-433eea3b5212/commits/de0e991179a8d26adad541e6c2af236d2c712c02"
-        },
-        "name": "qms/rec/d2c24c01-dcae-487d-ba80-c569c47ba0c5/2c39dfe7-9be6-48c1-92b4-b5b7a733ed17/29ce92e4-954e-4dad-8bd8-564474994d27/0/a34d39df-d484-4042-9219-35f364364013/Order1/main",
-        "aheadCount": 1,
-        "behindCount": 0,
-        "isBaseVersion": false,
-        "filePath": "qms/rec/data.md",
-        "relativePath": "Order1",
-        "branchId": "a34d39df-d484-4042-9219-35f364364013",
-        "title": "Order1",
-        "templateId": "29ce92e4-954e-4dad-8bd8-564474994d27",
-        "parentId": "0",
-        "sopId": "2c39dfe7-9be6-48c1-92b4-b5b7a733ed17",
-        "productId": "d2c24c01-dcae-487d-ba80-c569c47ba0c5"
-      }
-    ],
-    "canExpand": true,
-    "level": 0
+    "approver": [
+      "1df022af-579e-4b7a-a1f4-d7fa7e2a2219",
+      "2963750a-e240-44a9-a7ed-dafa1f854c6b"
+    ]
+  },
+  {
+    "branchId": "5850d8bf-5524-431b-a551-43a55bc101b1",
+    "sortOrder": 3,
+    "author": ["02d9585b-467b-41bd-b925-16d5e525eecf"],
+    "approver": ["71e0c1c6-914a-4fd8-a17b-117b9ccae4b0"]
+  },
+  {
+    "branchId": "1922aeb1-0d14-41ec-97bb-c09b1ebd7b55",
+    "sortOrder": 4,
+    "author": ["02d9585b-467b-41bd-b925-16d5e525eecf"],
+    "approver": ["71e0c1c6-914a-4fd8-a17b-117b9ccae4b0"],
+    "reviewer": ["af5281b4-b859-4ec4-8718-691aa422a107"]
+  },
+  {
+    "branchId": "350aff52-460d-4e36-8b08-18f756bd325a",
+    "sortOrder": 5,
+    "author": ["02d9585b-467b-41bd-b925-16d5e525eecf"],
+    "approver": ["71e0c1c6-914a-4fd8-a17b-117b9ccae4b0"],
+    "reviewer": ["af5281b4-b859-4ec4-8718-691aa422a107"]
   }
 ]

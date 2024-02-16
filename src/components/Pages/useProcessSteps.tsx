@@ -1,86 +1,118 @@
 import { useState } from "react";
 
 const useProcessSteps = () => {
-    const [stepTree, setStepTree] = useState(null);
+  const [stepTree, setStepTree] = useState(null);
 
-    // find the step which has no parent (sourceid !== targetid)
-    const initialStep = (edges) => {
-        for(let i = 0; i < edges.length; i++){
-            const srcEdge = edges[i];
-            for (let j = 0; j < edges.length; j++){
-                const tgtEdge = edges[j];
-                if (srcEdge.source === tgtEdge.target){
-                    continue
-                }
-            }
-            return srcEdge.source;
+  // find the step which has no parent (sourceid !== targetid)
+  const initialStep = (edges) => {
+    for (let i = 0; i < edges.length; i++) {
+      const srcEdge = edges[i];
+      for (let j = 0; j < edges.length; j++) {
+        const tgtEdge = edges[j];
+        if (srcEdge.source === tgtEdge.target) {
+          continue;
         }
+      }
+      return srcEdge.source;
+    }
+  };
+
+  const findStepWithId = (id, nodes) => {
+    for (let i = 0; i < nodes.length; i++) {
+      if (nodes[i].id === id) {
+        return nodes[i];
+      }
+    }
+  };
+
+  const findStepsWithSrcNodeId = (srcId, nodes, edges) => {
+    const edgesWithSrc = [];
+    for (let i = 0; i < edges.length; i++) {
+      if (srcId === edges[i].source) {
+        edgesWithSrc.push(edges[i]);
+      }
     }
 
-    const findStepWithId = (id, nodes) => {
-        for(let i = 0; i < nodes.length; i++){
-            if(nodes[i].id === id){
-                return nodes[i];
-            }
+    const nodesWithSrc = [];
+    for (let i = 0; i < edgesWithSrc.length; i++) {
+      const tgtId = edgesWithSrc[i].target;
+
+      for (let j = 0; j < nodes.length; j++) {
+        const nodeId = nodes[j].id;
+        if (nodeId === tgtId) {
+          nodesWithSrc.push(nodes[j]);
+          break;
         }
+      }
     }
 
-    const findStepsWithSrcNodeId = (srcId, nodes, edges) => {
-        const edgesWithSrc = [];
-        for (let i = 0; i < edges.length; i++){
-            if(srcId === edges[i].source){
-                edgesWithSrc.push(edges[i]);
-            }
+    return nodesWithSrc;
+  };
+
+  const createTree = (step, parent) => {
+    const tree = {
+      name: step.id,
+      // stepElm: stepElm,
+      templateName: step.data.templateName,
+      templateId: step.data.templateId,
+      type: step.data.type,
+      data: step.data,
+      parent: parent,
+      children: [],
+    };
+    return tree;
+  };
+
+  const traverse = (id, nodes, edges, tree) => {
+    const srcNodes = findStepsWithSrcNodeId(id, nodes, edges);
+    for (let i = 0; i < srcNodes.length; i++) {
+      const childTree = createTree(srcNodes[i], tree);
+      // remove looping, in the case of conditional jump to a previous step
+      let parent = tree.parent;
+      let isLoop = false;
+      while (parent) {
+        if (childTree.name === parent.name) {
+          isLoop = true;
+          break;
         }
+        parent = parent.parent;
+      }
+      if (!isLoop) {
+        const populatedChildTree = traverse(
+          childTree.name,
+          nodes,
+          edges,
+          childTree
+        );
+        tree.children.push(populatedChildTree);
+      }
+      else{
+        tree.children.push(childTree);
+      }
+    }
 
-        const nodesWithSrc = [];
-        for(let i = 0; i < edgesWithSrc.length; i++){
-            const tgtId = edgesWithSrc[i].target;
+    return tree;
+  };
 
-            for(let j = 0; j < nodes.length; j++){
-                const nodeId = nodes[j].id;
-                if(nodeId === tgtId){
-                    nodesWithSrc.push(nodes[j]);
-                    break;
-                }
-            }
+  const createStepTree = (nodes, edges, sopId) => {
+    try {
+      let initStepId = initialStep(edges);
+      if (!initStepId) {
+        if (nodes.length > 0) {
+          initStepId = nodes[0].id;
         }
-
-        return nodesWithSrc;
+      }
+      const step = findStepWithId(initStepId, nodes);
+      const tree = createTree(step, null);
+      const finalTree = traverse(tree.name, nodes, edges, tree);
+      setStepTree({ sopId: sopId, steps: [finalTree] });
+    } catch (e) {
+      console.log(e);
+      setStepTree({ sopId, steps: [] });
     }
+  };
 
-    const createTree = (step) => {
-        const tree = {
-            id: step.id,
-            // stepElm: stepElm,
-            // templateName: templateName,
-            // templateId,
-            children: [],
-          };
-          return tree;
-    }
-
-    const traverse = (id, nodes, edges, tree) => {
-        const srcNodes = findStepsWithSrcNodeId(id, nodes, edges);
-        console.log(srcNodes);
-        for(let i = 0; i < srcNodes.length; i++){
-            const childTree = createTree(srcNodes[i]);
-            const populatedChildTree = traverse(childTree.id, nodes, edges, childTree);
-            tree.children.push(populatedChildTree);
-        }
-
-        return tree;
-    }
-
-    const createStepTree = (nodes, edges) => {
-        const initStepId = initialStep(edges);
-        const step = findStepWithId(initStepId, nodes);
-        const tree = createTree(step);
-        const finalTree = traverse(tree.id, nodes, edges, tree);
-        setStepTree(finalTree);
-    }
-
-    return {stepTree, createStepTree};
-}
+  return { stepTree, createStepTree };
+};
 
 export default useProcessSteps;

@@ -1,4 +1,4 @@
-import { Paper, Typography } from "@mui/material";
+import { Paper, Tooltip, Typography } from "@mui/material";
 import { useNavigate } from "react-router";
 import { createSearchParams } from "react-router-dom";
 
@@ -17,19 +17,23 @@ export default function ProductCard({ product }) {
     });
   }
   return (
-    <Paper
-      sx={{
-        cursor: "pointer",
-        minHeight: 100,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        "&:hover": { backgroundColor: "#e3dfde" },
-        borderRadius: "5px",
-      }}
-      onClick={handleItemClick}
-    >
-      <Typography variant="h6">{product?.relativePath}</Typography>
-    </Paper>
+    <Tooltip title={product?.relativePath}>
+      <Paper
+        sx={{
+          cursor: "pointer",
+          minHeight: 100,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          "&:hover": { backgroundColor: "#e3dfde" },
+          borderRadius: "5px",
+        }}
+        onClick={handleItemClick}
+      >
+        <Typography noWrap variant="h6">
+          {product?.relativePath}
+        </Typography>
+      </Paper>
+    </Tooltip>
   );
 }

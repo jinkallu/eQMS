@@ -28,17 +28,17 @@ const Header = () => {
       isSelected: false,
     },
 
-    { type: "sops", label: "SOPs", isSelected: true },
+    { type: "sops", label: "SOPs", isSelected: false },
     {
       type: "products",
       label: "Products",
       isSelected: false,
     },
-    {
-      type: "processflow",
-      label: "Process flow",
-      isSelected: false,
-    },
+    // {
+    //   type: "processflow",
+    //   label: "Process flow",
+    //   isSelected: false,
+    // },
   ]);
   const open = Boolean(anchorEl);
 

@@ -33,20 +33,148 @@ import CreatePRModal from "./CreatePRModal";
 import ApprovalModal from "./ApprovalModal";
 import { useNavigate } from "react-router";
 import { createSearchParams } from "react-router-dom";
+import RateReviewIcon from "@mui/icons-material/RateReview";
+import { getClient } from "azure-devops-extension-api";
+import {
+  FileDiffParams,
+  FileDiffsCriteria,
+  GitBaseVersionDescriptor,
+  GitRestClient,
+  GitTargetVersionDescriptor,
+  GitVersionOptions,
+  GitVersionType,
+} from "azure-devops-extension-api/Git";
 
 function Row({ sop, edit, expandAll }) {
   const [open, setOpen] = React.useState(false);
   const { branchTypes } = useExtnStore();
-  const { currentUser, teamsWithMembers } = useExtnStore();
-  const { getActions, canEdit, myApprovalPending } = useSOPActions();
+  const { currentUser, teamsWithMembers, project, repository } = useExtnStore();
+  const {
+    getActions,
+    canEdit,
+    myApprovalPending,
+    myReviewPending,
+    pullRequestStatus,
+  } = useSOPActions();
   const [openAddTemplateModal, setOpenAddTemplateModal] = React.useState(false);
   const [openApprovalModal, setOpenApprovalModal] = React.useState(false);
   const [openCreatePRModal, setOpenCreatePRModal] = React.useState(false);
+  const [isEditContentDifferentFromMain, setIsEditContentDifferentFromMain] =
+    React.useState(false);
   const navigate = useNavigate();
+  const gitClient = getClient(GitRestClient);
+
+  async function gitDiff() {
+    const baseVersionDescriptor: GitBaseVersionDescriptor = {
+      baseVersion: edit?.commit?.commitId,
+      baseVersionOptions: GitVersionOptions.None,
+      baseVersionType: GitVersionType.Commit,
+      version: edit?.commit?.commitId,
+      versionOptions: GitVersionOptions.None,
+      versionType: GitVersionType.Commit,
+    };
+    const targetVersionDescriptor: GitTargetVersionDescriptor = {
+      targetVersion: sop?.commit?.commitId,
+      targetVersionOptions: GitVersionOptions.None,
+      targetVersionType: GitVersionType.Commit,
+      version: sop?.commit?.commitId,
+      versionOptions: GitVersionOptions.None,
+      versionType: GitVersionType.Commit,
+    };
+
+    // const res1 = await gitClient.getCommitDiffs(
+    //   repository?.id,
+    //   null,
+    //   null,
+    //   null,
+    //   null,
+    //   baseVersionDescriptor,
+    //   targetVersionDescriptor
+    // );
+    const fileDiffsCriteria = {
+      baseVersionCommit: edit?.commit?.commitId,
+      targetVersionCommit: sop?.commit?.commitId,
+      fileDiffParams: [
+        {
+          originalPath: "qms/sop/data.html",
+          path: "qms/sop/data.html",
+        },
+      ],
+    };
+    const res1 = await gitClient.getFileDiffs(
+      fileDiffsCriteria,
+      project?.id,
+      repository?.id
+    );
+  }
+
+  async function checkGitDiff() {
+    const baseVersionDescriptor: GitBaseVersionDescriptor = {
+      baseVersion: edit?.commit?.commitId,
+      baseVersionOptions: GitVersionOptions.None,
+      baseVersionType: GitVersionType.Commit,
+      version: edit?.commit?.commitId,
+      versionOptions: GitVersionOptions.None,
+      versionType: GitVersionType.Commit,
+    };
+    const targetVersionDescriptor: GitTargetVersionDescriptor = {
+      targetVersion: sop?.commit?.commitId,
+      targetVersionOptions: GitVersionOptions.None,
+      targetVersionType: GitVersionType.Commit,
+      version: sop?.commit?.commitId,
+      versionOptions: GitVersionOptions.None,
+      versionType: GitVersionType.Commit,
+    };
+
+    const res1 = await gitClient.getCommitDiffs(
+      repository?.id,
+      null,
+      null,
+      null,
+      null,
+      baseVersionDescriptor,
+      targetVersionDescriptor
+    );
+
+    if (res1?.baseCommit !== res1?.commonCommit) {
+      setIsEditContentDifferentFromMain(true);
+    } else {
+      setIsEditContentDifferentFromMain(false);
+    }
+  }
 
   React.useEffect(() => {
-    getActions({ sop, teamsWithMembers, currentUser });
-  }, [currentUser, teamsWithMembers, sop]);
+    if (sop && edit && project && repository) {
+      gitDiff();
+      checkGitDiff();
+    }
+  }, [edit, sop, project, repository]);
+
+  async function callGetActions(
+    sop,
+    teamsWithMembers,
+    currentUser,
+    projectId,
+    repositoryId
+  ) {
+    await getActions({
+      sop,
+      teamsWithMembers,
+      currentUser,
+      projectId,
+      repositoryId,
+    });
+  }
+  React.useEffect(() => {
+    if (currentUser && teamsWithMembers && sop && project && repository)
+      callGetActions(
+        sop,
+        teamsWithMembers,
+        currentUser,
+        project?.id,
+        repository?.id
+      );
+  }, [currentUser, teamsWithMembers, sop, project, repository]);
   React.useEffect(() => {
     setOpen(expandAll);
   }, [expandAll]);
@@ -90,7 +218,9 @@ function Row({ sop, edit, expandAll }) {
         pullRequest={sop?.pullRequest}
         branchId={sop?.branchId}
         sopName={sop?.relativePath}
-        canVote={myApprovalPending}
+        myApprovalPending={myApprovalPending}
+        myReviewPending={myReviewPending}
+        pullRequestStatus={pullRequestStatus}
       ></ApprovalModal>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell component="th" scope="row">
@@ -98,7 +228,9 @@ function Row({ sop, edit, expandAll }) {
             <Typography sx={{ fontSize: "12px" }}>{sop?.number}</Typography>
           </Avatar>
         </TableCell>
-        <TableCell align="left"> {sop?.relativePath}</TableCell>
+        <TableCell align="left">
+          {sop?.relativePath.split("_").slice(1).join(" ")}
+        </TableCell>
 
         <TableCell>
           {sop?.templates?.length}
@@ -129,7 +261,7 @@ function Row({ sop, edit, expandAll }) {
             </Tooltip>
           )}
         </TableCell>
-        <TableCell>
+        {/* <TableCell>
           {sop?.author?.length > 0 && (
             <Tooltip title="Edit SOP">
               <IconButton aria-label="share" onClick={() => {}}>
@@ -137,35 +269,42 @@ function Row({ sop, edit, expandAll }) {
               </IconButton>
             </Tooltip>
           )}
-        </TableCell>
+        </TableCell> */}
         <TableCell>
-          {edit && canEdit && !Boolean(sop?.pullRequest) && (
-            <Tooltip title="Send for approval">
-              <IconButton aria-label="share" onClick={handleCreatePR}>
-                <VerifiedIcon color="primary" />
+          {edit &&
+            isEditContentDifferentFromMain &&
+            canEdit &&
+            !Boolean(sop?.pullRequest) && (
+              <Tooltip title="Send for approval">
+                <IconButton aria-label="share" onClick={handleCreatePR}>
+                  <VerifiedIcon color="primary" />
+                </IconButton>
+              </Tooltip>
+            )}
+        </TableCell>
+
+        <TableCell>
+          {sop?.pullRequest && myReviewPending?.hasPrivilege && (
+            <Tooltip title="Review">
+              <IconButton
+                aria-label="review"
+                onClick={() => setOpenApprovalModal(true)}
+              >
+                <RateReviewIcon color="primary" sx={{ cursor: "pointer" }} />
               </IconButton>
             </Tooltip>
           )}
         </TableCell>
 
         <TableCell>
-          {sop?.pullRequest && (
+          {sop?.pullRequest && myApprovalPending?.hasPrivilege && (
             <Tooltip title="Approve">
-              {myApprovalPending ? (
-                <IconButton
-                  aria-label="approva"
-                  onClick={() => setOpenApprovalModal(true)}
-                >
-                  <ApprovalIcon color="primary" sx={{ cursor: "pointer" }} />
-                </IconButton>
-              ) : (
-                <IconButton
-                  aria-label="approva"
-                  onClick={() => setOpenApprovalModal(true)}
-                >
-                  <HowToRegIcon color="primary"></HowToRegIcon>
-                </IconButton>
-              )}
+              <IconButton
+                aria-label="approva"
+                onClick={() => setOpenApprovalModal(true)}
+              >
+                <ApprovalIcon color="primary" sx={{ cursor: "pointer" }} />
+              </IconButton>
             </Tooltip>
           )}
         </TableCell>
@@ -186,28 +325,36 @@ function Row({ sop, edit, expandAll }) {
                   <TableRow>
                     <TableCell>Name</TableCell>
                     <TableCell>View Template</TableCell>
+                    <TableCell>Send for Approval</TableCell>
+                    <TableCell>Review</TableCell>
+                    <TableCell>Approve</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {sop?.templates?.map((template) => {
-                    return (
-                      <TableRow key={template?.branchId}>
-                        <TableCell component="th" scope="row">
-                          {template?.relativePath}
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title="View Template">
-                            <IconButton
-                              aria-label="share"
-                              onClick={() => handleItemClick(template)}
-                            >
-                              <PreviewIcon color="primary" />
-                            </IconButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {sop?.templates
+                    ?.slice()
+                    .sort((a, b) =>
+                      a?.relativePath.localeCompare(b?.relativePath)
+                    )
+                    .map((template) => {
+                      return (
+                        <TableRow key={template?.branchId}>
+                          <TableCell component="th" scope="row">
+                            {template?.relativePath.replace(/_/g, " ")}
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip title="View Template">
+                              <IconButton
+                                aria-label="share"
+                                onClick={() => handleItemClick(template)}
+                              >
+                                <PreviewIcon color="primary" />
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                 </TableBody>
               </Table>
             </Box>
@@ -255,8 +402,9 @@ export default function SOPTableView({ userSOPs }) {
               </TableCell>
               <TableCell>View SOP</TableCell>
               <TableCell>Add Template</TableCell>
-              <TableCell>Edit</TableCell>
+              {/* <TableCell>Edit</TableCell> */}
               <TableCell>Send for Approval</TableCell>
+              <TableCell>Review</TableCell>
               <TableCell>Approve</TableCell>
             </TableRow>
           </TableHead>
@@ -270,6 +418,7 @@ export default function SOPTableView({ userSOPs }) {
                     item.name ===
                     `qms/sop/${sop.branchId}/${sop.relativePath}/edit`
                 );
+
                 //
                 return (
                   <Row

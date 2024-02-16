@@ -16,10 +16,13 @@ import {
   Typography,
   Divider,
   Input,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
+import { MarkerType } from "reactflow";
 
 interface IConditions {
   operator: string;
@@ -32,6 +35,7 @@ interface IInputEl {
   id: string;
   name: string;
   selected: boolean;
+  tagName: string;
 }
 
 import { useExtnStore } from "../../../../zustand/store";
@@ -40,20 +44,32 @@ export default function CreateStepModal({
   open,
   setOpen,
   currentNode,
-  state,
-  handleChange,
+  nodes,
+  updateProps,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
   currentNode: any;
-  state: any;
-  handleChange: any;
+  nodes;
+  updateProps: any;
 }) {
-  const { userSOPs, setAlertMessage, getFileContent, repository } =
-    useExtnStore((state) => state);
+  const {
+    userSOPs,
+    setAlertMessage,
+    getFileContent,
+    repository,
+    templateState,
+    setTemplateState,
+  } = useExtnStore((state) => state);
   const [stepName, setStepName] = React.useState("");
   const [stepType, setStepType] = React.useState("step");
-  const [inputNodes, setInputNodes] = React.useState<HTMLCollection>(null);
+  const [isProductLevel, setIsProductLevel] = React.useState(false);
+  const [nameError, setNameError] = React.useState({
+    error: false,
+    message: "",
+  });
+
+  const [inputNodes, setInputNodes] = React.useState(null);
   const [template, setTemplate] = React.useState<{
     branchId: string;
     name: string;
@@ -61,7 +77,7 @@ export default function CreateStepModal({
   }>({ branchId: null, name: null, relativePath: null });
 
   const [conditions, setConditions] = React.useState<IConditions[]>([
-    { operator: "=", value: "", id: 1, stepName: "My step 1" },
+    { operator: "=", value: "", id: 1, stepName: "" },
   ]);
 
   const [inputEl, setInputEl] = React.useState<IInputEl[]>();
@@ -98,7 +114,10 @@ export default function CreateStepModal({
         if (data) {
           const parser = new DOMParser();
           const html = parser.parseFromString(data, "text/html");
-          const inputNodes = html.getElementsByTagName("input");
+          // const inputNodes = html.getElementsByTagName("input");
+          const inputNodes = html.querySelectorAll(
+            "input, h1,h2,h3,h4,h5,h6,span"
+          );
           setInputNodes(inputNodes);
         }
       }
@@ -106,29 +125,13 @@ export default function CreateStepModal({
   }, [template]);
 
   const createStep = () => {
-    // const node = getNode(id);
-    // if (node.data.type === "template") {
-    //   setNextStep({ hasNextStep: true, hasTemplate: true });
-    // } else if (node.data.type === "step") {
-    //   const edges = getEdges();
-    //   const connectedChildren = edges.filter((edge) => edge.source == id);
-    //   const stepData = { hasNextStep: false, hasTemplate: false };
-    //   connectedChildren.forEach((child) => {
-    //     const targetNode = getNode(child.target);
-    //     if (targetNode.data.type === "step") {
-    //       stepData.hasNextStep = true;
-    //     } else if (targetNode.data.type === "template") {
-    //       stepData.hasTemplate = true;
-    //     }
-    //   });
-    //   setNextStep(stepData);
-    // }
-    //console.log(stepName, stepType);
-
-    const position = {
-      x: currentNode.node.position.x,
-      y: currentNode.node.position.y + 200,
-    };
+    const position =
+      currentNode?.node?.type === "group"
+        ? { x: (currentNode.node.width - 200) / 2, y: 100 }
+        : {
+            x: currentNode?.node?.position?.x || 200,
+            y: currentNode?.node?.position?.y + 200 || 200,
+          };
 
     // let typ = stepType;
     // if(typ === "decision"){
@@ -136,82 +139,105 @@ export default function CreateStepModal({
     // }
 
     let data;
+
     if (stepType === "step") {
       data = {
         label: stepName,
         type: stepType,
+        productLevel: isProductLevel,
       };
     } else if (stepType === "multidec") {
       data = {
         label: stepName,
+        productLevel: isProductLevel,
         type: stepType,
-        field: inputEl?.find((item) => item.selected)?.name, // TODO: get it from template field,
-        conditions: conditions?.map((item) => item.value),
+        field: inputEl?.find((item) => item.selected)?.id, // TODO: get it from template field,
+        conditions,
+        refTemplateId: template,
+        inputEl: inputEl?.find((item) => item?.selected),
       };
     }
 
     //const parentExtent = getNode("A").extent;
 
     const newNode = {
-      ...currentNode.node,
+      // ...currentNode.node,
       id: `${stepName}-step`,
       position: position,
       data: data,
       type: stepType,
-      parentNode: "A",
+      // parentNode: "A",
       extent: "parent",
+      height: 50,
+      width: 150,
     };
-
-    console.log(state);
 
     // setMyNodes(myNewNodes);
 
     // setNodes((nodes) => {
     let nodesNew = [];
-    const newPositionedNodes = state["processFlow"]?.nodes?.map((node) => {
-      if (node?.position?.y > currentNode.node.position.y) {
-        return {
-          ...node,
-          position: { ...node.position, y: node.position.y + 200 },
-        };
+    const newPositionedNodes = templateState["processFlow"]?.nodes?.map(
+      (node) => {
+        if (node?.position?.y > currentNode.node.position.y) {
+          return {
+            ...node,
+            position: { ...node.position, y: node.position.y + 200 },
+          };
+        }
+        return node;
       }
-      return node;
-    });
+    );
 
     if (stepType === "multidec") {
-      const newNodes = conditions?.map((cond, index) => {
-        const positionData = {
-          x: position.x + 100 * (index + 1),
-          y: position.y + 200,
-        };
+      const newNodes = conditions
+        ?.filter(
+          (item) =>
+            item?.stepName !==
+            nodes?.find((node) => node?.data?.label === item.stepName)?.data
+              ?.label
+        )
+        .map((cond, index) => {
+          const positionData = {
+            x: position.x + 100 * (index + 1),
+            y: position.y + 200,
+          };
 
-        data = {
-          label: cond.stepName,
-          type: "step",
-        };
-        const node = {
-          ...newNode,
-          id: `${cond.stepName}-step`,
-          position: positionData,
-          data: data,
-          type: "step",
-        };
-        return node;
-      });
+          data = {
+            label: cond.stepName,
+            type: "step",
+          };
+          const node = {
+            ...newNode,
+            id: `${cond.stepName}-step`,
+            position: positionData,
+            data: data,
+            type: "step",
+          };
+          return node;
+        });
 
       nodesNew = [...newPositionedNodes, newNode, ...newNodes];
     } else {
       nodesNew = [...newPositionedNodes, newNode];
     }
     // });
-    let edgesNew = [];
-    const newEdge = {
-      id: currentNode.node.id + "_" + newNode.id,
-      source: currentNode.node.id,
-      target: newNode.id,
-      sourceHandle: "source_bottom",
-      targetHandle: "target",
-    };
+    let edgesNew = templateState["processFlow"]?.edges || [];
+    const newEdge = currentNode
+      ? {
+          id: currentNode.node.id + "_" + newNode.id,
+          source: currentNode.node.id,
+          target: newNode.id,
+          type: "smoothstep",
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#FF0072",
+          },
+          sourceHandle: "source_bottom",
+          targetHandle: "target",
+        }
+      : {};
 
     // setEdges((edges) => {
     if (stepType === "multidec") {
@@ -220,6 +246,14 @@ export default function CreateStepModal({
           id: newNode.id + "_" + `${cond.stepName}-step`,
           source: newNode.id,
           target: `${cond.stepName}-step`,
+          type: "smart",
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#FF0072",
+          },
+          label: cond.value,
           sourceHandle: cond.value,
           targetHandle: "target",
         };
@@ -227,13 +261,26 @@ export default function CreateStepModal({
       });
 
       // edges = [...state["processFlow"]?.edges, newEdge, ...newEdges];
-      edgesNew = [...state["processFlow"]?.edges, newEdge, ...newEdges];
+      edgesNew = [...edgesNew, newEdge, ...newEdges];
     } else {
       // edges = [...state["processFlow"]?.edges, newEdge];
-      edgesNew = [...state["processFlow"]?.edges, newEdge];
+      edgesNew = [...edgesNew, newEdge];
     }
+    // if (currentNode?.node?.type === "group") {
+    //   edgesNew = [...state["processFlow"]?.edges];
+    // }
+    // else{
+
+    // }
+
     // });
-    handleChange("processFlow", { nodes: nodesNew, edges: edgesNew });
+    setTemplateState("processFlow", { nodes: nodesNew, edges: edgesNew });
+
+    console.log("updating nodes and edes");
+
+    updateProps(nodesNew, edgesNew);
+
+    // updateAttributes({ nodes: nodesNew, edges: edgesNew });
   };
 
   function handleStepTypeChange(e) {
@@ -246,8 +293,35 @@ export default function CreateStepModal({
   function handleChangeVal(e) {
     setTemplate(e.target.value);
   }
+
+  function handleStepNameChange(e) {
+    setStepName(e.target.value);
+    const stepWithSameName = templateState["processFlow"]?.nodes?.find(
+      (item) => item?.data?.label === e.target.value
+    );
+    if (stepWithSameName) {
+      setNameError({ error: true, message: "Step with same name exists.." });
+    } else {
+      setNameError({ error: false, message: "" });
+    }
+  }
+
+  useEffect(() => {
+    setIsProductLevel(false);
+  }, [stepType]);
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      sx={{
+        "& .MuiDialog-container": {
+          "& .MuiPaper-root": {
+            width: "100%",
+            maxWidth: "800px", // Set your width here
+          },
+        },
+      }}
+    >
       <DialogTitle>Add New Step</DialogTitle>
       <DialogContent>
         <Box
@@ -264,7 +338,6 @@ export default function CreateStepModal({
             <Select
               id="select"
               native
-              defaultValue="step"
               value={stepType}
               onChange={handleStepTypeChange}
             >
@@ -272,6 +345,18 @@ export default function CreateStepModal({
               <option value="multidec"> Decision</option>
             </Select>
           </FormControl>
+
+          {stepType === "step" && (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isProductLevel}
+                  onChange={(e) => setIsProductLevel(e.target.checked)}
+                />
+              }
+              label="Product Level"
+            />
+          )}
 
           <FormControl
             sx={{
@@ -311,6 +396,7 @@ export default function CreateStepModal({
             setConditions={setConditions}
             inputEl={inputEl}
             setInputEl={setInputEl}
+            nodes={nodes}
           ></InputElements>
         )}
 
@@ -323,14 +409,16 @@ export default function CreateStepModal({
           id="message"
           label="Step Name"
           fullWidth
+          error={nameError?.error}
+          helperText={nameError?.message}
           variant="standard"
           value={stepName}
-          onChange={(e) => setStepName(e.target.value)}
+          onChange={handleStepNameChange}
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button disabled={!stepName} onClick={handleCreate}>
+        <Button disabled={!stepName || nameError?.error} onClick={handleCreate}>
           Create
         </Button>
       </DialogActions>
@@ -344,12 +432,14 @@ const InputElements = ({
   setConditions,
   inputEl,
   setInputEl,
+  nodes,
 }: {
-  inputs: HTMLCollection;
+  inputs: NodeListOf<Element>;
   conditions: IConditions[];
   setConditions: (val: IConditions[]) => void;
   inputEl: IInputEl[];
   setInputEl: (val: IInputEl[]) => void;
+  nodes: any;
 }) => {
   const operators = [
     {
@@ -366,12 +456,15 @@ const InputElements = ({
       return;
     }
     const data =
-      Array.from(inputs)?.map((inp) => {
-        const id = inp.getAttribute("id");
-        const name = inp.getAttribute("name");
+      Array.from(inputs)
+        ?.filter((item) => item.getAttribute("id") !== null || undefined)
+        ?.map((inp) => {
+          const id = inp.getAttribute("id");
+          const name = inp.getAttribute("name");
+          const tagName = inp.tagName;
 
-        return { id, name, selected: false };
-      }) || [];
+          return { id, name, selected: false, tagName };
+        }) || [];
     setInputEl(data);
   }, [inputs]);
 
@@ -392,7 +485,7 @@ const InputElements = ({
       operator: "=",
       value: "",
       id,
-      stepName: `My step ${id}`,
+      stepName: "",
     };
     const newConditions = [...conditions, newCondition];
     setConditions(newConditions);
@@ -413,10 +506,10 @@ const InputElements = ({
     setConditions(newConditions);
   }
 
-  function handleChangeStepName(id, e) {
+  function handleChangeStepName(id, name) {
     const newConditions = conditions?.map((item) => {
       if (item.id === id) {
-        return { ...item, stepName: e.target.value };
+        return { ...item, stepName: name };
       } else return item;
     });
     setConditions(newConditions);
@@ -456,6 +549,7 @@ const InputElements = ({
               >
                 <CheckCircleOutlineIcon color="primary"></CheckCircleOutlineIcon>
               </Box>
+              {inp?.tagName}
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <span>Id</span>
@@ -507,11 +601,17 @@ const InputElements = ({
                 </Grid>
 
                 <Grid item xs={3}>
-                  <Input
+                  {/* <Input
                     size="small"
                     value={cond.stepName}
                     onChange={(e) => handleChangeStepName(cond.id, e)}
-                  ></Input>
+                  ></Input> */}
+
+                  <StepSelector
+                    handleChangeStepName={handleChangeStepName}
+                    cond={cond}
+                    nodes={nodes}
+                  ></StepSelector>
                 </Grid>
                 <Grid item xs={2}>
                   {index > 0 && (
@@ -535,6 +635,83 @@ const InputElements = ({
           </Box>
         )}
       </Box>
+    </Box>
+  );
+};
+
+const StepSelector = ({ handleChangeStepName, cond, nodes }) => {
+  const [isNewStep, setIsNewStep] = React.useState(true);
+  const [node, setNode] = React.useState(null);
+  const [error, setError] = React.useState("");
+  function handleChangeVal(e) {
+    const node = nodes?.find((item) => item?.id === e.target.value);
+    setNode(node);
+    handleChangeStepName(cond?.id, node?.data?.label);
+  }
+
+  function handleStepNameChange(id, name) {
+    setError("");
+    const node = nodes?.find((item) => item?.data?.label === name);
+    if (node) {
+      setError("Node name already exists");
+    }
+
+    handleChangeStepName(id, name);
+  }
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <FormControlLabel
+        control={
+          <Switch
+            checked={isNewStep}
+            onChange={() => setIsNewStep((prev) => !prev)}
+          />
+        }
+        label={isNewStep ? "New Step" : "Existing Step"}
+      />
+
+      {isNewStep ? (
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+          <Input
+            size="small"
+            value={cond.stepName}
+            onChange={(e) => handleStepNameChange(cond.id, e?.target.value)}
+          ></Input>
+          {error && <span style={{ color: "red" }}>{error}</span>}
+        </Box>
+      ) : (
+        <FormControl
+          sx={{
+            m: 1,
+          }}
+        >
+          <InputLabel htmlFor="grouped-select">Select Step</InputLabel>
+          <Select
+            native
+            id="grouped-s"
+            value={node?.id}
+            onChange={handleChangeVal}
+          >
+            <option aria-label="None" value="" />
+            {nodes
+              ?.filter((item) => item.type === "step")
+              ?.map((item) => (
+                <option key={item?.data?.label} value={item?.id}>
+                  {item?.data?.label}
+                </option>
+              ))}
+            ))
+          </Select>
+        </FormControl>
+      )}
     </Box>
   );
 };

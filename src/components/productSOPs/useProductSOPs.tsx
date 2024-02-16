@@ -16,31 +16,16 @@ function useProductSOPs() {
   // Iterate over all SOPs and get comntents
   // mock SOP
 
-  const mockSOPs = () => {
-    const sops = [];
-    const sop1 = "<processflow name='QMS Document Structure'> </processflow>";
-    sops.push(sop1);
-    const sop2 =
-      "<processflow name='Product Development Phases' order='0'> </processflow>";
-    sops.push(sop2);
-    const sop3 =
-      "<processflow name='Design Controls' order='1'> </processflow>";
-    sops.push(sop3);
-
-    return sops;
-  };
-
   const iterateSOPs = (sops) => {
     const sopsProcessFlow = [];
     for (let i = 0; i < sops.length; i++) {
-      const md = sops[i].content;
-      const parsedHtmlString = marked(md);
+      // const md = sops[i].content;
+      // const parsedHtmlString = marked(md);
 
       const parser = new DOMParser();
-      const doc = parser.parseFromString(parsedHtmlString, "text/html");
+      const doc = parser.parseFromString(sops[i].content, "text/html");
 
-      const processflowElements = doc.getElementsByTagName("processflow");
-      console.log(processflowElements);
+      const processflowElements = doc.getElementsByTagName("PROCESSFLOW");
       let order = null;
       if (processflowElements.length === 0) {
         console.log("Error! no processflow in the SOP!");
@@ -99,7 +84,6 @@ function useProductSOPs() {
       return { ...sop, content };
     });
     const data = await Promise.all(dataPromise);
-    console.log(data);
 
     return data;
   }

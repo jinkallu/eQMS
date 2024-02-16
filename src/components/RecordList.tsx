@@ -19,6 +19,7 @@ const RecordEle = ({
   step,
   level,
   setParentId,
+  productId,
   setCurrentTemplateId,
   setStepSelector,
   setOpenCreateRecordModal,
@@ -26,11 +27,13 @@ const RecordEle = ({
   activeLevel,
   isIncrement,
   setMaxLevel,
+  setOpenViewRecordModal,
 }) => {
   const [expand, setExpand] = React.useState(false);
   const [currentRecordId, setCurrentRecordId] = React.useState("");
-  const [openViewRecordModal, setOpenViewRecordModal] = React.useState(false);
+  // const [openViewRecordModal, setOpenViewRecordModal] = React.useState(false);
   const [showChildrenIcon, setShowChildrenicon] = React.useState(false);
+  const { setCurrentRecord } = useExtnStore();
 
   function handleExpandClick(recordId) {
     setCurrentRecordId(recordId);
@@ -51,11 +54,29 @@ const RecordEle = ({
     setOpenCreateRecordModal(true);
   }
 
+  function handleRecordViewClick(record) {
+    setCurrentRecord(record);
+    setOpenViewRecordModal(true);
+  }
+
   React.useEffect(() => {
-    setShowChildrenicon(
-      productRecords?.filter((rec) => rec.parentId === record.branchId)
-        ?.length > 0
+    const productLevelStep = step?.children?.find(
+      (item) => item?.data?.productLevel
     );
+    console.log("productLevelStep", productLevelStep);
+
+    if (productLevelStep) {
+      setShowChildrenicon(
+        productRecords?.filter(
+          (rec) => rec.templateId === productLevelStep?.templateId
+        )?.length > 0
+      );
+    } else {
+      setShowChildrenicon(
+        productRecords?.filter((rec) => rec.parentId === record.branchId)
+          ?.length > 0
+      );
+    }
   }, [record]);
   React.useEffect(() => {
     if (isIncrement) {
@@ -85,11 +106,13 @@ const RecordEle = ({
         paddingBottom: "5px",
       }}
     >
-      <RecordViewModal
-        open={openViewRecordModal}
-        setOpen={setOpenViewRecordModal}
-        record={record}
-      ></RecordViewModal>
+      {/* {openViewRecordModal && (
+        <RecordViewModal
+          open={openViewRecordModal}
+          setOpen={setOpenViewRecordModal}
+          productId={productId}
+        ></RecordViewModal>
+      )} */}
 
       <Grid
         container
@@ -160,7 +183,7 @@ const RecordEle = ({
                 gap: "10px",
                 cursor: "pointer",
               }}
-              onClick={() => setOpenViewRecordModal(true)}
+              onClick={() => handleRecordViewClick(record)}
             >
               <NoteAltIcon
                 height={24}
@@ -188,12 +211,17 @@ const RecordEle = ({
           (stepChild) =>
             stepChild?.records?.length > 0 &&
             stepChild?.records
-              ?.filter((rec) => rec.parentId === record.branchId)
+              ?.filter((rec) =>
+                stepChild?.data?.productLevel
+                  ? stepChild?.templateId === rec?.templateId
+                  : rec.parentId === record.branchId
+              )
               ?.map((rec) => (
                 <RecordEle
                   key={rec?.branchId}
                   step={stepChild}
                   record={rec}
+                  productId={productId}
                   level={level + 1}
                   setParentId={setParentId}
                   setCurrentTemplateId={setCurrentTemplateId}
@@ -203,6 +231,7 @@ const RecordEle = ({
                   activeLevel={activeLevel}
                   isIncrement={isIncrement}
                   setMaxLevel={setMaxLevel}
+                  setOpenViewRecordModal={setOpenViewRecordModal}
                 ></RecordEle>
               ))
         )}
@@ -227,6 +256,7 @@ export default function RecordList({
   const [stepTree, setSetTree] = React.useState([]);
   const [activeLevel, setActivelevel] = React.useState(0);
   const [maxLevel, setMaxLevel] = React.useState(0);
+  const [openViewRecordModal, setOpenViewRecordModal] = React.useState(false);
 
   const [isIncrement, setIsIncrement] = React.useState(null);
 
@@ -255,14 +285,23 @@ export default function RecordList({
       return;
     }
     setActivelevel((prev) => prev - 1);
+
     setIsIncrement(false);
   }
 
   function getStepsTreeWithRecords(steps) {
     return steps?.map((step, index) => {
-      const records = productRecords?.filter(
-        (product) => product?.templateId === step?.templateId
-      );
+      let records;
+      if (step?.type === "multidec") {
+        records = productRecords?.filter(
+          (product) =>
+            product?.templateId === "1" && product?.title === step?.data?.label
+        );
+      } else {
+        records = productRecords?.filter(
+          (product) => product?.templateId === step?.templateId
+        );
+      }
 
       const canExpand = step?.children?.length > 0;
 
@@ -292,12 +331,21 @@ export default function RecordList({
         overflow: "auto",
       }}
     >
+      {openViewRecordModal && (
+        <RecordViewModal
+          open={openViewRecordModal}
+          setOpen={setOpenViewRecordModal}
+          productId={productId}
+        ></RecordViewModal>
+      )}
+
       {/* <Fab size="small" color="primary" onClick={handleNewCreate}>
         <AddIcon></AddIcon>
       </Fab> */}
       <Button size="small" color="primary" onClick={handleNewCreate}>
         Create New
       </Button>
+
       <div>
         <Grid container spacing={2} direction="row" alignItems="center">
           <Grid item xs={3}>
@@ -374,6 +422,7 @@ export default function RecordList({
             key={record?.branchId}
             step={stepTree[0]}
             record={record}
+            productId={productId}
             level={0}
             setParentId={setParentId}
             setCurrentTemplateId={setCurrentTemplateId}
@@ -383,6 +432,7 @@ export default function RecordList({
             activeLevel={activeLevel}
             isIncrement={isIncrement}
             setMaxLevel={setMaxLevel}
+            setOpenViewRecordModal={setOpenViewRecordModal}
           />
         ))}
     </Paper>

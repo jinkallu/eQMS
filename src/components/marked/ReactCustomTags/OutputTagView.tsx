@@ -1,44 +1,173 @@
+import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
-export default function OutputTagView({
-  element,
-  order,
-  state,
-  id,
-  handleChange,
-}) {
+import useProgramEvaluator from "./useProgramEvaluator";
+import Radios from "./Radios";
+import { useExtnStore } from "../../../zustand/store";
+
+export default function OutputTagView({ element, order, id }) {
+  const { templateState, setTemplateState } = useExtnStore((state) => state);
+  //const [options, setOptions] = useState();
+  const [dependStates, setDependStates] = useState({});
+  const { dependStateIds, options, evaluate } =
+    useProgramEvaluator(templateState);
+
   function handleChangeFun(e) {
-    if(handleChange){
-      handleChange(id, e.target.value);
-    }
+    setTemplateState(id, e.target.value);
   }
+
+  if (options) {
+    if (options.value[0] === null) {
+      return;
+    }
+    //handleChange(id, options?.value[0]?.textContent.trim());
+    //document.getElementById(id).dispatchEvent()
+    //state[id] = {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()};
+    //state[id]['label'] = options?.label[0]?.textContent.trim();
+    //handleChange(id, {value: options?.value[0]?.textContent.trim(), label: options?.label[0]?.textContent.trim()});
+  }
+
+  useEffect(() => {
+    switch (order) {
+      case "middle":
+        try {
+          let programAttribute = element.getAttribute("program");
+          evaluate(programAttribute);
+        } catch (error) {
+          console.log(error);
+        }
+        break;
+    }
+  }, []);
+
+  // The following code must be executed dynamically,
+  // especially to identify the independant elements.
+
+  useEffect(() => {
+    let trigger = false;
+    for (let i = 0; i < dependStateIds.length; i++) {
+      const key = dependStateIds[i];
+      const newValue = templateState[key];
+      const oldValue = dependStates[key];
+      if (newValue !== oldValue) {
+        trigger = true;
+        setDependStates((prevState) => ({
+          ...prevState,
+          [key]: newValue,
+        }));
+      }
+    }
+    if (trigger) {
+      let programAttribute = element.getAttribute("program");
+      evaluate(programAttribute);
+    }
+  }, [templateState]);
+
+  useEffect(() => {
+    if (!dependStateIds) {
+      return;
+    }
+
+    const newDpdStates = {};
+    for (let i = 0; i < dependStateIds.length; i++) {
+      newDpdStates[dependStateIds[i]] = null;
+    }
+    console.log(dependStateIds);
+    setDependStates(newDpdStates);
+  }, [dependStateIds]);
+
+  function parseStyles(styleString) {
+    const stylesArray = styleString.split(";").filter(Boolean);
+    const stylesObject = {};
+
+    stylesArray.forEach((style) => {
+      const [property, value] = style.split(":").map((s) => s.trim());
+      stylesObject[property] = value;
+    });
+
+    return stylesObject;
+  }
+
+  //const options = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
+
   let component;
   const val = element.getAttribute("value");
   switch (order) {
     case "first":
       //component = element.outerHTML;
       component = (
-        <span> {state[id]} </span>
+        <input
+          value={templateState[id].value || val}
+          onChange={handleChangeFun}
+        ></input>
       );
 
       break;
     case "middle":
+      //let options = {};
+      let fieldNames = null;
+      if (options) {
+        fieldNames = Object.keys(options);
+      }
+      console.log(options);
+      let style = null;
+      if (options?.value?.length > 0) {
+        style = options?.value?.[0].getAttribute("style");
+      }
+
       component = (
-        <span id= {element.id} >{state[id]}</span>
+        <>
+          {options && options.value?.length > 0 && (
+            <output
+              id={id}
+              style={style ? parseStyles(style) : null}
+              data-type="output"
+              onChange={handleChangeFun}
+            >
+              {options?.value[0].textContent.trim()}
+            </output>
+          )}
+        </>
       );
+
+      if (options) {
+        if (options.value) {
+          if (options.value.length > 0) {
+            //handleChange(id, options?.value[0].textContent.trim());
+          }
+        }
+      }
+
+      // component = (
+      //   <>
+      //     {/* {options && <p>Select {fieldNames[0]}:</p>} */}
+      //     {options && options.value?.map((option, index) => (
+      //       <label key={option}>
+      //         <input
+      //           type="radio"
+      //           value={option}
+      //           checked={state[id] === option}
+      //           onChange={handleChangeFun}
+      //           id={element.id}
+      //         />
+      //         {options.label?.[index]}
+      //       </label>
+      //     ))}
+      //   </>
+      // );
       break;
     case "last":
-      if(state){
-        if(state[id]){
-          component = <span>{state[id]}</span>
+      if (templateState) {
+        if (templateState[id]) {
+          component = <span>{templateState[id].label}</span>;
         }
-        else{
-          component = <span>{val}</span>;
-        }
+        // else {
+        //   component = <span>{val}</span>;
+        // }
       }
-      else{
-        component = <span>{val}</span>;
-      }
-      
+      // else {
+      //   component = <span>{val}</span>;
+      // }
+
       //component = <input value={state[id]} onChange={handleChangeFun}></input>;
 
       break;

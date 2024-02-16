@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 // import useMarkdToHTML from "";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import SaveIcon from "@mui/icons-material/Save";
-
+import PreviewIcon from "@mui/icons-material/Preview";
+import UndoIcon from "@mui/icons-material/Undo";
+import RedoIcon from "@mui/icons-material/Redo";
 import { marked } from "marked";
 
 import {
@@ -16,6 +18,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Toolbar,
+  Tooltip,
 } from "@mui/material";
 
 import { useExtnStore } from "../zustand/store";
@@ -28,67 +31,75 @@ export default function MonacoEditor({
   type,
   branchName,
   html,
-  setHtml,
   setOpenEditModal,
-  state,
-  handleChange,
+  productId,
+  toggleEditModeData,
 }: {
   objectId: string;
   type: string;
   relativePath: string;
   branchName: string;
   html: Document;
-  setHtml: (val: Document) => void;
   setOpenEditModal: (val: boolean) => void;
-  state: any;
-  handleChange: any;
+  productId?: string;
+  toggleEditModeData: () => void;
 }) {
   // const [markedData, setMarkedData] = React.useState<string>();
   const [open, setOpen] = React.useState(false);
 
   const [editorView, setEditorView] = React.useState("form");
 
-  const { getEditBranch, repository } = useExtnStore((state) => state);
+  const {
+    getEditBranch,
+    repository,
+    templateState,
+    undoTemplateState,
+    redoTemplateState,
+  } = useExtnStore((state) => state);
   const project = useExtnStore((state) => state.project);
 
-  async function getData() {
-    if (!repository?.id || !project?.id || !branchName) {
-      return;
-    }
-    // let editBranchNameArr = branchName?.split("/");
-    // editBranchNameArr.splice(-1);
-    // editBranchNameArr.push("edit");
-    // const editBranchName = editBranchNameArr.join("/");
-    const data = await getEditBranch({
-      objectId,
-      branchName,
-      type,
-      relativePath,
-      repositoryId: repository.id,
-      projectId: project.id,
-    });
+  // async function getData() {
+  //   if (!repository?.id || !project?.id || !branchName) {
+  //     return;
+  //   }
+  //   // let editBranchNameArr = branchName?.split("/");
+  //   // editBranchNameArr.splice(-1);
+  //   // editBranchNameArr.push("edit");
+  //   // const editBranchName = editBranchNameArr.join("/");
+  //   const data = await getEditBranch({
+  //     objectId,
+  //     branchName,
+  //     type,
+  //     relativePath,
+  //     repositoryId: repository.id,
+  //     projectId: project.id,
+  //   });
 
-    // setMarkedData(data);
-    const parser = new DOMParser();
-    //const htmlString = marked(data);
-    const htmlData = parser.parseFromString(data, "text/html");
+  //   // setMarkedData(data);
+  //   const parser = new DOMParser();
+  //   //const htmlString = marked(data);
+  //   const htmlData = parser.parseFromString(data, "text/html");
 
-    setHtml(htmlData);
-  }
+  //   setHtml(htmlData);
+  // }
 
   function handleEditorViewChange(e) {
     setEditorView(e.target.value);
   }
-  useEffect(() => {
-    getData();
-  }, [objectId, type, branchName, relativePath, repository, project]);
+  // useEffect(() => {
+  //   getData();
+  // }, [objectId, type, branchName, relativePath, repository, project]);
 
   useEffect(() => {
-    Object.keys(state)?.map((key) => {
+    if (!html || !templateState) {
+      return;
+    }
+
+    Object.keys(templateState)?.map((key) => {
       const ele = html.getElementById(key);
-      if (ele) ele.setAttribute("value", state[key]);
+      if (ele) ele.setAttribute("value", templateState[key]);
     });
-  }, [state, html]);
+  }, [templateState, html]);
 
   return (
     <Box
@@ -98,6 +109,7 @@ export default function MonacoEditor({
         flexGrow: 1,
         width: "100%",
         position: "relative",
+        overflowX: "auto",
       }}
     >
       <Paper
@@ -112,6 +124,8 @@ export default function MonacoEditor({
           // height: "40px",
         }}
       >
+        <Toolbar />
+
         <Box
           sx={{
             display: "flex",
@@ -131,10 +145,22 @@ export default function MonacoEditor({
             <ToggleButton value="editor">Editor</ToggleButton>
             <ToggleButton value="form">Form</ToggleButton>
           </ToggleButtonGroup>
+          <UndoIcon onClick={undoTemplateState}></UndoIcon>
+          <RedoIcon onClick={redoTemplateState}></RedoIcon>
+
           <SaveIcon onClick={() => setOpenEditModal(true)}></SaveIcon>
         </Box>
+
         <Typography>Viewer</Typography>
+        <Tooltip title="Exit Edit Mode">
+          <PreviewIcon
+            onClick={toggleEditModeData}
+            sx={{ cursor: "pointer" }}
+          ></PreviewIcon>
+        </Tooltip>
       </Paper>
+      <Toolbar />
+
       {html && (
         <Box sx={{ marginTop: "40px", width: "100%" }}>
           <Grid container spacing={2}>
@@ -145,8 +171,7 @@ export default function MonacoEditor({
                   open={open}
                   setOpen={setOpen}
                   order={editorView === "editor" ? "first" : "middle"}
-                  state={state}
-                  handleChange={handleChange}
+                  productId={productId}
                 ></MarkedToCustom>
               </Paper>
             </Grid>
@@ -158,8 +183,7 @@ export default function MonacoEditor({
                   open={open}
                   setOpen={setOpen}
                   order="last"
-                  state={state}
-                  handleChange={handleChange}
+                  productId={productId}
                 ></MarkedToCustom>
               </Paper>
             </Grid>

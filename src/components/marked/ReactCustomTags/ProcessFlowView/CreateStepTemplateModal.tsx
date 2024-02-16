@@ -45,44 +45,44 @@ export default function CreateStepTemplateModal({
   open,
   setOpen,
   currentNode,
-  state,
-  handleChange,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
   currentNode: any;
-  state: any;
-  handleChange: any;
 }) {
-  const { getFileContent, repository, userSOPs } = useExtnStore(
-    (state) => state
-  );
+  const {
+    getFileContent,
+    repository,
+    userSOPs,
+    templateState,
+    setTemplateState,
+  } = useExtnStore((state) => state);
 
   const [nodesTemp, setNodesTemp] = React.useState([]);
 
   React.useEffect(() => {
-    if (state && state["processFlow"]) {
-      setNodesTemp(state["processFlow"]?.nodes || []);
+    if (templateState && templateState["processFlow"]) {
+      setNodesTemp(templateState["processFlow"]?.nodes || []);
     }
-  }, [state]);
+  }, [templateState]);
 
   async function handleCreate() {
     addTemplate();
-    setNodesTemp(state["processFlow"]?.nodes);
+    setNodesTemp(templateState["processFlow"]?.nodes);
 
     setOpen(false);
   }
 
   function handleClose() {
-    setNodesTemp(state["processFlow"]?.nodes);
+    setNodesTemp(templateState["processFlow"]?.nodes);
 
     setOpen(false);
   }
 
   const addTemplate = () => {
-    handleChange("processFlow", {
+    setTemplateState("processFlow", {
       nodes: nodesTemp,
-      edges: state["processFlow"]?.edges,
+      edges: templateState["processFlow"]?.edges,
     });
   };
 
@@ -106,14 +106,13 @@ export default function CreateStepTemplateModal({
   }
 
   function handleReset() {
-    setNodesTemp(state["processFlow"]?.nodes);
+    setNodesTemp(templateState["processFlow"]?.nodes);
   }
 
   function confictChecker(nodes) {
     const tempGpArray = {};
 
     const newNodesData = nodes?.map((node) => {
-      console.log(node);
       if (!node?.groupingData || node?.groupingData?.length === 0) {
         if (tempGpArray[node?.data?.templateId]) {
           tempGpArray[node?.data?.templateId] =

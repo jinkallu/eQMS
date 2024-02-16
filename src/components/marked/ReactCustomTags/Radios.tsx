@@ -1,37 +1,37 @@
-import { useEffect, useState } from "react";
+import { useExtnStore } from "../../../zustand/store";
 
-interface RadiosProps {
-    state: any;
-    id: any;
-    handleChange: any;
-    options: any;
-}
+export default function Radios({ id, options }) {
+  const { setTemplateState } = useExtnStore((state) => state);
+  function handleChangeFun(e) {
+    setTemplateState(id, {
+      value: e.target.value,
+      label: e.target.dataset.label,
+    });
+  }
 
-export default function Radios({state, id, handleChange, options}) {
-    function handleChangeFun(e) {
-        if (handleChange) {
-            handleChange(id, e.target.value);
-        }
-    }
-
-    if(options){
-        state[id] = options.value[0];
-    }
-
-    return (
-        <>
-            {options && options.value?.map((option, index) => (
-                <label key={option}>
-                    <input
-                        type="radio"
-                        value={option}
-                        checked = {index===0}
-                        onChange={handleChangeFun}
-                        id={id}
-                    />
-                    {options.label?.[index]}
-                </label>
-            ))}
-        </>
-    )
+  return (
+    <>
+      {options &&
+        options.value &&
+        Array.isArray(options.value) &&
+        options.value?.map((option, index) => (
+          <label key={option}>
+            <input
+              type="radio"
+              value={option.textContent.trim()}
+              onChange={(e) => {
+                e.nativeEvent.stopImmediatePropagation();
+                handleChangeFun(e);
+                // Additional logic if needed
+              }}
+              onInput={handleChangeFun}
+              checked={index === 0}
+              id={id}
+              data-label={options.label?.[index].textContent.trim()}
+            />
+            {options.label?.[index].textContent.trim()}
+          </label>
+        ))}
+    </>
+  );
 }

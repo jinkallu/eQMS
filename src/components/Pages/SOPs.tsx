@@ -17,6 +17,8 @@ import TableViewIcon from "@mui/icons-material/TableView";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import AddSOP from "../AddSOP";
 
+import useFeatureManage from "../../CHooks/buffer/useFeatureManage";
+
 const SOPs = () => {
   const {
     branchFileNames,
@@ -28,6 +30,9 @@ const SOPs = () => {
     project,
     branches,
   } = useExtnStore((state) => state);
+
+  const { disableFeatures } = useFeatureManage();
+  // disableFeatures(project?.id);
 
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);

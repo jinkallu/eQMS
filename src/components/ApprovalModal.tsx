@@ -36,7 +36,9 @@ export default function ApprovalModal({
   branchId,
   sopName,
   pullRequest,
-  canVote,
+  myApprovalPending,
+  myReviewPending,
+  pullRequestStatus,
 }) {
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
@@ -58,7 +60,6 @@ export default function ApprovalModal({
 
   async function handleApproval(vote) {
     setLoading(true);
-    console.log(pullRequest);
     const currentReviewer = pullRequest?.reviewers?.find(
       (reviewer) => reviewer?.id === currentUser?.id
     );
@@ -69,16 +70,19 @@ export default function ApprovalModal({
       currentReviewer?.id,
       vote
     );
-    console.log(res);
     await refreshSOPDBData(project.id, project.name, repository.id);
     setLoading(false);
     handleCancel();
   }
   const enableApprove = () => {
     let result = false;
-    if (pullRequest?.reviewers?.find((item) => item.id === currentUser.id)) {
-      result = true;
-    }
+    // if (pullRequest?.reviewers?.find((item) => item.id === currentUser.id)) {
+    //   result = true;
+    // }
+
+    result =
+      (myApprovalPending?.hasPrivilege && myApprovalPending?.isPending) ||
+      (myReviewPending?.hasPrivilege && myReviewPending?.isPending);
 
     return result;
   };
@@ -208,7 +212,7 @@ export default function ApprovalModal({
                     onChange={() => setShowApprovers((prev) => !prev)}
                   ></Switch>
                 }
-                label={`${showApprovers ? "Hide" : "Show"} Approval Data`}
+                label={`${showApprovers ? "Hide" : "Show"} Approval Chain`}
               ></FormControlLabel>
               {showApprovers && (
                 <List
@@ -218,7 +222,7 @@ export default function ApprovalModal({
                   }}
                 >
                   {pullRequest?.reviewers?.map((item) => (
-                    <>
+                    <Box key={item?.id}>
                       <ListItem alignItems="flex-start">
                         <ListItemAvatar>
                           <Avatar alt={item.displayName} src={item.imageUrl} />
@@ -232,14 +236,25 @@ export default function ApprovalModal({
                                   (votest) => votest?.vote === item?.vote
                                 )
                                 ?.map((val) => (
-                                  <Chip label={val.status} color={val?.color} />
+                                  <Chip
+                                    key={`${item.id}_${val.status}`}
+                                    label={val.status}
+                                    color={val?.color}
+                                  />
                                 ))}
+                              <Chip
+                                label={
+                                  pullRequestStatus?.find(
+                                    (stat) => stat?.context?.name === item?.id
+                                  )?.context?.genre
+                                }
+                              ></Chip>
                             </React.Fragment>
                           }
                         />
                       </ListItem>
                       <Divider></Divider>
-                    </>
+                    </Box>
                   ))}
                 </List>
               )}

@@ -32,7 +32,7 @@ export default function StepNode({ data }) {
     <Paper
       sx={{
         display: "flex",
-        width: "150px",
+        width: "200px",
         height: { height },
         overFlowY: "auto",
       }}
@@ -41,7 +41,7 @@ export default function StepNode({ data }) {
         style={{
           display: "flex",
           flexDirection: "column",
-          border: "1px solid blue",
+          border: data?.productLevel ? "1px solid red" : "1px solid blue",
           backgroundColor: "lightblue",
           alignItems: "center",
           width: "100%",
@@ -106,16 +106,16 @@ export default function StepNode({ data }) {
         type="source"
         position={Position.Bottom}
         id="source_bottom"
-        style={{ bottom: 50, background: "#555" }}
+        style={{ bottom: 0, background: "#555" }}
         isConnectable={true}
       />
-      <Handle
+      {/* <Handle
         type="source"
         position={Position.Right}
         id="source_right"
         style={{ top: 25, background: "#555" }}
         isConnectable={true}
-      />
+      /> */}
     </Paper>
   );
 }

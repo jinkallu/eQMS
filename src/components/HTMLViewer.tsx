@@ -1,9 +1,20 @@
 import MarkedHTMLViewer from "./marked/MarkedHTMLViewer";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useExtnStore } from "../zustand/store";
-import React from "react";
+import React, { useEffect } from "react";
 import { markedToHtml } from "../utils/markedHelper";
-import { Box, Chip, CircularProgress, Paper, Toolbar } from "@mui/material";
+import {
+  Box,
+  Chip,
+  CircularProgress,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Toolbar,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import MarkedEditView from "./marked/MarkedEditView";
@@ -15,6 +26,10 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditorSave from "./marked/EditerSave";
 import MonacoEditor from "./MonacoEditor";
 import MarkedToCustom from "./marked/MarkedToCustom";
+import VersionSelector from "./VersionSelector";
+import Viewers from "./marked/Viewers";
+import { pageWidths } from "../constants";
+import TiptapEditor from "./marked/ReactCustomTags/TiptapEditor";
 
 export default function HTMLViewer() {
   //const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
@@ -28,22 +43,32 @@ export default function HTMLViewer() {
     getFileContent,
     getEditBranch,
     repository,
+    templateState,
+    setTemplateState,
+    pageWidth,
+    setPageWidth,
+    editorState,
   } = useExtnStore((state) => state);
 
   const project = useExtnStore((state) => state.project);
 
   const [inputText, setInputText] = React.useState("");
-  const [html, setHtml] = React.useState<Document>();
+  const [html, setHtml] = React.useState("");
+  const [htmlEdit, setHtmlEdit] = React.useState("");
 
   const [branch, setBranch] = React.useState<any>();
   const [editMode, setEditMode] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [commitMessage, setCommitMessage] = React.useState("");
   const { commit, loading: loadingCommit } = useCommit();
+  const [viewEditBranch, setViewEditBranch] = React.useState(false);
+  const [version, setVersion] = React.useState(null);
   const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
-  const [state, setState] = React.useState({
-    processFlow: { nodes: [], edges: [] },
-  });
+  const [loading, setLoading] = React.useState(false);
+  // const [state, setState] = React.useState<{ key: string; value: any }>({
+  //   key: "initialKey",
+  //   value: "initialValue",
+  // });
   const [searchParams] = useSearchParams();
   // const objectId = searchParams.get("objectId");
   const relativePath = searchParams.get("relativePath");
@@ -60,42 +85,35 @@ export default function HTMLViewer() {
   const { readDatabase } = useExtnStore();
 
   async function getFileContentData() {
-    // const branchData = branchFileNames?.find(
-    //   (item) => item.objectId === objectId
-    // );
-    // setBranch(branchData);
+    setLoading(true);
+    let newBranchName = branchName;
+
+    let lastIndex = branchName.lastIndexOf("/main");
+
+    if (viewEditBranch) {
+      //Replace the last occurrence with "/edit"
+      newBranchName =
+        branchName.substring(0, lastIndex) +
+        "/edit" +
+        branchName.substring(lastIndex + "/main".length);
+    }
 
     const content = await getFileContent(
       repository.id,
       `/qms/${type}/data.html`,
-      branchName
+      newBranchName,
+      viewEditBranch ? null : version?.commitId
     );
 
-    setInputText(content);
+    if (content && content.trim() !== "") {
+      // const parser = new DOMParser();
+      //const htmlString = marked(markedData);
+      // const htmlData = parser.parseFromString(content, "text/html");
+      setHtml(content);
+    }
+    setLoading(false);
+    // setInputText(content);
   }
-
-  // async function getEditContentData() {
-  //   const content = await getEditBranch({
-  //     branchName,
-  //     type,
-  //     relativePath,
-  //     repositoryId: repository.id,
-  //     projectId: project.id,
-  //   });
-  //   const processFlowdata = content.getElementById("processFlow");
-  //   if (processFlowdata) {
-  //     let nodes = [];
-  //     let edges = [];
-  //     try {
-  //       nodes = JSON.parse(processFlowdata.dataset.nodes);
-  //       edges = JSON.parse(processFlowdata.dataset.edges);
-  //       setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
-  //     } catch (e) {
-  //       setState((prev) => ({ ...prev, processFlow: { nodes, edges } }));
-  //     }
-  //   }
-  //   setInputText(content);
-  // }
 
   async function getDatabaseContent(collectionName, repositoryId) {
     await readDatabase({ collectionName, repositoryId });
@@ -105,6 +123,12 @@ export default function HTMLViewer() {
     setOpen(false);
   }
 
+  function handleWidthChange(e) {
+    const option = pageWidths?.find((item) => item.type === e.target.value);
+    if (option) {
+      setPageWidth(option);
+    }
+  }
   async function saveContent(): Promise<boolean> {
     let path = [];
     let processFlowPathArr = [];
@@ -119,71 +143,45 @@ export default function HTMLViewer() {
     editBranchNameArr.push("edit");
     const editBranchName = editBranchNameArr.join("/");
 
-    const processFlowEls = html?.getElementsByTagName("PROCESSFLOW");
-    const edges = state["processFlow"]?.edges || [];
-    const nodes = state["processFlow"]?.nodes || [];
-
-    Array.from(processFlowEls)?.map((item: HTMLElement) => {
-      item.dataset.nodes = JSON.stringify(nodes);
-      item.dataset.edges = JSON.stringify(edges);
-      return item;
-    });
-
-    // const md = EditorSave.findEditableMds(inputText, "Editor");
-
     const createdData = await commit(
       project.id,
       repository.id,
       editBranchName,
       filePath,
-      html?.body?.innerHTML,
+      // newHtml?.body?.innerHTML,
+      editorState,
       commitMessage
     );
-    // let createdProcessFlow;
-    // if (type === "sop") {
-    //   createdProcessFlow = await commit(
-    //     project.id,
-    //     repository.id,
-    //     editBranchName,
-    //     processFlowPath,
-    //     JSON.stringify(state["processFlow"]),
-    //     commitMessage
-    //   );
-    // }
 
     return createdData;
-    // if (created) {
-    //   setAlertMessage({
-    //     message: "Data saved successfully",
-    //     severity: "success",
-    //   });
-    // } else {
-    //   setAlertMessage({ message: "Unable to save data...", severity: "error" });
-    // }
-    // navigate(-1);
   }
   function toggleEditModeData() {
     setEditMode((prev) => !prev);
   }
 
-  const handleChange = (id, value) => {
-    setState((values) => ({ ...values, [id]: value }));
-  };
-
-  React.useEffect(() => {
-    if (!editMode) {
-      getFileContentData();
-    }
-  }, [editMode]);
-
-  React.useEffect(() => {
-    if (inputText && inputText.trim() !== "") {
+  async function getEditBranchData() {
+    setLoading(true);
+    const data = await getEditBranch({
+      branchName,
+      type,
+      relativePath,
+      repositoryId: repository.id,
+      projectId: project.id,
+    });
+    if (data && data.trim() !== "") {
       const parser = new DOMParser();
       //const htmlString = marked(markedData);
-      const htmlData = parser.parseFromString(inputText, "text/html");
-      setHtml(htmlData);
+      // const htmlData = parser.parseFromString(data, "text/html");
+      setHtml(data);
     }
-  }, [inputText]);
+    setLoading(false);
+  }
+
+  React.useEffect(() => {
+    if (project && repository && branchName) {
+      editMode ? getEditBranchData() : getFileContentData();
+    }
+  }, [project, repository, viewEditBranch, branchName, version, editMode]);
 
   if (fileContentLoading) {
     return (
@@ -194,44 +192,98 @@ export default function HTMLViewer() {
       </Box>
     );
   }
+
   return (
-    <Box
+    <Paper
+      elevation={3}
       sx={{
         display: "flex",
         flexDirection: "column",
         position: "relative",
-        width: "100%",
       }}
     >
-      {!editMode && (
-        <Paper
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            paddingX: "24px",
-            position: "fixed",
-            width: "100%",
-            opacity: 1,
-            zIndex: 100,
-          }}
-        >
-          <ArrowBackIcon
-            sx={{ cursor: "pointer" }}
-            onClick={() => navigate(-1)}
-          ></ArrowBackIcon>
+      <Paper
+        sx={{
+          position: "fixed",
+          width: "100%",
+          opacity: 1,
+          zIndex: 100,
+        }}
+      >
+        <Grid container spacing={2}>
+          <Grid item xs={4}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <ArrowBackIcon
+                sx={{ cursor: "pointer" }}
+                onClick={() => navigate(-1)}
+              ></ArrowBackIcon>
+              {!editMode && (
+                <VersionSelector
+                  setViewEditBranch={setViewEditBranch}
+                  viewEditBranch={viewEditBranch}
+                  setVersion={setVersion}
+                ></VersionSelector>
+              )}
+            </Box>
+          </Grid>
 
-          <Chip label={relativePath} color="primary" variant="outlined"></Chip>
-          <Box>
-            {canEdit && editMode && (
-              <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
-            )}
-            <EditIcon
-              onClick={toggleEditModeData}
-              sx={{ cursor: "pointer" }}
-            ></EditIcon>
-          </Box>
-        </Paper>
-      )}
+          <Grid item xs={4}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Chip
+                label={relativePath}
+                color="primary"
+                variant="outlined"
+              ></Chip>
+            </Box>
+          </Grid>
+          <Grid item xs={4}>
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              {!editMode && (
+                <FormControl style={{ width: "200px" }}>
+                  <InputLabel id="demo-simple-select-label">
+                    Select a View Option
+                  </InputLabel>
+                  <Select
+                    labelId="pagewidth-select-label"
+                    id="pagewidth-select"
+                    value={pageWidth.type}
+                    label="View Option "
+                    onChange={handleWidthChange}
+                  >
+                    {pageWidths?.map((widthType) => (
+                      <MenuItem key={widthType.type} value={widthType.type}>
+                        {widthType.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+
+              {canEdit && editMode && (
+                <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
+              )}
+
+              <EditIcon
+                onClick={toggleEditModeData}
+                sx={{ cursor: "pointer" }}
+              ></EditIcon>
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
+
       <EditConfModal
         commitMessage={commitMessage}
         setOpen={setOpen}
@@ -245,38 +297,28 @@ export default function HTMLViewer() {
       <Box
         sx={{
           display: "flex",
+          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           overflowY: "auto",
-          width: "100vw",
+          width: "100%",
         }}
       >
-        {editMode && (
-          <MonacoEditor
-            objectId={""}
-            type={type}
-            branchName={branchName}
-            relativePath={relativePath}
-            html={html}
-            setHtml={setHtml}
-            setOpenEditModal={setOpen}
-            state={state}
-            handleChange={handleChange}
-          ></MonacoEditor>
-        )}
-        {!editMode && (
-          <Box sx={{ paddingY: "24px" }}>
-            <MarkedToCustom
-              element={html?.body}
-              open={null}
-              setOpen={null}
-              order="last"
-              state={state}
-              handleChange={handleChange}
-            ></MarkedToCustom>
+        {!editMode && <Toolbar />}
+        {loading ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CircularProgress></CircularProgress>;
           </Box>
+        ) : (
+          <TiptapEditor editMode={editMode} content={html}></TiptapEditor>
         )}
       </Box>
-    </Box>
+    </Paper>
   );
 }

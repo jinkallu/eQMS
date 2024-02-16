@@ -17,7 +17,7 @@ import {
 import React from "react";
 import { useNavigate } from "react-router";
 import { useExtnStore } from "../zustand/store";
-import { createPR } from "../utils/gitHelpers.js";
+import { createPR, addPullRequestStatus } from "../utils/gitHelpers.js";
 export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
@@ -25,7 +25,11 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
   const [approverList, setApproverList] =
     React.useState<{ uniqueName: string; url: string; selected: boolean }[]>();
 
+  const [reviewerList, setReviewerList] =
+    React.useState<{ uniqueName: string; url: string; selected: boolean }[]>();
+
   const [selectedApprovers, setSeletedApprovers] = React.useState([]);
+  const [selectedReviewers, setSeletedReviewers] = React.useState([]);
 
   const {
     branchFileNames,
@@ -43,7 +47,9 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
 
   React.useEffect(() => {
     const approverListData = [];
+    const reviewerListData = [];
     const currentSOP = sops?.find((sop) => sop.branchId === branchId);
+    // set approver list
     currentSOP?.approver?.map((approverTeam) => {
       const team = teamsWithMembers?.find((team) => team?.id === approverTeam);
       if (team) {
@@ -63,7 +69,28 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
       }
       return approverTeam;
     });
+    // set reviewer list
+    currentSOP?.reviewer?.map((reviewerTeam) => {
+      const team = teamsWithMembers?.find((team) => team?.id === reviewerTeam);
+      if (team) {
+        team?.members?.map((member) => {
+          const existing = reviewerListData?.find(
+            (item) => item?.uniqueName === member?.identity?.uniqueName
+          );
+          if (!existing) {
+            reviewerListData.push({
+              uniqueName: member?.identity?.uniqueName,
+              url: member?.identity?.id,
+              selected: false,
+            });
+          }
+          return member;
+        });
+      }
+      return reviewerTeam;
+    });
 
+    setReviewerList(reviewerListData);
     setApproverList(approverListData);
   }, [sops, teamsWithMembers, branchId]);
 
@@ -77,15 +104,24 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
     );
   };
 
-  function handleApproverSelectChange(e) {
-    const newApprovers = approverList?.map((item) => {
-      if (item.url === e.target.value) {
-        return { ...item, selected: !item.selected };
-      }
-      return item;
-    });
-    setApproverList(newApprovers);
-  }
+  const handleReviewerChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setSeletedReviewers(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+  // function handleApproverSelectChange(e) {
+  //   const newApprovers = approverList?.map((item) => {
+  //     if (item.url === e.target.value) {
+  //       return { ...item, selected: !item.selected };
+  //     }
+  //     return item;
+  //   });
+  //   setApproverList(newApprovers);
+  // }
   async function handleCreatePR() {
     if (!message || !selectedApprovers) {
       setError("All inputs are mandatory");
@@ -94,12 +130,38 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
 
     setLoading(true);
 
-    const reviewers = selectedApprovers?.map((approver) => {
+    const approverList = selectedApprovers?.map((approver) => {
       return {
         id: approver,
         isRequired: true,
+        status: {
+          context: {
+            name: approver,
+            genre: "Approver",
+          },
+          state: "pending", // or "pending", "failed", "error", "notSet"
+          description: "Approval status",
+        },
       };
     });
+
+    const reviewerList = selectedReviewers?.map((reviewer) => {
+      return {
+        id: reviewer,
+        isRequired: true,
+
+        status: {
+          context: {
+            name: reviewer,
+            genre: "Reviewer",
+          },
+          state: "pending", // or "pending", "failed", "error", "notSet"
+          description: "Reviewal status",
+        },
+      };
+    });
+
+    const reviewers = [...approverList, ...reviewerList];
 
     // const reviewers = selectedApprovers?.join(";");
 
@@ -118,10 +180,22 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
       currentUser.id
     );
     if (res) {
-      setAlertMessage({
-        message: "SOP send for approval...",
-        severity: "success",
-      });
+      const voteRes = await Promise.all(
+        reviewers?.map(async (item) => {
+          await addPullRequestStatus(
+            item?.status,
+            repository?.id,
+            res?.pullRequestId
+          );
+          return item;
+        })
+      );
+
+      if (voteRes)
+        setAlertMessage({
+          message: "SOP send for approval...",
+          severity: "success",
+        });
     } else {
       setAlertMessage({
         message: "SOP forwarding failed...",
@@ -219,6 +293,37 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
               ))}
             </Select>
           </FormControl>
+
+          <FormControl sx={{ m: 1, width: 300 }}>
+            <InputLabel id="reviewerTeams">Reviewers</InputLabel>
+            <Select
+              labelId="review-multiple-checkbox-label"
+              id="review-multiple-checkbox"
+              multiple
+              value={selectedReviewers}
+              onChange={handleReviewerChange}
+              input={<OutlinedInput label="Choose Reviewers" />}
+              renderValue={(selected) =>
+                selected
+                  ?.map(
+                    (item) =>
+                      reviewerList?.find((reviewer) => reviewer.url === item)
+                        ?.uniqueName
+                  )
+                  .join(", ")
+              }
+            >
+              {reviewerList?.map((reviewer) => (
+                <MenuItem key={reviewer?.url} value={reviewer?.url}>
+                  <Checkbox
+                    checked={selectedReviewers.indexOf(reviewer?.url) > -1}
+                  />
+                  <ListItemText primary={reviewer?.uniqueName} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           <Typography sx={{ fontSize: "12px", color: "red" }}>
             {error}
           </Typography>

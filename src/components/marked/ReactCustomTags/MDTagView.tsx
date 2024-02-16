@@ -2,24 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import MarkedToCustom from "../MarkedToCustom";
 import Box from "@mui/material/Box";
+import { useExtnStore } from "../../../zustand/store";
 
-export default function MDTagView({
-  element,
-  order,
-  state,
-  id,
-  handleChange,
-  children,
-}) {
+export default function MDTagView({ element, order, id, children }) {
+  const { templateState, setTemplateState } = useExtnStore((state) => state);
   const [markedData, setMarkedData] = React.useState<string>();
 
   function handleChangeEditor(value, event) {
-    if (handleChange) {
-      handleChange(id, value);
-    }
+    setTemplateState(id, value);
   }
-
-  useEffect(() => {}, [element]);
 
   let parentAttribute = element.getAttribute("level");
   if (parentAttribute === null) {
@@ -45,6 +36,7 @@ export default function MDTagView({
         };
         //const  value=state[id];
         //setMarkedData(value);
+
         component = (
           <Box
             sx={{
@@ -54,10 +46,10 @@ export default function MDTagView({
             }}
           >
             <Editor
-              height="25vh"
+              height="75vh"
               defaultLanguage="html"
               defaultValue={element.innerHTML}
-              value={state[id]}
+              value={templateState[id]}
               onChange={handleChangeEditor}
             />
           </Box>
@@ -92,16 +84,16 @@ export default function MDTagView({
           component = (
             <textarea
               readOnly={true}
-              rows={10}
+              rows={50}
               placeholder={"Editer for the future inherited documents"}
               style={{ width: "100%" }}
             ></textarea>
           );
         } else if (parentAttribute === "1") {
           let htmlString;
-          if (state) {
-            if (state[id]) {
-              htmlString = state[id];
+          if (templateState) {
+            if (templateState[id]) {
+              htmlString = templateState[id];
             } else {
               htmlString = element.innerHTML;
             }
@@ -120,12 +112,11 @@ export default function MDTagView({
 
           component = (
             <MarkedToCustom
+              productId={null}
               element={doc.body}
               open={open}
               setOpen={null}
               order={order}
-              state={state}
-              handleChange={handleChange}
             ></MarkedToCustom>
           );
         } else {

@@ -129,14 +129,14 @@ export default function SOPCard({ sop, edit }) {
         sopName={sop?.relativePath}
       ></CreatePRModal>
 
-      <ApprovalModal
+      {/* <ApprovalModal
         open={openApprovalModal}
         setOpen={setOpenApprovalModal}
         pullRequest={sop?.pullRequest}
         branchId={sop?.branchId}
         sopName={sop?.relativePath}
-        canVote={enableApproval}
-      ></ApprovalModal>
+        pullRequestStatus={[]}
+      ></ApprovalModal> */}
       <Card
         variant="outlined"
         sx={{ "&:hover": { border: "2px solid #082567" } }}
