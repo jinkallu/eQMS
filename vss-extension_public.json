@@ -1,13 +1,12 @@
 {
     "manifestVersion": 1,
-    "id": "D2Ops",
+    "id": "QuatracePublic",
     "publisher": "D2Ops",
-    "version": "1.0.173",
-    "name": "D2Ops",
-    "description": "A sample Visual Studio Services extension",
+    "version": "1.0.4",
+    "name": "QuatracePublic",
+    "description": "Quatrace e QMS",
     "public": false,
     "categories": ["Azure Repos"],
-    "baseUri": "https://localhost:3000",
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services.Cloud"
@@ -23,20 +22,22 @@
             "targets": [
                 "ms.vss-web.project-hub-groups-collection"
             ],
+            "restrictedTo": ["member", "public", "anonymous"],
             "properties": {
-                "name": "D2Ops",
+                "name": "Quatrace",
                 "order": 100
             }
         },
         {
-            "id": "d2ops",
+            "id": "d2ops-hub",
             "type": "ms.vss-web.hub",
             "description": "Adds a 'Hello' hub to the Work hub group.",
             "targets": [
                 ".d2ops-hub-group"
             ],
+            "restrictedTo": ["member", "public", "anonymous"],
             "properties": {
-                "name": "d2ops",
+                "name": "Quatrace",
                 "order": 99,
                 "uri": "qmshub.html"
             }
@@ -49,7 +50,7 @@
                 "ms.vss-web.collection-admin-hub-group"
             ],
             "properties": {
-                "name": "QMS Settings",
+                "name": "Quatrace Settings",
                 "order": 99,
                 "uri": "orghub.html"
             }

@@ -11,6 +11,7 @@ import { useExtnStore } from "../../../zustand/store";
 import { customTableNode } from "./CustomTableNode";
 import CustomInputNode from "./CustomInputNode";
 import { TiptapMenuBar } from "./TiptapMenubar";
+import CustomExtendReactExtension from "./TiptapExtensions/CustomExtendReactExtension";
 import CustomInputReact from "./TiptapExtensions/CustomInputReactExtension";
 import CustomExtend from "./CustomExtend";
 import Heading from "@tiptap/extension-heading";
@@ -73,7 +74,8 @@ const extensions = [
   CustomInputReact,
   //CustomExtend,
   //CustomH1,
-  ExtendExtension,
+  //ExtendExtension,
+  CustomExtendReactExtension,
   NonEditableExtension,
   ProcessFlowExtension,
   ReviewTagViewExtension,

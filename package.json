@@ -1,5 +1,5 @@
 {
-  "name": "eQMS",
+  "name": "Quatrace",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,10 +11,12 @@
     "watch": "webpack --watch",
     "start": "webpack serve",
     "build:dev": "npm run compile:dev && npm run postbuild",
-    "postbuild": "npm run package-extension -- --rev-version",
-    "package-extension": "tfx extension create",
+    "package-extension": "tfx extension create --rev-version",
     "publish-extension": "tfx extension publish --publisher D2Ops --manifest-globs vss-extension.json --token  aqxi5iiyycjiqpz6axk5ey4y7gqc56lgiukz3wr6zsftjqkp2tzq",
     "bpp": "npm run build && npm run package-extension  && npm run publish-extension",
+    "package-extension-public": "tfx extension create --manifests vss-extension_public.json --rev-version",
+    "publish-extension-public": "tfx extension publish --publisher D2Ops --manifest-globs vss-extension_public.json --token  aqxi5iiyycjiqpz6axk5ey4y7gqc56lgiukz3wr6zsftjqkp2tzq",
+    "bpp-public": "npm run build && npm run package-extension-public  && npm run publish-extension-public",
     "pp": "npm run package-extension  && npm run publish-extension",
     "test": "jest",
     "packageisvalid": "tfx extension isvalid --publisher D2Ops --token  aqxi5iiyycjiqpz6axk5ey4y7gqc56lgiukz3wr6zsftjqkp2tzq --verbose"
