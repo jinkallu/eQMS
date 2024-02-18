@@ -1,0 +1,197 @@
+[
+  {
+    "id": "A",
+    "data": { "label": "SOP Name" },
+    "type": "group",
+    "position": { "x": 0, "y": 0 },
+    "draggable": true,
+    "editMode": false,
+    "errors": false,
+    "targetPosition": "top",
+    "sourcePosition": "bottom"
+  },
+  {
+    "id": "Order Request",
+    "type": "step",
+    "position": { "x": 250, "y": 0 },
+    "data": {
+      "label": "Order Request",
+      "type": "step",
+      "templateName": "100-1_Order_Request_Template",
+      "templateId": "29ce92e4-954e-4dad-8bd8-564474994d27",
+      "grouping": ["Customer Basic", "Customer Advance"]
+    },
+    "parentNode": "A",
+    "extent": "parent",
+    "draggable": true,
+    "width": 150,
+    "height": 50,
+    "editMode": false,
+    "errors": false,
+    "groupingData": [
+      { "id": null, "name": "Customer Basic", "order": 0 },
+      { "id": null, "name": "Customer Advance", "order": 1 }
+    ],
+    "targetPosition": "top",
+    "sourcePosition": "bottom"
+  },
+  {
+    "id": "Order Confirmation",
+    "type": "step",
+    "position": { "x": 250, "y": 100 },
+    "data": {
+      "label": "Order Confirmation",
+      "type": "step",
+      "templateName": "102_Order_Confirmation",
+      "templateId": "375c4fd3-9196-4ef3-b002-451741ef7e05",
+      "grouping": []
+    },
+    "parentNode": "A",
+    "extent": "parent",
+    "draggable": true,
+    "width": 150,
+    "height": 50,
+    "editMode": false,
+    "errors": false,
+    "targetPosition": "top",
+    "sourcePosition": "bottom"
+  },
+  {
+    "width": 150,
+    "height": 50,
+    "id": "step11-step",
+    "type": "step",
+    "position": { "x": 125, "y": 200 },
+    "data": {
+      "label": "step11",
+      "type": "step",
+      "templateName": "1_Risk_Management_Plan",
+      "templateId": "a613d234-3519-4422-96b8-469823744d6f"
+    },
+    "parentNode": "A",
+    "extent": "parent",
+    "draggable": true,
+    "positionAbsolute": { "x": 200, "y": 200 },
+    "editMode": false,
+    "errors": false,
+    "targetPosition": "top",
+    "sourcePosition": "bottom",
+    "groupingData": []
+  },
+  {
+    "width": 150,
+    "height": 50,
+    "id": "sddfd-step",
+    "type": "multidec",
+    "position": { "x": 125, "y": 300 },
+    "data": {
+      "label": "sddfd",
+      "type": "multidec",
+      "field": "Name",
+      "conditions": ["44", "55"]
+    },
+    "parentNode": "A",
+    "extent": "parent",
+    "draggable": true,
+    "positionAbsolute": { "x": 200, "y": 400 },
+    "editMode": false,
+    "errors": false,
+    "targetPosition": "top",
+    "sourcePosition": "bottom"
+  },
+  {
+    "width": 150,
+    "height": 50,
+    "id": "My step 1-step",
+    "type": "step",
+    "position": { "x": 0, "y": 400 },
+    "data": {
+      "label": "My step 1",
+      "type": "step",
+      "templateId": "557a29d2-aa15-4ce6-aa2d-53bce0202026",
+      "templateName": "103_Invoice",
+      "grouping": []
+    },
+    "parentNode": "A",
+    "extent": "parent",
+    "draggable": true,
+    "positionAbsolute": { "x": 200, "y": 400 },
+    "editMode": false,
+    "errors": false,
+    "targetPosition": "top",
+    "sourcePosition": "bottom"
+  },
+  {
+    "width": 150,
+    "height": 50,
+    "id": "My step 2-step",
+    "type": "step",
+    "position": { "x": 250, "y": 400 },
+    "data": {
+      "label": "My step 2",
+      "type": "step",
+      "templateId": "da978bcc-8d02-4086-8bb4-50ac2a4a16ad",
+      "templateName": "100_Temp_Management",
+      "grouping": []
+    },
+    "parentNode": "A",
+    "extent": "parent",
+    "draggable": true,
+    "positionAbsolute": { "x": 200, "y": 400 },
+    "editMode": true,
+    "errors": false,
+    "targetPosition": "top",
+    "sourcePosition": "bottom",
+    "groupingData": []
+  },
+  {
+    "width": 150,
+    "height": 50,
+    "id": "sddfdsdsd-step",
+    "type": "step",
+    "position": { "x": 0, "y": 700 },
+    "data": {
+      "label": "sddfdsdsd",
+      "type": "step",
+      "templateName": "103_Temp3_Management",
+      "templateId": "e82a0cb9-5c8e-48bd-8b98-70c209f025ad"
+    },
+    "parentNode": "A",
+    "extent": "parent",
+    "draggable": true,
+    "positionAbsolute": { "x": 300, "y": 800 },
+    "editMode": false,
+    "errors": false,
+    "targetPosition": "top",
+    "sourcePosition": "bottom"
+  },
+  {
+    "id": "three-step",
+    "position": { "x": 375, "y": 200 },
+    "data": {
+      "label": "three",
+      "type": "step",
+      "templateId": "d77217c5-65d7-4079-8b16-6c1fc1c7ebaf",
+      "templateName": "3_Risk_Mitigation",
+      "grouping": []
+    },
+    "type": "step",
+    "parentNode": "A",
+    "extent": "parent",
+    "height": 50,
+    "width": 150,
+    "targetPosition": "top",
+    "sourcePosition": "bottom",
+    "editMode": false,
+    "errors": false
+  },
+  {
+    "id": "newStep-step",
+    "position": { "x": 250, "y": 600 },
+    "data": { "label": "newStep", "type": "step", "productLevel": false },
+    "type": "step",
+    "extent": "parent",
+    "height": 50,
+    "width": 150
+  }
+]

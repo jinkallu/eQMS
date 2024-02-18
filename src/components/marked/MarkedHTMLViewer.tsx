@@ -11,6 +11,7 @@ export default function MarkedHTMLViewer({
   html,
   state,
   setHtml,
+  productId,
 }) {
   useEffect(() => {
     if (markedText && markedText.trim() !== "") {
@@ -48,8 +49,7 @@ export default function MarkedHTMLViewer({
         open={null}
         setOpen={null}
         order="last"
-        state={state}
-        handleChange={null}
+        productId={null}
       ></MarkedToCustom>
     </Box>
   );

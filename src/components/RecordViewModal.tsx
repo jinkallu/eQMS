@@ -1,40 +1,53 @@
-import { Paper, Box, Button, Modal, CircularProgress } from "@mui/material";
+import {
+  Paper,
+  Box,
+  Button,
+  Modal,
+  CircularProgress,
+  Toolbar,
+} from "@mui/material";
 import React from "react";
 import { useExtnStore } from "../zustand/store";
+import MarkedToCustom from "./marked/MarkedToCustom";
 
 export default function RecordViewModal({
   open,
   setOpen,
-  record,
+  productId,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
-  record: any;
+  productId?: string;
 }) {
   const [loading, setLoading] = React.useState(false);
-  const { repository, getFileContent } = useExtnStore();
+  const { repository, getFileContent, currentRecord, setCurrentRecord } =
+    useExtnStore();
 
-  const [md, setMd] = React.useState("");
+  const [md, setMd] = React.useState<HTMLElement>(null);
 
   async function getFileData(repositoryId, path, branchName) {
     setLoading(true);
 
     const data = await getFileContent(repositoryId, path, branchName);
-    setMd(data);
+    const html = await new DOMParser()?.parseFromString(data, "text/html");
+    console.log(html);
+    setMd(html?.body);
     setLoading(false);
   }
 
   React.useEffect(() => {
-    if (repository.id && record) {
-      const nameArray = record.name.split("/");
+    console.log("current Record", currentRecord);
+    if (repository.id && currentRecord && open) {
+      const nameArray = currentRecord.name.split("/");
       const path = [nameArray[0], nameArray[1], "data.html"]?.join("/");
 
-      getFileData(repository.id, path, record?.name);
+      getFileData(repository.id, path, currentRecord?.name);
     }
-  }, [repository, record, open]);
+  }, [repository, currentRecord, open]);
 
   function handleCancel() {
     setOpen(false);
+    setCurrentRecord(null);
     setMd(null);
   }
 
@@ -52,9 +65,12 @@ export default function RecordViewModal({
           justifyContent: "center",
           alignItems: "center",
           flexDirection: "column",
-          padding: "24px",
+          paddingX: "24px",
+          height: "100%",
         }}
       >
+        <Toolbar />
+        <button onClick={() => setOpen(false)}>Close</button>
         <Paper
           elevation={3}
           sx={{
@@ -64,11 +80,19 @@ export default function RecordViewModal({
             padding: "36px",
             flexDirection: "column",
             gap: "12px",
-            height: "100%",
+            overflowY: "auto",
           }}
         >
           {loading && <CircularProgress></CircularProgress>}
-          <h3>{md}</h3>
+          {md && (
+            <MarkedToCustom
+              element={md}
+              open={null}
+              setOpen={null}
+              order="last"
+              productId={productId}
+            ></MarkedToCustom>
+          )}
           <Box>
             <Button variant="outlined" onClick={handleCancel}>
               Cancel

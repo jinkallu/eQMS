@@ -9,7 +9,12 @@ import {
   InputLabel,
   MenuItem,
   Chip,
+  Dialog,
   Modal,
+  DialogContent,
+  DialogTitle,
+  DialogContentText,
+  DialogActions,
   ListItemText,
   OutlinedInput,
   Checkbox,
@@ -21,37 +26,204 @@ import { createPR } from "../utils/gitHelpers.js";
 //import Editor from "./marked/Editor";
 //import useMarkdToHTML from "./marked/useMarkdToHTML";
 import RecordView from "./Pages/RecordView";
+import MarkedToCustom from "./marked/MarkedToCustom";
+import { ConstructionOutlined } from "@mui/icons-material";
+import useCreateBranch from "../CHooks/useCreateBranch";
+import { v4 as uuidv4 } from "uuid";
 
 export default function CreateRecordModal({
   open,
   setOpen,
-  stepName,
+  parentId,
+  step,
+  process,
+
   handleCreate,
   currentTemplateId,
   stepSelector,
   setCurrentTemplateId,
+  productId,
 }) {
   const [title, setTitle] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const { getFileContent, branchTypes, repository } = useExtnStore();
+  const {
+    getFileContent,
+    branchTypes,
+    repository,
+    refreshProductRecords,
+    templateState,
+    setTemplateState,
+    project,
+  } = useExtnStore();
+  // const [state, setState] = React.useState<{ key: string; value: any }>(null);
   const [approverList, setApproverList] =
     React.useState<{ uniqueName: string; url: string; selected: boolean }[]>();
 
-  const [md, setMd] = React.useState("");
+  const [md, setMd] = React.useState<HTMLElement>(null);
+  const [html, setHtml] = React.useState(null);
+  const [data, setData] = React.useState(null);
+  const [currentStep, setCurrentStep] = React.useState(null);
+  const { createBranch } = useCreateBranch();
 
   const [selectedApprovers, setSeletedApprovers] = React.useState([]);
 
   // const rev
 
   async function getFileData(repositoryId, path, branchName) {
-    const data = await getFileContent(repositoryId, path, branchName);
-    console.log(data);
-    setMd(data);
+    const dataRes = await getFileContent(repositoryId, path, branchName);
+    setData(dataRes);
+
+    const parser = new DOMParser();
+    const htmlData = parser.parseFromString(dataRes, "text/html");
+    setHtml(htmlData);
+    const grouping = stepSelector?.find(
+      (item) => item.templateId === currentTemplateId
+    )?.data?.grouping;
+    // let els;
+
+    let searchQueryArray = [];
+    grouping?.map((item) => {
+      searchQueryArray.push(`GROUPING[name][name="${item}"]`);
+    });
+
+    const searchString = searchQueryArray.join(",");
+
+    // const els = html.querySelectorAll('GROUPING[name][name="Customer Basic"]');
+    if (searchString) {
+      const els = htmlData.querySelectorAll(searchString);
+      if (!els) {
+        return;
+      }
+
+      // const els = html.getElementsByTagName("SECTION");
+
+      const newDiv = document.createElement("div");
+
+      Array.from(els)?.map((item: Node) => {
+        newDiv.appendChild(item);
+        return item;
+      });
+      setMd(newDiv);
+    }
+    // const els = html.querySelectorAll(grouping);
+    else {
+      setMd(htmlData?.body);
+    }
+  }
+
+  async function handleCreateMultiDecBranch({
+    title,
+    uniqueId,
+
+    templateId,
+    process,
+    productId,
+  }) {
+    // check for duplicate name or number
+
+    const newTitle = title.replace(/ /g, "_");
+
+    // create unique id for the sop branch name
+    const branchName = `qms/rec/${productId}/${process.sop.branchId}/${templateId}/${parentId}/${uniqueId}/${newTitle}/main`;
+    const res = await createBranch(
+      project.id,
+      repository.id,
+      "main",
+      branchName
+    );
+
+    return res;
+
+    // // create path for the sop like sop/management/
+    // let newPath = newTitle;
+    // // if (number) {
+    // //   newPath = number + "-" + newPath;
+    // //   newPath = "sop" + "-" + newPath;
+    // // }
+    // newPath = "qms/rec/data.html";
+
+    // // rename the current readme.md so that the folder structure created..
+
+    // const renameRes = await renameFile(
+    //   project.id,
+    //   repository.id,
+    //   branchName,
+    //   "/README.md",
+    //   newPath,
+    //   "rename default README.md file"
+    // );
+    // if (renameRes) {
+    //   setBranches(repository.id);
+    // }
+
+    // setOpenCreateRecordModal(false);
+
+    // if (renameRes) {
+    //   const res = await commit(
+    //     project.id,
+    //     repository.id,
+    //     branchName,
+    //     newPath,
+    //     content,
+    //     "Record initial creation"
+    //   );
+    //   setAlertMessage({ message: "Document Created...", severity: "success" });
+    //   setRefreshReqd((prev) => !prev);
+    // } else {
+    //   setAlertMessage({
+    //     message: "Document Creation not successfull...",
+    //     severity: "error",
+    //   });
+    // }
+  }
+
+  async function getData(repositoryId, productId, parentId, step) {
+    const productRecords = await refreshProductRecords(repositoryId, productId);
+
+    const parentRecord = productRecords?.find(
+      (item) => item?.branchId === parentId && item?.productId === productId
+    );
+    if (parentRecord) {
+      const dataRes = await getFileContent(
+        repositoryId,
+        parentRecord?.path,
+        parentRecord?.name
+      );
+
+      if (dataRes) {
+        const html = new DOMParser().parseFromString(dataRes, "text/html");
+        if (step?.data?.inputEl?.id) {
+          const ele = html?.getElementById(step?.data?.inputEl?.id);
+          if (ele) {
+            const value = ele?.getAttribute("value");
+            // todo for including other operators also
+            const condition = step?.data?.conditions?.find(
+              (item) => value === item.value
+            );
+            if (condition) {
+              const currentStepData = step?.children?.find(
+                (item) => item?.data?.label === condition?.stepName
+              );
+              if (currentStepData) {
+                setCurrentStep(currentStepData);
+                setCurrentTemplateId(currentStepData?.templateId);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   React.useEffect(() => {
-    if (!currentTemplateId || !repository?.id) return;
+    if (parentId && productId && repository?.id && step?.type === "multidec") {
+      getData(repository?.id, productId, parentId, step);
+    }
+  }, [parentId, productId, repository, step]);
+
+  React.useEffect(() => {
+    if (!currentTemplateId || !repository?.id || !open) return;
 
     const branch = branchTypes["temp"]?.find(
       (item) => item.branchId === currentTemplateId
@@ -59,11 +231,11 @@ export default function CreateRecordModal({
     if (branch) {
       getFileData(repository.id, branch?.filePath, branch?.name);
     }
-  }, [currentTemplateId, repository, branchTypes]);
+  }, [currentTemplateId, repository, branchTypes, open]);
 
   React.useEffect(() => {
     if (stepSelector?.length > 0) {
-      setCurrentTemplateId(stepSelector[0]?.templateId);
+      setCurrentTemplateId(stepSelector[0]?.templateId || "");
     }
   }, [stepSelector]);
 
@@ -72,110 +244,215 @@ export default function CreateRecordModal({
     setOpen(false);
     // navigate("/qmshub.html/");
   }
+  const handleChange = (id, value) => {
+    setTemplateState(id, value);
+    // setState((values) => ({ ...values, [id]: value }));
+  };
 
   function handleSelectChange(e) {
     const templateId = stepSelector?.find(
       (item) => item.templateId === e.target.value
     )?.templateId;
+
     setCurrentTemplateId(templateId);
+  }
+
+  async function handleClick() {
+    const html = new DOMParser().parseFromString(data, "text/html");
+
+    templateState &&
+      Object.keys(templateState)?.map((key) => {
+        const ele = html?.querySelector(`#${key}`);
+        const value = templateState[key];
+
+        if (ele) {
+          if (ele.tagName === "INPUT") {
+            ele.setAttribute("value", value);
+          } else if (ele.tagName === "MD") {
+            // ele.innerHTML = value;
+          } else if (ele.tagName === "LINKRECORD") {
+            ele.setAttribute("records", JSON.stringify(value));
+          }
+          // else if (ele.tagName === "PROCESSFLOW") {
+          //   const edges = state["processFlow"]?.edges || [];
+          //   const nodes = state["processFlow"]?.nodes || [];
+
+          //   ele.dataset.nodes = JSON.stringify(nodes);
+          //   ele.dataset.edges = JSON.stringify(edges);
+          // }
+          else {
+            ele.setAttribute("value", JSON.stringify(value));
+          }
+        }
+      });
+
+    // Object.entries(templateState)?.map(([key, value]) => {
+    //   const ele = html?.querySelector(`#${key}`);
+
+    //   if (ele) {
+    //     if (ele.tagName === "INPUT") {
+    //       ele.setAttribute("value", value);
+    //     } else if (ele.tagName === "MD") {
+    //       // ele.innerHTML = value;
+    //     } else if (ele.tagName === "LINKRECORD") {
+    //       ele.setAttribute("records", JSON.stringify(value));
+    //     }
+    //     // else if (ele.tagName === "PROCESSFLOW") {
+    //     //   const edges = state["processFlow"]?.edges || [];
+    //     //   const nodes = state["processFlow"]?.nodes || [];
+
+    //     //   ele.dataset.nodes = JSON.stringify(nodes);
+    //     //   ele.dataset.edges = JSON.stringify(edges);
+    //     // }
+    //     else {
+    //       ele.setAttribute("value", JSON.stringify(value));
+    //     }
+    //   }
+    // });
+
+    // Object.keys(state)?.map((key) => {
+    //   const ele = html.querySelector(`#${key}`);
+
+    //   if (ele) ele.setAttribute("value", state[key] || "");
+    // });
+
+    const uniqueId = uuidv4();
+    // if step type is multidec create a dummy branch and the create the condition branch
+    if (step?.type === "multidec") {
+      const res = await handleCreateMultiDecBranch({
+        title: step?.data?.label,
+        uniqueId,
+
+        templateId: "1",
+        process,
+        productId,
+      });
+
+      if (res) {
+        handleCreate(title, html?.body?.innerHTML, uniqueId);
+      }
+    } else {
+      handleCreate(title, html?.body?.innerHTML, parentId);
+    }
+
+    setTitle("");
   }
   // const md = "# Hello give here proper md from the template! <input>";
   return (
-    <Modal
+    <Dialog
       open={open}
       onClose={handleCancel}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
+      sx={{
+        "& .MuiDialog-container": {
+          "& .MuiPaper-root": {
+            width: "100%",
+            maxWidth: "800px", // Set your width here
+          },
+        },
+      }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-          padding: "24px",
-        }}
-      >
-        <Paper
-          elevation={3}
+      <DialogTitle>
+        Create Record
+        <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+          <Chip label={step?.data?.label} color="primary"></Chip>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Box
           sx={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            padding: "36px",
             flexDirection: "column",
-            gap: "12px",
-            height: "100%",
+            padding: "24px",
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-            <Chip label={stepName} color="primary"></Chip>
-          </Box>
-          <Typography
-            variant="h6"
-            sx={{
-              alignSelf: "flex-start",
-              paddingBottom: "24px",
-              paddingTop: "12px",
-            }}
-          >
-            Create new
-          </Typography>
-          {stepSelector?.length > 0 && (
-            <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">
-                Select Template
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={currentTemplateId}
-                label="template"
-                onChange={handleSelectChange}
-              >
-                {stepSelector?.map((item) => (
-                  <MenuItem value={item.templateId}>{item.name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-
-          <FormControl sx={{ m: 1, width: 300 }}>
-            <TextField
-              helperText="Please enter a message to describe the changes"
-              id="number"
-              label="Record Name"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            ></TextField>
-            <RecordView md={md} />
-          </FormControl>
-
-          <Typography sx={{ fontSize: "12px", color: "red" }}>
-            {error}
-          </Typography>
-          <Box
+          <Paper
+            elevation={3}
             sx={{
               display: "flex",
-              justifyContent: "flex-end",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: "36px",
+              flexDirection: "column",
               gap: "12px",
-              padding: "0px",
+              height: "100%",
             }}
           >
-            <Button variant="outlined" color="secondary" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => handleCreate(title)}
-              disabled={loading}
+            <Typography
+              variant="h6"
+              sx={{
+                alignSelf: "flex-start",
+                paddingBottom: "24px",
+                paddingTop: "12px",
+              }}
             >
-              Create record
-            </Button>
-          </Box>
-        </Paper>
-      </Box>
-    </Modal>
+              Create new
+            </Typography>
+            {step?.type !== "multidec" && stepSelector?.length > 0 && (
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">
+                  Select Template
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={currentTemplateId}
+                  label="template"
+                  onChange={handleSelectChange}
+                >
+                  {stepSelector?.map((item) => (
+                    <MenuItem
+                      key={item.name + item.templateId}
+                      value={item.templateId}
+                    >
+                      {item?.data?.templateName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
+            {step?.type === "multidec" && <h5>{currentStep?.templateName} </h5>}
+            <FormControl sx={{ m: 1, width: 300 }}>
+              <TextField
+                helperText="Enter the record name"
+                id="number"
+                label="Record Name"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              ></TextField>
+
+              <MarkedToCustom
+                element={md}
+                open={null}
+                setOpen={null}
+                productId={productId}
+                order="middle"
+              ></MarkedToCustom>
+
+              {/* <RecordView md={md} /> */}
+            </FormControl>
+
+            <Typography sx={{ fontSize: "12px", color: "red" }}>
+              {error}
+            </Typography>
+          </Paper>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button variant="outlined" color="secondary" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleClick}
+          disabled={loading || !title}
+        >
+          Create record
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

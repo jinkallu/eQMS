@@ -15,16 +15,14 @@ export default function DeleteStepModal({
   open,
   setOpen,
   currentNode,
-  state,
-  handleChange,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
   currentNode: any;
-  state: any;
-  handleChange: any;
 }) {
-  const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
+  const { templateState, setTemplateState, setAlertMessage } = useExtnStore(
+    (state) => state
+  );
   const [stepName, setStepName] = React.useState("");
 
   async function handleDelete() {
@@ -37,16 +35,17 @@ export default function DeleteStepModal({
   }
 
   const deleteStep = () => {
+    console.log(currentNode);
     // 1. delete current step
 
     // 2. Decrease position.y of all steps greater than current by 200
 
     let templateNodeId = currentNode.node.id;
 
-    state["processFlow"]?.edges
+    templateState["processFlow"]?.edges
       .filter((item) => item.source === currentNode.node.id)
       ?.map((edge) => {
-        const templateNode = state["processFlow"]?.nodes?.find(
+        const templateNode = templateState["processFlow"]?.nodes?.find(
           (node) => node.id === edge.target && node.data.type === "template"
         );
         if (templateNode) {
@@ -55,7 +54,7 @@ export default function DeleteStepModal({
       });
 
     // setNodes((nodes) => {
-    const newPositionedNodes = state["processFlow"]?.nodes
+    const newPositionedNodes = templateState["processFlow"]?.nodes
       ?.filter(
         (node) => node.id !== currentNode.node.id && node.id !== templateNodeId
       )
@@ -75,13 +74,13 @@ export default function DeleteStepModal({
 
     // 3. Get all edges with current node as source or target, remove all edges with current node as target and  and change the source of the edges with source as current node to prev one
 
-    const targetEdge = state["processFlow"]?.edges.find(
+    const targetEdge = templateState["processFlow"]?.edges.find(
       (edge) => edge.target === currentNode.node.id
     );
-    let newEdges = state["processFlow"]?.edges;
+    let newEdges = templateState["processFlow"]?.edges;
     if (targetEdge) {
       // setEdges((edges) => {
-      newEdges = state["processFlow"]?.edges?.filter(
+      newEdges = templateState["processFlow"]?.edges?.filter(
         (edge) => edge.id !== targetEdge.id && edge.target !== templateNodeId
       );
       newEdges = newEdges?.map((edge) => {
@@ -94,7 +93,10 @@ export default function DeleteStepModal({
       // });
     }
 
-    handleChange("processFlow", { nodes: newPositionedNodes, edges: newEdges });
+    setTemplateState("processFlow", {
+      nodes: newPositionedNodes,
+      edges: newEdges,
+    });
 
     // const newEdge = {
     //   id: currentNode.node.id + "_" + newNode.id,

@@ -1,5 +1,13 @@
 import React from "react";
 import { Handle, Position } from "reactflow";
+import {
+  Box,
+  Typography,
+  Paper,
+  FormControl,
+  InputLabel,
+  Select,
+} from "@mui/material";
 
 export default function MultiDecisionNode({ data }) {
   //const d = ["yes", "no", "unknown"];
@@ -13,7 +21,7 @@ export default function MultiDecisionNode({ data }) {
                 <polygon points="50,0 100,50 50,100 0,50" fill="lightblue" stroke="blue" strokeWidth="2" />
                 <text x="10" y="60" fontSize="10" fill="black">{data.label}</text>
             </svg> */}
-      <svg width="200" height={(data.conditions.length + 2) * 30}>
+      {/* <svg width="200" height="50">
         <rect x="0" y="0" width="100%" height="100%" fill="lightblue" />
         <text x="10" y={20} style={textStyle}>
           {data.label}
@@ -21,19 +29,16 @@ export default function MultiDecisionNode({ data }) {
         <text x="10" y={50} style={textStyle}>
           {data.field}
         </text>
-        {data.conditions.map((value, index) => (
-          <text key={index} x="10" y={(index + 2) * 30 + 20}>
-            {value}
-          </text>
-        ))}
-      </svg>
+        
+      </svg> */}
 
-      <Handle
+      {/* <Handle
         type="target"
         position={Position.Top}
         id="target"
         style={{
           top: -10,
+          left: 0,
           background: "#555",
           borderRadius: "0",
           transform: "rotate(45deg)",
@@ -42,9 +47,44 @@ export default function MultiDecisionNode({ data }) {
         }}
         onConnect={(params) => console.log("handle onConnect", params)}
         isConnectable={true}
-      />
+      /> */}
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        border: "1px solid blue",
+        backgroundColor: "lightblue",
+        alignItems: "center",
+        width: "200px",
+        height: "60px",
+      }}>
+      <div className="custom-node__header" >
+        <strong>{data.label} Condition</strong>
+      </div>
+      <div className="custom-node__body">
+      {data.field}
 
-      {data.conditions.map((value, index) => (
+        <Handle
+          type="target"
+          position={Position.Top}
+          id="target"
+          style={{ background: "#555" }}
+          onConnect={(params) => console.log("handle onConnect", params)}
+          isConnectable={true}
+        />
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          id="source"
+          style={{ bottom: 2, background: "#555" }}
+          isConnectable={true}
+        />
+      </div>
+      </div>
+
+
+
+
+      {/* {data.conditions.map((value, index) => (
         <Handle
           key={index}
           type="source"
@@ -53,7 +93,8 @@ export default function MultiDecisionNode({ data }) {
           style={{ top: (index + 2) * 30 + 20, background: "#555" }}
           isConnectable={true}
         />
-      ))}
+      ))} */}
+
 
       {/* <div>{data.label}</div> */}
       {/* <Handle

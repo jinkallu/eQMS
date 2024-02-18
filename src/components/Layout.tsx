@@ -9,7 +9,7 @@ import useProjectExists from "../CHooks/useProjectExists";
 import AlertSnackbar from "./AlertSnackbar";
 import Header from "./Header";
 
-export default function Layout() {
+export default function Layout({children}) {
   const setMessage = useExtnStore((state) => state.setMessage);
   const { readData, isLoading, error } = useRWDataStorage();
   const { checkProject, loading: projectExistsLoading } = useProjectExists();
@@ -85,7 +85,7 @@ export default function Layout() {
       <Toolbar></Toolbar>
 
       <Box>
-        <Outlet></Outlet>
+        {children}
       </Box>
     </Box>
   );

@@ -11,6 +11,8 @@ export default function ContextMenu({
   setOpenCreateStepModal,
   setOpenCreateStepTemplateModal,
   setOpenDeleteStepModal,
+  setOpenEditStepModal,
+
   // toggleEdit,
   ...props
 }) {
@@ -41,6 +43,11 @@ export default function ContextMenu({
     setMenu(null);
   };
 
+  function editStepName() {
+    setOpenEditStepModal(true);
+    setMenu(null);
+  }
+
   useEffect(() => {
     const node = getNode(id);
     if (node && node?.data?.type === "step") {
@@ -67,6 +74,9 @@ export default function ContextMenu({
         <small>node: {id}</small>
       </p>
 
+      {getNode(id)?.type === "group" && getNodes()?.length === 1 && (
+        <button onClick={addNextStep}>First Step</button>
+      )}
       {nextStep.type === "step" && (
         <button onClick={addNextStep}>Next Step</button>
       )}
@@ -74,7 +84,7 @@ export default function ContextMenu({
         <button onClick={addTemplate}>Manage Template</button>
       )}
 
-      <button onClick={() => {}}>edit</button>
+      <button onClick={editStepName}>edit</button>
       <button onClick={deleteNode}>delete</button>
     </div>
   );

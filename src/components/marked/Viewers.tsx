@@ -8,22 +8,30 @@ import ProcessFlowView from "./ReactCustomTags/ProcessFlowView/ProcessFlowView";
 import MDTagView from "./ReactCustomTags/MDTagView";
 import ChainedOptionTagView from "./ReactCustomTags/ChainedOptionTagView";
 import SliderTagView from "./ReactCustomTags/SliderTagView";
+import MatrixTagView from "./ReactCustomTags/matrix/MatrixTagView";
+import LinkRecordTagView from "./ReactCustomTags/LinkRecord/LinkRecordTagView";
+import DisplayTableTagView from "./ReactCustomTags/DisplayTable/DisplayTableTagView";
+import TextInputTagView from "./ReactCustomTags/TextInputTagView";
+import OutputTagView from "./ReactCustomTags/OutputTagView";
+import ReviewTagView from "./ReactCustomTags/ReviewTagView";
+import VersionTagView from "./ReactCustomTags/VersionTagView";
+import DocxTagViewer from "./ReactCustomTags/DocxTagView";
 
-export default function Viewers({
-  element,
-  order,
-  state,
-  handleChange,
-  children,
-}) {
+export default function Viewers({ element, order, children, productId }) {
+  // if (!state && order !== "last") {
+  //   return <span>Loading...</span>;
+  // }
   //   const childNodes =
   //     element?.childNodes?.length > 0 &&
   //     Array.from(element.childNodes).map((child, index) => (
   //       <MarkedToCustom element={child}></MarkedToCustom>
   //     ));
 
+  // if (!element?.tagName) {
+  //   console.log(element);
+  //   return <EndNode element={element?.textContent || element}></EndNode>;
+  // }
   if (!element?.tagName) {
-    //console.log(element);
     return <EndNode element={element?.textContent || element}></EndNode>;
   }
 
@@ -46,61 +54,76 @@ export default function Viewers({
 
   if (element.tagName && element.tagName === "INPUT") {
     const id = element.getAttribute("id");
-    return (
-      <InputTagViewer
-        state={state}
-        id={id}
-        handleChange={handleChange}
-        element={element}
-        order={order}
-      />
-    );
+
+    const val = element.getAttribute("value");
+    // if (id && handleChange) handleChange(id, val || "");
+
+    return <InputTagViewer id={id} element={element} order={order} val={val} />;
+  } else if (element.tagName && element.tagName === "DOCX") {
+    const id = element.getAttribute("id");
+    return <DocxTagViewer id={id} element={element} order={order} />;
+  } else if (element.tagName && element.tagName === "TEXTAREA") {
+    const id = element.getAttribute("id");
+    return <TextInputTagView id={id} element={element} order={order} />;
+  } else if (element.tagName && element.tagName === "REVIEW") {
+    const id = element.getAttribute("id");
+    return <ReviewTagView id={id} element={element} order={order} />;
+  } else if (element.tagName && element.tagName === "VERSION") {
+    const id = element.getAttribute("id");
+    return <VersionTagView id={id} element={element} order={order} />;
   } else if (element.tagName && element.tagName === "CHAINEDOPTION") {
     const id = element.getAttribute("id");
-    return (
-      <ChainedOptionTagView
-        state={state}
-        id={id}
-        handleChange={handleChange}
-        element={element}
-        order={order}
-      />
-    );
-  }  
-  else if (element.tagName && element.tagName === "SLIDER") {
+    return <ChainedOptionTagView id={id} element={element} order={order} />;
+  } else if (element.tagName && element.tagName === "OUTPUT") {
+    const id = element.getAttribute("id");
+    return <OutputTagView id={id} element={element} order={order} />;
+  } else if (element.tagName && element.tagName === "LINKRECORD") {
     const id = element.getAttribute("id");
     return (
-      <SliderTagView
-        state={state}
+      <LinkRecordTagView
         id={id}
-        handleChange={handleChange}
         element={element}
         order={order}
+        productId={productId}
       />
     );
-  }  
-  else if (element.tagName && element.tagName === "BODY") {
+  } else if (element.tagName && element.tagName === "DISPLAYTABLE") {
+    const id = element.getAttribute("id");
+    return <DisplayTableTagView id={id} element={element} order={order} />;
+  }
+  // else if (element.tagName && element.tagName === "DISPLAYTABLE") {
+  //   const id = element.getAttribute("id");
+  //   return (
+  //     <DisplayTableTagView
+  //       state={state}
+  //       id={id}
+  //       handleChange={handleChange}
+  //       element={element}
+  //       order={order}
+  //     />
+  //   );
+  // }
+  else if (element.tagName && element.tagName === "SLIDER") {
+    const id = element.getAttribute("id");
+    return <SliderTagView id={id} element={element} order={order} />;
+  } else if (element.tagName && element.tagName === "MATRIX") {
+    const id = element.getAttribute("id");
+    return <MatrixTagView id={id} element={element} order={order} />;
+  } else if (element.tagName && element.tagName === "BODY") {
     return <div>{children}</div>;
+  } else if (element.tagName && element.tagName === "GROUPING") {
+    return <>{children}</>;
   } else if (element.tagName && element.tagName === "MD") {
     const id = element.getAttribute("id");
     return (
-      <MDTagView
-        state={state}
-        id={id}
-        handleChange={handleChange}
-        element={element}
-        order={order}
-        children={children}
-      />
+      <MDTagView id={id} element={element} order={order} children={children} />
     );
   } else if (element.tagName && element.tagName === "SECTION") {
     const id = element.getAttribute("id");
     if (order == "last") {
       return (
         <MDTagView
-          state={state}
           id={id}
-          handleChange={handleChange}
           element={element}
           order={order}
           children={children}
@@ -117,20 +140,12 @@ export default function Viewers({
   } else if (element.tagName && element.tagName === "PROCESSFLOW") {
     const id = element.getAttribute("id");
 
-    // let nodes = [];
-    // let edges = [];
-    // try {
-    //   nodes = JSON.parse(element.dataset.nodes) || [];
-    //   edges = JSON.parse(element.dataset.edges) || [];
-    // } catch (e) {}
-    // console.log(nodes, edges);
     return (
       <ProcessFlowView
         element={element}
         order={order}
-        state={state}
         id={id}
-        handleChange={handleChange}
+        key={id}
       ></ProcessFlowView>
     );
   } else if (children.length === 0) {
@@ -167,7 +182,6 @@ export default function Viewers({
         children
       );
     } else {
-      console.log(element);
       //return <EndNode element={element?.textContent || element}></EndNode>;
     }
 

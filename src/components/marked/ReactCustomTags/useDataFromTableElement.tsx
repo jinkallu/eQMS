@@ -36,7 +36,7 @@ const useDataFromTableElement = () => {
                 const cells = (row as HTMLTableRowElement).cells;
                 if (cells.length > columnIndexes[i]) {
                     // Check conditions
-                    const cellValue = cells[columnIndexes[i]].textContent.trim();
+                    const cellValue = cells[columnIndexes[i]];// cells[columnIndexes[i]].textContent.trim();
                     if(conditions === null){
                         conditions = [];
                     }

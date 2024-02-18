@@ -1,6 +1,7 @@
 import { getClient } from "azure-devops-extension-api/Common";
 import { GitRestClient } from "azure-devops-extension-api/Git";
 import { CoreRestClient } from "azure-devops-extension-api/Core";
+import { pageWidths } from "../constants";
 
 import {
   commit,
@@ -47,9 +48,83 @@ export const userSlice = (set) => ({
   },
 });
 
-export const projectSlice = (set) => ({
+export const projectSlice = (set, get) => ({
   project: {},
   setProject: (project) => set((state) => ({ project })),
+  templateStateVersion: [],
+  templateState: {},
+  editorState: "",
+  setEditorState: (val) => {
+    set({ editorState: val });
+  },
+  setTemplateState: (id, value) => {
+    set((state) => ({
+      templateState: { ...state.templateState, [id]: value },
+    }));
+    set((state) => ({
+      templateStateVersion: [
+        ...state.templateStateVersion?.map((item) => ({
+          ...item,
+          current: false,
+        })),
+        { data: state.templateState, current: true },
+      ],
+    }));
+  },
+
+  undoTemplateState: () => {
+    const prevStateIndex = get()?.templateStateVersion?.findIndex(
+      (item) => item?.current
+    );
+    if (prevStateIndex === -1) {
+      return;
+    }
+    if (prevStateIndex - 1 >= 0) {
+      set((state) => ({
+        templateState: state.templateStateVersion[prevStateIndex - 1]?.data,
+      }));
+
+      set((state) => ({
+        templateStateVersion: state?.templateStateVersion?.map(
+          (item, index) => {
+            if (index === prevStateIndex - 1) {
+              return { ...item, current: true };
+            }
+            return { ...item, current: false };
+          }
+        ),
+      }));
+    }
+  },
+  redoTemplateState: () => {
+    const prevStateIndex = get()?.templateStateVersion?.findIndex(
+      (item) => item?.current
+    );
+    if (prevStateIndex === -1) {
+      return;
+    }
+    if (prevStateIndex + 1 < get()?.templateStateVersion?.length) {
+      set((state) => ({
+        templateState: state.templateStateVersion[prevStateIndex + 1]?.data,
+      }));
+
+      set((state) => ({
+        templateStateVersion: state?.templateStateVersion?.map(
+          (item, index) => {
+            if (index === prevStateIndex + 1) {
+              return { ...item, current: true };
+            }
+            return { ...item, current: false };
+          }
+        ),
+      }));
+    }
+  },
+
+  currentRecord: {},
+  setCurrentRecord: (record) => set({ currentRecord: record }),
+  pageWidth: pageWidths[0],
+  setPageWidth: (option) => set({ pageWidth: option }),
 });
 
 export const repositorySlice = (set, get) => ({
@@ -232,10 +307,10 @@ export const repositorySlice = (set, get) => ({
     }
   },
 
-  getFileContent: async (repositoryId, path, branchName) => {
+  getFileContent: async (repositoryId, path, branchName, commitId) => {
     const versionDescriptor = {
-      version: branchName,
-      versionType: 0,
+      version: commitId ? commitId : branchName,
+      versionType: commitId ? 2 : 0,
     };
     try {
       const gitClient = getClient(GitRestClient);
@@ -553,6 +628,11 @@ export const refreshDataSlice = (set, get) => ({
 
         const approver = [...new Set(approverData, userTeams)];
 
+        const reviewerData =
+          sops?.find((item) => item.branchId === sop?.branchId)?.reviewer || [];
+
+        const reviewer = [...new Set(reviewerData, userTeams)];
+
         const templateBranches = branchTypes["temp"]
           ?.filter((branch) => {
             const path = branch?.name?.split("/");
@@ -587,6 +667,7 @@ export const refreshDataSlice = (set, get) => ({
           ...sop,
           author,
           approver,
+          reviewer,
           templates,
           number,
           title: nameArray?.join(" "),
@@ -726,11 +807,12 @@ export const refreshDataSlice = (set, get) => ({
         const length = nameArray.length;
         return {
           ...record,
-          title: nameArray[length - 2],
+          title: nameArray[length - 2]?.replace(/_/g, " "),
           templateId: nameArray[length - 5],
           parentId: nameArray[length - 4],
           sopId: nameArray[length - 6],
           productId: nameArray[length - 7],
+          path: "/qms/rec/data.html",
         };
       });
     return productRecords || [];

@@ -1,9 +1,9 @@
-import * as acorn from 'acorn';
+//import * as acorn from 'acorn';
 
 class MathEvaluator {
     static evaluate(mathElement: HTMLElement, triggerElement: HTMLElement) {
         const expression = mathElement.getAttribute("math");
-        const program = acorn.parse(expression, { ecmaVersion: 2020 });
+        const program = "";//acorn.parse(expression, { ecmaVersion: 2020 });
         console.log(program);
         MathEvaluator.visitNodes(program, mathElement, triggerElement);
     }

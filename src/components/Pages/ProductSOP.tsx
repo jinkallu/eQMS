@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Fab from "@mui/material/Fab";
+import useCreateBranch from "../../CHooks/useCreateBranch";
 import { v4 as uuidv4 } from "uuid";
 import { useExtnStore } from "../../zustand/store";
-import useCreateBranch from "../../CHooks/useCreateBranch";
 import useCommit from "../../CHooks/useCommit";
 import CreateRecordModal from "../CreateRecordModal";
 import AddIcon from "@mui/icons-material/Add";
@@ -16,7 +16,7 @@ export default function ProductSOP({ process, prodBranchId }) {
   const [processFlowTree, setProcessFlowTree] = useState(null);
   const { project, repository, setBranches, setAlertMessage } = useExtnStore();
   const { createBranch, loading, branchCreated } = useCreateBranch();
-  const { renameFile, loadingRenameFile } = useCommit();
+  const { renameFile, loadingRenameFile, commit } = useCommit();
   const [openCreateRecordModal, setOpenCreateRecordModal] = useState(false);
   const [refreshReqd, setRefreshReqd] = useState(false);
   const [currentTemplateId, setCurrentTemplateId] = useState("");
@@ -25,9 +25,9 @@ export default function ProductSOP({ process, prodBranchId }) {
 
   const [parentId, setParentId] = useState("0");
 
-  const {stepTree, createStepTree} = useProcessSteps();
+  const { stepTree, createStepTree } = useProcessSteps();
 
-  // Below code to be removed after tests //
+  /*/ Below code to be removed after tests //
 
   const nodes = [
     {
@@ -62,97 +62,104 @@ export default function ProductSOP({ process, prodBranchId }) {
   useEffect(() => {
     createStepTree(nodes, edges);
   }, [])
-  // //
-    
+  // /*/
+
   useEffect(() => {
-    console.log(stepTree);
-  }, [stepTree])
+    setProcessFlowTree(stepTree);
+  }, [stepTree]);
 
-  function iterateSteps(idx, processflowElm, stepsCreated) {
-    if (!stepsCreated[idx].created) {
-      const stepElm = stepsCreated[idx].step;
-      const stepName = stepElm.getAttribute("name");
-      const templateElms = stepElm.getElementsByTagName("template");
-      let templateName = null;
-      let templateId;
-      if (templateElms.length > 0) {
-        templateName = templateElms[0].getAttribute("name");
-        templateId = templateElms[0].getAttribute("id");
-      }
-      const step = {
-        name: stepName,
-        stepElm: stepElm,
-        templateName: templateName,
-        templateId,
-        children: [],
-      };
+  // function iterateSteps(idx, processflowElm, stepsCreated) {
+  //   if (!stepsCreated[idx].created) {
+  //     const stepElm = stepsCreated[idx].step;
+  //     const stepName = stepElm.getAttribute("name");
+  //     const templateElms = stepElm.getElementsByTagName("template");
+  //     let templateName = null;
+  //     let templateId;
+  //     if (templateElms.length > 0) {
+  //       templateName = templateElms[0].getAttribute("name");
+  //       templateId = templateElms[0].getAttribute("id");
+  //     }
+  //     const step = {
+  //       name: stepName,
+  //       stepElm: stepElm,
+  //       templateName: templateName,
+  //       templateId,
+  //       children: [],
+  //     };
 
-      stepsCreated[idx].created = true;
-      const connectElms = stepElm.getElementsByTagName("connect");
-      if (connectElms.length > 1) {
-        console.log("Error! More than one connectiosn from same step");
-        //TODO: Manage this error
-      } else if (connectElms.length >= 1) {
-        const connectToAttribute = connectElms[0].getAttribute("to");
-        if (connectToAttribute) {
-          let conStepElements = [];
-          for (let i = 0; i < stepsCreated.length; i++) {
-            const name = stepsCreated[i].step.getAttribute("name");
-            if (name === connectToAttribute) {
-              conStepElements.push(i);
-            }
-          }
-          for (let i = 0; i < conStepElements.length; i++) {
-            const childStep = iterateSteps(
-              conStepElements[i],
-              processflowElm,
-              stepsCreated
-            );
-            if (childStep) {
-              step.children.push(childStep);
-            }
-          }
-        }
-      }
+  //     stepsCreated[idx].created = true;
+  //     const connectElms = stepElm.getElementsByTagName("connect");
+  //     if (connectElms.length > 1) {
+  //       console.log("Error! More than one connectiosn from same step");
+  //       //TODO: Manage this error
+  //     } else if (connectElms.length >= 1) {
+  //       const connectToAttribute = connectElms[0].getAttribute("to");
+  //       if (connectToAttribute) {
+  //         let conStepElements = [];
+  //         for (let i = 0; i < stepsCreated.length; i++) {
+  //           const name = stepsCreated[i].step.getAttribute("name");
+  //           if (name === connectToAttribute) {
+  //             conStepElements.push(i);
+  //           }
+  //         }
+  //         for (let i = 0; i < conStepElements.length; i++) {
+  //           const childStep = iterateSteps(
+  //             conStepElements[i],
+  //             processflowElm,
+  //             stepsCreated
+  //           );
+  //           if (childStep) {
+  //             step.children.push(childStep);
+  //           }
+  //         }
+  //       }
+  //     }
 
-      return step;
-    } else {
-      return null;
-    }
-  }
+  //     return step;
+  //   } else {
+  //     return null;
+  //   }
+  // }
 
-  function parseProcessFlow(value) {
-    const processflowElm = value.processflowElement as HTMLElement;
-    const processFlow = {
-      //name: element.getAttribute("name"),
-      //order: parseInt(element.getAttribute("order")),
-      sopId: value.sop.branchId, // TODO: Or just SOP?
-      steps: [],
-    };
-    const steps = processflowElm.getElementsByTagName("step");
+  // function parseProcessFlow(value) {
+  //   const processflowElm = value.processflowElement as HTMLElement;
+  //   const processFlow = {
+  //     //name: element.getAttribute("name"),
+  //     //order: parseInt(element.getAttribute("order")),
+  //     sopId: value.sop.branchId, // TODO: Or just SOP?
+  //     steps: [],
+  //   };
+  //   const steps = processflowElm.getElementsByTagName("step");
 
-    const stepsCreated = [];
-    for (let i = 0; i < steps.length; i++) {
-      //steps.forEach((stepElement) => {
-      const step = { step: steps[i], created: false };
-      stepsCreated.push(step);
-    }
+  //   const stepsCreated = [];
+  //   for (let i = 0; i < steps.length; i++) {
+  //     //steps.forEach((stepElement) => {
+  //     const step = { step: steps[i], created: false };
+  //     stepsCreated.push(step);
+  //   }
 
-    for (let i = 0; i < stepsCreated.length; i++) {
-      const step = iterateSteps(i, processflowElm, stepsCreated);
-      if (step) {
-        processFlow.steps.push(step);
-      }
-    }
-
-    setProcessFlowTree(processFlow);
-  }
+  //   for (let i = 0; i < stepsCreated.length; i++) {
+  //     const step = iterateSteps(i, processflowElm, stepsCreated);
+  //     if (step) {
+  //       processFlow.steps.push(step);
+  //     }
+  //   }
+  //   setProcessFlowTree(processFlow);
+  // }
 
   function createStepsTree(process) {
-    parseProcessFlow(process);
+    try {
+      const nodes = JSON.parse(process.processflowElement.dataset.nodes);
+      const edges = JSON.parse(process.processflowElement.dataset.edges);
+
+      createStepTree(nodes, edges, process.sop.branchId);
+    } catch (e) {
+      console.log("error", e);
+    }
+    //parseProcessFlow(process);
   }
 
-  async function handleCreate(title) {
+  async function handleCreate(title, content, parentId) {
     // check for duplicate name or number
 
     const newTitle = title.replace(/ /g, "_");
@@ -190,8 +197,17 @@ export default function ProductSOP({ process, prodBranchId }) {
     }
 
     setOpenCreateRecordModal(false);
+    setCurrentTemplateId(null);
 
     if (renameRes) {
+      const res = await commit(
+        project.id,
+        repository.id,
+        branchName,
+        newPath,
+        content,
+        "Record initial creation"
+      );
       setAlertMessage({ message: "Document Created...", severity: "success" });
       setRefreshReqd((prev) => !prev);
     } else {
@@ -204,6 +220,7 @@ export default function ProductSOP({ process, prodBranchId }) {
 
   function handleNewCreate() {
     setStepSelector(processFlowTree?.steps);
+    // setStepSelector(stepTree?.steps);
 
     setOpenCreateRecordModal(true);
   }
@@ -216,6 +233,10 @@ export default function ProductSOP({ process, prodBranchId }) {
     }
   }, [process]);
 
+  useEffect(() => {
+    console.log(stepSelector);
+  }, [stepSelector]);
+
   return (
     <Box
       sx={{
@@ -225,15 +246,20 @@ export default function ProductSOP({ process, prodBranchId }) {
         height: "100%",
       }}
     >
-      <CreateRecordModal
-        open={openCreateRecordModal}
-        setOpen={setOpenCreateRecordModal}
-        stepName={processFlowTree?.steps[0]?.name}
-        handleCreate={handleCreate}
-        currentTemplateId={currentTemplateId}
-        stepSelector={stepSelector}
-        setCurrentTemplateId={setCurrentTemplateId}
-      ></CreateRecordModal>
+      {open && (
+        <CreateRecordModal
+          process={process}
+          open={openCreateRecordModal}
+          setOpen={setOpenCreateRecordModal}
+          parentId={parentId}
+          step={stepSelector && stepSelector[0]}
+          handleCreate={handleCreate}
+          currentTemplateId={currentTemplateId}
+          stepSelector={stepSelector}
+          setCurrentTemplateId={setCurrentTemplateId}
+          productId={prodBranchId}
+        ></CreateRecordModal>
+      )}
 
       {process && process?.sop && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: "32px" }}>

@@ -10,19 +10,26 @@ import ReactFlow, {
   useReactFlow,
   ReactFlowProvider,
 } from "reactflow";
+import { SmartStepEdge } from "@tisoap/react-flow-smart-edge";
 import DecisionNode from "./DecisionNode";
 import MultiDecisionNode from "./MultiDecisionNode";
 import StepNode from "./StepNode";
 import TemplateNode from "./TemplateNode";
 import TemplatesNode from "./TemplatesNode";
+import Box from "@mui/material/Box";
 
 import "reactflow/dist/style.css";
 import "./style.css";
+import dagre from "dagre";
 
 import CreateStepModal from "./CreateStepModal";
 import CreateStepTemplateModal from "./CreateStepTemplateModal";
 import DeleteStepModal from "./DeleteStepModal";
 import ContextMenu from "./ContextMenu";
+import { Button } from "@mui/material";
+import { useExtnStore } from "../../../../zustand/store";
+import EditStepNameModal from "./EditStepNameModal";
+import { NodeViewWrapper } from "@tiptap/react";
 
 const nodeTypes = {
   decision: DecisionNode,
@@ -32,25 +39,16 @@ const nodeTypes = {
   templates: TemplatesNode,
   // Define other custom node types here if needed
 };
+const edgeTypes = {
+  smart: SmartStepEdge,
+};
 
-export default function ProcessFlow({
-  editable,
-  handleChange,
-  element,
-  state,
-}) {
-  // const initialNodes = element?.dataset?.nodes
-  //   ? JSON.parse(element?.dataset?.nodes)
-  //   : [];
-  // const initialEdges = element?.dataset?.edges
-  //   ? JSON.parse(element?.dataset?.edges)
-  //   : [];
-  // // const reactFlowInstance = useReactFlow();
-  // const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  // const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
+export default function ProcessFlow({ editable, element }) {
+  const { templateState, setTemplateState, pageWidth, templateStateVersion } =
+    useExtnStore((state) => state);
   const [openCreateStepModal, setOpenCreateStepModal] = React.useState(false);
   const [openDeleteStepModal, setOpenDeleteStepModal] = React.useState(false);
+  const [openEditStepModal, setOpenEditStepModal] = React.useState(false);
   const [openCreateStepTemplateModal, setOpenCreateStepTemplateModal] =
     React.useState(false);
   const [currentNode, setCurrentNode] = React.useState<{
@@ -62,11 +60,49 @@ export default function ProcessFlow({
   }>();
 
   const [menu, setMenu] = useState(null);
-
+  function updateProps(nodes, edges) {}
   const [viewportSize, setViewportSize] = useState({
     width: "100vw",
     height: "50vh",
   });
+
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+
+  const nodeWidth = 200;
+  const nodeHeight = 50;
+
+  const getLayoutedElements = (nodes, edges, direction = "TB") => {
+    const isHorizontal = direction === "LR";
+    dagreGraph.setGraph({ rankdir: direction });
+
+    nodes.forEach((node) => {
+      dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    });
+
+    edges.forEach((edge) => {
+      dagreGraph.setEdge(edge.source, edge.target);
+    });
+
+    dagre.layout(dagreGraph);
+
+    nodes.forEach((node) => {
+      const nodeWithPosition = dagreGraph.node(node.id);
+      node.targetPosition = isHorizontal ? "left" : "top";
+      node.sourcePosition = isHorizontal ? "right" : "bottom";
+
+      // We are shifting the dagre node position (anchor=center center) to the top left
+      // so it matches the React Flow node anchor point (top left).
+      node.position = {
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2,
+      };
+
+      return node;
+    });
+
+    return { nodes, edges };
+  };
 
   useEffect(() => {
     // createProcessGraph(element);
@@ -78,37 +114,32 @@ export default function ProcessFlow({
     const initialEdges = element?.dataset?.edges
       ? JSON.parse(element?.dataset?.edges)
       : [];
-    initialNodes.push({
-      id: "A", // TODO: change this id to a unique
-      data: {
-        label: "SOP Name",
-      },
-      type: "group",
-      position: { x: 0, y: 0 },
-      style: {
-        backgroundColor: "green",
-        height: "100%",
-        width: "100%",
-      },
-      draggable: true,
-    });
 
-    if (nodesData?.find((item) => item?.id === "A")) {
-      initialNodes = [...nodesData];
-    } else {
-      initialNodes = [...initialNodes, ...nodesData];
-    }
-    handleChange("processFlow", { nodes: initialNodes, edges: initialEdges });
-    // setNodes(initialNodes);
-    // setEdges(initialEdges);
-  }, []);
+    initialNodes = [...nodesData];
+
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      initialNodes,
+      initialEdges
+    );
+
+    setTemplateState("processFlow", {
+      nodes: layoutedNodes,
+      edges: layoutedEdges,
+    });
+  }, [element?.dataset?.nodes, element?.dataset?.edges]);
 
   const ref = useRef(null);
 
   useEffect(() => {
-    //const newViewportSize =  {width: "100vw", height: "150vh" };
-    if (state["processFlow"] && state["processFlow"]?.nodes?.length > 0) {
-      const objectWithLargestY = state["processFlow"]?.nodes.reduce(
+    console.log("templateStateVersion", templateStateVersion);
+  }, [templateStateVersion]);
+
+  useEffect(() => {
+    if (
+      templateState?.processFlow &&
+      templateState?.processFlow?.nodes?.length > 0
+    ) {
+      const objectWithLargestY = templateState["processFlow"]?.nodes.reduce(
         (prev, current) => {
           return current.position.y > prev.position.y ? current : prev;
         }
@@ -121,7 +152,7 @@ export default function ProcessFlow({
 
       setViewportSize(newViewportSize);
     }
-  }, [state]);
+  }, [templateState]);
 
   function onNodeClick() {
     setMenu(null);
@@ -135,16 +166,15 @@ export default function ProcessFlow({
     }
     event.preventDefault();
 
-    if (node.type !== "step") {
+    if (!["step", "group", "multidec"].includes(node.type)) {
       setMenu(null);
       return;
     }
 
     const pane = ref.current.getBoundingClientRect();
     const id = node.id;
-    // const top = event.clientY < pane.height - 200 && event.clientY;
     const top = event.clientY;
-    // const left = event.clientX < pane.width - 200 && event.clientX;
+
     const left = event.clientX;
     const right =
       event.clientX >= pane.width - 200 && pane.width - event.clientX;
@@ -156,75 +186,101 @@ export default function ProcessFlow({
     setMenu({
       id,
       top: pane.top + node.position.y,
-      left: pane.x + node.position.x + node.width,
+      // top: pane.top,
+      left: pane.x,
+      // left: pane.x + node.position.x + node.width,
       setMenu,
       right,
       bottom,
       setOpenCreateStepModal,
       setOpenCreateStepTemplateModal,
       setOpenDeleteStepModal,
+      setOpenEditStepModal,
       // toggleEdit,
     });
   };
 
   //if(editable) {
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: "flex",
-        width: "100%",
-        height: viewportSize.height,
         justifyContent: "center",
-        alignItems: "center",
+        height: viewportSize.height,
+        overflowX: "auto",
+        width: pageWidth.width,
       }}
     >
       <CreateStepModal
         setOpen={setOpenCreateStepModal}
         open={openCreateStepModal}
         currentNode={currentNode}
-        state={state}
-        handleChange={handleChange}
+        nodes={(templateState && templateState["processFlow"]?.nodes) || []}
+        updateProps={updateProps}
       ></CreateStepModal>
+
+      <EditStepNameModal
+        setOpen={setOpenEditStepModal}
+        open={openEditStepModal}
+        currentNode={currentNode}
+      ></EditStepNameModal>
       <DeleteStepModal
         setOpen={setOpenDeleteStepModal}
         open={openDeleteStepModal}
         currentNode={currentNode}
-        state={{}}
-        handleChange={handleChange}
       ></DeleteStepModal>
 
       <CreateStepTemplateModal
         setOpen={setOpenCreateStepTemplateModal}
         open={openCreateStepTemplateModal}
         currentNode={currentNode}
-        state={state}
-        handleChange={handleChange}
       ></CreateStepTemplateModal>
-
-      <ReactFlow
-        ref={ref}
-        nodes={state["processFlow"]?.nodes || []}
-        edges={state["processFlow"]?.edges || []}
-        // onNodesChange={onNodesChange}
-        // onEdgesChange={onEdgesChange}
-        // onConnect={onConnect}
-        onNodeContextMenu={onNodeContextMenu}
-        zoomOnDoubleClick={false} // Disable zoom on double-click
-        zoomOnScroll={false} // Disable zoom on scroll
-        nodesDraggable={true}
-        panOnDrag={false}
-        zoomOnPinch={false}
-        nodeTypes={nodeTypes}
-        onNodeClick={onNodeClick}
-        preventScrolling={false}
-        elementsSelectable={true}
-      >
-        {/* <Controls /> */}
-        {/* <MiniMap /> */}
-        <Background gap={12} size={1} />
-        <Background />){menu && <ContextMenu {...menu}></ContextMenu>}
-      </ReactFlow>
-    </div>
+      {templateState && templateState["processFlow"]?.nodes?.length > 0 ? (
+        <ReactFlow
+          ref={ref}
+          // nodes={state["processFlow"]?.nodes || []}
+          nodes={
+            templateState?.processFlow?.nodes
+              ? getLayoutedElements(
+                  templateState?.processFlow?.nodes,
+                  templateState?.processFlow?.edges
+                ).nodes
+              : []
+          }
+          edges={templateState?.processFlow?.edges || []}
+          // edges={state["processFlow"]?.edges || []}
+          // onNodesChange={onNodesChange}
+          // onEdgesChange={onEdgesChange}
+          // onConnect={onConnect}
+          onNodeContextMenu={onNodeContextMenu}
+          zoomOnDoubleClick={false} // Disable zoom on double-click
+          zoomOnScroll={false} // Disable zoom on scroll
+          nodesDraggable={true}
+          panOnDrag={false}
+          zoomOnPinch={false}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          onNodeClick={onNodeClick}
+          preventScrolling={false}
+          elementsSelectable={true}
+        >
+          {/* <Controls /> */}
+          {/* <MiniMap /> */}
+          <Background gap={12} size={1} />
+          <Background />
+          {menu && <ContextMenu {...menu}></ContextMenu>}
+        </ReactFlow>
+      ) : (
+        <Box sx={{ display: "flex", height: "100px" }}>
+          <Button
+            variant="contained"
+            onClick={() => setOpenCreateStepModal(true)}
+          >
+            Add Step
+          </Button>
+        </Box>
+      )}
+    </Box>
   );
   //}
 }
