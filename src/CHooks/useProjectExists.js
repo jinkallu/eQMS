@@ -4,6 +4,7 @@ import { CoreRestClient } from "azure-devops-extension-api/Core";
 
 const useProjectExists = (projectName) => {
   const [loading, setLoading] = useState(true);
+  const [projectExists, setProjectExists] = useState(false);
 
   const checkProject = async (projectName) => {
     setLoading(true);
@@ -13,10 +14,11 @@ const useProjectExists = (projectName) => {
       (project) => project.name === projectName
     );
     setLoading(false);
+    setProjectExists(foundProject);
     return foundProject;
   };
 
-  return { loading, checkProject };
+  return { loading, projectExists, checkProject };
 };
 
 export default useProjectExists;

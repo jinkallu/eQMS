@@ -2,11 +2,12 @@
     "manifestVersion": 1,
     "id": "QuatracePublic",
     "publisher": "D2Ops",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "name": "QuatracePublic",
     "description": "Quatrace e QMS",
     "public": false,
     "categories": ["Azure Repos"],
+    "baseUri": "https://localhost:3000",
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services.Cloud"

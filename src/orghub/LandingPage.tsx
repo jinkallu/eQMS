@@ -6,6 +6,7 @@ import React from "react";
 import useRWDataStorage from "../CHooks/useRWDataStorage";
 import useProjectExists from "../CHooks/useProjectExists";
 import useAzureNavigation from "../CHooks/useAzureNavigation";
+import ProjectCreator from "./ProjectCreator";
 
 export default function LandingPage() {
   const setMessage = useExtnStore((state) => state.setMessage);
@@ -25,8 +26,15 @@ export default function LandingPage() {
   async function getMainProjectData() {
     try {
       setMessage({ showAlert: true, message: "Checking existing project" });
-      const res: any = await readData("project");
+      console.log("Checking existing project");
+      
+        const res: any = await readData("project");
+      if(res === null){
+        // No QMS project exists!
+        return;
+      }      
       const resParsed = JSON.parse(res);
+      console.log(resParsed);
       const newProject = await checkProject(resParsed.name);
       if (newProject) {
         setProject(newProject);
@@ -90,6 +98,7 @@ export default function LandingPage() {
           <Typography>{project.name}</Typography>
         </Paper>
       )}
+      {Object.keys(project)?.length <= 0 && <ProjectCreator></ProjectCreator>}
     </Box>
   );
 }
