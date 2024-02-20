@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useCreateProject from "../CHooks/useCreateProject"
 import useProjectExists from "../CHooks/useProjectExists";
+import useCreateBranch from "../CHooks/useCreateBranch";
 
 import useInitializeMainBranch from "../CHooks/buffer/useInitializeMainBranch";
 import useGetRepositoryId from "../CHooks/buffer/useGetRepositoryId";
@@ -9,6 +10,7 @@ import { Box } from "@mui/system";
 import { Alert, Button, Paper, TextField } from "@mui/material";
 import DynamicIsland from "./DynamicIsland";
 import useQMSDataOps from "../CHooks/buffer/useQMSDataOps";
+import useCreateTeam from "../CHooks/useCreateTeam";
 
 
 const ProjectCreator = ({settingsData}) => {
@@ -31,6 +33,10 @@ const ProjectCreator = ({settingsData}) => {
   const { getRepositoryId, loadingRepoId } = useGetRepositoryId();
 
   const { qmsData, qmsRepoId, initStoreQMS, initQMSProjectId, addNode, setKey } = useQMSDataOps(settingsData);
+
+  const {createTeam, teamCreated} = useCreateTeam();
+  const { createBranch, loadingCreateBranch } = useCreateBranch();
+
 
   async function createProjectFun() {
     const newProject = await createProject(projectName, projectDescription);
@@ -83,8 +89,8 @@ const ProjectCreator = ({settingsData}) => {
 
 
         //const createdWiki = await createProjectWiki(newProject.id, "QMS");
-        /*await createBranch(projectName, projectName, "main", "qms/qm/main");
-        await createBranch(
+        await createBranch(projectName, projectName, "main", "qms/database/main");
+        /*await createBranch(
           projectName,
           projectName,
           "qms/qm/main",
@@ -99,8 +105,16 @@ const ProjectCreator = ({settingsData}) => {
         );*/
         console.log(" ##");
 
+        
+
         console.log("before initQMSProjectId ", newProject);
         await initQMSProjectId(newProject.id, newProject.name);
+
+          await createTeam({
+            description: "QMS",
+            name: "Quality Manager Team",
+          }, newProject.id);
+        
         setProjectCreated(true);
       }
       else {
