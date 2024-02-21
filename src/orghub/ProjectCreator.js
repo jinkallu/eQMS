@@ -12,6 +12,8 @@ import DynamicIsland from "./DynamicIsland";
 import useQMSDataOps from "../CHooks/buffer/useQMSDataOps";
 import useCreateTeam from "../CHooks/useCreateTeam";
 import useCommit from "../CHooks/useCommit";
+import useAddMemberToTeam from "../CHooks/useAddMemberToTeam";
+import * as SDK from "azure-devops-extension-sdk";
 
 
 const ProjectCreator = ({settingsData}) => {
@@ -38,6 +40,7 @@ const ProjectCreator = ({settingsData}) => {
   const {createTeam, teamCreated} = useCreateTeam();
   const { createBranch, loadingCreateBranch } = useCreateBranch();
   const {commit} = useCommit();
+  const { addMemberToTeam } = useAddMemberToTeam();
 
   async function createProjectFun() {
     const newProject = await createProject(projectName, projectDescription);
@@ -78,7 +81,6 @@ const ProjectCreator = ({settingsData}) => {
         //setNewProjectData(newProject);
         setMessage(`Project ${newProject} created.`);
         setShowAlert(true);
-        await saveData("project", JSON.stringify(newProject));
 
 
         const mainBranch = await initializeMainBranch(
@@ -95,9 +97,10 @@ const ProjectCreator = ({settingsData}) => {
           newProject.id,
           repoId,
           "qms/database/main",
-          "./sops.json",
+          "sops.json",
           "",
-          "first"
+          "first",
+          1
         )
         /*await createBranch(
           projectName,
@@ -119,11 +122,17 @@ const ProjectCreator = ({settingsData}) => {
         console.log("before initQMSProjectId ", newProject);
         await initQMSProjectId(newProject.id, newProject.name);
 
-          await createTeam({
+          const createdTeam = await createTeam({
             description: "QMS",
             name: "Quality Manager Team",
           }, newProject.id);
+
+          const user = await SDK.getUser();
+
+          await addMemberToTeam(createdTeam.identity.subjectDescriptor, user.descriptor);
         
+          await saveData("project", JSON.stringify(newProject));
+
         setProjectCreated(true);
       }
       else {

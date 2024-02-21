@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "QuatracePublic",
     "publisher": "D2Ops",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "name": "QuatracePublic",
     "description": "Quatrace e QMS",
     "public": false,
@@ -86,6 +86,7 @@
         "vso.profile_write",
         "vso.profile",
         "vso.serviceendpoint_manage",
-        "vso.features_write"
+        "vso.features_write",
+        "vso.graph_manage"
     ]  
 }

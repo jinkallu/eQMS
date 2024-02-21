@@ -21,6 +21,7 @@ const useCreateTeam = () => {
       }
 
       setTeamCreated(true);
+      return createdTeam;
     } catch (error) {
       setError(error.message);
     } finally {

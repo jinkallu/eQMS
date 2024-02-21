@@ -84,6 +84,7 @@
         "vso.profile_write",
         "vso.profile",
         "vso.serviceendpoint_manage",
-        "vso.features_write"
+        "vso.features_write",
+        "vso.graph_manage"
     ]  
 }

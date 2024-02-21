@@ -13,7 +13,8 @@ const useCommit = () => {
     branchName,
     filePath,
     newContent,
-    commitMessage
+    commitMessage,
+    changeType = 2
   ) => {
     setLoading(true);
     setBranchCreated(false);
@@ -33,7 +34,7 @@ const useCommit = () => {
       //const oldObjectId = fileContentResult.objectId;
 
       const change = {
-        changeType: 2, //1 add, 2 Edit
+        changeType: changeType, //1 add, 2 Edit
         item: {
           path: filePath,
         },
