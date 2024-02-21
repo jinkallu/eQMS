@@ -48,6 +48,14 @@ export const userSlice = (set) => ({
   },
 });
 
+export const editorSlice = (set) => ({
+  currentPage: null,
+
+  setCurrentPage: (val) => {
+    set({ currentPage: val });
+  },
+});
+
 export const projectSlice = (set, get) => ({
   project: {},
   setProject: (project) => set((state) => ({ project })),

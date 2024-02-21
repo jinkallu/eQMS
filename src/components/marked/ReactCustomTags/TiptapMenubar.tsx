@@ -1,6 +1,6 @@
 import { useCurrentEditor } from "@tiptap/react";
 import TiptapInputDialog from "./TiptapInputDialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Grid, IconButton, Paper, Toolbar, Tooltip } from "@mui/material";
 import { useExtnStore } from "../../../zustand/store";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
@@ -18,9 +18,10 @@ export function TiptapMenuBar() {
     return null;
   }
 
-  editor.on("update", ({ editor }) => {
-    const html = editor.getHTML();
-    setEditorState(html);
+  editor.on("update", ({ editor, transaction }) => {
+    const htmlString = editor.getHTML();
+
+    setEditorState(htmlString);
   });
 
   function handleCreateInputClick() {
@@ -81,8 +82,9 @@ export function TiptapMenuBar() {
       .focus()
       .insertContent(
         `
-    <div class="header">
+    
       <table style="border-collapse: collapse; border: 1px solid black;">
+      <tbody>
           <tr>
             <td style="border: 1px solid black;">Document Version: </td>
             <td style="border: 1px solid black;"><strong>SOP-100</strong></td>
@@ -93,8 +95,9 @@ export function TiptapMenuBar() {
             <td style="border: 1px solid black;"><h1>Risk Management</h1></td>
             <td style="border: 1px solid black;">Data 9</td>
           </tr>
+          </tbody>
       </table>
-    </div>
+  
   `
       )
       .run();
@@ -121,6 +124,10 @@ export function TiptapMenuBar() {
 
     setInputOpen(false);
   }
+
+  useEffect(() => {
+    setEditorState(editor.getHTML());
+  }, []);
 
   return (
     <Box

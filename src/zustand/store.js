@@ -10,6 +10,7 @@ import {
   userSlice,
   pullRequestSlice,
   refreshDataSlice,
+  editorSlice,
 } from "./storeSlices";
 
 export const useExtnStore = create((...a) => ({
@@ -20,6 +21,7 @@ export const useExtnStore = create((...a) => ({
   ...databaseSlice(...a),
   ...teamsSlice(...a),
   ...userSlice(...a),
+  ...editorSlice(...a),
   ...pullRequestSlice(...a),
   ...refreshDataSlice(...a),
 }));

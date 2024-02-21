@@ -9,7 +9,6 @@ const nonEditablePlugin = new Plugin({
   props: {
     handleDOMEvents: {
       keypress: (view, event) => {
-        console.log("Keypress", event);
         const { state } = view;
         const { $from } = state.selection;
         const parentNode = $from.parent;
@@ -186,12 +185,10 @@ const nonEditablePlugin = new Plugin({
         //   // }
         // }
         // // If no 'non-extend' nodes are being changed, allow the transaction
-
       }
     }
     return true;
-  }
-
+  },
 });
 
 const NonEditableExtension = Extension.create({

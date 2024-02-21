@@ -30,6 +30,7 @@ import VersionSelector from "./VersionSelector";
 import Viewers from "./marked/Viewers";
 import { pageWidths } from "../constants";
 import TiptapEditor from "./marked/ReactCustomTags/TiptapEditor";
+import EditorHtmlPage from "./EditorHtmlPage";
 
 export default function HTMLViewer() {
   //const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
@@ -316,7 +317,11 @@ export default function HTMLViewer() {
             <CircularProgress></CircularProgress>;
           </Box>
         ) : (
+          // <Box sx={{ display: "flex" }}>
           <TiptapEditor editMode={editMode} content={html}></TiptapEditor>
+
+          //   <EditorHtmlPage></EditorHtmlPage>
+          // </Box>
         )}
       </Box>
     </Paper>

@@ -1,90 +1,88 @@
 {
-    "manifestVersion": 1,
-    "id": "D2Ops",
-    "publisher": "D2Ops",
-    "version": "1.0.163",
-    "name": "D2Ops",
-    "description": "A sample Visual Studio Services extension",
-    "public": false,
-    "categories": ["Azure Repos"],
-    "targets": [
-        {
-            "id": "Microsoft.VisualStudio.Services"
-        }
-    ],
-    "icons": {
-        "default": "images/logo.png"
-     },
-    "contributions": [
-        {
-            "id": "d2ops-hub-group",
-            "type": "ms.vss-web.hub-group",
-            "targets": [
-                "ms.vss-web.project-hub-groups-collection"
-            ],
-            "restrictedTo": ["member", "public", "anonymous"],
-            "properties": {
-                "name": "D2Ops",
-                "order": 100
-            }
-        },
-        {
-            "id": "d2ops",
-            "type": "ms.vss-web.hub",
-            "description": "Adds a 'Hello' hub to the Work hub group.",
-            "targets": [
-                ".d2ops-hub-group"
-            ],
-            "restrictedTo": ["member", "public", "anonymous"],
-            "properties": {
-                "name": "d2ops",
-                "order": 99,
-                "uri": "qmshub.html"
-            }
-        },
-        {
-            "id": "qmssettings",
-            "type": "ms.vss-web.hub",
-            "description": "Adds a QMS Settings hub to Organization settings hub group.",
-            "targets": [
-                "ms.vss-web.collection-admin-hub-group"
-            ],
-            "properties": {
-                "name": "QMS Settings",
-                "order": 99,
-                "uri": "orghub.html"
-            }
-        }
-    ],
-    "files": [
-        {
-            "path": "qmshub.html",
-            "addressable": true
-        },
-        {
-            "path": "orghub.html",
-            "addressable": true
-        },
-        
-        {
-            "path": "dist", "addressable": true
-        },
-        {
-            "path": "images", "addressable": true
-        },
-        {
-            "path": "node_modules/mxgraph/javascript/src", "addressable": true
-        }
-    ],
-    
-    "scopes":[ 
-        "vso.work_full",
-        "vso.code_full", 
-        "vso.wiki_write",
-        "vso.project_manage",
-        "vso.profile_write",
-        "vso.profile",
-        "vso.serviceendpoint_manage",
-        "vso.features_write"
-    ]  
+  "manifestVersion": 1,
+  "id": "D2Ops",
+  "publisher": "D2Ops",
+  "version": "1.0.171",
+  "name": "D2Ops",
+  "description": "A sample Visual Studio Services extension",
+  "public": false,
+  "baseUri": "https://localhost:3000",
+  "categories": ["Azure Repos"],
+  "targets": [
+    {
+      "id": "Microsoft.VisualStudio.Services"
+    }
+  ],
+  "icons": {
+    "default": "images/logo.png"
+  },
+  "contributions": [
+    {
+      "id": "d2ops-hub-group",
+      "type": "ms.vss-web.hub-group",
+      "targets": ["ms.vss-web.project-hub-groups-collection"],
+      "restrictedTo": ["member", "public", "anonymous"],
+      "properties": {
+        "name": "D2Ops",
+        "order": 100
+      }
+    },
+    {
+      "id": "d2ops",
+      "type": "ms.vss-web.hub",
+      "description": "Adds a 'Hello' hub to the Work hub group.",
+      "targets": [".d2ops-hub-group"],
+      "restrictedTo": ["member", "public", "anonymous"],
+      "properties": {
+        "name": "d2ops",
+        "order": 99,
+        "uri": "qmshub.html"
+      }
+    },
+    {
+      "id": "qmssettings",
+      "type": "ms.vss-web.hub",
+      "description": "Adds a QMS Settings hub to Organization settings hub group.",
+      "targets": ["ms.vss-web.collection-admin-hub-group"],
+      "properties": {
+        "name": "QMS Settings",
+        "order": 99,
+        "uri": "orghub.html"
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": "qmshub.html",
+      "addressable": true
+    },
+    {
+      "path": "orghub.html",
+      "addressable": true
+    },
+
+    {
+      "path": "dist",
+      "addressable": true
+    },
+    {
+      "path": "images",
+      "addressable": true
+    },
+    {
+      "path": "node_modules/mxgraph/javascript/src",
+      "addressable": true
+    }
+  ],
+
+  "scopes": [
+    "vso.work_full",
+    "vso.code_full",
+    "vso.wiki_write",
+    "vso.project_manage",
+    "vso.profile_write",
+    "vso.profile",
+    "vso.serviceendpoint_manage",
+    "vso.features_write"
+  ]
 }

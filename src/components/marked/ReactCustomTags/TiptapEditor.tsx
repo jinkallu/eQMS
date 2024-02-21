@@ -39,6 +39,9 @@ import {
   tableCell,
 } from "./TiptapExtensions/CustomTableExtension";
 import "./TiptapEditor.css";
+import PageExtension from "./TiptapExtensions/CustomPageExtension";
+import PageViewExtension from "./TiptapExtensions/CustomPageViewExtension";
+import PageViewReact from "./TiptapExtensions/CustomPageReactExtension";
 
 const CustomH1 = Heading.extend({
   addAttributes() {
@@ -78,6 +81,9 @@ const extensions = [
   ProcessFlowExtension,
   ReviewTagViewExtension,
   HeaderExtension,
+  PageExtension,
+  // PageViewExtension,
+  PageViewReact,
   //customTableNode,
   //tableRow,
   //tableCell
