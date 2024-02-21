@@ -11,6 +11,7 @@ import { Alert, Button, Paper, TextField } from "@mui/material";
 import DynamicIsland from "./DynamicIsland";
 import useQMSDataOps from "../CHooks/buffer/useQMSDataOps";
 import useCreateTeam from "../CHooks/useCreateTeam";
+import useCommit from "../CHooks/useCommit";
 
 
 const ProjectCreator = ({settingsData}) => {
@@ -36,7 +37,7 @@ const ProjectCreator = ({settingsData}) => {
 
   const {createTeam, teamCreated} = useCreateTeam();
   const { createBranch, loadingCreateBranch } = useCreateBranch();
-
+  const {commit} = useCommit();
 
   async function createProjectFun() {
     const newProject = await createProject(projectName, projectDescription);
@@ -90,6 +91,14 @@ const ProjectCreator = ({settingsData}) => {
 
         //const createdWiki = await createProjectWiki(newProject.id, "QMS");
         await createBranch(projectName, projectName, "main", "qms/database/main");
+        await commit(
+          newProject.id,
+          repoId,
+          "qms/database/main",
+          "./sops.json",
+          "",
+          "first"
+        )
         /*await createBranch(
           projectName,
           projectName,
