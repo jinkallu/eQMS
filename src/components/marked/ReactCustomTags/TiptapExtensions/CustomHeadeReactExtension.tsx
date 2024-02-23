@@ -19,9 +19,9 @@ const HeaderStyle = {
 const Component = (props) => {
   const { editor } = useCurrentEditor();
   const ref = useRef(null);
-  useMutationObserver(ref, changeListener);
+  //useMutationObserver(ref, changeListener);
   editor.on("update", ({ editor }) => {
-    console.log("update", editor, editor.getJSON());
+    //console.log("update", editor, editor.getJSON());
   });
 
   function changeListener() {
@@ -29,22 +29,23 @@ const Component = (props) => {
     // console.log(ele);
     const endPos = props.getPos();
     const firstHeading = editor.$nodes("*", { id: props.node.attrs.id });
-    console.log("before", firstHeading);
+    //console.log("before", firstHeading);
     // console.log("changed before", props.getPos());
     const jsonEditor = props.editor.getJSON();
+    //console.log(jsonEditor);
 
     const pages = jsonEditor.content[0]?.content;
-    console.log(pages, props.node.attrs);
+    //console.log(pages, props.node.attrs);
     let editedHeader;
     pages?.map((page) => {
-      if (page?.content[0]?.attrs?.id === props.node.attrs?.id) {
+      if (page?.content[0]?.attrs?.id === props.node.attrs?.id) { // TODO: need to check type header
         editedHeader = page.content[0]?.content;
       }
     });
 
     // console.log(editedHeader);
     if (editedHeader) {
-      const newPages = pages?.map((page) => {
+      const newPages = pages?.map((page) => { // TODO: need to check type header
         if (page.content[0]?.attrs?.id !== props.node.attrs?.id)
           page.content[0].content = editedHeader;
         return page;
@@ -52,7 +53,7 @@ const Component = (props) => {
       // console.log(newPages);
       jsonEditor.content[0].content = newPages;
       // console.log(jsonEditor);
-      props.editor.commands.setContent(jsonEditor);
+      //props.editor.commands.setContent(jsonEditor);
     }
 
     // const endPos = props.getPos();
@@ -63,7 +64,7 @@ const Component = (props) => {
     // });
     // console.log("after", afterHeading);
 
-    props.editor.commands.focus(endPos);
+    //props.editor.commands.focus(endPos);
   }
 
   return (

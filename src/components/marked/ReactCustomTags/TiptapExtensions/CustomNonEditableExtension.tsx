@@ -1,5 +1,5 @@
 import { mergeAttributes, Node } from "@tiptap/core";
-import { Plugin, PluginKey } from "prosemirror-state";
+import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
 import { Extension } from "@tiptap/core";
 
 const key = new PluginKey("nonEditable");
@@ -50,6 +50,103 @@ const nonEditablePlugin = new Plugin({
         return false;
       },
     },
+  },
+  appendTransaction: (transactions, oldState, newState) => {
+    //let headerChanged = transactions.some(tr => tr.docChanged);
+    //let headerChanged = transactions.some(tr => tr.docChanged && tr.steps.some(step => step.slice.content.some(node => node.type.name === 'header')))
+    let docChanged = transactions.some(tr => tr.docChanged);
+    let oldNode = null;
+    if (docChanged) {
+      transactions.forEach((transaction) => {
+        transaction.steps.forEach((step: any) => {
+          console.log(step);
+          let pos = step.to;
+          let oldStatePos = oldState.doc.resolve(pos);
+          oldNode = oldStatePos.node();
+          while (oldNode) {
+            if (oldNode.type.name === "header") {
+              console.log(oldNode);
+              break;
+            }
+            else if (oldNode.type.name === "doc") {
+              break;
+            }
+
+            try {
+              oldStatePos = oldState.doc.resolve(pos);
+              pos = oldStatePos.before(); // node parent
+              oldNode = oldState.doc.nodeAt(pos);
+            } catch {
+              //no nodes before
+              oldNode = null;
+              break;
+            }
+          }
+          if (oldNode && oldNode.type.name === "header") {
+            return;
+          }
+        });
+        if (oldNode && oldNode.type.name === "header") {
+          return;
+        }
+      });
+    }
+
+    console.log(oldNode);
+
+    if (oldNode && oldNode.type.name === "header") {
+      // Get the content of the first header in the new state
+      let headerContent
+      newState.doc.descendants(node => {
+        if (node.type.name === 'header' && node.attrs.id === oldNode.attrs.id) {
+          headerContent = node.content
+
+          return false
+        }
+      })
+
+      console.log(headerContent);
+
+      // If no header was found, do nothing
+      if (!headerContent) return null
+
+      let { from, to } = newState.selection;
+
+      // Create a new transaction to update all headers
+      let tr = newState.tr
+      let counter = 0;
+      newState.doc.descendants((node, pos) => {
+        if (node.type.name === 'header') {
+          if (node.attrs.id !== oldNode.attrs.id) {
+            
+            let newHeader = node.type.create(node.attrs, headerContent)
+            // Replace the existing header node with the new one
+            tr.replaceWith(pos + counter, pos + counter + node.nodeSize, newHeader)
+
+            counter += newHeader.nodeSize - node.nodeSize;
+
+            // if(pos >= from){
+            //   from += counter;
+            //   to += counter;
+            // }
+          }
+        }
+      })
+
+      tr.setSelection(TextSelection.create(tr.doc, from, to));
+
+      return tr
+    }
+    // Check if any of the transactions changed a header node
+    // const headerChanged = transactions.some(tr => tr.docChanged && tr.steps.some(step => {
+    //   // Use reduce instead of forEach to avoid mutability issues
+    //   return step.slice.content.reduce((found, node) => found || node.type.name === 'header', false);
+    // }));
+
+    // if (headerChanged) {
+    //   console.log(transactions, oldState, newState);
+    // }
+    return null;
   },
   /*
     appendTransaction: (transactions, oldState, newState) => {
@@ -106,7 +203,7 @@ const nonEditablePlugin = new Plugin({
     // if (!transaction.docChanged) {
     //   return true;
     // }
-    console.log(transaction);
+    //console.log(transaction);
 
     // function findParentNode(pos, state) {
     function findParentNode(pos, state) {
@@ -136,7 +233,7 @@ const nonEditablePlugin = new Plugin({
     let pos = step.to;
     //let resolvedPos = state.doc.resolve(pos);
     let pNode = state.doc.resolve(pos).node();
-    console.log("pnode", pNode);
+    //console.log("pnode", pNode);
     while (pNode) {
       if (
         pNode.type.name === "extend"
@@ -148,7 +245,7 @@ const nonEditablePlugin = new Plugin({
       try {
         pos = state.doc.resolve(pos).before();
         pNode = findParentNode(pos, state);
-        console.log("pnode-parent", pNode);
+        //console.log("pnode-parent", pNode);
       } catch {
         //no nodes before
         pNode = null;
