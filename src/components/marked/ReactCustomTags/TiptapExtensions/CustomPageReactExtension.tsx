@@ -43,6 +43,10 @@ const Component = (props) => {
     const jsonData = props.editor.getJSON();
     const pages = jsonData.content[0].content;
     const indexToInsert = pages?.findIndex((page) => page.attrs.id === id);
+    const header = {
+      ...pages[0].content[0],
+      attrs: { ...pages[0].content[0], id: uuidv4() },
+    };
 
     if (indexToInsert === pages?.length - 1) {
       // Need to insert a new page
@@ -58,7 +62,7 @@ const Component = (props) => {
       pages.push({
         attrs: { ...pages[0].attrs, id: uuidv4() },
         type: pages[0].type,
-        content: [lastContent],
+        content: [header, lastContent],
       });
       jsonData.content[0].content = [...pages];
       queueMicrotask(() => props.editor.commands.setContent(jsonData));
@@ -70,9 +74,9 @@ const Component = (props) => {
       if (arrLength - 1 > 0)
         pages[indexToInsert].content?.splice(arrLength - 1, 1);
       if (pages[indexToInsert + 1].content) {
-        pages[indexToInsert + 1].content.splice(0, 0, lastContent);
+        pages[indexToInsert + 1].content.splice(1, 0, lastContent);
       } else {
-        pages[indexToInsert + 1].content = [lastContent];
+        pages[indexToInsert + 1].content = [header, lastContent];
       }
       jsonData.content[0].content = [...pages];
       queueMicrotask(() => props.editor.commands.setContent(jsonData));
