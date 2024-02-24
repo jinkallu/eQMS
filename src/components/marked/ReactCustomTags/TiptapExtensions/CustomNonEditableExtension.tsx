@@ -57,13 +57,11 @@ const nonEditablePlugin = new Plugin({
     if (docChanged) {
       transactions.forEach((transaction) => {
         transaction.steps.forEach((step: any) => {
-          console.log(step);
           let pos = step.to;
           let oldStatePos = oldState.doc.resolve(pos);
           oldNode = oldStatePos.node();
           while (oldNode) {
             if (oldNode.type.name === "header") {
-              console.log(oldNode);
               break;
             }
             else if (oldNode.type.name === "doc") {
@@ -90,10 +88,8 @@ const nonEditablePlugin = new Plugin({
       });
     }
 
-    console.log(oldNode);
-
     if (oldNode && oldNode.type.name === "header") {
-      // Get the content of the first header in the new state
+      // Get the content of the header that changed state
       let headerContent
       newState.doc.descendants(node => {
         if (node.type.name === 'header' && node.attrs.id === oldNode.attrs.id) {
@@ -103,12 +99,9 @@ const nonEditablePlugin = new Plugin({
         }
       })
 
-      console.log(headerContent);
-
       // If no header was found, do nothing
       if (!headerContent) return null
 
-      //let { from, to } = newState.selection;
       let from = newState.doc.resolve(newState.selection.from);
       let to = newState.doc.resolve(newState.selection.to);
 
@@ -124,7 +117,7 @@ const nonEditablePlugin = new Plugin({
         }
       })
 
-      headerNodes.reverse();
+      headerNodes.reverse(); // implement header changes in reverse direction
 
       for (let { node, pos } of headerNodes) {
         let newHeader = node.type.create(node.attrs, headerContent)
@@ -145,61 +138,11 @@ const nonEditablePlugin = new Plugin({
     
     return null;
   },
-  /*
-    appendTransaction: (transactions, oldState, newState) => {
-  
-      
-      console.log("Transaction", transactions, oldState, newState);
-      // If there are no transactions, do nothing
-      if (!transactions.length) return null;
-  
-      // Loop through the transactions
-      for (let i = 0; i < transactions.length; i++) {
-        const transaction = transactions[i];
-  
-        // If the transaction changes the document
-        if (transaction.docChanged) {
-          let newTransaction = newState.tr;
-          console.log(newTransaction);
-          newTransaction.setMeta('appendedTransaction', null); // Clear the 'appendedTransaction' meta data
-          console.log(newTransaction);
-          // Loop through the steps in the transaction
-          for (let j = 0; j < transaction.steps.length; j++) {
-            const step = transaction.steps[j];
-            // Get the position and the node before the step
-            const pos = step.from;
-            const node = oldState.doc.nodeAt(pos);
-            const resolvedPos = oldState.doc.resolve(pos);
-            const parentNode = resolvedPos.parent;
-            const grandParentNode = resolvedPos.node(resolvedPos.depth - 1);
-            console.log(node, parentNode, grandParentNode)
-  
-            // If the node has the 'non-extend' class, cancel the transaction
-            if (!(grandParentNode && grandParentNode.attrs.class === 'non-extend')) {
-              console.log("Non editable ")
-              newTransaction.step(step);
-            }
-            // if (grandParentNode && grandParentNode.attrs.class === 'non-extend') {
-            //   console.log("Non editable ")
-            //   return oldState;
-            // }
-          }
-          //if (newTransaction.steps.length) {
-            console.log(newTransaction);
-            return newTransaction;
-          //}
-        }
-      }
-  
-      
-  
-      // If no 'non-extend' nodes are being changed, allow the transactions
-      return null;
-    },*/
-  filterTransaction: (transaction, state) => {
-    // if (!transaction.docChanged) {
-    //   return true;
-    // }
+
+ filterTransaction: (transaction, state) => {
+    if (!transaction.docChanged) {
+      return true;
+    }
     //console.log(transaction);
 
     // function findParentNode(pos, state) {
