@@ -52,8 +52,6 @@ const nonEditablePlugin = new Plugin({
     },
   },
   appendTransaction: (transactions, oldState, newState) => {
-    //let headerChanged = transactions.some(tr => tr.docChanged);
-    //let headerChanged = transactions.some(tr => tr.docChanged && tr.steps.some(step => step.slice.content.some(node => node.type.name === 'header')))
     let docChanged = transactions.some(tr => tr.docChanged);
     let oldNode = null;
     if (docChanged) {
@@ -110,42 +108,41 @@ const nonEditablePlugin = new Plugin({
       // If no header was found, do nothing
       if (!headerContent) return null
 
-      let { from, to } = newState.selection;
+      //let { from, to } = newState.selection;
+      let from = newState.doc.resolve(newState.selection.from);
+      let to = newState.doc.resolve(newState.selection.to);
 
       // Create a new transaction to update all headers
       let tr = newState.tr
       let counter = 0;
+      let headerNodes = [];
       newState.doc.descendants((node, pos) => {
         if (node.type.name === 'header') {
           if (node.attrs.id !== oldNode.attrs.id) {
-            
-            let newHeader = node.type.create(node.attrs, headerContent)
-            // Replace the existing header node with the new one
-            tr.replaceWith(pos + counter, pos + counter + node.nodeSize, newHeader)
-
-            counter += newHeader.nodeSize - node.nodeSize;
-
-            // if(pos >= from){
-            //   from += counter;
-            //   to += counter;
-            // }
+            headerNodes.push({ node, pos });
           }
         }
       })
 
-      tr.setSelection(TextSelection.create(tr.doc, from, to));
+      headerNodes.reverse();
+
+      for (let { node, pos } of headerNodes) {
+        let newHeader = node.type.create(node.attrs, headerContent)
+        // Replace the existing header node with the new one
+        tr.replaceWith(pos + counter, pos + counter + node.nodeSize, newHeader)
+
+      }
+
+      // Map the original positions to the new state
+      let newFrom = tr.mapping.map(from.pos);
+      let newTo = tr.mapping.map(to.pos);
+
+      tr.setSelection(TextSelection.create(tr.doc, newFrom, newTo));
+
 
       return tr
     }
-    // Check if any of the transactions changed a header node
-    // const headerChanged = transactions.some(tr => tr.docChanged && tr.steps.some(step => {
-    //   // Use reduce instead of forEach to avoid mutability issues
-    //   return step.slice.content.reduce((found, node) => found || node.type.name === 'header', false);
-    // }));
-
-    // if (headerChanged) {
-    //   console.log(transactions, oldState, newState);
-    // }
+    
     return null;
   },
   /*
