@@ -25,12 +25,12 @@ import NonEditableExtension from "./TiptapExtensions/CustomNonEditableExtension"
 //import TableHeader from "@tiptap/extension-table-header";
 import { Document, Paragraph, Text} from "./TiptapExtensions/CustomDocumentExtension"
 // import TableRow from "@tiptap/extension-table-row";
-// import {
-//   CustomTableRow,
-//   CustomTableCell,
-//   CustomTableHeader,
-//   CustomTable,
-// } from "./TiptapExtensions/CustomTiptapTableExtension";
+import {
+  CustomTableRow,
+  CustomTableCell,
+  CustomTableHeader,
+  CustomTable,
+} from "./TiptapExtensions/CustomTiptapTableExtension";
 // import ProcessFlowExtension from "./TiptapExtensions/CustomProcessflowExtension";
 // import ReviewTagViewExtension from "./TiptapExtensions/CustomReviewTagExtension";
 // import HeaderExtension from "./TiptapExtensions/CustomHeaderExtension";
@@ -106,7 +106,13 @@ const extensions = [
   NonEditableExtension,
   PageViewReact,
   HeaderReactExtension,
-  CustomInputReact
+  CustomInputReact,
+  CustomTable.configure({
+    resizable: true,
+  }),
+  CustomTableRow,
+  CustomTableCell,
+  CustomTableHeader,
 
   //NonEditableExtension,
   //StarterKit,
