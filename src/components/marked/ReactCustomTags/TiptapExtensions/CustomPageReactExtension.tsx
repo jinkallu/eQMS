@@ -22,6 +22,7 @@ const StyleA4 = {
   overflow: "auto",
 };
 const Component = (props) => {
+  console.log(props);
   const ref = React.useRef(null);
   const isOverflow = useIsOverflow(ref);
 
@@ -114,7 +115,7 @@ const Component = (props) => {
 export default Node.create({
   name: "pageviewreact",
 
-  group: "block",
+  //group: "block",
 
   content: "block*",
 

@@ -5,9 +5,9 @@ import { Extension } from "@tiptap/core";
 const ExtendExtension = Node.create({
   name: "extend",
 
-  group: "block",
+  //group: "block",
 
-  content: "block*",
+  content: "pageviewreact+",
 
   addAttributes() {
     return {
