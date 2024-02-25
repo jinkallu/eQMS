@@ -175,16 +175,19 @@ const nonEditablePlugin = new Plugin({
     let pNode = state.doc.resolve(pos).node();
     //console.log("pnode", pNode);
     while (pNode) {
-      if (
-        pNode.type.name === "extend"
-        //  &&
-        // (pNode.attrs.class === "non-extend" || pNode.attrs.class === "extend")
-      ) {
-        break;
+      if ( pNode.type.name === "extend") {
+        console.log("extend ", pNode.attrs.version);
+        if(pNode.attrs.version === 0){
+          return true;
+        }
+        else if(pNode.attrs.version >= 0){
+          return false;
+        }
       }
+      
       try {
         pos = state.doc.resolve(pos).before();
-        pNode = findParentNode(pos, state);
+        pNode = state.doc.nodeAt(pos);//findParentNode(pos, state);
         //console.log("pnode-parent", pNode);
       } catch {
         //no nodes before
