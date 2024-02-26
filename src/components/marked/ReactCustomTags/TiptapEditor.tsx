@@ -23,7 +23,11 @@ import NonEditableExtension from "./TiptapExtensions/CustomNonEditableExtension"
 //import Table from "@tiptap/extension-table";
 //import TableCell from "@tiptap/extension-table-cell";
 //import TableHeader from "@tiptap/extension-table-header";
-import { Document, Paragraph, Text} from "./TiptapExtensions/CustomDocumentExtension"
+import {
+  Document,
+  Paragraph,
+  Text,
+} from "./TiptapExtensions/CustomDocumentExtension";
 // import TableRow from "@tiptap/extension-table-row";
 import {
   CustomTableRow,
@@ -44,11 +48,13 @@ import "./TiptapEditor.css";
 // import PageViewExtension from "./TiptapExtensions/CustomPageViewExtension";
 import PageViewReact from "./TiptapExtensions/CustomPageReactExtension";
 import HeaderReactExtension from "./TiptapExtensions/CustomHeadeReactExtension";
-import Bold from '@tiptap/extension-bold';
-import Italic from '@tiptap/extension-italic'
-import Strike from '@tiptap/extension-strike'
-import Code from '@tiptap/extension-code'
-import History  from '@tiptap/extension-history'
+import FooterReactExtension from "./TiptapExtensions/CustomFooterReactExtension";
+import PageContentExtension from "./TiptapExtensions/CustomPageContentExtension";
+import Bold from "@tiptap/extension-bold";
+import Italic from "@tiptap/extension-italic";
+import Strike from "@tiptap/extension-strike";
+import Code from "@tiptap/extension-code";
+import History from "@tiptap/extension-history";
 
 //import Document from '@tiptap/starter-kit';
 
@@ -113,10 +119,12 @@ const extensions = [
   CustomTableRow,
   CustomTableCell,
   CustomTableHeader,
+  PageContentExtension,
+  FooterReactExtension,
 
   //NonEditableExtension,
   //StarterKit,
-/*
+  /*
  
   StarterKit,
   CustomTable.configure({
@@ -147,7 +155,6 @@ const TiptapEditor = ({ content, editMode }) => {
       extensions={extensions}
       //content={templateState[id] || " "}
       content={content || " "}
-      
       //content={editor?.getHTML()}
       slotBefore={editMode && <TiptapMenuBar />}
       editable={editMode}

@@ -49,35 +49,54 @@ const Component = (props) => {
       attrs: { ...pages[0].content[0], id: uuidv4() },
     };
 
+    const footer = {
+      ...pages[0].content[2],
+      attrs: { ...pages[0].content[2], id: uuidv4() },
+    };
+
+    const newPageContent = {
+      ...pages[0].content[1],
+      attrs: { ...pages[0].content[1], id: uuidv4() },
+    };
+
+    const pageContent = pages[indexToInsert].content[1].content;
+
+    const lastContent = pageContent[pageContent?.length - 1];
+    const arrLength = pageContent?.length;
+
     if (indexToInsert === pages?.length - 1) {
       // Need to insert a new page
 
-      const lastContent =
-        pages[indexToInsert].content[pages[indexToInsert].content?.length - 1];
-      const arrLength = pages[indexToInsert].content?.length;
+      // pages[indexToInsert].content[1].content[
+      //   pages[indexToInsert].content[1].content?.length - 1
+      // ];
       if (arrLength - 1 > 0)
-        pages[indexToInsert].content?.splice(arrLength - 1, 1);
+        pages[indexToInsert].content[0].content?.splice(arrLength - 1, 1);
 
       // remove the last content from current page and insert it to new page
-
+      newPageContent.content = [lastContent];
       pages.push({
         attrs: { ...pages[0].attrs, id: uuidv4() },
         type: pages[0].type,
-        content: [header, lastContent],
+        content: [header, newPageContent, footer],
       });
       jsonData.content[0].content = [...pages];
       queueMicrotask(() => props.editor.commands.setContent(jsonData));
     } else {
       // last content of current page should be pushed to next page
-      const lastContent =
-        pages[indexToInsert].content[pages[indexToInsert].content?.length - 1];
-      const arrLength = pages[indexToInsert].content?.length;
+      // const lastContent =
+      //   pages[indexToInsert].content[pages[indexToInsert].content?.length - 1];
+      // const arrLength = pages[indexToInsert].content?.length;
       if (arrLength - 1 > 0)
-        pages[indexToInsert].content?.splice(arrLength - 1, 1);
-      if (pages[indexToInsert + 1].content) {
-        pages[indexToInsert + 1].content.splice(1, 0, lastContent);
+        pages[indexToInsert].content[1].content?.splice(arrLength - 1, 1);
+      if (pages[indexToInsert + 1].content[1]?.content) {
+        pages[indexToInsert + 1].content[1].content.splice(1, 0, lastContent);
       } else {
-        pages[indexToInsert + 1].content = [header, lastContent];
+        pages[indexToInsert + 1].content[1].content = [
+          header,
+          lastContent,
+          footer,
+        ];
       }
       jsonData.content[0].content = [...pages];
       queueMicrotask(() => props.editor.commands.setContent(jsonData));
@@ -95,7 +114,7 @@ const Component = (props) => {
   //     props.editor
   //       .chain()
   //       .insertContentAt(endPos, {
-  //         type: "pageviewreact",
+  //         type: "page",
   //         attrs: { id: uuidv4() },
   //       })
   //       .focus(endPos)
@@ -113,11 +132,11 @@ const Component = (props) => {
 };
 
 export default Node.create({
-  name: "pageviewreact",
+  name: "page",
 
   //group: "block",
 
-  content: "block*",
+  content: "header pagecontent footer",
 
   addAttributes() {
     return {
@@ -126,7 +145,7 @@ export default Node.create({
       },
       id: { default: uuidv4() },
       class: {
-        default: "pageviewreact",
+        default: "page",
       },
       contenteditable: {
         default: true,
@@ -141,7 +160,7 @@ export default Node.create({
   parseHTML() {
     return [
       {
-        tag: "div.pageviewreact",
+        tag: "div.page",
       },
     ];
   },
@@ -162,7 +181,7 @@ export default Node.create({
 
   renderHTML({ node, HTMLAttributes }) {
     let attrs = mergeAttributes(HTMLAttributes);
-    if (node.attrs.class === "pageviewreact") {
+    if (node.attrs.class === "page") {
       attrs = {
         ...attrs,
         style:

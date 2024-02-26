@@ -84,7 +84,7 @@ const Component = (props) => {
 };
 
 export default Node.create({
-  name: "header",
+  name: "footer",
 
   group: "block",
 
@@ -93,14 +93,15 @@ export default Node.create({
   addAttributes() {
     return {
       class: {
-        default: "header",
+        default: "footer",
       },
       id: { default: uuidv4() },
       contenteditable: {
         default: true,
       },
       style: {
-        default: "background:white;display: block;margin: 0 auto;width: 21cm; ",
+        default:
+          "background:white;display: block;margin: 0 auto; margin-bottom: 0.5cm;box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);width: 21cm; height: 300px",
       },
     };
   },
@@ -108,7 +109,7 @@ export default Node.create({
   parseHTML() {
     return [
       {
-        tag: "div.header",
+        tag: "div.footer",
       },
     ];
   },
@@ -118,7 +119,8 @@ export default Node.create({
     if (node.attrs.class === "header") {
       attrs = {
         ...attrs,
-        style: "background: white;display: block;margin: 0 auto; width: 21cm; ",
+        style:
+          "background: white;display: block;margin: 0 auto; margin-bottom: 0.5cm;box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);width: 21cm; height: 29.7cm",
       };
     }
     return ["div", attrs, 0];

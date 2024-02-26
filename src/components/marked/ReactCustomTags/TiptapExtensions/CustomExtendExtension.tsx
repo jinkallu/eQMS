@@ -7,7 +7,7 @@ const ExtendExtension = Node.create({
 
   //group: "block",
 
-  content: "pageviewreact+",
+  content: "page+",
 
   addAttributes() {
     return {
