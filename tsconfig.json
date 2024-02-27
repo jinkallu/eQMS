@@ -11,7 +11,8 @@
     "jsx": "react-jsx",
     "lib": ["es5", "es6", "dom", "es2015.promise"],
     "types": ["react", "jest", "node"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },
   "include": ["src/**/*"]
 }

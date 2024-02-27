@@ -6,3 +6,10 @@
   min-height: 100vh;
   margin-bottom: 20px;
 }
+
+.content > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}

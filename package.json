@@ -68,6 +68,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "reactflow": "^11.10.3",
+    "typescript-plugin-css-modules": "^5.1.0",
     "unzipper": "^0.10.14",
     "uuid": "^9.0.0",
     "webpack-dev-server": "^4.11.1",

@@ -21,7 +21,7 @@ const ExtendExtension = Node.create({
         default: true,
       },
       style: {
-        default: "border: 1px solid green",
+        default: "border: 1px solid green; min-height:100vh; overflow:auto",
       },
     };
   },
@@ -29,10 +29,10 @@ const ExtendExtension = Node.create({
   parseHTML() {
     return [
       {
-        tag: "div.extend",
+        tag: "main.extend",
       },
       {
-        tag: "div.non-extend",
+        tag: "main.non-extend",
       },
     ];
   },
@@ -42,7 +42,8 @@ const ExtendExtension = Node.create({
     if (node.attrs.class === "extend") {
       attrs = {
         ...attrs,
-        style: "border: 1px solid green; margin-bottom: 3px; height:500px",
+        style:
+          "border: 1px solid green; margin-bottom: 3px; min-height:100vh; overflow:auto",
       };
     } else if (node.attrs.class === "non-extend") {
       attrs = {
@@ -50,7 +51,7 @@ const ExtendExtension = Node.create({
         style: "border: 1px solid red; margin-bottom: 3px",
       };
     }
-    return ["div", attrs, 0];
+    return ["main", attrs, 0];
   },
 });
 

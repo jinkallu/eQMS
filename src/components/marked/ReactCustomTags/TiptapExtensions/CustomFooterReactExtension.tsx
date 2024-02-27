@@ -14,7 +14,7 @@ const HeaderStyle = {
   display: "block",
   margin: "0 auto",
   width: "21cm",
-  borderBottom: "1px dotted black",
+  borderTop: "1px dotted black",
 };
 const Component = (props) => {
   const { editor } = useCurrentEditor();

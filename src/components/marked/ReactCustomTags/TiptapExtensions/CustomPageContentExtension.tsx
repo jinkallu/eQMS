@@ -15,8 +15,8 @@ const StyleA4 = {
   background: "white",
   display: "block",
   margin: "0 auto",
-  boxShadow: "0 0 0.5cm rgba(0,0,0,0.5)",
   width: "21cm",
+  flexGrow: 1,
 };
 const Component = (props) => {
   return (

@@ -11,7 +11,7 @@ import useMutationObserver from "../../../../CHooks/useMutationObserver.js";
 import { v4 as uuidv4 } from "uuid";
 const HeaderStyle = {
   background: "white",
-  display: "block",
+  display: "flex",
   margin: "0 auto",
   width: "21cm",
   borderBottom: "1px dotted black",

@@ -13,13 +13,20 @@ import { EditorState } from "@tiptap/pm/state";
 import { v4 as uuidv4 } from "uuid";
 const StyleA4 = {
   background: "white",
-  display: "block",
+  display: "flex",
   margin: "0 auto",
   marginBottom: "0.5cm",
   boxShadow: "0 0 0.5cm rgba(0,0,0,0.5)",
   width: "21cm",
-  height: "5.7cm",
-  overflow: "auto",
+  height: "20.7cm",
+};
+
+const styleContent = {
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  height: "100%",
+  flexGrow: 1,
 };
 const Component = (props) => {
   console.log(props);
@@ -41,9 +48,13 @@ const Component = (props) => {
   //   }
 
   function addPageJSON(id) {
+    // get the json of the editor
     const jsonData = props.editor.getJSON();
+    // get the pages from json
     const pages = jsonData.content[0].content;
+
     const indexToInsert = pages?.findIndex((page) => page.attrs.id === id);
+
     const header = {
       ...pages[0].content[0],
       attrs: { ...pages[0].content[0], id: uuidv4() },
@@ -122,19 +133,17 @@ const Component = (props) => {
   //      }
 
   return (
-    <NodeViewWrapper style={StyleA4} ref={ref}>
-      {/* <button onClick={addPage}>Add</button>
+    <NodeViewWrapper style={StyleA4} ref={ref} as="section">
+      {/* <button onClick={addPage}>Add</button> 
       <button onClick={deleteNode}>Remove</button>
       <button onClick={addPageJSON}>Add Page JSON</button> */}
-      <NodeViewContent />
+      <NodeViewContent class="content" id="testContent" />
     </NodeViewWrapper>
   );
 };
 
 export default Node.create({
   name: "page",
-
-  //group: "block",
 
   content: "header pagecontent footer",
 
@@ -151,8 +160,7 @@ export default Node.create({
         default: true,
       },
       style: {
-        default:
-          "background:white;display: block;margin: 0 auto; margin-bottom: 0.5cm;box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);width: 21cm; height: 300px",
+        default: "",
       },
     };
   },
@@ -181,13 +189,11 @@ export default Node.create({
 
   renderHTML({ node, HTMLAttributes }) {
     let attrs = mergeAttributes(HTMLAttributes);
-    if (node.attrs.class === "page") {
-      attrs = {
-        ...attrs,
-        style:
-          "background: white;display: block;margin: 0 auto; margin-bottom: 0.5cm;box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);width: 21cm; height: 29.7cm",
-      };
-    }
+    // if (node.attrs.class === "page") {
+    //   attrs = {
+    //     ...attrs,
+    //   };
+    // }
     // } else if (node.attrs.class === "non-extend") {
     //   attrs = {
     //     ...attrs,
