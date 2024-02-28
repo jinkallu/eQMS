@@ -10,8 +10,8 @@ export default Node.create({
 
   addAttributes() {
     return {
-      id: {
-        default: "image",
+      path: {
+        default: "",
       },
     };
   },

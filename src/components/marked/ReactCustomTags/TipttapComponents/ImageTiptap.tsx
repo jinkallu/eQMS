@@ -9,7 +9,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { NodeViewWrapper } from "@tiptap/react";
 import useFetchBranchFileContent from "../../../../CHooks/buffer/useFetchBranchFileContent";
 
-export default function ImageTiptap({ order = "last", id }) {
+export default function ImageTiptap({ order = "last", path }) {
 
   const { userSOPs, repository, project } = useExtnStore((state) => state);
   const [searchParams] = useSearchParams();
@@ -18,7 +18,7 @@ export default function ImageTiptap({ order = "last", id }) {
 
   const { templateState, setTemplateState } = useExtnStore((state) => state);
   function handleChangeFun(e) {
-    setTemplateState(id, e.target.value);
+    //setTemplateState(id, e.target.value);
   }
 
   useEffect(() => {
@@ -26,6 +26,7 @@ export default function ImageTiptap({ order = "last", id }) {
       return;
     }
 
+    console.log(path);
     const filePath = "qms/sop/attachments/1.jpg";
     const branchName = searchParams.get("branchName");
     let lastIndex = branchName.lastIndexOf("/main");

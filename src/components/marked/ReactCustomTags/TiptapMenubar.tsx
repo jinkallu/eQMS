@@ -119,6 +119,7 @@ export function TiptapMenuBar() {
         `<custom-image path=${filePath}></custom-image>`
       )
       .run();
+      setImageOpen(false);
   }
 
   function addInput(id) {
