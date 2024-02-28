@@ -55,6 +55,11 @@ import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import Code from "@tiptap/extension-code";
 import History from "@tiptap/extension-history";
+import Image from "@tiptap/extension-image";
+import HorizontalRule from "@tiptap/extension-horizontal-rule";
+import OrderedList from "@tiptap/extension-ordered-list";
+import ListItem from "@tiptap/extension-list-item";
+import BulletList from  "@tiptap/extension-bullet-list";
 
 //import Document from '@tiptap/starter-kit';
 
@@ -121,6 +126,12 @@ const extensions = [
   CustomTableHeader,
   PageContentExtension,
   FooterReactExtension,
+  Image,
+  Heading,
+  HorizontalRule,
+  OrderedList,
+  ListItem,
+  BulletList
 
   //NonEditableExtension,
   //StarterKit,
