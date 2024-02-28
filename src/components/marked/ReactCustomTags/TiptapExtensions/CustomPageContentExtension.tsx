@@ -13,9 +13,10 @@ import { EditorState } from "@tiptap/pm/state";
 import { v4 as uuidv4 } from "uuid";
 const StyleA4 = {
   background: "white",
-  display: "block",
+
   margin: "0 auto",
   width: "21cm",
+  height: "100%",
   flexGrow: 1,
 };
 const Component = (props) => {
@@ -24,7 +25,7 @@ const Component = (props) => {
       {/* <button onClick={addPage}>Add</button>
       <button onClick={deleteNode}>Remove</button>
       <button onClick={addPageJSON}>Add Page JSON</button> */}
-      <NodeViewContent />
+      <NodeViewContent class="pageContent" />
     </NodeViewWrapper>
   );
 };

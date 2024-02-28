@@ -29,10 +29,10 @@ const ExtendExtension = Node.create({
   parseHTML() {
     return [
       {
-        tag: "main.extend",
+        tag: "div.extend",
       },
       {
-        tag: "main.non-extend",
+        tag: "div.non-extend",
       },
     ];
   },
@@ -51,7 +51,7 @@ const ExtendExtension = Node.create({
         style: "border: 1px solid red; margin-bottom: 3px",
       };
     }
-    return ["main", attrs, 0];
+    return ["div", attrs, 0];
   },
 });
 

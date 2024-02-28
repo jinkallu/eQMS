@@ -24,7 +24,6 @@ const StyleA4 = {
 const styleContent = {
   display: "flex",
   flexDirection: "column",
-  justifyContent: "space-between",
   height: "100%",
   flexGrow: 1,
 };

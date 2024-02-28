@@ -10,6 +10,23 @@
 .content > div {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   height: 100%;
+}
+
+.pageContent {
+  display: flex;
+  /* align-self: flex-start; */
+}
+
+.pageContent > div {
+  display: block;
+  width: "100%";
+  border: 1px solid green;
+  /* align-self: flex-start; */
+}
+
+.node-pagecontent {
+  display: "flex";
+  flex-grow: 1;
+  width: "100%";
 }

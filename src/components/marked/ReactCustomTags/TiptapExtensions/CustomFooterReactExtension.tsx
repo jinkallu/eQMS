@@ -11,10 +11,10 @@ import useMutationObserver from "../../../../CHooks/useMutationObserver.js";
 import { v4 as uuidv4 } from "uuid";
 const HeaderStyle = {
   background: "white",
-  display: "block",
   margin: "0 auto",
   width: "21cm",
   borderTop: "1px dotted black",
+  justifySelf: "end",
 };
 const Component = (props) => {
   const { editor } = useCurrentEditor();

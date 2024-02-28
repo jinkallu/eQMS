@@ -194,6 +194,10 @@ export default function HTMLViewer() {
     );
   }
 
+  React.useEffect(() => {
+    console.log(html);
+  }, [html]);
+
   return (
     <Paper
       elevation={3}

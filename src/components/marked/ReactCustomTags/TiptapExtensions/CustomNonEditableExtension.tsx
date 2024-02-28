@@ -52,7 +52,7 @@ const nonEditablePlugin = new Plugin({
     },
   },
   appendTransaction: (transactions, oldState, newState) => {
-    let docChanged = transactions.some(tr => tr.docChanged);
+    let docChanged = transactions.some((tr) => tr.docChanged);
     let oldNode = null;
     if (docChanged) {
       transactions.forEach((transaction) => {
@@ -63,8 +63,7 @@ const nonEditablePlugin = new Plugin({
           while (oldNode) {
             if (oldNode.type.name === "header") {
               break;
-            }
-            else if (oldNode.type.name === "doc") {
+            } else if (oldNode.type.name === "doc") {
               break;
             }
 
@@ -90,40 +89,39 @@ const nonEditablePlugin = new Plugin({
 
     if (oldNode && oldNode.type.name === "header") {
       // Get the content of the header that changed state
-      let headerContent
-      newState.doc.descendants(node => {
-        if (node.type.name === 'header' && node.attrs.id === oldNode.attrs.id) {
-          headerContent = node.content
+      let headerContent;
+      newState.doc.descendants((node) => {
+        if (node.type.name === "header" && node.attrs.id === oldNode.attrs.id) {
+          headerContent = node.content;
 
-          return false
+          return false;
         }
-      })
+      });
 
       // If no header was found, do nothing
-      if (!headerContent) return null
+      if (!headerContent) return null;
 
       let from = newState.doc.resolve(newState.selection.from);
       let to = newState.doc.resolve(newState.selection.to);
 
       // Create a new transaction to update all headers
-      let tr = newState.tr
+      let tr = newState.tr;
       let counter = 0;
       let headerNodes = [];
       newState.doc.descendants((node, pos) => {
-        if (node.type.name === 'header') {
+        if (node.type.name === "header") {
           if (node.attrs.id !== oldNode.attrs.id) {
             headerNodes.push({ node, pos });
           }
         }
-      })
+      });
 
       headerNodes.reverse(); // implement header changes in reverse direction
 
       for (let { node, pos } of headerNodes) {
-        let newHeader = node.type.create(node.attrs, headerContent)
+        let newHeader = node.type.create(node.attrs, headerContent);
         // Replace the existing header node with the new one
-        tr.replaceWith(pos + counter, pos + counter + node.nodeSize, newHeader)
-
+        tr.replaceWith(pos + counter, pos + counter + node.nodeSize, newHeader);
       }
 
       // Map the original positions to the new state
@@ -132,14 +130,13 @@ const nonEditablePlugin = new Plugin({
 
       tr.setSelection(TextSelection.create(tr.doc, newFrom, newTo));
 
-
-      return tr
+      return tr;
     }
-    
+
     return null;
   },
 
- filterTransaction: (transaction, state) => {
+  filterTransaction: (transaction, state) => {
     if (!transaction.docChanged) {
       return true;
     }
@@ -175,19 +172,18 @@ const nonEditablePlugin = new Plugin({
     let pNode = state.doc.resolve(pos).node();
     //console.log("pnode", pNode);
     while (pNode) {
-      if ( pNode.type.name === "extend") {
-        console.log("extend ", pNode.attrs.version);
-        if(pNode.attrs.version === 0){
+      if (pNode.type.name === "extend") {
+        console.log("extend ", pNode);
+        if (pNode.attrs.version === 0) {
           return true;
-        }
-        else if(pNode.attrs.version >= 0){
+        } else if (pNode.attrs.version >= 0) {
           return false;
         }
       }
-      
+
       try {
         pos = state.doc.resolve(pos).before();
-        pNode = state.doc.nodeAt(pos);//findParentNode(pos, state);
+        pNode = state.doc.nodeAt(pos); //findParentNode(pos, state);
         //console.log("pnode-parent", pNode);
       } catch {
         //no nodes before
