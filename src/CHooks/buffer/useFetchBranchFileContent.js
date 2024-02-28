@@ -39,7 +39,40 @@ const useFetchBranchFileContent = () => {
     return content;
   };
 
-  return { fileContent, fetchBranchFileContent };
+  const fetchBranchFile = async (projectId, repositoryId, filePath, branch) => {
+    let content = null;
+    console.log(`refs/heads/${branch}`);
+    const versionDescriptor = {
+      version: branch,
+      versionType: 0,
+    };
+    try {
+      
+      // TODO wrong call, correct it
+      const gitClient = getClient(GitRestClient);
+      
+      content = await gitClient.getItemContent(
+        repositoryId,
+        filePath,
+        projectId,
+        undefined, // scopepath
+        undefined, // recursionLevel
+        undefined, // includeContentMetadata,
+        true, // latestProcessedChange
+        false, // download
+        versionDescriptor
+        //{ versionDescriptor: { version: `refs/heads/${branch}`, versionType: 0 } }
+      );
+      
+      setFileContent(content);
+    } catch (error) {
+      console.error('Error fetching file content:', error);
+    }
+
+    return content;
+  };
+
+  return { fileContent, fetchBranchFileContent, fetchBranchFile };
 }
 
 export default useFetchBranchFileContent;

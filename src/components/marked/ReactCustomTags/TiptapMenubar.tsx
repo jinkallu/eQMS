@@ -9,6 +9,7 @@ import FormatStrikethroughIcon from "@mui/icons-material/FormatStrikethrough";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import CodeIcon from "@mui/icons-material/Code";
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 export function TiptapMenuBar() {
   const { editor } = useCurrentEditor();
   const [inputOpen, setInputOpen] = useState(false);
@@ -101,6 +102,16 @@ export function TiptapMenuBar() {
   `
       )
       .run();
+  }
+
+      function handleImageClick() {
+        editor
+          .chain()
+          .focus()
+          .insertContent(
+            `<custom-image></custom-image>`
+          )
+          .run();
 
     // .insertContent({
     //   type: "header",
@@ -387,6 +398,16 @@ export function TiptapMenuBar() {
                 }
               >
                 Header
+              </button>
+              <button
+                onClick={handleImageClick}
+                className={
+                  editor.isActive("textStyle", { color: "#958DF1" })
+                    ? "is-active"
+                    : ""
+                }
+              >
+                Image
               </button>
 
               {/* <button

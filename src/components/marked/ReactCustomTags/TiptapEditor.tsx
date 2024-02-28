@@ -50,6 +50,7 @@ import PageViewReact from "./TiptapExtensions/CustomPageReactExtension";
 import HeaderReactExtension from "./TiptapExtensions/CustomHeadeReactExtension";
 import FooterReactExtension from "./TiptapExtensions/CustomFooterReactExtension";
 import PageContentExtension from "./TiptapExtensions/CustomPageContentExtension";
+import CustomImgExtension from "./TiptapExtensions/CustomImgExtension";
 import Bold from "@tiptap/extension-bold";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
@@ -131,8 +132,8 @@ const extensions = [
   HorizontalRule,
   OrderedList,
   ListItem,
-  BulletList
-
+  BulletList,
+  CustomImgExtension,
   //NonEditableExtension,
   //StarterKit,
   /*
