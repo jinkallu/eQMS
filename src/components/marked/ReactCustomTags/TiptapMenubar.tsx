@@ -1,5 +1,6 @@
 import { useCurrentEditor } from "@tiptap/react";
 import TiptapInputDialog from "./TiptapInputDialog";
+import TiptapImageOpenDialog from "./TiptapImageOpenDialog";
 import { useEffect, useState } from "react";
 import { Box, Grid, IconButton, Paper, Toolbar, Tooltip } from "@mui/material";
 import { useExtnStore } from "../../../zustand/store";
@@ -13,6 +14,8 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 export function TiptapMenuBar() {
   const { editor } = useCurrentEditor();
   const [inputOpen, setInputOpen] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
+
   const { setEditorState } = useExtnStore((state) => state);
 
   if (!editor) {
@@ -104,22 +107,18 @@ export function TiptapMenuBar() {
       .run();
   }
 
-      function handleImageClick() {
-        editor
-          .chain()
-          .focus()
-          .insertContent(
-            `<custom-image></custom-image>`
-          )
-          .run();
+  function handleImageClick() {
+    setImageOpen(true);
+  }
 
-    // .insertContent({
-    //   type: "header",
-    //   attrs: { class: "header" },
-    //   content: [
-    //     { type: "paragraph", content: [{ type: "text", text: "Insert Header data here: " }] },
-    //   ],
-    // })
+  function insertImage(filePath){
+    editor
+      .chain()
+      .focus()
+      .insertContent(
+        `<custom-image path=${filePath}></custom-image>`
+      )
+      .run();
   }
 
   function addInput(id) {
@@ -180,6 +179,13 @@ export function TiptapMenuBar() {
                 setOpen={setInputOpen}
                 addInput={addInput}
               ></TiptapInputDialog>
+
+              <TiptapImageOpenDialog
+                imageOpen={imageOpen}
+                setImageOpen={setImageOpen}
+                insertImage={insertImage}
+              ></TiptapImageOpenDialog>
+
               <Tooltip title="Bold">
                 <IconButton
                   onClick={() => editor.chain().focus().toggleBold().run()}

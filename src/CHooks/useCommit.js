@@ -71,6 +71,70 @@ const useCommit = () => {
     }
   };
 
+  const addBinaryFile = async (
+    projectId,
+    repositoryId,
+    branchName,
+    filePath,
+    newContent,
+    commitMessage
+  ) => {
+    setLoading(true);
+    setBranchCreated(false);
+    let created = false;
+
+    try {
+      const gitClient = getClient(GitRestClient);
+      const [refsResult] = await Promise.all([
+        gitClient.getRefs(repositoryId, projectId, "heads"),
+        //gitClient.getItemContent(repositoryId, filePath, branchName),
+      ]);
+
+      const currentBranch = refsResult.filter(
+        (ref) => ref.name === `refs/heads/${branchName}`
+      )[0];
+      const currentCommitId = currentBranch.objectId;
+      //const oldObjectId = fileContentResult.objectId;
+
+      const change = {
+        changeType: 1, //1 add, 2 Edit
+        item: {
+          path: filePath,
+        },
+        newContent: {
+          content: newContent,
+          contentType: "base64encoded", 
+        },
+      };
+
+      const push = {
+        commits: [
+          {
+            comment: commitMessage,
+            changes: [change],
+          },
+        ],
+        refUpdates: [
+          {
+            name: currentBranch.name,
+            oldObjectId: currentCommitId,
+          },
+        ],
+        repositoryId,
+      };
+
+      await gitClient.createPush(push, repositoryId);
+      created = true;
+      return created;
+    } catch (error) {
+      console.log(error);
+      //setLoading(false);
+      //setBranchCreated(false);
+      created = false;
+      return created;
+    }
+  };
+
   const renameFile = async (
     projectId,
     repositoryId,
@@ -136,7 +200,7 @@ const useCommit = () => {
     return created;
   };
 
-  return { commit, renameFile, loadingRenameFile };
+  return { commit, renameFile, loadingRenameFile, addBinaryFile };
 };
 
 export default useCommit;

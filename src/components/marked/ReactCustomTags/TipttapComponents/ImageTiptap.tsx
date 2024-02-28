@@ -26,7 +26,7 @@ export default function ImageTiptap({ order = "last", id }) {
       return;
     }
 
-    const filePath = "qms/sop/attachments/test.jpg";
+    const filePath = "qms/sop/attachments/1.jpg";
     const branchName = searchParams.get("branchName");
     let lastIndex = branchName.lastIndexOf("/main");
 
