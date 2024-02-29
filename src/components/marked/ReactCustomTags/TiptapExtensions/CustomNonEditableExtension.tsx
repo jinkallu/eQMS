@@ -12,7 +12,6 @@ function checkIsWithinPage(transaction, state, type) {
     let pos = step.to;
     //let resolvedPos = state.doc.resolve(pos);
     let pNode = state.doc.resolve(pos).node();
-    console.log(pNode);
     while (pNode) {
       if (
         pNode.type.name === type
@@ -173,7 +172,6 @@ const nonEditablePlugin = new Plugin({
     //console.log("pnode", pNode);
     while (pNode) {
       if (pNode.type.name === "extend") {
-        console.log("extend ", pNode);
         if (pNode.attrs.version === 0) {
           return true;
         } else if (pNode.attrs.version >= 0) {

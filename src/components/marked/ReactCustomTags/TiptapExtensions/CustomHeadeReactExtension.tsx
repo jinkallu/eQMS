@@ -73,7 +73,7 @@ const Component = (props) => {
     <NodeViewWrapper
       style={HeaderStyle}
       ref={ref}
-      onChange={() => console.log(ref.current)}
+      onDoubleClick={() => console.log("double clicked")}
     >
       {/* <button onClick={addPage}>Add</button>
       <button onClick={deleteNode}>Remove</button>

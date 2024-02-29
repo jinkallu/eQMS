@@ -15,10 +15,10 @@ const StyleA4 = {
   background: "white",
   display: "flex",
   margin: "0 auto",
-  marginBottom: "0.5cm",
   boxShadow: "0 0 0.5cm rgba(0,0,0,0.5)",
   width: "21cm",
-  height: "20.7cm",
+  height: "10.7cm",
+  overflow: "auto",
 };
 
 const styleContent = {
@@ -28,15 +28,23 @@ const styleContent = {
   flexGrow: 1,
 };
 const Component = (props) => {
-  console.log(props);
   const ref = React.useRef(null);
-  const isOverflow = useIsOverflow(ref);
+  const { isOverflow, isOverflowHoriz } = useIsOverflow(ref);
 
   useEffect(() => {
+    console.log(isOverflow);
     if (isOverflow) {
       addPageJSON(props.node.attrs?.id);
     }
-  }, [isOverflow]);
+    if (isOverflowHoriz) {
+      handleOverflowHoriz();
+    }
+  }, [isOverflow, isOverflowHoriz]);
+
+  function handleOverflowHoriz() {
+    console.log("overflow horiz");
+    console.log(props);
+  }
 
   //   function deleteNode() {
   //     const start = props.getPos();
@@ -81,7 +89,7 @@ const Component = (props) => {
       //   pages[indexToInsert].content[1].content?.length - 1
       // ];
       if (arrLength - 1 > 0)
-        pages[indexToInsert].content[0].content?.splice(arrLength - 1, 1);
+        pages[indexToInsert].content[1].content?.splice(arrLength - 1, 1);
 
       // remove the last content from current page and insert it to new page
       newPageContent.content = [lastContent];
@@ -100,7 +108,7 @@ const Component = (props) => {
       if (arrLength - 1 > 0)
         pages[indexToInsert].content[1].content?.splice(arrLength - 1, 1);
       if (pages[indexToInsert + 1].content[1]?.content) {
-        pages[indexToInsert + 1].content[1].content.splice(1, 0, lastContent);
+        pages[indexToInsert + 1].content[1].content.splice(0, 0, lastContent);
       } else {
         pages[indexToInsert + 1].content[1].content = [
           header,
@@ -132,7 +140,7 @@ const Component = (props) => {
   //      }
 
   return (
-    <NodeViewWrapper style={StyleA4} ref={ref} as="section">
+    <NodeViewWrapper style={StyleA4} ref={ref}>
       {/* <button onClick={addPage}>Add</button> 
       <button onClick={deleteNode}>Remove</button>
       <button onClick={addPageJSON}>Add Page JSON</button> */}
