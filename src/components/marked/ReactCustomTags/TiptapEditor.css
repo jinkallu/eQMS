@@ -21,9 +21,14 @@
 .pageContent > div {
   display: block;
   width: "100%";
+  white-space: normal;
   /* align-self: flex-start; */
 }
 
+.pageContent > div > p {
+  word-wrap: break-word;
+  /* align-self: flex-start; */
+}
 .node-pagecontent {
   display: "flex";
   flex-grow: 1;

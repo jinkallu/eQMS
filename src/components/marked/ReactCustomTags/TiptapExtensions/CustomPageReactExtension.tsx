@@ -19,6 +19,7 @@ const StyleA4 = {
   width: "21cm",
   height: "10.7cm",
   overflow: "auto",
+  // overflowX: "hidden",
 };
 
 const styleContent = {
@@ -30,7 +31,7 @@ const styleContent = {
 const Component = (props) => {
   const ref = React.useRef(null);
   const { isOverflow, isOverflowHoriz } = useIsOverflow(ref);
-
+  const { editor } = useCurrentEditor();
   useEffect(() => {
     console.log(isOverflow);
     if (isOverflow) {
@@ -42,17 +43,25 @@ const Component = (props) => {
   }, [isOverflow, isOverflowHoriz]);
 
   function handleOverflowHoriz() {
-    console.log("overflow horiz");
-    console.log(props);
+    queueMicrotask(() =>
+      editor
+        .chain()
+        .focus()
+        .command(({ tr }) => {
+          // manipulate the transaction
+          const from = tr.selection.from - 1;
+
+          tr.insertText("\n", from);
+
+          return true;
+        })
+        .run()
+    );
   }
 
-  //   function deleteNode() {
-  //     const start = props.getPos();
-  //     props.editor
-  //       .chain()
-  //       .deleteRange({ from: start, to: start + props.node.nodeSize })
-  //       .run();
-  //   }
+  function setFocus(id) {
+    const nodes = editor.$nodes("page", { id });
+  }
 
   function addPageJSON(id) {
     // get the json of the editor
@@ -93,13 +102,17 @@ const Component = (props) => {
 
       // remove the last content from current page and insert it to new page
       newPageContent.content = [lastContent];
+      const newId = uuidv4();
       pages.push({
-        attrs: { ...pages[0].attrs, id: uuidv4() },
+        attrs: { ...pages[0].attrs, id: newId },
         type: pages[0].type,
         content: [header, newPageContent, footer],
       });
       jsonData.content[0].content = [...pages];
-      queueMicrotask(() => props.editor.commands.setContent(jsonData));
+      queueMicrotask(() => {
+        props.editor.commands.setContent(jsonData);
+        setFocus(newId);
+      });
     } else {
       // last content of current page should be pushed to next page
       // const lastContent =

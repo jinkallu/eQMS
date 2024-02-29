@@ -16,7 +16,6 @@ export const useIsOverflow = (ref, callback, callbackHoriz) => {
     };
 
     const triggerHoriz = () => {
-      console.log(current.scrollWidth, current.clientWidth);
       const hasOverflow = current.scrollWidth > current.clientWidth;
 
       setIsOverflowHoriz(hasOverflow);
