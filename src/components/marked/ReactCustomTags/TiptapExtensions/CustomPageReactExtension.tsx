@@ -18,8 +18,8 @@ const StyleA4 = {
   boxShadow: "0 0 0.5cm rgba(0,0,0,0.5)",
   width: "21cm",
   height: "10.7cm",
-  overflow: "auto",
-  // overflowX: "hidden",
+  overflow: "hidden",
+  overflowX: "hidden",
 };
 
 const styleContent = {
@@ -32,15 +32,15 @@ const Component = (props) => {
   const ref = React.useRef(null);
   const { isOverflow, isOverflowHoriz } = useIsOverflow(ref);
   const { editor } = useCurrentEditor();
-  useEffect(() => {
-    console.log(isOverflow);
-    if (isOverflow) {
-      addPageJSON(props.node.attrs?.id);
-    }
-    if (isOverflowHoriz) {
-      handleOverflowHoriz();
-    }
-  }, [isOverflow, isOverflowHoriz]);
+  // useEffect(() => {
+  //   console.log(isOverflow);
+  //   if (isOverflow) {
+  //     addPageJSON(props.node.attrs?.id);
+  //   }
+  //   if (isOverflowHoriz) {
+  //     handleOverflowHoriz();
+  //   }
+  // }, [isOverflow, isOverflowHoriz]);
 
   function handleOverflowHoriz() {
     queueMicrotask(() =>
@@ -61,6 +61,7 @@ const Component = (props) => {
 
   function setFocus(id) {
     const nodes = editor.$nodes("page", { id });
+    console.log(editor);
   }
 
   function addPageJSON(id) {
@@ -70,6 +71,7 @@ const Component = (props) => {
     const pages = jsonData.content[0].content;
 
     const indexToInsert = pages?.findIndex((page) => page.attrs.id === id);
+    console.log(indexToInsert);
 
     const header = {
       ...pages[0].content[0],
@@ -151,6 +153,43 @@ const Component = (props) => {
   //       .focus(endPos)
   //       .run();
   //      }
+
+  // Function to check width after each update
+  const checkWidthAfterUpdate = () => {
+    const nodes = editor.view.dom.querySelectorAll('div.content'); // Change '.your-node-class' to your node's class or selector
+    
+    nodes.forEach((node: HTMLElement) => {
+      
+      if(node.scrollHeight > node.clientHeight){
+        console.log("adding page")
+        addPageJSON(props.node.attrs?.id);
+      }
+      if(node.scrollWidth > node.clientWidth){
+        console.log("handle overflow hori")
+        handleOverflowHoriz();
+      }
+    })
+  };
+
+  // Callback function for MutationObserver
+  const mutationCallback = (mutationsList) => {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'childList' || mutation.type === 'attributes') {
+        // Check width after each update
+        checkWidthAfterUpdate();
+      }
+    }
+  };
+
+  useEffect(() => {
+    console.log('Effect is being called');
+
+    // Create a MutationObserver to observe changes in the DOM
+    const observer = new MutationObserver(mutationCallback);
+
+    // Observe the editor's DOM
+    observer.observe(editor.view.dom, { attributes: true, childList: true, subtree: true });
+  }, []);
 
   return (
     <NodeViewWrapper style={StyleA4} ref={ref}>
