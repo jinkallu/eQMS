@@ -10,7 +10,7 @@ import FormatStrikethroughIcon from "@mui/icons-material/FormatStrikethrough";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import CodeIcon from "@mui/icons-material/Code";
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 export function TiptapMenuBar() {
   const { editor } = useCurrentEditor();
   const [inputOpen, setInputOpen] = useState(false);
@@ -111,15 +111,15 @@ export function TiptapMenuBar() {
     setImageOpen(true);
   }
 
-  function insertImage(filePath){
+  function insertImage(filePath) {
+    console.log("insert image, ", filePath);
     editor
       .chain()
       .focus()
-      .insertContent(
-        `<custom-image path=${filePath}></custom-image>`
-      )
+      // .insertContent(`<custom-image path=${filePath}></custom-image>`)
+      .insertContent({ type: "CustomImage", attrs: { path: filePath } })
       .run();
-      setImageOpen(false);
+    setImageOpen(false);
   }
 
   function addInput(id) {

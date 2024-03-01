@@ -2,6 +2,19 @@ import { getClient } from "azure-devops-extension-api";
 import { GitRestClient } from "azure-devops-extension-api/Git";
 import { GitPullRequest } from "azure-devops-extension-api/Git";
 
+export const getEditBranchName = (branchNameMain) => {
+  const type = branchNameMain.split("/")[1];
+
+  let lastIndex = branchNameMain.lastIndexOf("/main");
+
+  // Replace the last occurrence with "/edit"
+  let editBranchName =
+    branchNameMain.substring(0, lastIndex) +
+    "/edit" +
+    branchNameMain.substring(lastIndex + "/main".length);
+  return editBranchName;
+};
+
 export const createBranch = async ({
   projectId,
   repositoryId,

@@ -1,33 +1,38 @@
-import Grid from "@mui/material/Grid";
 import { useEffect, useState } from "react";
 import { useExtnStore } from "../../../../zustand/store";
-//import { fetchAuthorData } from "../../../utils/gitHelpers.js"
-import useUpdateReviewTable from "../../../../CHooks/buffer/useUpdateReviewTable";
-import useReviewer from "../../../../CHooks/buffer/useReviewer";
 
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { NodeViewWrapper } from "@tiptap/react";
 import useFetchBranchFileContent from "../../../../CHooks/buffer/useFetchBranchFileContent";
+import { arrayBufferToBase64 } from "../../../../utils/conversionHelpers.js";
+import { PropaneTankSharp } from "@mui/icons-material";
 
-export default function ImageTiptap({ order = "last", path }) {
-
+export default function ImageTiptap(props) {
   const { userSOPs, repository, project } = useExtnStore((state) => state);
   const [searchParams] = useSearchParams();
 
   const { fileContent, fetchBranchFile } = useFetchBranchFileContent();
 
-  const { templateState, setTemplateState } = useExtnStore((state) => state);
-  function handleChangeFun(e) {
-    //setTemplateState(id, e.target.value);
-  }
-
   useEffect(() => {
-    if (!project?.id || !repository?.id || !searchParams) {
+    console.log(
+      "useeffect called",
+      project,
+      repository,
+      searchParams.get("branchName"),
+      props.node.attrs.path
+    );
+    if (
+      !project?.id ||
+      !repository?.id ||
+      !searchParams ||
+      !props.node.attrs.path
+    ) {
       return;
     }
 
-    console.log(path);
-    const filePath = "qms/sop/attachments/1.jpg";
+    console.log(props.node.attrs.path);
+    // const filePath = "qms/sop/attachments/1.jpg";
+    const filePath = props.node.attrs.path;
     const branchName = searchParams.get("branchName");
     let lastIndex = branchName.lastIndexOf("/main");
 
@@ -37,41 +42,56 @@ export default function ImageTiptap({ order = "last", path }) {
       "/edit" +
       branchName.substring(lastIndex + "/main".length);
 
-    console.log(project?.id, repository?.id, filePath, editBranchName)
-    fetchBranchFile(project?.id, repository?.id, filePath, editBranchName)
-  }, [project, repository, searchParams])
+    console.log(project?.id, repository?.id, filePath, editBranchName);
+    fetchBranchFile(project?.id, repository?.id, filePath, editBranchName);
+  }, [project, repository, searchParams, PropaneTankSharp]);
 
-  function arrayBufferToBase64(arrayBuffer) {
-    const uint8Array = new Uint8Array(arrayBuffer);
+  let component = (
+    <img
+      src={`data:image/png;base64,${arrayBufferToBase64(fileContent)}`}
+      alt="Lamp"
+      width="100"
+      height="100"
+    />
+  );
 
-    // Convert the Uint8Array to a Base64 encoded string
-    let binary = '';
-    uint8Array.forEach(byte => binary += String.fromCharCode(byte));
-    return window.btoa(binary);
-}
-  let component;
-  
-  switch (order) {
+  // let component;
 
-    case "first":
-      component = (
-        <img src={`data:image/png;base64,${arrayBufferToBase64(fileContent)}`} alt="Lamp" width="100" height="100" />
-      );
+  // switch (order) {
+  //   case "first":
+  //     component = (
+  //       <img
+  //         src={`data:image/png;base64,${arrayBufferToBase64(fileContent)}`}
+  //         alt="Lamp"
+  //         width="100"
+  //         height="100"
+  //       />
+  //     );
 
-      break;
-    case "middle":
-      component = (
-        <img src={`data:image/png;base64,${arrayBufferToBase64(fileContent)}`} alt="Lamp" width="100" height="100" />
-      );
-      break;
-    case "last":
-      component = (
-        <img src={`data:image/png;base64,${arrayBufferToBase64(fileContent)}`} alt="Lamp" width="100" height="100" />
-      );
-      break;
-    default:
-      component = <span>"Error";</span>;
-      break;
-  }
+  //     break;
+  //   case "middle":
+  //     component = (
+  //       <img
+  //         src={`data:image/png;base64,${arrayBufferToBase64(fileContent)}`}
+  //         alt="Lamp"
+  //         width="100"
+  //         height="100"
+  //       />
+  //     );
+  //     break;
+  //   case "last":
+  //     component = (
+  //       <img
+  //         src={`data:image/png;base64,${arrayBufferToBase64(fileContent)}`}
+  //         alt="Lamp"
+  //         width="100"
+  //         height="100"
+  //       />
+  //     );
+  //     break;
+  //   default:
+  //     component = <span>"Error";</span>;
+  //     break;
+  // }
   return <NodeViewWrapper>{component}</NodeViewWrapper>;
 }

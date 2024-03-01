@@ -340,6 +340,43 @@ export const repositorySlice = (set, get) => ({
       return "";
     }
   },
+  getFilesOfFolder: async (repositoryId, branchName, type) => {
+    const versionDescriptor = {
+      version: branchName,
+      versionType: 0,
+    };
+    try {
+      const gitClient = getClient(GitRestClient);
+
+      const item = await gitClient.getItem(
+        repositoryId,
+        `/qms/${type}/attachments/`,
+        null,
+        null, // project,null,
+        0, // recursionLevel
+        undefined, // includeContentMetadata,
+        undefined, // latestProcessedChange
+        false, // download
+        versionDescriptor
+      );
+      console.log(item);
+      if (item) {
+        const tree = await gitClient.getTree(
+          repositoryId,
+          item.objectId,
+          null, // Project
+          null, // Project Id
+          true, // recursionLevel
+          undefined // includeContentMetadata,
+        );
+        console.log(tree);
+        return tree?.treeEntries || [];
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  },
+
   getEditBranch: async ({
     branchName,
     type,

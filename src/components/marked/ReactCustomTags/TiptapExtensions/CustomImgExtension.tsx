@@ -4,7 +4,7 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 import ImageTiptap from "../TipttapComponents/ImageTiptap";
 
 export default Node.create({
-  name: "customImage",
+  name: "CustomImage",
 
   group: "block",
 
