@@ -3,6 +3,8 @@ import {
   NodeViewWrapper,
   useCurrentEditor,
 } from "@tiptap/react";
+import { TextSelection, NodeSelection } from 'prosemirror-state';
+
 
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
@@ -18,7 +20,7 @@ const StyleA4 = {
   boxShadow: "0 0 0.5cm rgba(0,0,0,0.5)",
   width: "21cm",
   height: "10.7cm",
-  overflow: "hidden",
+  overflow: "auto",
   overflowX: "hidden",
 };
 
@@ -32,15 +34,15 @@ const Component = (props) => {
   const ref = React.useRef(null);
   const { isOverflow, isOverflowHoriz } = useIsOverflow(ref);
   const { editor } = useCurrentEditor();
-  // useEffect(() => {
-  //   console.log(isOverflow);
-  //   if (isOverflow) {
-  //     addPageJSON(props.node.attrs?.id);
-  //   }
-  //   if (isOverflowHoriz) {
-  //     handleOverflowHoriz();
-  //   }
-  // }, [isOverflow, isOverflowHoriz]);
+  useEffect(() => {
+    console.log(isOverflow);
+    if (isOverflow) {
+      addPageJSON(props.node.attrs?.id);
+    }
+    if (isOverflowHoriz) {
+      handleOverflowHoriz();
+    }
+  }, [isOverflow, isOverflowHoriz]);
 
   function handleOverflowHoriz() {
     queueMicrotask(() =>
@@ -59,9 +61,32 @@ const Component = (props) => {
     );
   }
 
-  function setFocus(id) {
-    const nodes = editor.$nodes("page", { id });
-    console.log(editor);
+  function setFocus(idx) {
+    //const nodes = editor.$nodes("page", { id });
+    const nodes = editor.view.dom.querySelectorAll('div.content');
+    //console.log(nodes[idx+1]);
+    if (nodes.length > idx + 1) {
+      const pageContent = nodes[idx + 1].querySelector('div.node-pagecontent');
+      const actualContent = pageContent.querySelector('div.pageContent');
+
+      if (pageContent) {
+        const pos = editor.view.posAtDOM(actualContent, 0);
+
+        if (pos !== null) {
+          const { state, dispatch } = editor.view;
+          //const transaction = state.tr.setSelection(resolvedPos);
+          const transaction = state.tr.setSelection(NodeSelection.create(state.doc, pos));
+
+          //const transaction = state.tr.setSelection(TextSelection.create(state.doc, pos-state.doc.nodeAt(pos).nodeSize));
+          //const transaction = state.tr.setSelection(EditorState.selection(state.schema, pos));
+
+          dispatch(transaction);
+
+        } else {
+          console.error('Failed to get document position for the DOM node');
+        }
+      }
+    }
   }
 
   function addPageJSON(id) {
@@ -113,7 +138,10 @@ const Component = (props) => {
       jsonData.content[0].content = [...pages];
       queueMicrotask(() => {
         props.editor.commands.setContent(jsonData);
-        setFocus(newId);
+        setTimeout(function () {
+          setFocus(indexToInsert);
+        }, 100); // Need to test it well
+
       });
     } else {
       // last content of current page should be pushed to next page
@@ -133,6 +161,7 @@ const Component = (props) => {
       }
       jsonData.content[0].content = [...pages];
       queueMicrotask(() => props.editor.commands.setContent(jsonData));
+      //setFocus(indexToInsert);
     }
   }
 
@@ -157,14 +186,14 @@ const Component = (props) => {
   // Function to check width after each update
   const checkWidthAfterUpdate = () => {
     const nodes = editor.view.dom.querySelectorAll('div.content'); // Change '.your-node-class' to your node's class or selector
-    
+
     nodes.forEach((node: HTMLElement) => {
-      
-      if(node.scrollHeight > node.clientHeight){
+
+      if (node.scrollHeight > node.clientHeight) {
         console.log("adding page")
         addPageJSON(props.node.attrs?.id);
       }
-      if(node.scrollWidth > node.clientWidth){
+      if (node.scrollWidth > node.clientWidth) {
         console.log("handle overflow hori")
         handleOverflowHoriz();
       }
@@ -185,10 +214,10 @@ const Component = (props) => {
     console.log('Effect is being called');
 
     // Create a MutationObserver to observe changes in the DOM
-    const observer = new MutationObserver(mutationCallback);
+    //const observer = new MutationObserver(mutationCallback);
 
     // Observe the editor's DOM
-    observer.observe(editor.view.dom, { attributes: true, childList: true, subtree: true });
+    //observer.observe(editor.view.dom, { attributes: true, childList: true, subtree: true });
   }, []);
 
   return (
@@ -232,33 +261,14 @@ export default Node.create({
     ];
   },
 
-  // addKeyboardShortcuts() {
-  //   return {
-  //     "Mod-Enter": () => {
-  //       return this.editor
-  //         .chain()
-  //         .insertContentAt(this.editor.state.selection.head, {
-  //           type: this.type.name,
-  //         })
-  //         .focus()
-  //         .run();
-  //     },
-  //   };
-  // },
-
   renderHTML({ node, HTMLAttributes }) {
-    let attrs = mergeAttributes(HTMLAttributes);
-    // if (node.attrs.class === "page") {
-    //   attrs = {
-    //     ...attrs,
-    //   };
-    // }
-    // } else if (node.attrs.class === "non-extend") {
-    //   attrs = {
-    //     ...attrs,
-    //     style: "border: 1px solid red; margin-bottom: 3px",
-    //   };
-    // }
+    //let attrs = mergeAttributes(HTMLAttributes);
+    const { id, ...restAttrs } = node.attrs; // Destructure id attribute
+    const attrs = mergeAttributes({
+      ...HTMLAttributes,
+      ...restAttrs, // Include other attributes
+      id, // Include the id attribute
+    });
     return ["div", attrs, 0];
   },
 
