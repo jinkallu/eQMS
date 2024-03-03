@@ -11,10 +11,12 @@ import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import CodeIcon from "@mui/icons-material/Code";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import TiptapDocxOpenDialog from "./TiptapDocxOpenDialog";
 export function TiptapMenuBar() {
   const { editor } = useCurrentEditor();
   const [inputOpen, setInputOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
+  const [docxOpen, setDocxOpen] = useState(false);
 
   const { setEditorState } = useExtnStore((state) => state);
 
@@ -121,6 +123,11 @@ export function TiptapMenuBar() {
     setImageOpen(false);
   }
 
+  function handleDocxClick() {
+    setDocxOpen(true);
+  }
+
+  function insertDocx() {}
   function addInput(id) {
     editor
       .chain()
@@ -184,6 +191,11 @@ export function TiptapMenuBar() {
                 setImageOpen={setImageOpen}
                 insertImage={insertImage}
               ></TiptapImageOpenDialog>
+              <TiptapDocxOpenDialog
+                docxOpen={docxOpen}
+                setDocxOpen={setDocxOpen}
+                insertDocx={insertDocx}
+              ></TiptapDocxOpenDialog>
 
               <Tooltip title="Bold">
                 <IconButton
@@ -413,6 +425,17 @@ export function TiptapMenuBar() {
                 }
               >
                 Image
+              </button>
+
+              <button
+                onClick={handleDocxClick}
+                className={
+                  editor.isActive("textStyle", { color: "#958DF1" })
+                    ? "is-active"
+                    : ""
+                }
+              >
+                Docx
               </button>
 
               {/* <button
