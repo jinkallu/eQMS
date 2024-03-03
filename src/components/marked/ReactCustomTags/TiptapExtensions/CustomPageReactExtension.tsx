@@ -10,7 +10,7 @@ import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import React, { useEffect, useState } from "react";
 import TiptapInputDialog from "../TiptapInputDialog";
-import { useIsOverflow } from "../../../../CHooks/useIsOverflow";
+//import { useIsOverflow } from "../../../../CHooks/useIsOverflow";
 import { EditorState } from "@tiptap/pm/state";
 import { v4 as uuidv4 } from "uuid";
 const StyleA4 = {
@@ -19,7 +19,7 @@ const StyleA4 = {
   margin: "0 auto",
   boxShadow: "0 0 0.5cm rgba(0,0,0,0.5)",
   width: "21cm",
-  height: "10.7cm",
+  height: "29.7cm",
   overflow: "auto",
   overflowX: "hidden",
 };
@@ -32,19 +32,20 @@ const styleContent = {
 };
 const Component = (props) => {
   const ref = React.useRef(null);
-  const { isOverflow, isOverflowHoriz } = useIsOverflow(ref);
+  //const { isOverflow, isOverflowHoriz } = useIsOverflow(ref);
   const { editor } = useCurrentEditor();
-  useEffect(() => {
-    console.log(isOverflow);
-    if (isOverflow) {
-      addPageJSON(props.node.attrs?.id);
-    }
-    if (isOverflowHoriz) {
-      handleOverflowHoriz();
-    }
-  }, [isOverflow, isOverflowHoriz]);
+  // useEffect(() => {
+  //   console.log(isOverflow);
+  //   if (isOverflow) {
+  //     addPageJSON(props.node.attrs?.id);
+  //   }
+  //   if (isOverflowHoriz) {
+  //     handleOverflowHoriz();
+  //   }
+  // }, [isOverflow, isOverflowHoriz]);
 
   function handleOverflowHoriz() {
+    console.log("handleOverflowHoriz")
     queueMicrotask(() =>
       editor
         .chain()
@@ -90,6 +91,7 @@ const Component = (props) => {
   }
 
   function addPageJSON(id) {
+    console.log("add page")
     // get the json of the editor
     const jsonData = props.editor.getJSON();
     // get the pages from json
@@ -113,6 +115,7 @@ const Component = (props) => {
       attrs: { ...pages[0].content[1], id: uuidv4() },
     };
 
+
     const pageContent = pages[indexToInsert].content[1].content;
 
     const lastContent = pageContent[pageContent?.length - 1];
@@ -127,6 +130,8 @@ const Component = (props) => {
       if (arrLength - 1 > 0)
         pages[indexToInsert].content[1].content?.splice(arrLength - 1, 1);
 
+      console.log(header, newPageContent, footer);
+
       // remove the last content from current page and insert it to new page
       newPageContent.content = [lastContent];
       const newId = uuidv4();
@@ -136,6 +141,7 @@ const Component = (props) => {
         content: [header, newPageContent, footer],
       });
       jsonData.content[0].content = [...pages];
+      console.log(pages);
       queueMicrotask(() => {
         props.editor.commands.setContent(jsonData);
         setTimeout(function () {
@@ -214,10 +220,10 @@ const Component = (props) => {
     console.log('Effect is being called');
 
     // Create a MutationObserver to observe changes in the DOM
-    //const observer = new MutationObserver(mutationCallback);
+    const observer = new MutationObserver(mutationCallback);
 
     // Observe the editor's DOM
-    //observer.observe(editor.view.dom, { attributes: true, childList: true, subtree: true });
+    observer.observe(editor.view.dom, { attributes: true, childList: true, subtree: true });
   }, []);
 
   return (
