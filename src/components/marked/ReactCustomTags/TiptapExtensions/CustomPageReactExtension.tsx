@@ -3,8 +3,7 @@ import {
   NodeViewWrapper,
   useCurrentEditor,
 } from "@tiptap/react";
-import { TextSelection, NodeSelection } from 'prosemirror-state';
-
+import { TextSelection, NodeSelection } from "prosemirror-state";
 
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
@@ -64,11 +63,11 @@ const Component = (props) => {
 
   function setFocus(idx) {
     //const nodes = editor.$nodes("page", { id });
-    const nodes = editor.view.dom.querySelectorAll('div.content');
+    const nodes = editor.view.dom.querySelectorAll("div.content");
     //console.log(nodes[idx+1]);
     if (nodes.length > idx + 1) {
-      const pageContent = nodes[idx + 1].querySelector('div.node-pagecontent');
-      const actualContent = pageContent.querySelector('div.pageContent');
+      const pageContent = nodes[idx + 1].querySelector("div.node-pagecontent");
+      const actualContent = pageContent.querySelector("div.pageContent");
 
       if (pageContent) {
         const pos = editor.view.posAtDOM(actualContent, 0);
@@ -76,15 +75,16 @@ const Component = (props) => {
         if (pos !== null) {
           const { state, dispatch } = editor.view;
           //const transaction = state.tr.setSelection(resolvedPos);
-          const transaction = state.tr.setSelection(NodeSelection.create(state.doc, pos));
+          const transaction = state.tr.setSelection(
+            NodeSelection.create(state.doc, pos)
+          );
 
           //const transaction = state.tr.setSelection(TextSelection.create(state.doc, pos-state.doc.nodeAt(pos).nodeSize));
           //const transaction = state.tr.setSelection(EditorState.selection(state.schema, pos));
 
           dispatch(transaction);
-
         } else {
-          console.error('Failed to get document position for the DOM node');
+          console.error("Failed to get document position for the DOM node");
         }
       }
     }
@@ -98,7 +98,6 @@ const Component = (props) => {
     const pages = jsonData.content[0].content;
 
     const indexToInsert = pages?.findIndex((page) => page.attrs.id === id);
-    console.log(indexToInsert);
 
     const header = {
       ...pages[0].content[0],
@@ -147,7 +146,6 @@ const Component = (props) => {
         setTimeout(function () {
           setFocus(indexToInsert);
         }, 100); // Need to test it well
-
       });
     } else {
       // last content of current page should be pushed to next page
@@ -191,25 +189,22 @@ const Component = (props) => {
 
   // Function to check width after each update
   const checkWidthAfterUpdate = () => {
-    const nodes = editor.view.dom.querySelectorAll('div.content'); // Change '.your-node-class' to your node's class or selector
+    const nodes = editor.view.dom.querySelectorAll("div.content"); // Change '.your-node-class' to your node's class or selector
 
     nodes.forEach((node: HTMLElement) => {
-
       if (node.scrollHeight > node.clientHeight) {
-        console.log("adding page")
         addPageJSON(props.node.attrs?.id);
       }
       if (node.scrollWidth > node.clientWidth) {
-        console.log("handle overflow hori")
         handleOverflowHoriz();
       }
-    })
+    });
   };
 
   // Callback function for MutationObserver
   const mutationCallback = (mutationsList) => {
     for (const mutation of mutationsList) {
-      if (mutation.type === 'childList' || mutation.type === 'attributes') {
+      if (mutation.type === "childList" || mutation.type === "attributes") {
         // Check width after each update
         checkWidthAfterUpdate();
       }
@@ -217,8 +212,6 @@ const Component = (props) => {
   };
 
   useEffect(() => {
-    console.log('Effect is being called');
-
     // Create a MutationObserver to observe changes in the DOM
     const observer = new MutationObserver(mutationCallback);
 

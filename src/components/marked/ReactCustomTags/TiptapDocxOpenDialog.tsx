@@ -64,10 +64,10 @@ const ImageItem = ({
   );
 };
 
-export default function TiptapImageOpenDialog({
-  imageOpen,
-  setImageOpen,
-  insertImage,
+export default function TiptapDocxOpenDialog({
+  docxOpen,
+  setDocxOpen,
+  insertDocx,
 }) {
   const [file, setFile] = React.useState(null);
   const { addBinaryFile } = useCommit();
@@ -85,44 +85,8 @@ export default function TiptapImageOpenDialog({
   // };
 
   const handleClose = () => {
-    setImageOpen(false);
+    setDocxOpen(false);
   };
-
-  // function handleClick() {
-  //   addInput(inputId);
-  // }
-
-  async function getImages() {
-    const type = branchNameMain.split("/")[1];
-
-    let lastIndex = branchNameMain.lastIndexOf("/main");
-
-    // Replace the last occurrence with "/edit"
-    let editBranchName =
-      branchNameMain.substring(0, lastIndex) +
-      "/edit" +
-      branchNameMain.substring(lastIndex + "/main".length);
-
-    const items = await getFilesOfFolder(
-      repository.id,
-      getEditBranchName(branchNameMain),
-      type
-    );
-    if (items) {
-      setImageItems(items);
-    }
-  }
-
-  React.useEffect(() => {
-    setFileNameError("");
-    if (!project?.id || !repository?.id || !searchParams || !imageOpen) {
-      return;
-    }
-
-    getImages();
-
-    //console.log(project?.id, repository?.id, filePath, editBranchName)
-  }, [project, repository, searchParams, imageOpen]);
 
   async function handleChange(e) {
     console.log(e.target.files);
@@ -165,19 +129,9 @@ export default function TiptapImageOpenDialog({
               "/edit" +
               branchName.substring(lastIndex + "/main".length);
 
-            addBinaryFile(
-              project?.id,
-              repository?.id,
-              editBranchName,
-              filePath,
-              base64String,
-              "adding image"
-            ).then((created) => {
-              if (created) {
-                // getImages();
-                insertImage(filePath);
-              }
-            });
+            // add logic to convert docx
+
+            insertDocx();
           }
         } catch {}
       };
@@ -186,10 +140,10 @@ export default function TiptapImageOpenDialog({
   }
 
   return (
-    imageOpen && (
+    docxOpen && (
       <React.Fragment>
         <Dialog
-          open={imageOpen}
+          open={docxOpen}
           onClose={handleClose}
           sx={{
             "& .MuiDialog-container": {
@@ -216,33 +170,9 @@ export default function TiptapImageOpenDialog({
                 type="file"
                 id="myfile"
                 name="myfile"
-                accept="image/*"
+                // accept="image/*"
                 onChange={handleChange}
               ></input>
-
-              {fileNameError && (
-                <span style={{ color: "red" }}>{fileNameError}</span>
-              )}
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  gap: "5px",
-                  paddingTop: "10px",
-                }}
-              >
-                {imageItems?.map((item, index) => (
-                  <ImageItem
-                    key={item.relativePath}
-                    item={item}
-                    projectId={project.id}
-                    repositoryId={repository.id}
-                    editBranchName={getEditBranchName(branchNameMain)}
-                    insertImage={insertImage}
-                  ></ImageItem>
-                ))}
-              </Box>
             </Box>
           </DialogContent>
           <DialogActions>

@@ -11,10 +11,12 @@ import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import CodeIcon from "@mui/icons-material/Code";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import TiptapDocxOpenDialog from "./TiptapDocxOpenDialog";
 export function TiptapMenuBar() {
   const { editor } = useCurrentEditor();
   const [inputOpen, setInputOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
+  const [docxOpen, setDocxOpen] = useState(false);
 
   const { setEditorState } = useExtnStore((state) => state);
 
@@ -42,7 +44,6 @@ export function TiptapMenuBar() {
         node.setAttribute("version", (+version + 1).toString());
       }
     });
-    console.log(html);
 
     // const nodes = editor.$nodes("extend");
     // console.log(nodes);
@@ -112,18 +113,22 @@ export function TiptapMenuBar() {
   }
 
   function insertImage(filePath) {
-    console.log("insert image, ", filePath);
     editor
       .chain()
       .focus()
       // .insertContent(`<custom-image path=${filePath}></custom-image>`)
       .insertContent({ type: "CustomImage", attrs: { path: filePath } })
       .run();
+
     setImageOpen(false);
   }
 
+  function handleDocxClick() {
+    setDocxOpen(true);
+  }
+
+  function insertDocx() {}
   function addInput(id) {
-    console.log("id", id);
     editor
       .chain()
       .focus()
@@ -186,6 +191,11 @@ export function TiptapMenuBar() {
                 setImageOpen={setImageOpen}
                 insertImage={insertImage}
               ></TiptapImageOpenDialog>
+              <TiptapDocxOpenDialog
+                docxOpen={docxOpen}
+                setDocxOpen={setDocxOpen}
+                insertDocx={insertDocx}
+              ></TiptapDocxOpenDialog>
 
               <Tooltip title="Bold">
                 <IconButton
@@ -415,6 +425,17 @@ export function TiptapMenuBar() {
                 }
               >
                 Image
+              </button>
+
+              <button
+                onClick={handleDocxClick}
+                className={
+                  editor.isActive("textStyle", { color: "#958DF1" })
+                    ? "is-active"
+                    : ""
+                }
+              >
+                Docx
               </button>
 
               {/* <button
