@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useExtnStore } from "../../../../zustand/store";
 
 import { useSearchParams } from "react-router-dom";
-import { NodeViewWrapper } from "@tiptap/react";
+import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
 import useFetchBranchFileContent from "../../../../CHooks/buffer/useFetchBranchFileContent";
 import { arrayBufferToBase64 } from "../../../../utils/conversionHelpers.js";
 import { PropaneTankSharp } from "@mui/icons-material";
@@ -14,13 +14,6 @@ export default function ImageTiptap(props) {
   const { fileContent, fetchBranchFile } = useFetchBranchFileContent();
 
   useEffect(() => {
-    console.log(
-      "useeffect called",
-      project,
-      repository,
-      searchParams.get("branchName"),
-      props.node.attrs.path
-    );
     if (
       !project?.id ||
       !repository?.id ||
@@ -30,7 +23,6 @@ export default function ImageTiptap(props) {
       return;
     }
 
-    console.log(props.node.attrs.path);
     // const filePath = "qms/sop/attachments/1.jpg";
     const filePath = props.node.attrs.path;
     const branchName = searchParams.get("branchName");
@@ -42,17 +34,19 @@ export default function ImageTiptap(props) {
       "/edit" +
       branchName.substring(lastIndex + "/main".length);
 
-    console.log(project?.id, repository?.id, filePath, editBranchName);
     fetchBranchFile(project?.id, repository?.id, filePath, editBranchName);
   }, [project, repository, searchParams, PropaneTankSharp]);
 
   let component = (
-    <img
-      src={`data:image/png;base64,${arrayBufferToBase64(fileContent)}`}
-      alt="Lamp"
-      width="100"
-      height="100"
-    />
+    <NodeViewWrapper style={{ border: "1px solid black", display: "inline" }}>
+      <img
+        src={`data:image/png;base64,${arrayBufferToBase64(fileContent)}`}
+        alt="Lamp"
+        width="100"
+        height="100"
+      />
+      <NodeViewContent></NodeViewContent>
+    </NodeViewWrapper>
   );
 
   // let component;

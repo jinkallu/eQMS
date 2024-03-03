@@ -77,6 +77,7 @@ export default function TiptapImageOpenDialog({
   const [imageItems, setImageItems] = React.useState([]);
   const [searchParams] = useSearchParams();
   const branchNameMain = searchParams.get("branchName");
+  const [fileNameError, setFileNameError] = React.useState("");
 
   //const [inputId, setInputId] = React.useState("");
   // const handleClickOpen = () => {
@@ -113,15 +114,17 @@ export default function TiptapImageOpenDialog({
   }
 
   React.useEffect(() => {
+    setFileNameError("");
     if (!project?.id || !repository?.id || !searchParams || !imageOpen) {
       return;
     }
+
     getImages();
 
     //console.log(project?.id, repository?.id, filePath, editBranchName)
   }, [project, repository, searchParams, imageOpen]);
 
-  function handleChange(e) {
+  async function handleChange(e) {
     console.log(e.target.files);
     if (e.target.files.length <= 0) {
       return;
@@ -135,15 +138,24 @@ export default function TiptapImageOpenDialog({
         try {
           if (typeof event.target.result === "string") {
             const fileName = file.name;
-            const fileExtension = fileName.slice(
-              ((fileName.lastIndexOf(".") - 1) >>> 0) + 2
-            );
 
-            console.log(fileExtension);
+            if (
+              imageItems?.filter((item) => item.relativePath === fileName)
+                ?.length > 0
+            ) {
+              setFileNameError("File name already exists..");
+              return;
+            }
+
+            // const fileExtension = fileName.slice(
+            //   ((fileName.lastIndexOf(".") - 1) >>> 0) + 2
+            // );
+
             const base64String = event.target.result.split(",")[1]; // Extract base64 string from data URL
-            const uuid = uuidv4();
+            // const uuid = uuidv4();
 
-            const filePath = `qms/sop/attachments/${uuid}.${fileExtension}`;
+            // const filePath = `qms/sop/attachments/${uuid}.${fileExtension}`;
+            const filePath = `qms/sop/attachments/${fileName}`;
             const branchName = searchParams.get("branchName");
             let lastIndex = branchName.lastIndexOf("/main");
 
@@ -160,8 +172,12 @@ export default function TiptapImageOpenDialog({
               filePath,
               base64String,
               "adding image"
-            );
-            insertImage(filePath);
+            ).then((created) => {
+              if (created) {
+                // getImages();
+                insertImage(filePath);
+              }
+            });
           }
         } catch {}
       };
@@ -186,8 +202,16 @@ export default function TiptapImageOpenDialog({
         >
           <DialogTitle>Image Selection</DialogTitle>
           <DialogContent>
-            <DialogContentText>Enter an Id for the Input</DialogContentText>
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <DialogContentText>
+              Upload a file or choose from below
+            </DialogContentText>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                marginTop: "10px",
+              }}
+            >
               <input
                 type="file"
                 id="myfile"
@@ -195,12 +219,17 @@ export default function TiptapImageOpenDialog({
                 accept="image/*"
                 onChange={handleChange}
               ></input>
+
+              {fileNameError && (
+                <span style={{ color: "red" }}>{fileNameError}</span>
+              )}
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
                   flexWrap: "wrap",
                   gap: "5px",
+                  paddingTop: "10px",
                 }}
               >
                 {imageItems?.map((item, index) => (

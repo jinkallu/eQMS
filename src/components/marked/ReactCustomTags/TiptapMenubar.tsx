@@ -42,7 +42,6 @@ export function TiptapMenuBar() {
         node.setAttribute("version", (+version + 1).toString());
       }
     });
-    console.log(html);
 
     // const nodes = editor.$nodes("extend");
     // console.log(nodes);
@@ -112,18 +111,17 @@ export function TiptapMenuBar() {
   }
 
   function insertImage(filePath) {
-    console.log("insert image, ", filePath);
     editor
       .chain()
       .focus()
       // .insertContent(`<custom-image path=${filePath}></custom-image>`)
       .insertContent({ type: "CustomImage", attrs: { path: filePath } })
       .run();
+
     setImageOpen(false);
   }
 
   function addInput(id) {
-    console.log("id", id);
     editor
       .chain()
       .focus()
