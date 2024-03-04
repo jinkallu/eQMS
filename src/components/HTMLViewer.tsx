@@ -307,6 +307,7 @@ export default function HTMLViewer() {
           alignItems: "center",
           overflowY: "auto",
           width: "100%",
+          backgroundColor: "#F8F8F8",
         }}
       >
         {!editMode && <Toolbar />}

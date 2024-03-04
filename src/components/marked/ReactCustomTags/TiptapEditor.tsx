@@ -60,7 +60,7 @@ import Image from "@tiptap/extension-image";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import OrderedList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
-import BulletList from  "@tiptap/extension-bullet-list";
+import BulletList from "@tiptap/extension-bullet-list";
 
 //import Document from '@tiptap/starter-kit';
 

@@ -21,7 +21,8 @@ const ExtendExtension = Node.create({
         default: true,
       },
       style: {
-        default: "border: 1px solid green; min-height:100vh; overflow:auto",
+        default:
+          " min-height:100vh; overflow:auto, padding-top:20px; padding-bottom:20px",
       },
     };
   },
@@ -43,7 +44,7 @@ const ExtendExtension = Node.create({
       attrs = {
         ...attrs,
         style:
-          "border: 1px solid green; margin-bottom: 3px; min-height:100vh; overflow:auto",
+          " margin-bottom: 3px; min-height:100vh; overflow:auto;padding-top:20px; padding-bottom:20px",
       };
     } else if (node.attrs.class === "non-extend") {
       attrs = {

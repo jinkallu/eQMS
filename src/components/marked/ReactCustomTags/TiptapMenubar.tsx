@@ -150,11 +150,11 @@ export function TiptapMenuBar() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        marginBottom: "100px",
         justifyContent: "center",
         width: "100%",
       }}
     >
+      <Toolbar></Toolbar>
       <Box
         sx={{
           display: "flex",
@@ -163,14 +163,12 @@ export function TiptapMenuBar() {
           marginTop: "70px",
           flexDirection: "column",
           width: "100%",
-          zIndex: 50,
           position: "fixed",
           backgroundColor: "#F5F5F5",
           opacity: 1,
+          zIndex: 50,
         }}
       >
-        <Toolbar />
-
         <Grid container>
           <Grid item sx={{ width: "100%" }}>
             <Box
