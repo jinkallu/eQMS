@@ -216,7 +216,7 @@ const Component = (props) => {
     const observer = new MutationObserver(mutationCallback);
 
     // Observe the editor's DOM
-    observer.observe(editor.view.dom, { attributes: true, childList: true, subtree: true });
+    //observer.observe(editor.view.dom, { attributes: true, childList: true, subtree: true });
   }, []);
 
   return (

@@ -127,9 +127,16 @@ export function TiptapMenuBar() {
     setDocxOpen(true);
   }
 
-  function insertDocx() {
-    console.log(insertDocx);
+  function insertDocx(htmlDoc) {
+    //const parser = new DOMParser();
+    //const doc = parser.parseFromString(htmlDoc, 'text/html');
+    //const content = editor.schema.nodeFromJSON(doc.body);
+    //console.log(doc.body)
+    editor.commands.insertContent(htmlDoc)
+
+
   }
+
   function addInput(id) {
     editor
       .chain()

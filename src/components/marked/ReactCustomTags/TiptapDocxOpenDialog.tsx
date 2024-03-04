@@ -14,6 +14,7 @@ import { Box, Paper } from "@mui/material";
 import useFetchBranchFileContent from "../../../CHooks/buffer/useFetchBranchFileContent";
 import { arrayBufferToBase64 } from "../../../utils/conversionHelpers.js";
 import { getEditBranchName } from "../../../utils/gitHelpers.js";
+import { useDocxToHTML } from "./useDocxToHTML";
 
 const ImageItem = ({
   item,
@@ -24,6 +25,7 @@ const ImageItem = ({
   insertImage,
 }) => {
   const { fileContent, fetchBranchFile } = useFetchBranchFileContent();
+
   React.useEffect(() => {
     if (item && projectId && repositoryId && editBranchName) {
       const type = editBranchName.split("/")[1];
@@ -78,6 +80,8 @@ export default function TiptapDocxOpenDialog({
   const [searchParams] = useSearchParams();
   const branchNameMain = searchParams.get("branchName");
   const [fileNameError, setFileNameError] = React.useState("");
+  const { htmlDoc, handleDocXChange } = useDocxToHTML();
+
 
   //const [inputId, setInputId] = React.useState("");
   // const handleClickOpen = () => {
@@ -88,55 +92,64 @@ export default function TiptapDocxOpenDialog({
     setDocxOpen(false);
   };
 
+  React.useEffect(() => {
+    if(htmlDoc){
+      insertDocx(htmlDoc);
+    }
+  }, [htmlDoc])
+
   async function handleChange(e) {
     console.log(e.target.files);
     if (e.target.files.length <= 0) {
       return;
     }
-    const file = e.target.files[0];
+    handleDocXChange(e);
+    handleClose();
+    
+    //const file = e.target.files[0];
 
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        //const fileContent = event.target.result;
-        try {
-          if (typeof event.target.result === "string") {
-            const fileName = file.name;
+    // if (file) {
+    //   const reader = new FileReader();
+    //   reader.onload = function (event) {
+    //     //const fileContent = event.target.result;
+    //     try {
+    //       //if (typeof event.target.result === "string") {
+    //         //const fileName = file.name;
 
-            if (
-              imageItems?.filter((item) => item.relativePath === fileName)
-                ?.length > 0
-            ) {
-              setFileNameError("File name already exists..");
-              return;
-            }
+    //         // if (
+    //         //   imageItems?.filter((item) => item.relativePath === fileName)
+    //         //     ?.length > 0
+    //         // ) {
+    //         //   setFileNameError("File name already exists..");
+    //         //   return;
+    //         // }
 
-            // const fileExtension = fileName.slice(
-            //   ((fileName.lastIndexOf(".") - 1) >>> 0) + 2
-            // );
+    //         // const fileExtension = fileName.slice(
+    //         //   ((fileName.lastIndexOf(".") - 1) >>> 0) + 2
+    //         // );
 
-            const base64String = event.target.result.split(",")[1]; // Extract base64 string from data URL
-            // const uuid = uuidv4();
+    //         //const base64String = event.target.result.split(",")[1]; // Extract base64 string from data URL
+    //         // const uuid = uuidv4();
 
-            // const filePath = `qms/sop/attachments/${uuid}.${fileExtension}`;
-            const filePath = `qms/sop/attachments/${fileName}`;
-            const branchName = searchParams.get("branchName");
-            let lastIndex = branchName.lastIndexOf("/main");
+    //         // const filePath = `qms/sop/attachments/${uuid}.${fileExtension}`;
+    //         //const filePath = `qms/sop/attachments/${fileName}`;
+    //         //const branchName = searchParams.get("branchName");
+    //         //let lastIndex = branchName.lastIndexOf("/main");
 
-            // Replace the last occurrence with "/edit"
-            let editBranchName =
-              branchName.substring(0, lastIndex) +
-              "/edit" +
-              branchName.substring(lastIndex + "/main".length);
+    //         // Replace the last occurrence with "/edit"
+    //         // let editBranchName =
+    //         //   branchName.substring(0, lastIndex) +
+    //         //   "/edit" +
+    //         //   branchName.substring(lastIndex + "/main".length);
 
-            // add logic to convert docx
-
-            insertDocx();
-          }
-        } catch {}
-      };
-      reader.readAsDataURL(file);
-    }
+    //         // add logic to convert docx
+    //         handleClose();
+    //         insertDocx();
+    //       //}
+    //     } catch {}
+    //   };
+    //   reader.readAsDataURL(file);
+    // }
   }
 
   return (
