@@ -153,7 +153,6 @@ export function TiptapMenuBar() {
         marginBottom: "100px",
         justifyContent: "center",
         width: "100%",
-        opacity: 1,
       }}
     >
       <Box
@@ -163,9 +162,11 @@ export function TiptapMenuBar() {
           alignItems: "center",
           marginTop: "70px",
           flexDirection: "column",
-          position: "absolute",
           width: "100%",
           zIndex: 50,
+          position: "fixed",
+          backgroundColor: "#F5F5F5",
+          opacity: 1,
         }}
       >
         <Toolbar />
