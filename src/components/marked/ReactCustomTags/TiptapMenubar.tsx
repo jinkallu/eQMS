@@ -127,7 +127,9 @@ export function TiptapMenuBar() {
     setDocxOpen(true);
   }
 
-  function insertDocx() {}
+  function insertDocx() {
+    console.log(insertDocx);
+  }
   function addInput(id) {
     editor
       .chain()
