@@ -38,14 +38,13 @@ export default function ImageTiptap(props) {
   }, [project, repository, searchParams, PropaneTankSharp]);
 
   let component = (
-    <NodeViewWrapper style={{ border: "1px solid black", display: "inline" }}>
+    <NodeViewWrapper style={{ display: "inline" }}>
       <img
         src={`data:image/png;base64,${arrayBufferToBase64(fileContent)}`}
         alt="Lamp"
         width="100"
         height="100"
       />
-      <NodeViewContent></NodeViewContent>
     </NodeViewWrapper>
   );
 
