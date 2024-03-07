@@ -128,13 +128,22 @@ export function TiptapMenuBar() {
   }
 
   function insertDocx(htmlDoc) {
-    //const parser = new DOMParser();
-    //const doc = parser.parseFromString(htmlDoc, 'text/html');
-    //const content = editor.schema.nodeFromJSON(doc.body);
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlDoc, "text/html");
+    // const content = editor.schema.nodeFromJSON(doc.body);
     //console.log(doc.body)
-    editor.commands.insertContent(htmlDoc)
-
-
+    // container.childNodes.forEach(node => {
+    //   const html = node instanceof HTMLElement ? node.outerHTML : node.textContent;
+    //   console.log(html);
+    //   queueMicrotask(() => {
+    //     editor.commands.insertContent(html);
+    //   }
+    //   )
+    //   //
+    // });
+    Array.from(doc.body.children)?.map((item) =>
+      queueMicrotask(() => editor.commands.insertContent(item.outerHTML))
+    );
   }
 
   function addInput(id) {
@@ -172,6 +181,7 @@ export function TiptapMenuBar() {
           marginTop: "70px",
           flexDirection: "column",
           width: "100%",
+          height: "50px",
           position: "fixed",
           backgroundColor: "#F5F5F5",
           opacity: 1,

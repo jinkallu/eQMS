@@ -15,7 +15,6 @@ const StyleA4 = {
   background: "white",
 
   margin: "0 auto",
-  width: "21cm",
   height: "100%",
   flexGrow: 1,
 };

@@ -13,7 +13,6 @@ const HeaderStyle = {
   background: "white",
   display: "flex",
   margin: "0 auto",
-  width: "21cm",
   borderBottom: "1px dotted black",
 };
 const Component = (props) => {
@@ -100,7 +99,7 @@ export default Node.create({
         default: true,
       },
       style: {
-        default: "background:white;display: block;margin: 0 auto;width: 21cm; ",
+        default: "background:white;display: block;margin: 0 auto; ",
       },
     };
   },
@@ -118,7 +117,7 @@ export default Node.create({
     if (node.attrs.class === "header") {
       attrs = {
         ...attrs,
-        style: "background: white;display: block;margin: 0 auto; width: 21cm; ",
+        style: "background: white;display: block;margin: 0 auto;  ",
       };
     }
     return ["div", attrs, 0];

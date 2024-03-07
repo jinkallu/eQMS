@@ -746,6 +746,7 @@ export const useDocxToHTML = () => {
             stylesDOM,
             numberingDOM
           );
+
           //console.log("Generated HTML:", htmlContent);
           setHtmlDoc(htmlContent);
           //setTemplateState(id, htmlContent);

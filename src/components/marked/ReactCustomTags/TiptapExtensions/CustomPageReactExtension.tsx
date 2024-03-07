@@ -9,18 +9,22 @@ import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import React, { useEffect, useState } from "react";
 import TiptapInputDialog from "../TiptapInputDialog";
-//import { useIsOverflow } from "../../../../CHooks/useIsOverflow";
+import { useIsOverflow } from "../../../../CHooks/useIsOverflow";
 import { EditorState } from "@tiptap/pm/state";
 import { v4 as uuidv4 } from "uuid";
 const StyleA4 = {
   background: "white",
   display: "flex",
-  margin: "0 auto",
+  justifyContent: "center",
+  alignItems: "center",
+  margin: "auto",
+  padding: "2.5cm",
   boxShadow: "0 0 0.5cm rgba(0,0,0,0.5)",
   width: "21cm",
   height: "29.7cm",
   overflow: "auto",
-  overflowX: "hidden",
+  overflowX: "auto",
+  boxSizing: "border-box",
 };
 
 const styleContent = {
@@ -31,33 +35,34 @@ const styleContent = {
 };
 const Component = (props) => {
   const ref = React.useRef(null);
-  //const { isOverflow, isOverflowHoriz } = useIsOverflow(ref);
+  const { isOverflow, isOverflowHoriz } = useIsOverflow(ref);
   const { editor } = useCurrentEditor();
-  // useEffect(() => {
-  //   console.log(isOverflow);
-  //   if (isOverflow) {
-  //     addPageJSON(props.node.attrs?.id);
-  //   }
-  //   if (isOverflowHoriz) {
-  //     handleOverflowHoriz();
-  //   }
-  // }, [isOverflow, isOverflowHoriz]);
+  useEffect(() => {
+    console.log(isOverflow);
+    if (isOverflow) {
+      addPageJSON(props.node.attrs?.id);
+    }
+    if (isOverflowHoriz) {
+      // handleOverflowHoriz();
+    }
+  }, [isOverflow, isOverflowHoriz]);
 
   function handleOverflowHoriz() {
-    console.log("handleOverflowHoriz")
+    console.log("handleOverflowHoriz");
     queueMicrotask(() =>
-      editor
-        .chain()
-        .focus()
-        .command(({ tr }) => {
-          // manipulate the transaction
-          const from = tr.selection.from - 1;
+      // editor
+      //   .chain()
+      //   .focus()
+      //   .command(({ tr }) => {
+      //     // manipulate the transaction
+      //     const from = tr.selection.from - 1;
 
-          tr.insertText("\n", from);
+      //     tr.insertText("\n", from);
 
-          return true;
-        })
-        .run()
+      //     return true;
+      //   })
+      //   .run()
+      editor.commands.splitBlock()
     );
   }
 
@@ -91,9 +96,10 @@ const Component = (props) => {
   }
 
   function addPageJSON(id) {
-    console.log("add page")
+    console.log("add page");
     // get the json of the editor
     const jsonData = props.editor.getJSON();
+    console.log(jsonData);
     // get the pages from json
     const pages = jsonData.content[0].content;
 
@@ -114,7 +120,6 @@ const Component = (props) => {
       attrs: { ...pages[0].content[1], id: uuidv4() },
     };
 
-
     const pageContent = pages[indexToInsert].content[1].content;
 
     const lastContent = pageContent[pageContent?.length - 1];
@@ -129,8 +134,6 @@ const Component = (props) => {
       if (arrLength - 1 > 0)
         pages[indexToInsert].content[1].content?.splice(arrLength - 1, 1);
 
-      console.log(header, newPageContent, footer);
-
       // remove the last content from current page and insert it to new page
       newPageContent.content = [lastContent];
       const newId = uuidv4();
@@ -140,7 +143,6 @@ const Component = (props) => {
         content: [header, newPageContent, footer],
       });
       jsonData.content[0].content = [...pages];
-      console.log(pages);
       queueMicrotask(() => {
         props.editor.commands.setContent(jsonData);
         setTimeout(function () {
@@ -169,24 +171,6 @@ const Component = (props) => {
     }
   }
 
-  //   function addPage() {
-  //     const endPos = props.getPos() + props.node.nodeSize;
-
-  //     // I focus the start of the editor because
-  //     // when the cursor is at the end of the node below which
-  //     // we want to add a block, it doesn't focus the next block
-  //     props.editor.commands.focus("start");
-
-  //     props.editor
-  //       .chain()
-  //       .insertContentAt(endPos, {
-  //         type: "page",
-  //         attrs: { id: uuidv4() },
-  //       })
-  //       .focus(endPos)
-  //       .run();
-  //      }
-
   // Function to check width after each update
   const checkWidthAfterUpdate = () => {
     const nodes = editor.view.dom.querySelectorAll("div.content"); // Change '.your-node-class' to your node's class or selector
@@ -195,9 +179,9 @@ const Component = (props) => {
       if (node.scrollHeight > node.clientHeight) {
         addPageJSON(props.node.attrs?.id);
       }
-      if (node.scrollWidth > node.clientWidth) {
-        handleOverflowHoriz();
-      }
+      // if (node.scrollWidth > node.clientWidth) {
+      //   handleOverflowHoriz();
+      // }
     });
   };
 
@@ -206,18 +190,19 @@ const Component = (props) => {
     for (const mutation of mutationsList) {
       if (mutation.type === "childList" || mutation.type === "attributes") {
         // Check width after each update
-        checkWidthAfterUpdate();
+        // checkWidthAfterUpdate();
       }
     }
   };
 
-  useEffect(() => {
-    // Create a MutationObserver to observe changes in the DOM
-    const observer = new MutationObserver(mutationCallback);
+  const observer = new MutationObserver(mutationCallback);
 
-    // Observe the editor's DOM
-    //observer.observe(editor.view.dom, { attributes: true, childList: true, subtree: true });
-  }, []);
+  // Observe the editor's DOM
+  observer.observe(editor.view.dom, {
+    attributes: true,
+    childList: true,
+    subtree: true,
+  });
 
   return (
     <NodeViewWrapper style={StyleA4} ref={ref}>
@@ -247,7 +232,8 @@ export default Node.create({
         default: true,
       },
       style: {
-        default: "",
+        default:
+          "background: white;display: flex;justifyContent: center;alignItems:center;margin: auto;padding: 2.5cm;box-shadow: 0 0 0.5cm rgba(0,0,0,0.5); width: 21cm;height: 29.7cm; overflowX: auto; boxSizing: border-box",
       },
     };
   },

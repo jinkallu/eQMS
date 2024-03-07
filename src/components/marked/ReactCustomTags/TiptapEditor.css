@@ -7,10 +7,15 @@
   margin-bottom: 20px;
 }
 
+.extend {
+  margin-top: "50px";
+}
+
 .content > div {
   display: flex;
   flex-direction: column;
   height: 100%;
+  box-sizing: "border-box";
 }
 
 .pageContent {
@@ -22,6 +27,7 @@
   display: block;
   width: "100%";
   white-space: normal;
+
   /* align-self: flex-start; */
 }
 
@@ -33,4 +39,8 @@
   display: "flex";
   flex-grow: 1;
   width: "100%";
+}
+
+.tableWrapper > table {
+  width: 100% !important;
 }

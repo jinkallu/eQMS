@@ -12,7 +12,6 @@ import { v4 as uuidv4 } from "uuid";
 const HeaderStyle = {
   background: "white",
   margin: "0 auto",
-  width: "21cm",
   borderTop: "1px dotted black",
   justifySelf: "end",
 };
