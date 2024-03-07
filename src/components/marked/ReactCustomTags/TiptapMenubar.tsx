@@ -130,17 +130,7 @@ export function TiptapMenuBar() {
   function insertDocx(htmlDoc) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlDoc, "text/html");
-    // const content = editor.schema.nodeFromJSON(doc.body);
-    //console.log(doc.body)
-    // container.childNodes.forEach(node => {
-    //   const html = node instanceof HTMLElement ? node.outerHTML : node.textContent;
-    //   console.log(html);
-    //   queueMicrotask(() => {
-    //     editor.commands.insertContent(html);
-    //   }
-    //   )
-    //   //
-    // });
+
     Array.from(doc.body.children)?.map((item) =>
       queueMicrotask(() => editor.commands.insertContent(item.outerHTML))
     );

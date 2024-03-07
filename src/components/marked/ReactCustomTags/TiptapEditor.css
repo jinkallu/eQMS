@@ -10,6 +10,9 @@
 .extend {
   margin-top: "50px";
 }
+.content {
+  flex-grow: 1;
+}
 
 .content > div {
   display: flex;

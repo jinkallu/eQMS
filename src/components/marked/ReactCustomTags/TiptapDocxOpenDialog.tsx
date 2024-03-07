@@ -80,8 +80,7 @@ export default function TiptapDocxOpenDialog({
   const [searchParams] = useSearchParams();
   const branchNameMain = searchParams.get("branchName");
   const [fileNameError, setFileNameError] = React.useState("");
-  const { htmlDoc, handleDocXChange } = useDocxToHTML();
-
+  const { htmlDoc, handleDocXChange, setHtmlDoc } = useDocxToHTML();
 
   //const [inputId, setInputId] = React.useState("");
   // const handleClickOpen = () => {
@@ -93,10 +92,11 @@ export default function TiptapDocxOpenDialog({
   };
 
   React.useEffect(() => {
-    if(htmlDoc){
+    if (htmlDoc) {
       insertDocx(htmlDoc);
+      setHtmlDoc(null);
     }
-  }, [htmlDoc])
+  }, [htmlDoc]);
 
   async function handleChange(e) {
     console.log(e.target.files);
@@ -105,7 +105,7 @@ export default function TiptapDocxOpenDialog({
     }
     handleDocXChange(e);
     handleClose();
-    
+
     //const file = e.target.files[0];
 
     // if (file) {

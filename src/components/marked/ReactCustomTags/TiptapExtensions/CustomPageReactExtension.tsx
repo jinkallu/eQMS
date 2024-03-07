@@ -15,8 +15,9 @@ import { v4 as uuidv4 } from "uuid";
 const StyleA4 = {
   background: "white",
   display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
+  flexDirection: "column",
+  // justifyContent: "center",
+  // alignItems: "center",
   margin: "auto",
   padding: "2.5cm",
   boxShadow: "0 0 0.5cm rgba(0,0,0,0.5)",

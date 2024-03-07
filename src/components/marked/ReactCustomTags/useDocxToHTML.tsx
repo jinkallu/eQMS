@@ -18,7 +18,7 @@ import FieldChar from "./FieldChar";
 import TiptapEditor from "./TiptapEditor";
 
 export const useDocxToHTML = () => {
-    const [htmlDoc, setHtmlDoc] = useState(null);
+  const [htmlDoc, setHtmlDoc] = useState(null);
 
   const wNamespaceURI =
     "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
@@ -34,9 +34,9 @@ export const useDocxToHTML = () => {
   const docxNumbering: Item[] = [];
 
   //const { templateState, setTemplateState } = useExtnStore((state) => state);
-//   function handleChangeFun(e) {
-//     setTemplateState(id, e.target.value);
-//   }
+  //   function handleChangeFun(e) {
+  //     setTemplateState(id, e.target.value);
+  //   }
 
   function convertToHTML(xmlDoc, xmlStyles, numberingDOM) {
     if (!xmlDoc || !xmlDoc.documentElement) {
@@ -61,7 +61,6 @@ export const useDocxToHTML = () => {
     // }
 
     const styles = extractStyles(xmlStyles);
-    console.log(styles);
 
     return convertNodeToHTML(body, styles, numberingDOM);
   }
@@ -219,35 +218,28 @@ export const useDocxToHTML = () => {
     if (num) {
       for (let i = 0; i < num.length; i++) {
         const numNumId = num[i].getAttribute("w:numId");
-        console.log(numNumId, numIdVal);
         if (numIdVal === numNumId) {
           const abstractNumId = num[i].getElementsByTagNameNS(
             wNamespaceURI,
             "abstractNumId"
           )[0];
-          console.log(abstractNumId);
           if (abstractNumId) {
             const abstractNumIdVal = abstractNumId.getAttribute("w:val");
-            console.log(abstractNumIdVal);
             const abstractNums = numberingDOM.getElementsByTagNameNS(
               wNamespaceURI,
               "abstractNum"
             );
-            console.log(abstractNums);
             if (abstractNums) {
               for (let j = 0; j < abstractNums.length; j++) {
                 const abstractNumIdId =
                   abstractNums[j].getAttribute("w:abstractNumId");
-                console.log(abstractNumIdId);
                 if (abstractNumIdId === abstractNumIdVal) {
-                  console.log(abstractNumIdId, abstractNumIdVal);
                   const lvls = abstractNums[j].getElementsByTagNameNS(
                     wNamespaceURI,
                     "lvl"
                   );
                   for (let k = 0; k < lvls.length; k++) {
                     const ilvl = lvls[k].getAttribute("w:ilvl");
-                    console.log(ilvl, ilvlVal);
                     if (ilvl === ilvlVal) {
                       // manage numbering +
                       const result = docxNumbering.find(
@@ -334,15 +326,11 @@ export const useDocxToHTML = () => {
   function getStyleFromStyleXML(element, styles, numberingDOM) {
     const wPStyle = element.getElementsByTagNameNS(wNamespaceURI, "pStyle")[0];
     if (wPStyle) {
-      console.log(wPStyle);
       let styleVal = wPStyle.getAttribute("w:val");
-      console.log(styleVal);
       const style = styles.find((item) => item.styleId === styleVal);
-      console.log(style);
       const rStyle = extractRPR(style.node);
       const numbering = extractPPR(style.node, numberingDOM);
       rStyle["numbering"] = numbering;
-      console.log(rStyle);
       return rStyle;
     }
   }
@@ -384,7 +372,6 @@ export const useDocxToHTML = () => {
     } else {
       htmlContent += ">";
     }
-    console.log(htmlContent);
 
     const r = element.getElementsByTagNameNS(wNamespaceURI, "r");
     if (r) {
@@ -413,7 +400,6 @@ export const useDocxToHTML = () => {
     if (!hasTextContent(htmlContent)) {
       htmlContent = "";
     }
-    console.log(htmlContent);
     return htmlContent;
   }
 
@@ -428,7 +414,6 @@ export const useDocxToHTML = () => {
     switch (tagName) {
       case "w:p":
         htmlContent += convertP(element, styles, numberingDOM);
-        console.log(htmlContent);
         break;
 
       case "w:pPr":
@@ -718,15 +703,12 @@ export const useDocxToHTML = () => {
               documentXml,
               "text/xml"
             );
-
-            console.log("Parsed DOCXML:", documentDOM);
           }
 
           const stylesXml = await zip.file("word/styles.xml")?.async("string");
           if (stylesXml !== undefined) {
             const stylesParser = new DOMParser();
             stylesDOM = stylesParser.parseFromString(stylesXml, "text/xml");
-            console.log("Parsed STYLESXML:", stylesDOM);
           }
 
           const numberingXml = await zip
@@ -738,7 +720,6 @@ export const useDocxToHTML = () => {
               numberingXml,
               "text/xml"
             );
-            console.log("Parsed NumberingXML:", numberingDOM);
           }
 
           const htmlContent = convertToHTML(
@@ -762,42 +743,41 @@ export const useDocxToHTML = () => {
 
   //let component;
 
-//   switch (order) {
-//     case "first":
-//       component = <h1>DocX</h1>;
+  //   switch (order) {
+  //     case "first":
+  //       component = <h1>DocX</h1>;
 
-//       break;
-//     case "middle":
-//       component = (
-//         <div>
-//           <h2>Open Docx</h2>
-//           <input type="file" onChange={handleFileChange} />
-//         </div>
-//       );
-//       break;
-//     case "last":
-//       /*
-//                  const $ = cheerio.load(doc, {
-//                     xmlMode: true
-//                   });
-              
-//                   // Extract text
-//                   let out = [];
-//                   $('w\\:t').each((i, el) => {
-//                     out.push($(el).text());
-//                   });
-              
-//                   console.log(out);*/
+  //       break;
+  //     case "middle":
+  //       component = (
+  //         <div>
+  //           <h2>Open Docx</h2>
+  //           <input type="file" onChange={handleFileChange} />
+  //         </div>
+  //       );
+  //       break;
+  //     case "last":
+  //       /*
+  //                  const $ = cheerio.load(doc, {
+  //                     xmlMode: true
+  //                   });
 
-      
-//       //component = <input value={templateState[id]} onChange={handleChangeFun}></input>;
+  //                   // Extract text
+  //                   let out = [];
+  //                   $('w\\:t').each((i, el) => {
+  //                     out.push($(el).text());
+  //                   });
 
-//       break;
-//     default:
-//       component = <span>"Error";</span>;
-//       break;
-//   }
+  //                   console.log(out);*/
+
+  //       //component = <input value={templateState[id]} onChange={handleChangeFun}></input>;
+
+  //       break;
+  //     default:
+  //       component = <span>"Error";</span>;
+  //       break;
+  //   }
   //return component;
 
-  return { htmlDoc, handleDocXChange };
-}
+  return { htmlDoc, setHtmlDoc, handleDocXChange };
+};
