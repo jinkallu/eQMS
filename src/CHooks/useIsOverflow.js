@@ -34,5 +34,5 @@ export const useIsOverflow = (ref, callback, callbackHoriz) => {
     }
   }, [callback, ref, callbackHoriz]);
 
-  return { isOverflow, isOverflowHoriz };
+  return { isOverflow, setIsOverflow, isOverflowHoriz };
 };

@@ -35,20 +35,34 @@ const styleContent = {
 };
 const Component = (props) => {
   const ref = React.useRef(null);
-  const { isOverflow, isOverflowHoriz } = useIsOverflow(ref);
+  const { setIsOverflow, isOverflowHoriz } = useIsOverflow(
+    ref,
+    handleVertOverflow
+  );
   const { editor } = useCurrentEditor();
-  useEffect(() => {
-    console.log(isOverflow);
-    if (isOverflow) {
+  // if (isOverflow) {
+  //   addPageJSON(props.node.attrs?.id);
+  // }
+
+  function handleVertOverflow(hasOverflow) {
+    if (hasOverflow) {
+      setIsOverflow(false);
+
       addPageJSON(props.node.attrs?.id);
     }
-    if (isOverflowHoriz) {
-      // handleOverflowHoriz();
-    }
-  }, [isOverflow, isOverflowHoriz]);
+  }
+  // useEffect(() => {
+  //   console.log(isOverflow);
+  //   if (isOverflow) {
+  //     setIsOverflow(false);
+  //     addPageJSON(props.node.attrs?.id);
+  //   }
+  //   if (isOverflowHoriz) {
+  //     // handleOverflowHoriz();
+  //   }
+  // }, [isOverflow, isOverflowHoriz]);
 
   function handleOverflowHoriz() {
-    console.log("handleOverflowHoriz");
     queueMicrotask(() =>
       // editor
       //   .chain()
@@ -96,10 +110,8 @@ const Component = (props) => {
   }
 
   function addPageJSON(id) {
-    console.log("add page");
     // get the json of the editor
     const jsonData = props.editor.getJSON();
-    console.log(jsonData);
     // get the pages from json
     const pages = jsonData.content[0].content;
 
@@ -117,6 +129,7 @@ const Component = (props) => {
 
     const newPageContent = {
       ...pages[0].content[1],
+      content: null,
       attrs: { ...pages[0].content[1], id: uuidv4() },
     };
 
@@ -142,6 +155,7 @@ const Component = (props) => {
         type: pages[0].type,
         content: [header, newPageContent, footer],
       });
+
       jsonData.content[0].content = [...pages];
       queueMicrotask(() => {
         props.editor.commands.setContent(jsonData);
