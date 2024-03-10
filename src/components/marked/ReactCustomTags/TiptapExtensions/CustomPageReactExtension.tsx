@@ -236,9 +236,13 @@ const Component = (props) => {
         else {
           if (pos) {
             // Create a transaction to delete the last child node
+            const trTmp = state.tr.delete(pos, pos + nodeAtPos.nodeSize)
+            const newPos = trTmp.mapping.map(pagePos + prosParentNode.nodeSize);
+
+
             const tr = state.tr
             .delete(pos, pos + nodeAtPos.nodeSize)
-            .insert(pagePos + prosParentNode.nodeSize, nodeAtPos);
+            .insert(newPos, nodeAtPos);
   
             // Dispatch the transaction to update the editor state
             view.dispatch(tr);
