@@ -196,73 +196,92 @@ const Component = (props) => {
     }
   }
 
+
   // Function to check width after each update
   const checkWidthAfterUpdate = () => {
     const { state, view } = editor;
+    if(!state.tr.docChanged){
+      //return;
+    }
 
     const nodes = view.dom.querySelectorAll("div.content"); // Change '.your-node-class' to your node's class or selector
 
-    nodes.forEach((node: HTMLElement) => {
+    nodes.forEach((node: HTMLElement, index: number) => {
       //console.log(node.scrollHeight , node.clientHeight);
       const parentNode = node.parentNode as HTMLElement
+      console.log(parentNode.scrollHeight, parentNode.clientHeight)
       if (parentNode.scrollHeight > parentNode.clientHeight) {
-        const pageContentDiv = node.querySelector("div.node-pagecontent").querySelector("div.pageContent").firstChild;
+        const pageContentDiv = view.dom.querySelectorAll("div.content")[index].querySelector("div.node-pagecontent").querySelector("div.pageContent").firstChild;
         const lastChild = pageContentDiv.lastChild;
+        //console.log(lastChild);
         const pos = view.posAtDOM(lastChild, 0);
-        const nodeAtPos = state.doc.nodeAt(pos);
-
-        const pagePos = view.posAtDOM(parentNode, 0);
-        const prosParentNode = state.doc.nodeAt(pagePos);
-
+        const resolvedPos = state.doc.resolve(pos);
+        //console.log(pos,  state.doc.resolve(pos));
+        let nodeAtPos = resolvedPos.doc.nodeAt(resolvedPos.pos);//state.doc.nodeAt(pos);
+      
         
-
-
-        //const lastChild = node.children[0].children[1].children[0].children[0].children[0].lastChild;
-
-        //   const tr = state.tr.delete(
-        //     state.doc.resolve(view.domAtPos(0).posAtDOM(lastChild))
-        // );
-
-        // Dispatch the transaction to update the editor state
-        //view.dispatch(tr);
-        //node.children[0].children[1].children[0].children[0].children[0].removeChild(lastChild);
-        const nextPage = parentNode.nextSibling as HTMLElement;
-
+        if (!nodeAtPos) {
+          console.log(editor)
+          return;
+        }
+        const page = parentNode.parentNode
+        const pagePos = view.posAtDOM(page, 0);
+        //console.log(pagePos);
+        const prosParentNode = state.doc.nodeAt(pagePos - 1);
+        
+        const nextPage = parentNode.parentNode.nextSibling as HTMLElement;
+        //console.log(nextPage);
         if (nextPage) {
           const nextPagePos = view.posAtDOM(nextPage, 0);
+          const nextPageNode = state.doc.nodeAt(nextPagePos - 1);
+          //console.log(nextPageNode);
+          let json = nextPageNode.toJSON();
+          //console.log(json);
+          if(json.content[1].content.length > 0){
+            json.content[1].content.unshift(nodeAtPos.toJSON());
+          }
+          else{
+            json.content[1].content = [nodeAtPos.toJSON()];
+          }
+          const newPage = nextPageNode.type.schema.nodeFromJSON(json);
 
-          //nextPage.children[0].children[0].children[1].children[0].children[0].children[0].appendChild(lastChild);
+          const tr = state.tr
+            .delete(pos, pos + nodeAtPos.nodeSize)
+            .insert(nextPagePos, newPage)
+            ;
+          view.dispatch(tr);
+
         }
         else {
           if (pos) {
+           
+            let json = prosParentNode.toJSON();
+            json.content[1].content = [nodeAtPos.toJSON()]; // This removes the contents of the first child
+            const newPage = prosParentNode.type.schema.nodeFromJSON(json);
+
+
+
+
+
             // Create a transaction to delete the last child node
             const trTmp = state.tr.delete(pos, pos + nodeAtPos.nodeSize)
-            const newPos = trTmp.mapping.map(pagePos + prosParentNode.nodeSize);
+            const newPos = trTmp.mapping.map(pagePos + prosParentNode.nodeSize - nodeAtPos.nodeSize);
 
-
+            //console.log(prosParentNode);
             const tr = state.tr
-            .delete(pos, pos + nodeAtPos.nodeSize)
-            .insert(newPos, nodeAtPos);
-  
+              .delete(pos, pos + nodeAtPos.nodeSize)
+              .insert(newPos, newPage);
+
             // Dispatch the transaction to update the editor state
             view.dispatch(tr);
           }
-          // const copyPage = parentNode.cloneNode(true) as HTMLElement;//new DOMParser().parseFromString(parentNode.outerHTML, "text/html");
-          // console.log(lastChild)
-          // console.log(copyPage);
-          // copyPage.children[0].children[0].children[1].children[0].children[0].children[0].replaceWith(lastChild);
-          // console.log(copyPage);
-          // parentNode.after(copyPage);
-          // console.log(parentNode.parentNode);
+          
 
         }
-        //console.log("Add page!!!!");
-        //addPageJSON(props.node.attrs?.id);
         return;
+        
       }
-      // if (node.scrollWidth > node.clientWidth) {
-      //   handleOverflowHoriz();
-      // }
+      
     });
   };
 
