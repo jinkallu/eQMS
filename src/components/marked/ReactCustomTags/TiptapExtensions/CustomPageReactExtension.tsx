@@ -12,6 +12,7 @@ import TiptapInputDialog from "../TiptapInputDialog";
 import { useIsOverflow } from "../../../../CHooks/useIsOverflow";
 import { EditorState } from "@tiptap/pm/state";
 import { v4 as uuidv4 } from "uuid";
+import { json } from "react-router-dom";
 const StyleA4 = {
   background: "white",
   display: "flex",
@@ -49,7 +50,7 @@ const Component = (props) => {
     if (hasOverflow) {
       setIsOverflow(false);
 
-      addPageJSON(props.node.attrs?.id);
+      //addPageJSON(props.node.attrs?.id);
     }
   }
   // useEffect(() => {
@@ -115,8 +116,15 @@ const Component = (props) => {
     const jsonData = props.editor.getJSON();
     // get the pages from json
     const pages = jsonData.content[0].content;
+    console.log(pages);
 
-    const indexToInsert = pages?.findIndex((page) => page.attrs.id === id);
+    let indexToInsert = pages?.findIndex((page) => page.attrs.id === id);
+    if(indexToInsert === -1){
+      indexToInsert = pages.length - 1;
+      console.log("return ", id, indexToInsert)
+
+      return;
+    }
 
     const header = {
       ...pages[0].content[0],
@@ -133,8 +141,8 @@ const Component = (props) => {
       content: null,
       attrs: { ...pages[0].content[1], id: uuidv4() },
     };
-
-    const pageContent = pages[indexToInsert].content[1].content;
+console.log(pages[indexToInsert])
+    const pageContent = pages[indexToInsert].content[1]?.content || [];
 
     const lastContent = pageContent[pageContent?.length - 1];
     const arrLength = pageContent?.length;
@@ -191,8 +199,35 @@ const Component = (props) => {
     const nodes = editor.view.dom.querySelectorAll("div.content"); // Change '.your-node-class' to your node's class or selector
 
     nodes.forEach((node: HTMLElement) => {
-      if (node.scrollHeight > node.clientHeight) {
-        addPageJSON(props.node.attrs?.id);
+      //console.log(node.scrollHeight , node.clientHeight);
+      const parentNode = node.parentNode as HTMLElement
+      if (parentNode.scrollHeight > parentNode.clientHeight) {
+        const lastChild = node.lastChild;
+        node.removeChild(lastChild);
+        const nextPage = parentNode.nextSibling;
+        console.log(nextPage)
+        if(nextPage){
+
+        }
+        else{
+          const copyPage = parentNode.cloneNode(true);//new DOMParser().parseFromString(parentNode.outerHTML, "text/html");
+          const newNode = node.cloneNode();
+          //copyPage.
+          console.log(copyPage);
+          copyPage.childNodes[1].replaceWith(lastChild);
+          console.log(copyPage);
+          parentNode.after(copyPage);
+          console.log(parentNode.parentNode);
+          // copyPage.querySelector("div.content").innerHTML = "";
+          // console.log(copyPage);
+          // copyPage.querySelector("div.content").appendChild(lastChild);
+          // console.log(copyPage);
+          // parentNode.parentNode.appendChild(copyPage.body.firstChild);
+          // console.log(parentNode.parentNode)
+        }
+        //console.log("Add page!!!!");
+        //addPageJSON(props.node.attrs?.id);
+        return;
       }
       // if (node.scrollWidth > node.clientWidth) {
       //   handleOverflowHoriz();
@@ -205,19 +240,22 @@ const Component = (props) => {
     for (const mutation of mutationsList) {
       if (mutation.type === "childList" || mutation.type === "attributes") {
         // Check width after each update
-        // checkWidthAfterUpdate();
+        checkWidthAfterUpdate();
       }
     }
   };
 
-  const observer = new MutationObserver(mutationCallback);
+  //useEffect(() => {
+    const observer = new MutationObserver(mutationCallback);
 
-  // Observe the editor's DOM
-  observer.observe(editor.view.dom, {
-    attributes: true,
-    childList: true,
-    subtree: true,
-  });
+    // Observe the editor's DOM
+    observer.observe(editor.view.dom, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
+  //}, [])
+  
 
   return (
     <NodeViewWrapper style={StyleA4} ref={ref}>
