@@ -202,19 +202,19 @@ console.log(pages[indexToInsert])
       //console.log(node.scrollHeight , node.clientHeight);
       const parentNode = node.parentNode as HTMLElement
       if (parentNode.scrollHeight > parentNode.clientHeight) {
-        const lastChild = node.lastChild;
-        node.removeChild(lastChild);
-        const nextPage = parentNode.nextSibling;
+        const lastChild = node.children[0].children[1].children[0].children[0].children[0].lastChild;
+        console.log(lastChild)
+        node.children[0].children[1].children[0].children[0].children[0].removeChild(lastChild);
+        const nextPage = parentNode.nextSibling as HTMLElement;
         console.log(nextPage)
         if(nextPage){
-
+          nextPage.children[0].children[0].children[1].children[0].children[0].children[0].replaceWith(lastChild);
         }
         else{
-          const copyPage = parentNode.cloneNode(true);//new DOMParser().parseFromString(parentNode.outerHTML, "text/html");
-          const newNode = node.cloneNode();
-          //copyPage.
+          const copyPage = parentNode.cloneNode(true) as HTMLElement;//new DOMParser().parseFromString(parentNode.outerHTML, "text/html");
+          console.log(lastChild)
           console.log(copyPage);
-          copyPage.childNodes[1].replaceWith(lastChild);
+          copyPage.children[0].children[0].children[1].children[0].children[0].children[0].replaceWith(lastChild);
           console.log(copyPage);
           parentNode.after(copyPage);
           console.log(parentNode.parentNode);
