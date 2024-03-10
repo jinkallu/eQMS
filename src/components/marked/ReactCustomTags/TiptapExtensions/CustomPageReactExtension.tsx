@@ -13,6 +13,8 @@ import { useIsOverflow } from "../../../../CHooks/useIsOverflow";
 import { EditorState } from "@tiptap/pm/state";
 import { v4 as uuidv4 } from "uuid";
 import { json } from "react-router-dom";
+import { Fragment } from "prosemirror-model";
+
 const StyleA4 = {
   background: "white",
   display: "flex",
@@ -119,7 +121,7 @@ const Component = (props) => {
     console.log(pages);
 
     let indexToInsert = pages?.findIndex((page) => page.attrs.id === id);
-    if(indexToInsert === -1){
+    if (indexToInsert === -1) {
       indexToInsert = pages.length - 1;
       console.log("return ", id, indexToInsert)
 
@@ -141,7 +143,7 @@ const Component = (props) => {
       content: null,
       attrs: { ...pages[0].content[1], id: uuidv4() },
     };
-console.log(pages[indexToInsert])
+    console.log(pages[indexToInsert])
     const pageContent = pages[indexToInsert].content[1]?.content || [];
 
     const lastContent = pageContent[pageContent?.length - 1];
@@ -196,34 +198,59 @@ console.log(pages[indexToInsert])
 
   // Function to check width after each update
   const checkWidthAfterUpdate = () => {
-    const nodes = editor.view.dom.querySelectorAll("div.content"); // Change '.your-node-class' to your node's class or selector
+    const { state, view } = editor;
+
+    const nodes = view.dom.querySelectorAll("div.content"); // Change '.your-node-class' to your node's class or selector
 
     nodes.forEach((node: HTMLElement) => {
       //console.log(node.scrollHeight , node.clientHeight);
       const parentNode = node.parentNode as HTMLElement
       if (parentNode.scrollHeight > parentNode.clientHeight) {
-        const lastChild = node.children[0].children[1].children[0].children[0].children[0].lastChild;
-        console.log(lastChild)
-        node.children[0].children[1].children[0].children[0].children[0].removeChild(lastChild);
+        const pageContentDiv = node.querySelector("div.node-pagecontent").querySelector("div.pageContent").firstChild;
+        const lastChild = pageContentDiv.lastChild;
+        const pos = view.posAtDOM(lastChild, 0);
+        const nodeAtPos = state.doc.nodeAt(pos);
+
+        const pagePos = view.posAtDOM(parentNode, 0);
+        const prosParentNode = state.doc.nodeAt(pagePos);
+
+        
+
+
+        //const lastChild = node.children[0].children[1].children[0].children[0].children[0].lastChild;
+
+        //   const tr = state.tr.delete(
+        //     state.doc.resolve(view.domAtPos(0).posAtDOM(lastChild))
+        // );
+
+        // Dispatch the transaction to update the editor state
+        //view.dispatch(tr);
+        //node.children[0].children[1].children[0].children[0].children[0].removeChild(lastChild);
         const nextPage = parentNode.nextSibling as HTMLElement;
-        console.log(nextPage)
-        if(nextPage){
-          nextPage.children[0].children[0].children[1].children[0].children[0].children[0].replaceWith(lastChild);
+
+        if (nextPage) {
+          const nextPagePos = view.posAtDOM(nextPage, 0);
+
+          //nextPage.children[0].children[0].children[1].children[0].children[0].children[0].appendChild(lastChild);
         }
-        else{
-          const copyPage = parentNode.cloneNode(true) as HTMLElement;//new DOMParser().parseFromString(parentNode.outerHTML, "text/html");
-          console.log(lastChild)
-          console.log(copyPage);
-          copyPage.children[0].children[0].children[1].children[0].children[0].children[0].replaceWith(lastChild);
-          console.log(copyPage);
-          parentNode.after(copyPage);
-          console.log(parentNode.parentNode);
-          // copyPage.querySelector("div.content").innerHTML = "";
+        else {
+          if (pos) {
+            // Create a transaction to delete the last child node
+            const tr = state.tr
+            .delete(pos, pos + nodeAtPos.nodeSize)
+            .insert(pagePos + prosParentNode.nodeSize, nodeAtPos);
+  
+            // Dispatch the transaction to update the editor state
+            view.dispatch(tr);
+          }
+          // const copyPage = parentNode.cloneNode(true) as HTMLElement;//new DOMParser().parseFromString(parentNode.outerHTML, "text/html");
+          // console.log(lastChild)
           // console.log(copyPage);
-          // copyPage.querySelector("div.content").appendChild(lastChild);
+          // copyPage.children[0].children[0].children[1].children[0].children[0].children[0].replaceWith(lastChild);
           // console.log(copyPage);
-          // parentNode.parentNode.appendChild(copyPage.body.firstChild);
-          // console.log(parentNode.parentNode)
+          // parentNode.after(copyPage);
+          // console.log(parentNode.parentNode);
+
         }
         //console.log("Add page!!!!");
         //addPageJSON(props.node.attrs?.id);
@@ -246,16 +273,16 @@ console.log(pages[indexToInsert])
   };
 
   //useEffect(() => {
-    const observer = new MutationObserver(mutationCallback);
+  const observer = new MutationObserver(mutationCallback);
 
-    // Observe the editor's DOM
-    observer.observe(editor.view.dom, {
-      attributes: true,
-      childList: true,
-      subtree: true,
-    });
+  // Observe the editor's DOM
+  observer.observe(editor.view.dom, {
+    attributes: true,
+    childList: true,
+    subtree: true,
+  });
   //}, [])
-  
+
 
   return (
     <NodeViewWrapper style={StyleA4} ref={ref}>
