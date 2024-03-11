@@ -46,10 +46,15 @@ import {
 import "./TiptapEditor.css";
 //import PageExtension from "./TiptapExtensions/CustomPageExtension";
 // import PageViewExtension from "./TiptapExtensions/CustomPageViewExtension";
-import PageViewReact from "./TiptapExtensions/CustomPageReactExtension";
-import HeaderReactExtension from "./TiptapExtensions/CustomHeadeReactExtension";
-import FooterReactExtension from "./TiptapExtensions/CustomFooterReactExtension";
-import PageContentExtension from "./TiptapExtensions/CustomPageContentExtension";
+// import PageViewReact from "./TiptapExtensions/CustomPageReactExtension";
+// import HeaderReactExtension from "./TiptapExtensions/CustomHeadeReactExtension";
+// import FooterReactExtension from "./TiptapExtensions/CustomFooterReactExtension";
+// import PageContentExtension from "./TiptapExtensions/CustomPageContentExtension";
+
+import PageExtension from "./TiptapExtensions/CustomPage";
+import PageContentExtension from "./TiptapExtensions/CustomPageContent";
+import HeaderExtension from "./TiptapExtensions/CustomHeader";
+import FooterExtension from "./TiptapExtensions/CustomFooter";
 import CustomImgExtension from "./TiptapExtensions/CustomImgExtension";
 import Bold from "@tiptap/extension-bold";
 import Italic from "@tiptap/extension-italic";
@@ -116,8 +121,8 @@ const extensions = [
   Code,
   History,
   NonEditableExtension,
-  PageViewReact,
-  HeaderReactExtension,
+  // PageViewReact,
+  // HeaderReactExtension,
   CustomInputReact,
   CustomTable.configure({
     resizable: true,
@@ -125,8 +130,8 @@ const extensions = [
   CustomTableRow,
   CustomTableCell,
   CustomTableHeader,
-  PageContentExtension,
-  FooterReactExtension,
+  // PageContentExtension,
+  // FooterReactExtension,
   Image,
   Heading,
   HorizontalRule,
@@ -134,6 +139,10 @@ const extensions = [
   ListItem,
   BulletList,
   CustomImgExtension,
+  HeaderExtension,
+  FooterExtension,
+  PageContentExtension,
+  PageExtension,
   //NonEditableExtension,
   //StarterKit,
   /*

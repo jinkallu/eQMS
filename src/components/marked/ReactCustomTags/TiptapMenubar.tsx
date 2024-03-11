@@ -11,6 +11,7 @@ import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import CodeIcon from "@mui/icons-material/Code";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import { v4 as uuidv4 } from "uuid";
 import TiptapDocxOpenDialog from "./TiptapDocxOpenDialog";
 export function TiptapMenuBar() {
   const { editor } = useCurrentEditor();
@@ -81,6 +82,116 @@ export function TiptapMenuBar() {
       .run();
   }
 
+  const mutationCallback = (mutationsList) => {
+    for (const mutation of mutationsList) {
+      if (mutation.type === "childList" || mutation.type === "attributes") {
+        // Check width after each update
+        const pages = document.getElementsByClassName("page");
+        console.log(pages);
+        let indexPage = -1;
+        for (let i = 0; i < pages.length; ++i) {
+          if (pages[i].scrollHeight > pages[i].clientHeight) {
+            indexPage = i;
+            break;
+          }
+        }
+
+        if (indexPage >= 0) addPageJSON(indexPage);
+      }
+    }
+  };
+
+  function addPageJSON(indexToInsert) {
+    // get the json of the editor
+    const jsonData = editor.getJSON();
+    // get the pages from json
+    const pages = jsonData.content[0].content;
+    console.log(pages);
+
+    if (indexToInsert === -1) {
+      indexToInsert = pages.length - 1;
+
+      return;
+    }
+
+    const header = {
+      ...pages[0].content[0],
+      attrs: { ...pages[0].content[0], id: uuidv4() },
+    };
+
+    const footer = {
+      ...pages[0].content[2],
+      attrs: { ...pages[0].content[2], id: uuidv4() },
+    };
+
+    const newPageContent = {
+      ...pages[0].content[1],
+      content: null,
+      attrs: { ...pages[0].content[1], id: uuidv4() },
+    };
+    console.log(pages[indexToInsert]);
+    const pageContent = pages[indexToInsert].content[1]?.content || [];
+
+    const lastContent = pageContent[pageContent?.length - 1];
+    const arrLength = pageContent?.length;
+
+    if (indexToInsert === pages?.length - 1) {
+      // Need to insert a new page
+
+      // pages[indexToInsert].content[1].content[
+      //   pages[indexToInsert].content[1].content?.length - 1
+      // ];
+      if (arrLength - 1 > 0)
+        pages[indexToInsert].content[1].content?.splice(arrLength - 1, 1);
+
+      // remove the last content from current page and insert it to new page
+      newPageContent.content = [lastContent];
+      const newId = uuidv4();
+      pages.push({
+        attrs: { ...pages[0].attrs, id: newId },
+        type: pages[0].type,
+        content: [header, newPageContent, footer],
+      });
+
+      jsonData.content[0].content = [...pages];
+      queueMicrotask(() => {
+        editor.commands.setContent(jsonData);
+        // setTimeout(function () {
+        //   setFocus(indexToInsert);
+        // }, 100); // Need to test it well
+      });
+    } else {
+      // last content of current page should be pushed to next page
+      // const lastContent =
+      //   pages[indexToInsert].content[pages[indexToInsert].content?.length - 1];
+      // const arrLength = pages[indexToInsert].content?.length;
+      if (arrLength - 1 > 0)
+        pages[indexToInsert].content[1].content?.splice(arrLength - 1, 1);
+      if (pages[indexToInsert + 1].content[1]?.content) {
+        pages[indexToInsert + 1].content[1].content.splice(0, 0, lastContent);
+      } else {
+        pages[indexToInsert + 1].content[1].content = [
+          header,
+          lastContent,
+          footer,
+        ];
+      }
+      jsonData.content[0].content = [...pages];
+      queueMicrotask(() => editor.commands.setContent(jsonData));
+      //setFocus(indexToInsert);
+    }
+  }
+
+  const observer = new MutationObserver(mutationCallback);
+
+  // Observe the editor's DOM
+  observer.observe(editor.view.dom, {
+    attributes: true,
+    childList: true,
+    subtree: true,
+  });
+  //}, [])
+
   function handleHeaderClick() {
     editor
       .chain()
@@ -128,12 +239,7 @@ export function TiptapMenuBar() {
   }
 
   function insertDocx(htmlDoc) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlDoc, "text/html");
-
-    Array.from(doc.body.children)?.map((item) =>
-      queueMicrotask(() => editor.commands.insertContent(item.outerHTML))
-    );
+    queueMicrotask(() => editor.commands.insertContent(htmlDoc));
   }
 
   function addInput(id) {
