@@ -18,7 +18,7 @@ const FooterExtension = Node.create({
         default: true,
       },
       style: {
-        default: "background:white;display: block;margin: 0 auto; ",
+        default: "background:white;display: block;margin: 0 auto;width:100% ",
       },
     };
   },
@@ -36,7 +36,7 @@ const FooterExtension = Node.create({
 
     attrs = {
       ...attrs,
-      style: "background:white;display: block;margin: 0 auto; ",
+      style: "background:white;display: block;margin: 0 auto;width:100% ",
     };
 
     return ["div", attrs, 0];

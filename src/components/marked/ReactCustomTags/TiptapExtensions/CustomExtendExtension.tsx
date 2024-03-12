@@ -22,7 +22,7 @@ const ExtendExtension = Node.create({
       },
       style: {
         default:
-          " min-height:100vh; overflow:auto, padding-top:20px; padding-bottom:20px;margin-top: 100px",
+          " min-height:100vh;display:flex;flex-direction:column; overflow:auto, padding-top:20px; padding-bottom:20px;margin-top: 100px; gap:20px",
       },
     };
   },
@@ -44,7 +44,7 @@ const ExtendExtension = Node.create({
       attrs = {
         ...attrs,
         style:
-          " margin-bottom: 3px; min-height:100vh; overflow:auto;padding-top:20px; padding-bottom:20px;margin-top: 100px",
+          " margin-bottom: 3px; min-height:100vh;display:flex;flex-direction:column; overflow:auto;padding-top:20px; padding-bottom:20px;margin-top: 100px;gap:20px",
       };
     } else if (node.attrs.class === "non-extend") {
       attrs = {
