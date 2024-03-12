@@ -36,31 +36,6 @@ export function TiptapMenuBar() {
     setInputOpen(true);
   }
 
-  function handleIncreaseVersion() {
-    const htmlString = editor.getHTML();
-    const html = new DOMParser().parseFromString(htmlString, "text/html");
-    const extendNodes = html.querySelectorAll("div.extend");
-    Array.from(extendNodes)?.map((node) => {
-      const version = node.getAttribute("version");
-      if (version) {
-        node.setAttribute("version", (+version + 1).toString());
-      }
-    });
-
-    // const nodes = editor.$nodes("extend");
-    // console.log(nodes);
-    // nodes?.map((node) => {
-    //   node.setAttribute({ version: +node.attributes.version + 1 });
-    // });
-  }
-
-  // function handleExtendClick(){
-  //   editor
-  //     .chain()
-  //     .focus()
-  //     .insertContent({ type: "extend", attrs: { class: "extend" } })
-  //     .run();
-  // }
   function handleExtendClick() {
     const textToAdd = "Your text goes here"; // Specify the text you want to add
 
@@ -74,12 +49,7 @@ export function TiptapMenuBar() {
           { type: "paragraph", content: [{ type: "text", text: textToAdd }] },
         ],
       })
-      // .selectParentNode() // Select the recently inserted "extend" element
-      // .insertContent({
-      //   type: "paragraph",
-      //   attrs: { class: "paragraph" },
-      //   content: [{ type: "text", text: textToAdd }],
-      // })
+
       .run();
   }
 
@@ -88,140 +58,40 @@ export function TiptapMenuBar() {
       return;
     }
     for (const mutation of mutationsList) {
-      if (mutation.type === "childList") {
-        // Check width after each update
-        const pages = document.getElementsByClassName("page");
-        for (let i = 0; i < pages.length; ++i) {
-          if (pages[i].scrollHeight > pages[i].clientHeight) {
-            const lastChild = pages[i].childNodes[1].lastChild;
-            pages[i].childNodes[1].removeChild(lastChild);
+      // sync header or footer changes
 
-            if (i === pages.length - 1) {
-              // add new page
-              const newPage = pages[i].cloneNode(true);
+      // mutation.target.parentNode.removeChild(mutation.target);
 
-              newPage.childNodes[1].textContent = "";
-              newPage.childNodes[1].appendChild(lastChild);
+      // Check width after each update
+      const pages = document.getElementsByClassName("page");
+      for (let i = 0; i < pages.length; ++i) {
+        if (pages[i].scrollHeight > pages[i].clientHeight) {
+          const lastChild = pages[i].childNodes[1].lastChild;
+          pages[i].childNodes[1].removeChild(lastChild);
 
-              pages[i].parentNode.appendChild(newPage);
-            } else {
-              //  push to next page as first child
+          if (i === pages.length - 1) {
+            // add new page
+            const newPage = pages[i].cloneNode(true);
 
-              pages[i + 1].children[1].prepend(lastChild);
+            newPage.childNodes[1].textContent = "";
+            newPage.childNodes[1].appendChild(lastChild);
 
-              // pages[i + 1].childNodes[1].insertBefore(
-              //   lastChild,
-              //   pages[i + 1].childNodes[1].firstChild
-              // );
-            }
-            break;
+            pages[i].parentNode.appendChild(newPage);
+          } else {
+            //  push to next page as first child
+
+            pages[i + 1].children[1].prepend(lastChild);
+
+            // pages[i + 1].childNodes[1].insertBefore(
+            //   lastChild,
+            //   pages[i + 1].childNodes[1].firstChild
+            // );
           }
+          break;
         }
       }
     }
   };
-
-  const mutationCallback = (mutationsList) => {
-    if (insertStarted) {
-      return;
-    }
-    for (const mutation of mutationsList) {
-      if (mutation.type === "childList") {
-        // Check width after each update
-        const pages = document.getElementsByClassName("page");
-        console.log(pages);
-        let indexPage = -1;
-        for (let i = 0; i < pages.length; ++i) {
-          if (pages[i].scrollHeight > pages[i].clientHeight) {
-            indexPage = i;
-            break;
-          }
-        }
-
-        if (indexPage >= 0) addPageJSON(indexPage);
-      }
-    }
-  };
-
-  function addPageJSON(indexToInsert) {
-    // get the json of the editor
-    const jsonData = editor.getJSON();
-    // get the pages from json
-    const pages = jsonData.content[0].content;
-
-    if (indexToInsert === -1) {
-      indexToInsert = pages.length - 1;
-
-      return;
-    }
-
-    const header = {
-      ...pages[0].content[0],
-      attrs: { ...pages[0].content[0], id: uuidv4() },
-    };
-
-    const footer = {
-      ...pages[0].content[2],
-      attrs: { ...pages[0].content[2], id: uuidv4() },
-    };
-
-    const newPageContent = {
-      ...pages[0].content[1],
-      content: null,
-      attrs: { ...pages[0].content[1], id: uuidv4() },
-    };
-    console.log(pages[indexToInsert]);
-    const pageContent = pages[indexToInsert].content[1]?.content || [];
-
-    const lastContent = pageContent[pageContent?.length - 1];
-    const arrLength = pageContent?.length;
-
-    if (indexToInsert === pages?.length - 1) {
-      // Need to insert a new page
-
-      // pages[indexToInsert].content[1].content[
-      //   pages[indexToInsert].content[1].content?.length - 1
-      // ];
-      if (arrLength - 1 > 0)
-        pages[indexToInsert].content[1].content?.splice(arrLength - 1, 1);
-
-      // remove the last content from current page and insert it to new page
-      newPageContent.content = [lastContent];
-      const newId = uuidv4();
-      pages.push({
-        attrs: { ...pages[0].attrs, id: newId },
-        type: pages[0].type,
-        content: [header, newPageContent, footer],
-      });
-
-      jsonData.content[0].content = [...pages];
-      queueMicrotask(() => {
-        editor.commands.setContent(jsonData);
-        // setTimeout(function () {
-        //   setFocus(indexToInsert);
-        // }, 100); // Need to test it well
-      });
-    } else {
-      // last content of current page should be pushed to next page
-      // const lastContent =
-      //   pages[indexToInsert].content[pages[indexToInsert].content?.length - 1];
-      // const arrLength = pages[indexToInsert].content?.length;
-      if (arrLength - 1 > 0)
-        pages[indexToInsert].content[1].content?.splice(arrLength - 1, 1);
-      if (pages[indexToInsert + 1].content[1]?.content) {
-        pages[indexToInsert + 1].content[1].content.splice(0, 0, lastContent);
-      } else {
-        pages[indexToInsert + 1].content[1].content = [
-          header,
-          lastContent,
-          footer,
-        ];
-      }
-      jsonData.content[0].content = [...pages];
-      queueMicrotask(() => editor.commands.setContent(jsonData));
-      //setFocus(indexToInsert);
-    }
-  }
 
   const observer = new MutationObserver(mutationCallbackDom);
 
