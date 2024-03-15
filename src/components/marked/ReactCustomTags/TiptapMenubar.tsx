@@ -54,43 +54,63 @@ export function TiptapMenuBar() {
   }
 
   const mutationCallbackDom = (mutationsList) => {
-    if (insertStarted) {
-      return;
-    }
-    for (const mutation of mutationsList) {
-      // sync header or footer changes
+    observer.disconnect();
+    // for (const mutation of mutationsList) {
+    // sync header or footer changes
 
-      // mutation.target.parentNode.removeChild(mutation.target);
+    // mutation.target.parentNode.removeChild(mutation.target);
 
-      // Check width after each update
-      const pages = document.getElementsByClassName("page");
-      for (let i = 0; i < pages.length; ++i) {
-        if (pages[i].scrollHeight > pages[i].clientHeight) {
-          const lastChild = pages[i].childNodes[1].lastChild;
-          pages[i].childNodes[1].removeChild(lastChild);
-
-          if (i === pages.length - 1) {
-            // add new page
-            const newPage = pages[i].cloneNode(true);
-
-            newPage.childNodes[1].textContent = "";
-            newPage.childNodes[1].appendChild(lastChild);
-
-            pages[i].parentNode.appendChild(newPage);
+    // Check width after each update
+    const pages = document.getElementsByClassName("page");
+    for (let i = 0; i < pages.length; ++i) {
+      if (pages[i].scrollHeight > pages[i].clientHeight) {
+        if (pages[i].childNodes[1].childNodes?.length === 1) {
+          // remove the last row of the table
+          const table = pages[i].querySelector("table");
+          if (table) {
+            table.deleteRow(-1);
           } else {
-            //  push to next page as first child
-
-            pages[i + 1].children[1].prepend(lastChild);
-
-            // pages[i + 1].childNodes[1].insertBefore(
-            //   lastChild,
-            //   pages[i + 1].childNodes[1].firstChild
-            // );
+            // unable to split the child... so removing it.....needs discussion..
+            pages[i].childNodes[1].lastChild.remove();
           }
-          break;
+
+          observer.observe(editor.view.dom, {
+            attributes: true,
+            childList: true,
+            subtree: true,
+          });
+          return;
         }
+        const lastChild = pages[i].childNodes[1].lastChild;
+        pages[i].childNodes[1].removeChild(lastChild);
+
+        if (i === pages.length - 1) {
+          // add new page
+          const newPage = pages[i].cloneNode(true);
+
+          newPage.childNodes[1].textContent = "";
+
+          newPage.childNodes[1].appendChild(lastChild);
+
+          pages[i].parentNode.appendChild(newPage);
+        } else {
+          //  push to next page as first child
+
+          pages[i + 1].children[1].prepend(lastChild);
+
+          // pages[i + 1].childNodes[1].insertBefore(
+          //   lastChild,
+          //   pages[i + 1].childNodes[1].firstChild
+          // );
+        }
+        break;
       }
     }
+    observer.observe(editor.view.dom, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
   };
 
   const observer = new MutationObserver(mutationCallbackDom);
@@ -150,10 +170,7 @@ export function TiptapMenuBar() {
   }
 
   function insertDocx(htmlDoc) {
-    setInsertStarted(true);
-
     queueMicrotask(() => editor.commands.insertContent(htmlDoc));
-    queueMicrotask(() => setInsertStarted(false));
   }
 
   function addInput(id) {
@@ -434,6 +451,7 @@ export function TiptapMenuBar() {
               >
                 Table
               </button>
+
               <button
                 onClick={handleHeaderClick}
                 className={

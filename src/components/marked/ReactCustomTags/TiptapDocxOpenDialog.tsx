@@ -167,11 +167,9 @@ export default function TiptapDocxOpenDialog({
             },
           }}
         >
-          <DialogTitle>Image Selection</DialogTitle>
+          <DialogTitle>Import from docx</DialogTitle>
           <DialogContent>
-            <DialogContentText>
-              Upload a file or choose from below
-            </DialogContentText>
+            <DialogContentText>Choose file</DialogContentText>
             <Box
               sx={{
                 display: "flex",
