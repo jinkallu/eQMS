@@ -26,10 +26,10 @@ import { createPR } from "../utils/gitHelpers.js";
 //import Editor from "./marked/Editor";
 //import useMarkdToHTML from "./marked/useMarkdToHTML";
 import RecordView from "./Pages/RecordView";
-import MarkedToCustom from "./marked/MarkedToCustom";
 import { ConstructionOutlined } from "@mui/icons-material";
 import useCreateBranch from "../CHooks/useCreateBranch";
 import { v4 as uuidv4 } from "uuid";
+import TiptapEditor from "./marked/ReactCustomTags/TiptapEditor";
 
 export default function CreateRecordModal({
   open,
@@ -423,15 +423,7 @@ export default function CreateRecordModal({
                 onChange={(e) => setTitle(e.target.value)}
               ></TextField>
 
-              <MarkedToCustom
-                element={md}
-                open={null}
-                setOpen={null}
-                productId={productId}
-                order="middle"
-              ></MarkedToCustom>
-
-              {/* <RecordView md={md} /> */}
+              <TiptapEditor editMode={false} content={md}></TiptapEditor>
             </FormControl>
 
             <Typography sx={{ fontSize: "12px", color: "red" }}>

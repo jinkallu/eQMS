@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useExtnStore } from "../zustand/store";
-import MarkedToCustom from "./marked/MarkedToCustom";
+import TiptapEditor from "./marked/ReactCustomTags/TiptapEditor";
 
 export default function RecordViewModal({
   open,
@@ -84,15 +84,7 @@ export default function RecordViewModal({
           }}
         >
           {loading && <CircularProgress></CircularProgress>}
-          {md && (
-            <MarkedToCustom
-              element={md}
-              open={null}
-              setOpen={null}
-              order="last"
-              productId={productId}
-            ></MarkedToCustom>
-          )}
+          {md && <TiptapEditor editMode={false} content={md}></TiptapEditor>}
           <Box>
             <Button variant="outlined" onClick={handleCancel}>
               Cancel

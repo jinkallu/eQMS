@@ -19,12 +19,8 @@ import {
   Chip,
   Stack,
 } from "@mui/material";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import CloseIcon from "@mui/icons-material/Close";
-import AddIcon from "@mui/icons-material/Add";
 
 import { useExtnStore } from "../../../../zustand/store";
-import SOPCard from "../../../SOPCard";
 
 export default function CreateLinkRecordModal({
   id,

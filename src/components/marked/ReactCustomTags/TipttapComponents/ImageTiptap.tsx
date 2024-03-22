@@ -3,7 +3,7 @@ import { useExtnStore } from "../../../../zustand/store";
 
 import { useSearchParams } from "react-router-dom";
 import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
-import useFetchBranchFileContent from "../../../../CHooks/buffer/useFetchBranchFileContent";
+import useFetchBranchFileContent from "../../../../CHooks/useFetchBranchFileContent";
 import { arrayBufferToBase64 } from "../../../../utils/conversionHelpers.js";
 import { PropaneTankSharp } from "@mui/icons-material";
 

@@ -1,51 +1,34 @@
-import MarkedHTMLViewer from "./marked/MarkedHTMLViewer";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useExtnStore } from "../zustand/store";
-import React, { useEffect } from "react";
-import { markedToHtml } from "../utils/markedHelper";
-import {
-  Box,
-  Chip,
-  CircularProgress,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Toolbar,
-} from "@mui/material";
+import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
+import CircularProgress from "@mui/material/CircularProgress";
+import FormControl from "@mui/material/FormControl";
+import Grid from "@mui/material/Grid";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
+import Select from "@mui/material/Select";
+import Toolbar from "@mui/material/Toolbar";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
-import MarkedEditView from "./marked/MarkedEditView";
-import MdFunctions from "./marked/customtags/MdFunctions";
+
 import useCommit from "../CHooks/useCommit";
 import EditConfModal from "./EditConfModal";
 import useGetTeamMembers from "../CHooks/useGetTeamMembers";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import EditorSave from "./marked/EditerSave";
-import MonacoEditor from "./MonacoEditor";
-import MarkedToCustom from "./marked/MarkedToCustom";
+
 import VersionSelector from "./VersionSelector";
-import Viewers from "./marked/Viewers";
 import { pageWidths } from "../constants";
 import TiptapEditor from "./marked/ReactCustomTags/TiptapEditor";
-import EditorHtmlPage from "./EditorHtmlPage";
 
 export default function HTMLViewer() {
-  //const { htmlContents, fileContentLoading, branchFileNames, setFileContent } =
-  // useGetRepoDetails((state) => state);
-
-  //export default function HTMLViewer() {
   const {
-    htmlContents,
     fileContentLoading,
-    branchFileNames,
     getFileContent,
     getEditBranch,
     repository,
-    templateState,
-    setTemplateState,
     pageWidth,
     setPageWidth,
     editorState,
@@ -53,19 +36,19 @@ export default function HTMLViewer() {
 
   const project = useExtnStore((state) => state.project);
 
-  const [inputText, setInputText] = React.useState("");
-  const [html, setHtml] = React.useState("");
-  const [htmlEdit, setHtmlEdit] = React.useState("");
+  const [inputText, setInputText] = useState("");
+  const [html, setHtml] = useState("");
+  const [htmlEdit, setHtmlEdit] = useState("");
 
-  const [branch, setBranch] = React.useState<any>();
-  const [editMode, setEditMode] = React.useState(false);
-  const [open, setOpen] = React.useState(false);
-  const [commitMessage, setCommitMessage] = React.useState("");
+  const [branch, setBranch] = useState<any>();
+  const [editMode, setEditMode] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [commitMessage, setCommitMessage] = useState("");
   const { commit, loading: loadingCommit } = useCommit();
-  const [viewEditBranch, setViewEditBranch] = React.useState(false);
-  const [version, setVersion] = React.useState(null);
+  const [viewEditBranch, setViewEditBranch] = useState(false);
+  const [version, setVersion] = useState(null);
   const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = useState(false);
   // const [state, setState] = React.useState<{ key: string; value: any }>({
   //   key: "initialKey",
   //   value: "initialValue",
@@ -178,7 +161,7 @@ export default function HTMLViewer() {
     setLoading(false);
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (project && repository && branchName) {
       editMode ? getEditBranchData() : getFileContentData();
     }

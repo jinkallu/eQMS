@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
@@ -7,17 +6,18 @@ import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
 import Chip from "@mui/material/Chip";
 import Modal from "@mui/material/Modal";
+import ListItemText from "@mui/material/ListItemText";
 import ListItem from "@mui/material/ListItem";
 import List from "@mui/material/List";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import ListItemText from "@mui/material/ListItemText";
 import Switch from "@mui/material/Switch";
 
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 
+import { useState } from "react";
 import { useExtnStore } from "../zustand/store";
 import { updateVote, voteStatus } from "../utils/gitHelpers.js";
 export default function ApprovalModal({
@@ -224,29 +224,19 @@ export default function ApprovalModal({
                                   (votest) => votest?.vote === item?.vote
                                 )
                                 ?.map((val) => (
-                                  <span
-                                    style={{
-                                      padding: "10px",
-                                      backgroundColor: val?.color,
-                                      borderRadius: "35%",
-                                      color: "white",
-                                    }}
+                                  <Chip
                                     key={`${item.id}_${val.status}`}
-                                  >
-                                    {val.status}
-                                  </span>
+                                    label={val.status}
+                                    color={val?.color}
+                                  />
                                 ))}
-                              <span
-                                style={{
-                                  padding: "10px",
-                                }}
-                              >
-                                {
+                              <Chip
+                                label={
                                   pullRequestStatus?.find(
                                     (stat) => stat?.context?.name === item?.id
                                   )?.context?.genre
                                 }
-                              </span>
+                              ></Chip>
                             </>
                           }
                         />

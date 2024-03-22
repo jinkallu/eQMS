@@ -11,7 +11,7 @@ import { useExtnStore } from "../../../zustand/store";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { Box, Paper } from "@mui/material";
-import useFetchBranchFileContent from "../../../CHooks/buffer/useFetchBranchFileContent";
+import useFetchBranchFileContent from "../../../CHooks/useFetchBranchFileContent";
 import { arrayBufferToBase64 } from "../../../utils/conversionHelpers.js";
 import { getEditBranchName } from "../../../utils/gitHelpers.js";
 

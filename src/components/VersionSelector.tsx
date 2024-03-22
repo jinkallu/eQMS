@@ -1,7 +1,7 @@
 import Grid from "@mui/material/Grid";
 import React, { useEffect, version } from "react";
 import { useExtnStore } from "../zustand/store";
-import useVersion from "../CHooks/buffer/useVersion";
+import useVersion from "../CHooks/useVersion";
 
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";

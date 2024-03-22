@@ -1,6 +1,6 @@
 import React, { useEffect, version } from "react";
 import { useExtnStore } from "../../../zustand/store";
-import useVersion from "../../../CHooks/buffer/useVersion";
+import useVersion from "../../../CHooks/useVersion";
 
 import { useSearchParams } from "react-router-dom";
 
