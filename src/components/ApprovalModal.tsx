@@ -1,33 +1,23 @@
-import {
-  Paper,
-  TextField,
-  Box,
-  Typography,
-  Button,
-  FormControl,
-  Select,
-  InputLabel,
-  MenuItem,
-  Chip,
-  Modal,
-  ListItemText,
-  OutlinedInput,
-  Checkbox,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  List,
-  ListItem,
-  ListItemAvatar,
-  Avatar,
-  Divider,
-  FormControlLabel,
-  Switch,
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useState } from "react";
+import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import FormControl from "@mui/material/FormControl";
+import Chip from "@mui/material/Chip";
+import Modal from "@mui/material/Modal";
+import ListItem from "@mui/material/ListItem";
+import List from "@mui/material/List";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import Avatar from "@mui/material/Avatar";
+import Divider from "@mui/material/Divider";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import ListItemText from "@mui/material/ListItemText";
+import Switch from "@mui/material/Switch";
+
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 
-import React from "react";
 import { useExtnStore } from "../zustand/store";
 import { updateVote, voteStatus } from "../utils/gitHelpers.js";
 export default function ApprovalModal({
@@ -40,22 +30,16 @@ export default function ApprovalModal({
   myReviewPending,
   pullRequestStatus,
 }) {
-  const [message, setMessage] = React.useState("");
-  const [error, setError] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [showApprovers, setShowApprovers] = React.useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showApprovers, setShowApprovers] = useState(false);
   const {
-    branchFileNames,
     repository,
     currentUser,
-    setBranches,
-    userSOPs,
-    sops,
-    saveToDatabase,
     refreshSOPDBData,
-    setAlertMessage,
-    teamsWithMembers,
     project,
+    setAlertMessage,
   } = useExtnStore((state) => state);
 
   async function handleApproval(vote) {
@@ -64,21 +48,26 @@ export default function ApprovalModal({
       (reviewer) => reviewer?.id === currentUser?.id
     );
 
-    const res = await updateVote(
-      repository?.id,
-      pullRequest?.pullRequestId,
-      currentReviewer?.id,
-      vote
-    );
-    await refreshSOPDBData(project.id, project.name, repository.id);
-    setLoading(false);
-    handleCancel();
+    try {
+      const res = await updateVote(
+        repository?.id,
+        pullRequest?.pullRequestId,
+        currentReviewer?.id,
+        vote
+      );
+      await refreshSOPDBData(project.id, project.name, repository.id);
+      setLoading(false);
+      handleCancel();
+    } catch (e) {
+      setLoading(false);
+      setAlertMessage({
+        showAlert: true,
+        message: "Some error occured..",
+      });
+    }
   }
   const enableApprove = () => {
     let result = false;
-    // if (pullRequest?.reviewers?.find((item) => item.id === currentUser.id)) {
-    //   result = true;
-    // }
 
     result =
       (myApprovalPending?.hasPrivilege && myApprovalPending?.isPending) ||
@@ -90,7 +79,6 @@ export default function ApprovalModal({
   function handleCancel() {
     setMessage("");
     setOpen(false);
-    // navigate("/qmshub.html/");
   }
   return (
     <Modal
@@ -230,26 +218,36 @@ export default function ApprovalModal({
                         <ListItemText
                           primary={item?.uniqueName}
                           secondary={
-                            <React.Fragment>
+                            <>
                               {voteStatus
                                 ?.filter(
                                   (votest) => votest?.vote === item?.vote
                                 )
                                 ?.map((val) => (
-                                  <Chip
+                                  <span
+                                    style={{
+                                      padding: "10px",
+                                      backgroundColor: val?.color,
+                                      borderRadius: "35%",
+                                      color: "white",
+                                    }}
                                     key={`${item.id}_${val.status}`}
-                                    label={val.status}
-                                    color={val?.color}
-                                  />
+                                  >
+                                    {val.status}
+                                  </span>
                                 ))}
-                              <Chip
-                                label={
+                              <span
+                                style={{
+                                  padding: "10px",
+                                }}
+                              >
+                                {
                                   pullRequestStatus?.find(
                                     (stat) => stat?.context?.name === item?.id
                                   )?.context?.genre
                                 }
-                              ></Chip>
-                            </React.Fragment>
+                              </span>
+                            </>
                           }
                         />
                       </ListItem>
@@ -260,22 +258,6 @@ export default function ApprovalModal({
               )}
             </Box>
           </Paper>
-          {/* <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Accordion 1</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
-                eget.
-              </Typography>
-            </AccordionDetails>
-          </Accordion> */}
         </Box>
       </Box>
     </Modal>

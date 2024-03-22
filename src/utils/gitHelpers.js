@@ -367,11 +367,11 @@ export const voteStatus = [
   {
     vote: 10,
     status: "Approved",
-    color: "success",
+    color: "green",
   },
-  { vote: 5, status: "Approved with suggestions", color: "success" },
-  { vote: 0, status: "Pending", color: "info" },
+  { vote: 5, status: "Approved with suggestions", color: "green" },
+  { vote: 0, status: "Pending", color: "blue" },
   // { vote: -5, status: "Waiting for author", color: "warning" }, changing the default to include review option
-  { vote: -5, status: "Review Pending", color: "warning" },
-  { vote: -10, status: "Rejected", color: "error" },
+  { vote: -5, status: "Review Pending", color: "orange" },
+  { vote: -10, status: "Rejected", color: "red" },
 ];

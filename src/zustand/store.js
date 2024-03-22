@@ -14,7 +14,6 @@ import {
 } from "./storeSlices";
 
 export const useExtnStore = create((...a) => ({
-  ...dynamicIslandSlice(...a),
   ...alertSnackbarSlice(...a),
   ...projectSlice(...a),
   ...repositorySlice(...a),

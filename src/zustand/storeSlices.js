@@ -11,17 +11,17 @@ import {
 } from "../utils/gitHelpers";
 import * as SDK from "azure-devops-extension-sdk";
 
-export const dynamicIslandSlice = (set) => ({
-  open: false,
-  messageDIsland: "",
-  defaultMessage: "Org Hub",
-  temporary: true,
-  setMessage: ({ showAlert, messageDIsland, temporary }) =>
-    set((state) => ({ open: showAlert, messageDIsland, temporary })),
+// export const dynamicIslandSlice = (set) => ({
+//   open: false,
+//   messageDIsland: "",
+//   defaultMessage: "Org Hub",
+//   temporary: true,
+//   setMessage: ({ showAlert, messageDIsland, temporary }) =>
+//     set((state) => ({ open: showAlert, messageDIsland, temporary })),
 
-  setDefaultMessage: (defaultMessage) =>
-    set((state) => ({ defaultMessage, messageDIsland: "", open: false })),
-});
+//   setDefaultMessage: (defaultMessage) =>
+//     set((state) => ({ defaultMessage, messageDIsland: "", open: false })),
+// });
 
 export const alertSnackbarSlice = (set) => ({
   openAlertSnackbar: false,

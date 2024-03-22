@@ -1,28 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-import { Outlet } from "react-router";
 import { useExtnStore } from "../zustand/store";
 import useRWDataStorage from "../CHooks/useRWDataStorage";
 import useProjectExists from "../CHooks/useProjectExists";
 import AlertSnackbar from "./AlertSnackbar";
 import Header from "./Header";
+import CircularProgress from "@mui/material/CircularProgress";
 
-export default function Layout({children}) {
-  const setMessage = useExtnStore((state) => state.setMessage);
+export default function Layout({ children }) {
+  const setAlertMessage = useExtnStore((state) => state.setAlertMessage);
   const { readData, isLoading, error } = useRWDataStorage();
   const { checkProject, loading: projectExistsLoading } = useProjectExists();
+  const [projectExisting, setProjectExisting] = useState(false);
 
-  const {
-    setCurrentUser,
-    setDefaultMessage,
-    setProject,
-    project,
-    setRepository,
-    refreshSOPDBData,
-    repository,
-  } = useExtnStore((state) => state);
+  const { setCurrentUser, setProject, project, setRepository, repository } =
+    useExtnStore((state) => state);
 
   React.useEffect(() => {
     // this check is required as when navigating directly to project page will cause the project details empty.
@@ -33,22 +27,26 @@ export default function Layout({children}) {
       if (project && project?.id) {
         return;
       }
-      setMessage({ showAlert: true, message: "Checking existing project" });
+      setAlertMessage({
+        showAlert: true,
+        message: "Checking existing project",
+      });
       const res: any = await readData("project");
       const resParsed = JSON.parse(res);
       const newProject = await checkProject(resParsed.name);
       if (newProject) {
         setProject(newProject);
 
-        setMessage({ showAlert: true, message: "Project found..." });
+        setAlertMessage({ showAlert: true, message: "Project found..." });
+        setProjectExisting(true);
       } else {
-        setMessage({
+        setAlertMessage({
           showAlert: true,
           message: "No project found. Create new",
         });
       }
     } catch (e) {
-      setMessage({
+      setAlertMessage({
         showAlert: true,
         message: "Some error occured..",
       });
@@ -64,10 +62,22 @@ export default function Layout({children}) {
   React.useEffect(() => {
     if (project && project?.id && repository && repository.id) {
       setCurrentUser();
-      // refreshSOPDBData(project.id, project.name, repository.id);
     }
   }, [project, repository]);
-  return (
+  return isLoading || projectExistsLoading ? (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        flexDirection: "column",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <CircularProgress></CircularProgress>
+      <h4>Loading project data...</h4>
+    </Box>
+  ) : projectExisting ? (
     <Box
       sx={{
         display: "flex",
@@ -79,14 +89,21 @@ export default function Layout({children}) {
         height: "100vh",
       }}
     >
-      <AlertSnackbar></AlertSnackbar>
-
+      (<AlertSnackbar></AlertSnackbar>
       <Header></Header>
       <Toolbar></Toolbar>
-
-      <Box>
-        {children}
-      </Box>
+      <Box>{children}</Box>
+    </Box>
+  ) : (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <h3>No project found..Create one to continue</h3>
     </Box>
   );
 }

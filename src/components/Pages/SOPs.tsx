@@ -1,43 +1,26 @@
-import React from "react";
-import {
-  Grid,
-  Box,
-  Button,
-  Typography,
-  CircularProgress,
-  Tooltip,
-} from "@mui/material";
+import { useState, useEffect } from "react";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
 import AddIcon from "@mui/icons-material/Add";
-import SOPCard from "../SOPCard";
 import SOPTableView from "../../components/SOPTableView";
-
 import { useExtnStore } from "../../zustand/store";
-import { createSearchParams, useNavigate } from "react-router-dom";
-import TableViewIcon from "@mui/icons-material/TableView";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
 import AddSOP from "../AddSOP";
-
-import useFeatureManage from "../../CHooks/buffer/useFeatureManage";
 
 const SOPs = () => {
   const {
-    branchFileNames,
     userSOPs,
     isQualityMgrSelected,
     repository,
-    branchTypes,
     refreshSOPDBData,
     project,
-    branches,
+    setAlertMessage,
   } = useExtnStore((state) => state);
 
-  const { disableFeatures } = useFeatureManage();
-  // disableFeatures(project?.id);
-
-  const navigate = useNavigate();
-  const [loading, setLoading] = React.useState(false);
-  const [openAddSopModal, setOpenAddSopModal] = React.useState(false);
-  const [viewType, setViewType] = React.useState("table");
+  const [loading, setLoading] = useState(false);
+  const [openAddSopModal, setOpenAddSopModal] = useState(false);
 
   async function refreshData(projectId, projectName, repositoryId) {
     setLoading(true);
@@ -46,13 +29,20 @@ const SOPs = () => {
       setLoading(false);
     } catch (e) {
       setLoading(false);
+      setAlertMessage({
+        showAlert: true,
+        message: "Some error occured while loading SOPs",
+      });
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (project && project?.id && repository && repository.id) {
+      setAlertMessage({
+        showAlert: true,
+        message: "Loading SOPs",
+      });
       refreshData(project.id, project.name, repository.id);
-      //   getPullRequests();
     }
   }, [project, repository]);
 
@@ -64,16 +54,16 @@ const SOPs = () => {
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          paddingTop: "12px",
           alignItems: "flex-end",
           gap: "5px",
-          paddingBottom: "12px",
-          marginY: "24px",
+          marginBottom: "24px",
         }}
       >
         {isQualityMgrSelected && (
           <Button
+            sx={{ marginLeft: "32px" }}
             variant="contained"
+            size="small"
             endIcon={<AddIcon />}
             onClick={() => {
               setOpenAddSopModal(true);
@@ -83,29 +73,6 @@ const SOPs = () => {
           </Button>
         )}
         <Box sx={{ flexGrow: 1 }}></Box>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            paddingRight: "32px",
-          }}
-        >
-          {viewType === "table" && (
-            <Tooltip title="Card view">
-              <CreditCardIcon
-                onClick={() => setViewType("card")}
-              ></CreditCardIcon>
-            </Tooltip>
-          )}
-          {viewType === "card" && (
-            <Tooltip title="Table view">
-              <TableViewIcon
-                onClick={() => setViewType("table")}
-              ></TableViewIcon>
-            </Tooltip>
-          )}
-        </Box>
       </Box>
       {loading ? (
         <Box
@@ -124,25 +91,7 @@ const SOPs = () => {
           columns={{ xs: 4, sm: 6, md: 10, lg: 10 }}
           sx={{ padding: "9px" }}
         >
-          {viewType === "table" && (
-            <SOPTableView userSOPs={userSOPs}></SOPTableView>
-          )}
-          {viewType === "card" &&
-            userSOPs
-              ?.sort((sop) => sop?.sortOrder)
-              ?.map((sop) => {
-                const edit = branches.find(
-                  (item) =>
-                    item.name ===
-                    `qms/sop/${sop.branchId}/${sop.relativePath}/edit`
-                );
-                //
-                return (
-                  <Grid key={sop.branchId} item xs={2} sm={2} md={2} lg={2}>
-                    <SOPCard edit={edit} sop={sop}></SOPCard>
-                  </Grid>
-                );
-              })}
+          <SOPTableView userSOPs={userSOPs}></SOPTableView>
         </Grid>
       ) : (
         <Typography>No SOPs to display</Typography>

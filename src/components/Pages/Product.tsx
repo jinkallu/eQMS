@@ -8,8 +8,7 @@ import Paper from "@mui/material/Paper";
 import { useNavigate } from "react-router";
 import useProductSOPs from "../productSOPs/useProductSOPs";
 import { useExtnStore } from "../../zustand/store";
-import ProcessFlowView from "../ProcessFlowView";
-import TabPanel from "../ProcessFlowView";
+
 import ProductSOP from "./ProductSOP";
 import { useSearchParams } from "react-router-dom";
 
