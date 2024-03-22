@@ -86,13 +86,12 @@ export default function Layout({ children }) {
         padding: 0,
         margin: 0,
         backgroundColor: "#F5F5F5",
-        height: "100vh",
+        minHeight: "100vh",
       }}
     >
       (<AlertSnackbar></AlertSnackbar>
       <Header></Header>
-      <Toolbar></Toolbar>
-      <Box>{children}</Box>
+      <Box sx={{ marginTop: "20px" }}>{children}</Box>
     </Box>
   ) : (
     <Box

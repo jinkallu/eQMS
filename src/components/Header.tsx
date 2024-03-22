@@ -85,6 +85,7 @@ const Header = () => {
         position: "fixed",
         top: 0,
         width: "100%",
+        height: "40px",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -100,7 +101,6 @@ const Header = () => {
           gap: "32px",
         }}
       >
-        <Toolbar></Toolbar>
         <Box onClick={handleQuatraceClick}>
           <Typography color="primary" sx={{ cursor: "pointer" }}>
             Quatrace

@@ -47,7 +47,7 @@ const SOPs = () => {
   }, [project, repository]);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", paddingY: "10px" }}>
       <AddSOP open={openAddSopModal} setOpen={setOpenAddSopModal}></AddSOP>
 
       <Box

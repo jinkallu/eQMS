@@ -23,20 +23,18 @@ export default function RecordViewModal({
   const { repository, getFileContent, currentRecord, setCurrentRecord } =
     useExtnStore();
 
-  const [md, setMd] = React.useState<HTMLElement>(null);
+  const [md, setMd] = React.useState("");
 
   async function getFileData(repositoryId, path, branchName) {
     setLoading(true);
 
     const data = await getFileContent(repositoryId, path, branchName);
-    const html = await new DOMParser()?.parseFromString(data, "text/html");
-    console.log(html);
-    setMd(html?.body);
+
+    setMd(data);
     setLoading(false);
   }
 
   React.useEffect(() => {
-    console.log("current Record", currentRecord);
     if (repository.id && currentRecord && open) {
       const nameArray = currentRecord.name.split("/");
       const path = [nameArray[0], nameArray[1], "data.html"]?.join("/");

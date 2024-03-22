@@ -186,16 +186,19 @@ export default function HTMLViewer() {
         position: "relative",
       }}
     >
-      <Paper
+      <Box
         sx={{
           position: "fixed",
+          flexDirection: "column",
           width: "100%",
+          height: "50px",
+          backgroundColor: "#F5F5F5",
           opacity: 1,
-          zIndex: 100,
+          zIndex: 50,
         }}
       >
         <Grid container spacing={2}>
-          <Grid item xs={4}>
+          <Grid item xs={1}>
             <Box
               sx={{
                 display: "flex",
@@ -207,14 +210,16 @@ export default function HTMLViewer() {
                 sx={{ cursor: "pointer" }}
                 onClick={() => navigate(-1)}
               ></ArrowBackIcon>
-              {!editMode && (
-                <VersionSelector
-                  setViewEditBranch={setViewEditBranch}
-                  viewEditBranch={viewEditBranch}
-                  setVersion={setVersion}
-                ></VersionSelector>
-              )}
             </Box>
+          </Grid>
+          <Grid item xs={3}>
+            {!editMode && (
+              <VersionSelector
+                setViewEditBranch={setViewEditBranch}
+                viewEditBranch={viewEditBranch}
+                setVersion={setVersion}
+              ></VersionSelector>
+            )}
           </Grid>
 
           <Grid item xs={4}>
@@ -234,27 +239,6 @@ export default function HTMLViewer() {
           </Grid>
           <Grid item xs={4}>
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              {!editMode && (
-                <FormControl style={{ width: "200px" }}>
-                  <InputLabel id="demo-simple-select-label">
-                    Select a View Option
-                  </InputLabel>
-                  <Select
-                    labelId="pagewidth-select-label"
-                    id="pagewidth-select"
-                    value={pageWidth.type}
-                    label="View Option "
-                    onChange={handleWidthChange}
-                  >
-                    {pageWidths?.map((widthType) => (
-                      <MenuItem key={widthType.type} value={widthType.type}>
-                        {widthType.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-
               {canEdit && editMode && (
                 <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
               )}
@@ -266,7 +250,7 @@ export default function HTMLViewer() {
             </Box>
           </Grid>
         </Grid>
-      </Paper>
+      </Box>
 
       <EditConfModal
         commitMessage={commitMessage}
@@ -301,11 +285,7 @@ export default function HTMLViewer() {
             <CircularProgress></CircularProgress>;
           </Box>
         ) : (
-          // <Box sx={{ display: "flex" }}>
           <TiptapEditor editMode={editMode} content={html}></TiptapEditor>
-
-          //   <EditorHtmlPage></EditorHtmlPage>
-          // </Box>
         )}
       </Box>
     </Paper>
