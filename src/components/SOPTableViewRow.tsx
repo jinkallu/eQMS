@@ -38,7 +38,8 @@ import {
 
 export default function SOPTableViewRow({ sop, edit, expandAll }) {
   const [open, setOpen] = useState(false);
-  const { currentUser, teamsWithMembers, project, repository } = useExtnStore();
+  const { currentUser, teamsWithMembers, project, repository, branches } =
+    useExtnStore();
   const {
     getActions,
     canEdit,
@@ -234,6 +235,12 @@ export default function SOPTableViewRow({ sop, edit, expandAll }) {
         </TableCell>
 
         <TableCell>
+          <Tooltip title="Edit Version exists or not ">
+            <span> {edit ? "Yes" : "No"}</span>
+          </Tooltip>
+        </TableCell>
+
+        <TableCell>
           {sop?.author?.length > 0 && (
             <Tooltip title="Add Template">
               <IconButton aria-label="share" onClick={handleAddTemplateClick}>
@@ -298,6 +305,7 @@ export default function SOPTableViewRow({ sop, edit, expandAll }) {
                   <TableRow>
                     <TableCell>Name</TableCell>
                     <TableCell>View Template</TableCell>
+                    <TableCell>Edit Version</TableCell>
                     <TableCell>Send for Approval</TableCell>
                     <TableCell>Review</TableCell>
                     <TableCell>Approve</TableCell>
@@ -310,6 +318,12 @@ export default function SOPTableViewRow({ sop, edit, expandAll }) {
                       a?.relativePath.localeCompare(b?.relativePath)
                     )
                     .map((template) => {
+                      const edit = branches?.find(
+                        (item) =>
+                          item.name ===
+                          `qms/temp/${sop.branchId}/${template.branchId}/${template.relativePath}/edit`
+                      );
+
                       return (
                         <TableRow key={template?.branchId}>
                           <TableCell component="th" scope="row">
@@ -323,6 +337,11 @@ export default function SOPTableViewRow({ sop, edit, expandAll }) {
                               >
                                 <PreviewIcon color="primary" />
                               </IconButton>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip title="Edit Version exists or not">
+                              <span>{edit ? "Yes" : "No"}</span>
                             </Tooltip>
                           </TableCell>
                         </TableRow>

@@ -18,7 +18,6 @@ import { useExtnStore } from "../zustand/store";
 import SOPTableViewRow from "./SOPTableViewRow";
 
 export default function SOPTableView({ userSOPs }) {
-  console.log(userSOPs);
   const { branches } = useExtnStore();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -54,6 +53,7 @@ export default function SOPTableView({ userSOPs }) {
                 />
               </TableCell>
               <TableCell>View SOP</TableCell>
+              <TableCell>Edit Version</TableCell>
               <TableCell>Add Template</TableCell>
               {/* <TableCell>Edit</TableCell> */}
               <TableCell>Send for Approval</TableCell>
