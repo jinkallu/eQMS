@@ -18,6 +18,7 @@ import { useExtnStore } from "../zustand/store";
 import SOPTableViewRow from "./SOPTableViewRow";
 
 export default function SOPTableView({ userSOPs }) {
+  console.log(userSOPs);
   const { branches } = useExtnStore();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);

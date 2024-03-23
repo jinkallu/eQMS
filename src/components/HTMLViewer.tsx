@@ -186,23 +186,22 @@ export default function HTMLViewer() {
         position: "relative",
       }}
     >
-      <Box
+      <Paper
+        elevation={3}
         sx={{
           position: "fixed",
-          flexDirection: "column",
           width: "100%",
-          height: "50px",
-          backgroundColor: "#F5F5F5",
           opacity: 1,
           zIndex: 50,
+          height: "50px",
         }}
       >
         <Grid container spacing={2}>
-          <Grid item xs={1}>
+          <Grid item xs={4}>
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "center",
+                justifyContent: "space-between",
                 alignItems: "center",
               }}
             >
@@ -210,24 +209,23 @@ export default function HTMLViewer() {
                 sx={{ cursor: "pointer" }}
                 onClick={() => navigate(-1)}
               ></ArrowBackIcon>
+
+              {!editMode && (
+                <VersionSelector
+                  setViewEditBranch={setViewEditBranch}
+                  viewEditBranch={viewEditBranch}
+                  setVersion={setVersion}
+                ></VersionSelector>
+              )}
             </Box>
           </Grid>
-          <Grid item xs={3}>
-            {!editMode && (
-              <VersionSelector
-                setViewEditBranch={setViewEditBranch}
-                viewEditBranch={viewEditBranch}
-                setVersion={setVersion}
-              ></VersionSelector>
-            )}
-          </Grid>
-
           <Grid item xs={4}>
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                height: "100%",
               }}
             >
               <Chip
@@ -238,7 +236,14 @@ export default function HTMLViewer() {
             </Box>
           </Grid>
           <Grid item xs={4}>
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
               {canEdit && editMode && (
                 <SaveIcon onClick={() => setOpen(true)}></SaveIcon>
               )}
@@ -250,7 +255,7 @@ export default function HTMLViewer() {
             </Box>
           </Grid>
         </Grid>
-      </Box>
+      </Paper>
 
       <EditConfModal
         commitMessage={commitMessage}

@@ -74,6 +74,7 @@ export default function VersionSelector({
         display: "flex",
         justifyContent: "space-evenly",
         alignItems: "center",
+        height: "100%",
       }}
     >
       {currentEditBranch && (
@@ -90,7 +91,7 @@ export default function VersionSelector({
       )}
 
       {!viewEditBranch && (
-        <FormControl style={{ width: "200px" }}>
+        <FormControl variant="standard" style={{ width: "200px" }}>
           <InputLabel id="demo-simple-select-label">
             Previous Versions:
           </InputLabel>
