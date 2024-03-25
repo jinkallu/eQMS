@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 
 import { useExtnStore } from "../zustand/store";
-import MarkedToCustom from "./marked/MarkedToCustom";
+// import MarkedToCustom from "./marked/MarkedToCustom";
 import useMarkdToHTML from "./marked/useMarkdToHTML";
 
 export default function MonacoEditor({
@@ -166,25 +166,25 @@ export default function MonacoEditor({
           <Grid container spacing={2}>
             <Grid item xs={6} sm={6} md={6} lg={6}>
               <Paper sx={{ paddingX: "9px" }}>
-                <MarkedToCustom
+                {/* <MarkedToCustom
                   element={html?.body}
                   open={open}
                   setOpen={setOpen}
                   order={editorView === "editor" ? "first" : "middle"}
                   productId={productId}
-                ></MarkedToCustom>
+                ></MarkedToCustom> */}
               </Paper>
             </Grid>
 
             <Grid item xs={6} sm={6} md={6} lg={6}>
               <Paper sx={{ paddingX: "9px" }}>
-                <MarkedToCustom
+                {/* <MarkedToCustom
                   element={html?.body}
                   open={open}
                   setOpen={setOpen}
                   order="last"
                   productId={productId}
-                ></MarkedToCustom>
+                ></MarkedToCustom> */}
               </Paper>
             </Grid>
           </Grid>

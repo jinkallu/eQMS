@@ -234,6 +234,7 @@ export const createPR = async (
 
     return newPullRequest;
   } catch (error) {
+    console.log(error);
     return false;
   }
 };

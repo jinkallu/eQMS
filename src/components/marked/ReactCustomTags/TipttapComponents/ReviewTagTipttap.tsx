@@ -2,8 +2,8 @@ import Grid from "@mui/material/Grid";
 import { useEffect } from "react";
 import { useExtnStore } from "../../../../zustand/store";
 //import { fetchAuthorData } from "../../../utils/gitHelpers.js"
-import useUpdateReviewTable from "../../../../CHooks/buffer/useUpdateReviewTable";
-import useReviewer from "../../../../CHooks/buffer/useReviewer";
+import useUpdateReviewTable from "../../../../CHooks/useUpdateReviewTable";
+import useReviewer from "../../../../CHooks/useReviewer";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { NodeViewWrapper } from "@tiptap/react";

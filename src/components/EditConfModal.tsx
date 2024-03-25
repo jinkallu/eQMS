@@ -32,7 +32,6 @@ export default function EditConfModal({
 
   async function handleSave() {
     const created = await saveContent();
-    console.log(created);
 
     if (Boolean(created)) {
       setAlertMessage({

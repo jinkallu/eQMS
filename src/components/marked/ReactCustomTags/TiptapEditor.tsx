@@ -17,6 +17,7 @@ import Heading from "@tiptap/extension-heading";
 
 import ExtendExtension from "./TiptapExtensions/CustomExtendExtension";
 import NonEditableExtension from "./TiptapExtensions/CustomNonEditableExtension";
+import CustomProcessFlow from "./TiptapExtensions/CustomProcessflowExtension";
 
 import {
   Document,
@@ -83,6 +84,7 @@ const extensions = [
   FooterExtension,
   PageContentExtension,
   PageExtension,
+  CustomProcessFlow,
 ];
 
 // const content = "<p>Hello World!</p>";

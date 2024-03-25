@@ -7,7 +7,7 @@ export default Node.create({
   name: "processFlow",
 
   group: "block",
-  atom: true,
+  // atom: true,
 
   addAttributes() {
     return {

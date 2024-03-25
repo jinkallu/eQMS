@@ -71,6 +71,8 @@ export function TiptapMenuBar() {
             table.deleteRow(-1);
           } else {
             // unable to split the child... so removing it.....needs discussion..
+            console.log("removing last child");
+
             pages[i].childNodes[1].lastChild.remove();
           }
 
@@ -81,7 +83,7 @@ export function TiptapMenuBar() {
           });
           return;
         }
-        const lastChild = pages[i].childNodes[1].lastChild;
+        const lastChild = pages[i].childNodes[1].lastChild as HTMLElement;
         pages[i].childNodes[1].removeChild(lastChild);
 
         if (i === pages.length - 1) {

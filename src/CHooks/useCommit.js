@@ -59,11 +59,10 @@ const useCommit = () => {
         repositoryId,
       };
 
-      await gitClient.createPush(push, repositoryId);
+      const res = await gitClient.createPush(push, repositoryId);
       created = true;
       return created;
     } catch (error) {
-      console.log(error);
       //setLoading(false);
       //setBranchCreated(false);
       created = false;
@@ -103,7 +102,7 @@ const useCommit = () => {
         },
         newContent: {
           content: newContent,
-          contentType: "base64encoded", 
+          contentType: "base64encoded",
         },
       };
 

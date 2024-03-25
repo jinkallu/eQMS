@@ -179,6 +179,8 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
       reviewers,
       currentUser.id
     );
+
+    console.log(res);
     if (res) {
       const voteRes = await Promise.all(
         reviewers?.map(async (item) => {
@@ -190,6 +192,7 @@ export default function CreatePRModal({ open, setOpen, branchId, sopName }) {
           return item;
         })
       );
+      console.log(voteRes)
 
       if (voteRes)
         setAlertMessage({

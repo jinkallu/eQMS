@@ -44,7 +44,8 @@ const edgeTypes = {
 };
 const flowStyles = {
   background: "#192a43",
-  height: "20em",
+  // height: "20em",
+
   padding: "10px",
   boxShadow: "0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)",
 };
@@ -113,15 +114,19 @@ export default function ProcessFlowTiptap(props) {
   useEffect(() => {
     // createProcessGraph(element);
     let initialNodes = [];
-
-    const nodesData = props?.node?.attrs?.nodes
-      ? JSON.parse(props?.node?.attrs?.nodes)
-      : [];
-    const initialEdges = props?.node?.attrs?.edges
-      ? JSON.parse(props?.node?.attrs?.edges)
-      : [];
-
-    initialNodes = [...nodesData];
+    let initialEdges = [];
+    try {
+      const nodesData = props?.node?.attrs?.nodes
+        ? JSON.parse(props?.node?.attrs?.nodes)
+        : [];
+      initialEdges = props?.node?.attrs?.edges
+        ? JSON.parse(props?.node?.attrs?.edges)
+        : [];
+      initialNodes = [...nodesData];
+    } catch (e) {
+      initialNodes = [];
+      initialEdges = [];
+    }
 
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
       initialNodes,
@@ -181,6 +186,15 @@ export default function ProcessFlowTiptap(props) {
     });
   }
 
+  useEffect(() => {
+    queueMicrotask(() =>
+      updateProps(
+        templateState?.processFlow?.nodes || [],
+        templateState?.processFlow?.edges || []
+      )
+    );
+  }, [templateState?.processFlow]);
+
   const onNodeContextMenu = (event, node) => {
     props.updateAttributes({
       nodes: [],
@@ -232,12 +246,13 @@ export default function ProcessFlowTiptap(props) {
   return (
     <NodeViewWrapper>
       <Box
+        id="renderFlowWrapper"
         sx={{
           display: "flex",
           justifyContent: "center",
-          height: viewportSize.height,
+          height: "100vh",
           overflow: "auto",
-          width: "600px",
+          width: "21cm",
         }}
       >
         <CreateStepModal
@@ -245,7 +260,7 @@ export default function ProcessFlowTiptap(props) {
           open={openCreateStepModal}
           currentNode={currentNode}
           nodes={(templateState && templateState["processFlow"]?.nodes) || []}
-          updateProps={updateProps}
+          // updateProps={updateProps}
         ></CreateStepModal>
 
         <EditStepNameModal
@@ -263,6 +278,7 @@ export default function ProcessFlowTiptap(props) {
           setOpen={setOpenCreateStepTemplateModal}
           open={openCreateStepTemplateModal}
           currentNode={currentNode}
+          // updateProps={updateProps}
         ></CreateStepTemplateModal>
         {templateState && templateState["processFlow"]?.nodes?.length > 0 ? (
           <ReactFlow
