@@ -18,7 +18,7 @@ const PageContentExtension = Node.create({
         default: true,
       },
       style: {
-        default: "background:white;display: block;width:21cm;flex-grow:1 ",
+        default: "background:white;display: block;width:100%;flex-grow:1 ",
       },
     };
   },
@@ -35,7 +35,7 @@ const PageContentExtension = Node.create({
     let attrs = mergeAttributes(HTMLAttributes);
     attrs = {
       ...attrs,
-      style: "background:white;display: block;width:21cm;flex-grow:1 ",
+      style: "background:white;display: block;width:100%;flex-grow:1 ",
     };
     return ["div", attrs, 0];
   },

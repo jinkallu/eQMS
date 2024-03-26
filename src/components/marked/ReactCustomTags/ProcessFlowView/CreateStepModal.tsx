@@ -49,7 +49,7 @@ export default function CreateStepModal({
   open: boolean;
   setOpen: (val: boolean) => void;
   currentNode: any;
-  nodes;
+  nodes: any;
 }) {
   const {
     userSOPs,

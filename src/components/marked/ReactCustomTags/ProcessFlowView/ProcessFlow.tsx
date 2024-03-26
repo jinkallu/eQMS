@@ -216,7 +216,6 @@ export default function ProcessFlow({ editable, element }) {
         open={openCreateStepModal}
         currentNode={currentNode}
         nodes={(templateState && templateState["processFlow"]?.nodes) || []}
-        updateProps={updateProps}
       ></CreateStepModal>
 
       <EditStepNameModal

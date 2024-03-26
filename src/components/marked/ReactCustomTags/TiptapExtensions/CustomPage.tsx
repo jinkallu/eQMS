@@ -19,7 +19,7 @@ const PageExtension = Node.create({
       },
       style: {
         default:
-          "background: white;display: flex;margin:0 auto;flex-direction:column; justify-content:center;align-items:center;margin: auto;padding: 2.5cm;box-shadow: 0 0 0.5cm rgba(0,0,0,0.5); width: 21cm;height: 29.7cm; overflowX: auto; boxSizing: border-box",
+          "background: white;display: flex;margin:0 auto;flex-direction:column; justify-content:center;align-items:center;margin: auto;padding: 2.5cm;box-shadow: 0 0 0.5cm rgba(0,0,0,0.5); width: 21cm;height: 29.7cm; overflowX: auto; boxSizing: border-box;",
       },
     };
   },
@@ -37,7 +37,7 @@ const PageExtension = Node.create({
     attrs = {
       ...attrs,
       style:
-        "background: white;display: flex;margin:0 auto;flex-direction:column;justify-content:center;align-items:center;margin: auto;padding: 2.5cm;box-shadow: 0 0 0.5cm rgba(0,0,0,0.5); width: 21cm;height: 29.7cm; overflowX: auto; boxSizing: border-box",
+        "background: white;display: flex;margin:0 auto;flex-direction:column;justify-content:center;align-items:center;margin: auto;padding: 2.5cm;box-shadow: 0 0 0.5cm rgba(0,0,0,0.5); width: 21cm;height: 29.7cm; overflowX: auto; boxSizing: border-box;",
     };
     return ["div", attrs, 0];
   },

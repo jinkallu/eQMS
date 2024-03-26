@@ -252,7 +252,7 @@ export default function ProcessFlowTiptap(props) {
           justifyContent: "center",
           height: "100vh",
           overflow: "auto",
-          width: "21cm",
+          width: "100%",
         }}
       >
         <CreateStepModal
