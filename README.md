@@ -1,6 +1,12 @@
 # eQMS
 
 eQMS is an extension for Azure DevOps designed to streamline and automate Quality Management System (QMS) processes within your DevOps organization. It provides tools for project initialization, repository management, team setup, documentation, and feature toggling — all seamlessly integrated with Azure DevOps.
+![Alt text](./images/1.png)
+![Alt text](./images/2.png)
+![Alt text](./images/3.png)
+![Alt text](./images/4.png)
+![Alt text](./images/5.png)
+
 
 ## Features
 
